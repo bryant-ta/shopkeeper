@@ -1,9 +1,12 @@
+using System;
 using TriInspector;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour {
+    // TEMP: refactor
     public PlayerMovement playerMovement;
+    public CameraController cameraCtrl;
     
     public void OnMove(InputAction.CallbackContext context) {
         playerMovement.moveInput = context.ReadValue<Vector2>();
@@ -21,6 +24,15 @@ public class PlayerInput : MonoBehaviour {
         }
 
         if (ctx.canceled) {
+        }
+    }
+    
+    public void OnZoom(InputAction.CallbackContext ctx) {
+        float scrollInput = ctx.ReadValue<Vector2>().y;
+        scrollInput = scrollInput / Math.Abs(scrollInput);  // normalize scroll value for easier usage later
+        
+        if (ctx.performed) {
+            cameraCtrl.ZoomView(scrollInput);
         }
     }
 }

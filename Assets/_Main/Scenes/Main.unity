@@ -413,7 +413,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Target: {fileID: 2107359961}
   followSpeed: 5
-  offset: 10
+  followOffset: 10
+  zoomSpeed: 20
+  zoomStep: 2
+  zoomMin: 2
+  zoomMax: 15
 --- !u!1 &1342344618
 GameObject:
   m_ObjectHideFlags: 0
@@ -635,6 +639,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: cf15a9a4-00a4-4b73-9ba5-392130aa4ae5
     m_ActionName: Player/Secondary[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: OnZoom
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4bf03e8d-911a-4748-9975-3662c548c252
+    m_ActionName: Player/New action
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -683,6 +703,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerMovement: {fileID: 2107359963}
+  cameraCtrl: {fileID: 963194229}
 --- !u!114 &2107359963
 MonoBehaviour:
   m_ObjectHideFlags: 0
