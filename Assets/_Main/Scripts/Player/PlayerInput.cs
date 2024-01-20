@@ -4,9 +4,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour {
-    // TEMP: refactor
+    // TEMP: refactor with events
     public PlayerMovement playerMovement;
     public CameraController cameraCtrl;
+
+    int playerID;   // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     
     public void OnMove(InputAction.CallbackContext context) {
         playerMovement.moveInput = context.ReadValue<Vector2>();
@@ -15,7 +17,12 @@ public class PlayerInput : MonoBehaviour {
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            print("hi");
+            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+                if (hit.collider != null) {
+                    EventManager.Invoke(hit.collider.gameObject, EventID.PrimaryDown);
+                }
+            }
         }
     }
 
