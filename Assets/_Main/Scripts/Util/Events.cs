@@ -2,21 +2,23 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+namespace EventManager {
 public enum EventID {
-    None = 0, // default value - should never be invoked
-    PrimaryDown = 1,        // Input
-    SecondaryDown = 2,
-    TertiaryDown = 3,
-    
+    None = 0,        // default value - should never be invoked
+    PrimaryDown = 1, // Input
+    PrimaryHeld = 2,
+    PrimaryUp = 3,
+    MouseDrag = 4,
+    MouseScroll = 5,
+    Movement = 6,
 }
 
-public class EventManager : MonoBehaviour {
-    // Dict holds events per gameObject instance
+public class Events : MonoBehaviour {
+    // holds events per gameObject instance
     static Dictionary<object, Dictionary<EventID, Delegate>> eventsDict;
     static Dictionary<object, Dictionary<EventID, Delegate>> oneParamEventsDict;
 
-    // public static EventManager Instance => _instance;
-    static EventManager _instance;
+    static Events _instance;
 
     void Awake() {
         if (_instance != null && _instance != this) {
@@ -29,7 +31,7 @@ public class EventManager : MonoBehaviour {
         oneParamEventsDict = new Dictionary<object, Dictionary<EventID, Delegate>>();
     }
 
-    public static void Subscribe(object ownerObj, EventID eventID, Action listener) {
+    public static void Sub(object ownerObj, EventID eventID, Action listener) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (eventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.ContainsKey(eventID)) {
@@ -43,8 +45,8 @@ public class EventManager : MonoBehaviour {
             ownerObjEvents[eventID] = listener;
             eventsDict[ownerObj] = ownerObjEvents;
         }
-    } 
-    public static void Subscribe<T>(object ownerObj, EventID eventID, Action<T> listener) {
+    }
+    public static void Sub<T>(object ownerObj, EventID eventID, Action<T> listener) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (oneParamEventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.ContainsKey(eventID)) {
@@ -58,8 +60,8 @@ public class EventManager : MonoBehaviour {
             oneParamEventsDict[ownerObj] = ownerObjEvents;
         }
     }
-    
-    public static void Unsubscribe(object ownerObj, EventID eventID, Action listener) {
+
+    public static void Unsub(object ownerObj, EventID eventID, Action listener) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (eventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.ContainsKey(eventID)) {
@@ -71,7 +73,7 @@ public class EventManager : MonoBehaviour {
             }
         }
     }
-    public static void Unsubscribe<T>(object ownerObj, EventID eventID, Action<T> listener) {
+    public static void Unsub<T>(object ownerObj, EventID eventID, Action<T> listener) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (oneParamEventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.ContainsKey(eventID)) {
@@ -87,7 +89,7 @@ public class EventManager : MonoBehaviour {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (eventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.TryGetValue(eventID, out Delegate eventAction)) {
-                foreach (Delegate d in eventAction.GetInvocationList()) {   // c# v4 only has this to get combined delegates seemingly...
+                foreach (Delegate d in eventAction.GetInvocationList()) { // c# v4 only has this to get combined delegates seemingly...
                     if (d is Action) {
                         (d as Action).Invoke();
                     }
@@ -95,7 +97,7 @@ public class EventManager : MonoBehaviour {
             }
         }
     }
-    public static void Invoke<T>(object ownerObj, EventID eventID, T eventData = default) {
+    public static void Invoke<T>(object ownerObj, EventID eventID, T eventData) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (oneParamEventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.TryGetValue(eventID, out Delegate eventAction)) {
@@ -107,4 +109,5 @@ public class EventManager : MonoBehaviour {
             }
         }
     }
+}
 }

@@ -1,4 +1,5 @@
 using System;
+using EventManager;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
@@ -17,7 +18,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Start() {
-        // EventManager.Subscribe(gameObject, );
+        Events.Sub<MoveInputArgs>(gameObject, EventID.Movement, SetMovementInput);
     }
 
     void FixedUpdate() {
@@ -31,6 +32,10 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
+    void SetMovementInput(MoveInputArgs moveInputArgs) {
+        moveInput = moveInputArgs.moveInput;
+    }
+
     void SetMovementAxes() {
         forward  = Camera.main.transform.forward;
         forward.y = 0f;
@@ -39,4 +44,8 @@ public class PlayerMovement : MonoBehaviour {
         right.y = 0f;
         right.Normalize();
     }
+}
+
+public struct MoveInputArgs {
+    public Vector2 moveInput;
 }

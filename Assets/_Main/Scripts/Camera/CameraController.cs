@@ -1,3 +1,5 @@
+using System;
+using EventManager;
 using TriInspector;
 using UnityEngine;
 
@@ -23,6 +25,10 @@ public class CameraController : MonoBehaviour {
         targetZoom = cam.orthographicSize;
     }
 
+    void Start() {
+        Events.Sub<float>(gameObject, EventID.MouseScroll, ZoomView);
+    }
+
     void LateUpdate() {
         FollowTarget();
         UpdateZoom();
@@ -39,7 +45,7 @@ public class CameraController : MonoBehaviour {
         transform.position = Vector3.Lerp(transform.position, targetPosition, followSpeed * Time.deltaTime);
     }
 
-    public void ZoomView(float scrollInput) {
+    void ZoomView(float scrollInput) {
         targetZoom = cam.orthographicSize - scrollInput * zoomStep;
         targetZoom = Mathf.Clamp(targetZoom, zoomMin, zoomMax);
     }

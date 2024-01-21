@@ -1,17 +1,21 @@
 using System;
-using TriInspector;
+using EventManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+// Should be attached to Player GameObject for movement inputs
+[RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
-    // TEMP: refactor with events
-    public PlayerMovement playerMovement;
-    public CameraController cameraCtrl;
-
     int playerID;   // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
+    Camera mainCam;
     
+    void Awake() {
+        mainCam = Camera.main;
+    }
+
     public void OnMove(InputAction.CallbackContext context) {
-        playerMovement.moveInput = context.ReadValue<Vector2>();
+        MoveInputArgs moveInputArgs = new MoveInputArgs() {moveInput = context.ReadValue<Vector2>()};
+        Events.Invoke(gameObject, EventID.Movement, moveInputArgs);
     }
 
     // uses Action Type "Button"
@@ -20,7 +24,7 @@ public class PlayerInput : MonoBehaviour {
             Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
                 if (hit.collider != null) {
-                    EventManager.Invoke(hit.collider.gameObject, EventID.PrimaryDown);
+                    Events.Invoke(hit.collider.gameObject, EventID.PrimaryDown);
                 }
             }
         }
@@ -36,10 +40,10 @@ public class PlayerInput : MonoBehaviour {
     
     public void OnZoom(InputAction.CallbackContext ctx) {
         float scrollInput = ctx.ReadValue<Vector2>().y;
-        scrollInput = scrollInput / Math.Abs(scrollInput);  // normalize scroll value for easier usage later
+        scrollInput /= Math.Abs(scrollInput);  // normalize scroll value for easier usage later
         
         if (ctx.performed) {
-            cameraCtrl.ZoomView(scrollInput);
+            Events.Invoke(mainCam.gameObject, EventID.MouseScroll, scrollInput);
         }
     }
 }

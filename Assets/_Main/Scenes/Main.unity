@@ -672,7 +672,7 @@ GameObject:
   - component: {fileID: 2107359963}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -810,6 +810,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 4bf03e8d-911a-4748-9975-3662c548c252
     m_ActionName: Player/New action
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e02ce6e2-4ff4-429c-b6ae-7509f2ac2300
+    m_ActionName: Player/TEts[/Mouse/delta]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -857,8 +861,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd1716bdd68e4a24e9d1ec24789f32e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerMovement: {fileID: 2107359963}
-  cameraCtrl: {fileID: 963194229}
 --- !u!114 &2107359963
 MonoBehaviour:
   m_ObjectHideFlags: 0
