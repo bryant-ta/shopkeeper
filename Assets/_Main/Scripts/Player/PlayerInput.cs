@@ -6,6 +6,9 @@ using UnityEngine.InputSystem;
 // Should be attached to Player GameObject for movement inputs
 [RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
+    [Tooltip("Point raycast detects this layer.")]
+    [SerializeField] LayerMask pointLayer;
+    
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
 
@@ -20,6 +23,8 @@ public class PlayerInput : MonoBehaviour {
                     Events.Invoke(gameObject, EventID.PrimaryDown, new ClickInputArgs{TargetObj = hit.collider.gameObject});
                 }
             }
+        } else if (ctx.canceled) {
+            Events.Invoke(gameObject, EventID.PrimaryUp);
         }
     }
 
@@ -40,11 +45,11 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
+    // Sends collision point from cursor raycast
     public void OnPoint(InputAction.CallbackContext ctx) {
-        print(ctx.ReadValue<Vector2>());
         if (ctx.performed) {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
                     Events.Invoke(gameObject, EventID.Point, hit.point);
                 }

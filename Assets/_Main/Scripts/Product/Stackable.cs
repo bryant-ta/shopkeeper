@@ -7,7 +7,7 @@ public interface IStackable {
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxStackable : MonoBehaviour, IStackable {
-    Collider boxCol;
+    BoxCollider boxCol;
 
     void Awake() {
         boxCol = GetComponent<BoxCollider>();
