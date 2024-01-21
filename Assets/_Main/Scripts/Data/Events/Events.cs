@@ -11,8 +11,8 @@ public enum EventID {
     SecondaryDown = 4,
     SecondaryHeld = 5,
     SecondaryUp = 6,
-    MouseDrag = 7,
-    MouseScroll = 8,
+    Point = 7,
+    Scroll = 8,
     Movement = 9,
 }
 
@@ -88,25 +88,29 @@ public class Events : MonoBehaviour {
         }
     }
 
+    static Delegate[] invocationArray;
     public static void Invoke(object ownerObj, EventID eventID) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (eventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.TryGetValue(eventID, out Delegate eventAction)) {
-                foreach (Delegate d in eventAction.GetInvocationList()) { // c# v4 only has this to get combined delegates seemingly...
-                    if (d is Action) {
-                        (d as Action).Invoke();
+                invocationArray = eventAction.GetInvocationList(); // c# v4 only has this to get multicast delegates seemingly...
+                for (int i = 0; i < invocationArray.Length; i++) {
+                    if (invocationArray[i] is Action action) {
+                        action.Invoke();
                     }
                 }
             }
         }
     }
+    static Delegate[] invocationArrayOneParam;
     public static void Invoke<T>(object ownerObj, EventID eventID, T eventData) {
         Dictionary<EventID, Delegate> ownerObjEvents;
         if (oneParamEventsDict.TryGetValue(ownerObj, out ownerObjEvents)) {
             if (ownerObjEvents.TryGetValue(eventID, out Delegate eventAction)) {
-                foreach (Delegate d in eventAction.GetInvocationList()) {
-                    if (d is Action<T>) {
-                        (d as Action<T>).Invoke(eventData);
+                invocationArrayOneParam = eventAction.GetInvocationList();
+                for (int i = 0; i < invocationArrayOneParam.Length; i++) {
+                    if (invocationArrayOneParam[i] is Action<T> action) {
+                        action.Invoke(eventData);
                     }
                 }
             }

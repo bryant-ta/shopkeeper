@@ -26,7 +26,7 @@ public class CameraController : MonoBehaviour {
     }
 
     void Start() {
-        Events.Sub<float>(gameObject, EventID.MouseScroll, ZoomView);
+        Events.Sub<float>(gameObject, EventID.Scroll, ZoomView);
     }
 
     void LateUpdate() {

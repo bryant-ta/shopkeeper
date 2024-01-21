@@ -11,14 +11,10 @@ public class PlayerInput : MonoBehaviour {
 
     void Awake() { mainCam = Camera.main; }
 
-    public void OnMove(InputAction.CallbackContext context) {
-        Events.Invoke(gameObject, EventID.Movement, new MoveInputArgs() {MoveInput = context.ReadValue<Vector2>()});
-    }
-
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Ray ray = Camera.main.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
                 if (hit.collider != null) {
                     Events.Invoke(gameObject, EventID.PrimaryDown, new ClickInputArgs{TargetObj = hit.collider.gameObject});
@@ -40,7 +36,23 @@ public class PlayerInput : MonoBehaviour {
         scrollInput /= Math.Abs(scrollInput); // normalize scroll value for easier usage later
 
         if (ctx.performed) {
-            Events.Invoke(mainCam.gameObject, EventID.MouseScroll, scrollInput);
+            Events.Invoke(mainCam.gameObject, EventID.Scroll, scrollInput);
         }
+    }
+
+    public void OnPoint(InputAction.CallbackContext ctx) {
+        print(ctx.ReadValue<Vector2>());
+        if (ctx.performed) {
+            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+                if (hit.collider != null) {
+                    Events.Invoke(gameObject, EventID.Point, hit.point);
+                }
+            }
+        }
+    }
+
+    public void OnMove(InputAction.CallbackContext ctx) {
+        Events.Invoke(gameObject, EventID.Movement, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
     }
 }
