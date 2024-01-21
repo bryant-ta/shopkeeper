@@ -33,7 +33,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void SetMovementInput(MoveInputArgs moveInputArgs) {
-        moveInput = moveInputArgs.moveInput;
+        moveInput = moveInputArgs.MoveInput;
     }
 
     void SetMovementAxes() {
@@ -44,8 +44,4 @@ public class PlayerMovement : MonoBehaviour {
         right.y = 0f;
         right.Normalize();
     }
-}
-
-public struct MoveInputArgs {
-    public Vector2 moveInput;
 }

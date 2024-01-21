@@ -8,9 +8,12 @@ public enum EventID {
     PrimaryDown = 1, // Input
     PrimaryHeld = 2,
     PrimaryUp = 3,
-    MouseDrag = 4,
-    MouseScroll = 5,
-    Movement = 6,
+    SecondaryDown = 4,
+    SecondaryHeld = 5,
+    SecondaryUp = 6,
+    MouseDrag = 7,
+    MouseScroll = 8,
+    Movement = 9,
 }
 
 public class Events : MonoBehaviour {
