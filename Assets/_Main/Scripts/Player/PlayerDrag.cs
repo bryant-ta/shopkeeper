@@ -1,24 +1,28 @@
-using System.Numerics;
+using System;
 using EventManager;
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
-using Vector3 = UnityEngine.Vector3;
 
-public class PlayerInteraction : MonoBehaviour {
-    [SerializeField] float interactionRange;
+[RequireComponent(typeof(Player))]
+public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
-    
+
     Rigidbody heldObjRb;
     Collider heldObjCol;
 
+    Player player;
+
+    void Awake() {
+        player = GetComponent<Player>();
+    }
+
     void Start() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Interact);
-        Events.Sub(gameObject, EventID.PrimaryUp, Release);
-        Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
+        Events.Sub(gameObject, EventID.PrimaryUp, ReleaseHeld);
+        Events.Sub<Vector3>(gameObject, EventID.Point, DragHeld);
     }
 
     void Interact(ClickInputArgs clickInputArgs) {
-        if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
+        if (!player.IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
 
         if (targetObj.TryGetComponent(out IInteractable interactable)) {
@@ -32,19 +36,19 @@ public class PlayerInteraction : MonoBehaviour {
             
             heldObjRb.isKinematic = true;
             heldObjCol.enabled = false;
-            Drag(heldObjRb.transform.position);
+            DragHeld(heldObjRb.transform.position);
         }
     }
 
-    void Drag(Vector3 hitPoint) {
+    void DragHeld(Vector3 hitPoint) {
         if (heldObjRb == null) return; // Drag is constantly called from Point input, so only Drag if holding an object
         if (heldObjCol == null) { Debug.LogError("Held object with Rigidbody requires a collider."); }
 
         // If held out of interactable range, use closest point in range adjusted for hit point height
         Vector3 hoverPoint = hitPoint;
-        if (!IsInRange(hitPoint)) {
+        if (!player.IsInRange(hitPoint)) {
             Vector3 dir = hitPoint - transform.position;
-            hoverPoint = transform.position + Vector3.ClampMagnitude(dir, interactionRange);
+            hoverPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
         }
 
         // Calculate hoverPoint y from objects underneath held object's footprint + object's height + manual offset
@@ -60,7 +64,7 @@ public class PlayerInteraction : MonoBehaviour {
 
         heldObjRb.MovePosition(new Vector3(hoverPoint.x, yOffset, hoverPoint.z));
     }
-    void Release() {
+    void ReleaseHeld() {
         if (heldObjRb == null) return;
         if (heldObjCol == null) { Debug.LogError("Held object with Rigidbody requires a collider."); }
         
@@ -68,6 +72,4 @@ public class PlayerInteraction : MonoBehaviour {
         heldObjCol.enabled = true;
         heldObjRb = null;
     }
-    
-    bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < interactionRange; }
 }

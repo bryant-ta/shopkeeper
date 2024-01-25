@@ -30,9 +30,14 @@ public class PlayerInput : MonoBehaviour {
 
     public void OnSecondary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-        }
-
-        if (ctx.canceled) {
+            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+                if (hit.collider != null) {
+                    Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs{TargetObj = hit.collider.gameObject});
+                }
+            }
+        } else if (ctx.canceled) {
+            Events.Invoke(gameObject, EventID.SecondaryDown);
         }
     }
 
@@ -59,5 +64,11 @@ public class PlayerInput : MonoBehaviour {
 
     public void OnMove(InputAction.CallbackContext ctx) {
         Events.Invoke(gameObject, EventID.Movement, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
+    }
+    
+    public void OnDrop(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            Events.Invoke(gameObject, EventID.Drop);
+        }
     }
 }
