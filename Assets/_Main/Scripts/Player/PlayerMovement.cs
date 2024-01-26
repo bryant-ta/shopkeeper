@@ -1,13 +1,15 @@
+using System;
 using EventManager;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
     [SerializeField] float speed;
     [SerializeField] float rotationSpeed;
-    
+
     Vector3 forward;
     Vector3 right;
     Vector2 moveInput;
+    float rotateInput;
 
     Camera mainCam;
     Rigidbody rb;
@@ -20,22 +22,24 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Start() {
-        Events.Sub<MoveInputArgs>(gameObject, EventID.Movement, SetMovementInput);
+        Events.Sub<MoveInputArgs>(gameObject, EventID.Move, SetMoveInput);
+        Events.Sub<float>(gameObject, EventID.Rotate, SetRotateInput);
     }
 
     void FixedUpdate() {
+        // Translation
         Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
-
-        transform.Translate(moveDir * speed * Time.deltaTime, Space.World);
-        if (moveDir != Vector3.zero)
-        {
-            Quaternion toRotation = Quaternion.LookRotation(moveDir, Vector3.up);
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime * 100);
-        }
+        rb.AddForce(moveDir * speed * 1000 * Time.fixedDeltaTime);
+        
+        // Rotation
+        rb.AddTorque(transform.up * rotateInput * rotationSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
     }
 
-    void SetMovementInput(MoveInputArgs moveInputArgs) {
+    void SetMoveInput(MoveInputArgs moveInputArgs) {
         moveInput = moveInputArgs.MoveInput;
+    }
+    void SetRotateInput(float val) {
+        rotateInput = val;
     }
 
     void SetMovementAxes() {

@@ -13,8 +13,9 @@ public enum EventID {
     SecondaryUp = 6,
     Point = 7,
     Scroll = 8,
-    Movement = 9,
-    Drop = 10,
+    Move = 9,
+    Rotate = 10,
+    Drop = 11,
 }
 
 public class Events : MonoBehaviour {

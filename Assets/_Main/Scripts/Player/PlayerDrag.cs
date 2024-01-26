@@ -53,7 +53,7 @@ public class PlayerDrag : MonoBehaviour {
 
         // Calculate hoverPoint y from objects underneath held object's footprint + object's height + manual offset
         float yOffset = 0f;
-        Vector3 castCenter = new Vector3(heldObjCol.transform.position.x, 50f, heldObjCol.transform.position.z);
+        Vector3 castCenter = new Vector3(heldObjCol.transform.position.x, 50f, heldObjCol.transform.position.z); // some high point
         if (Physics.BoxCast(castCenter, heldObjRb.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
                 100f, LayerMask.GetMask("Point"), QueryTriggerInteraction.Ignore)) {
             if (hit.collider) {

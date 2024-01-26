@@ -6,6 +6,8 @@ public class Player : MonoBehaviour {
     [SerializeField] float interactionRange;
     public float InteractionRange => interactionRange;
 
+    public Transform dropPos;
+    
     Stack stack;
 
     void Awake() {
@@ -23,12 +25,20 @@ public class Player : MonoBehaviour {
 
         if (targetObj.TryGetComponent(out IStackable s)) {
             stack.Place(s);
+            
+            // Player specific stack item changes
+            // TEMP
+            Destroy(s.GetTransform().GetComponent<Rigidbody>());
         }
     }
 
     void Drop() {
         Transform droppedStackTrans = stack.Pop();
-        droppedStackTrans.position = transform.position + Vector3.forward * 2;
+        droppedStackTrans.position = dropPos.position;
+        
+        // Player specific stack item changes
+        // TEMP
+        droppedStackTrans.GetChild(0).gameObject.AddComponent<Rigidbody>();
     }
     
     public bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < InteractionRange; }

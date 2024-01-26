@@ -10,7 +10,7 @@ public class BoxStackable : MonoBehaviour, IStackable {
 
     // CalculatePosition returns correct obj position when placed on stack at index
     public Vector3 CalculateStackPosition(int index) {
-        float yOffset = boxCol.bounds.extents.y;
+        float yOffset = boxCol.bounds.extents.y * 2;
         return new Vector3(0, index * yOffset, 0);
     }
 
