@@ -17,6 +17,9 @@ public class Player : MonoBehaviour {
     void Start() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
         Events.Sub(gameObject, EventID.Drop, Drop);
+
+        GetComponent<Rigidbody>().centerOfMass = transform.position; // required for correct rotation when holding box
+        GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
     }
 
     void PickUp(ClickInputArgs clickInputArgs) {

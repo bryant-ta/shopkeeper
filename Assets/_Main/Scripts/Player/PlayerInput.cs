@@ -69,7 +69,6 @@ public class PlayerInput : MonoBehaviour {
     public void OnRotate(InputAction.CallbackContext ctx) {
         float rotateInput = ctx.ReadValue<float>();
         if (ctx.performed || ctx.canceled) {    // essentially detecting hold
-            print(rotateInput);
             Events.Invoke(gameObject, EventID.Rotate, rotateInput);
         }
     }
