@@ -30,8 +30,7 @@ public class Player : MonoBehaviour {
             stack.Place(s);
             
             // Player specific stack item changes
-            // TEMP
-            Destroy(s.GetTransform().GetComponent<Rigidbody>());
+            
         }
     }
 
@@ -39,9 +38,6 @@ public class Player : MonoBehaviour {
         Transform droppedStackTrans = stack.Pop();
         droppedStackTrans.position = dropPos.position;
         
-        // Player specific stack item changes
-        // TEMP
-        droppedStackTrans.GetChild(0).gameObject.AddComponent<Rigidbody>();
     }
     
     public bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < InteractionRange; }

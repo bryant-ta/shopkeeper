@@ -51,12 +51,20 @@ public class Stack : MonoBehaviour {
     }
     void Add(IStackable s) {
         items.Add(s);
-        s.GetTransform().parent = transform;
-        s.GetTransform().localPosition = s.CalculateStackPosition(items.Count - 1);
+        Transform itemTrans = s.GetTransform();
+        itemTrans.parent = transform;
+        itemTrans.localPosition = s.CalculateStackPosition(items.Count - 1);
+        if (itemTrans.TryGetComponent(out Rigidbody rb)) {
+            rb.isKinematic = true;
+        }
     }
     void Remove(IStackable s) {
         items.Remove(s);
-        s.GetTransform().parent = null;
+        Transform itemTrans = s.GetTransform();
+        itemTrans.parent = null;
+        if (itemTrans.TryGetComponent(out Rigidbody rb)) {
+            rb.isKinematic = false;
+        }
         // TODO: prob flag for "temp stacks" that should be destroyed when empty vs. permanent stacks like on shelves
         // if (stack.Count == 0) {
         //     Destroy(gameObject);

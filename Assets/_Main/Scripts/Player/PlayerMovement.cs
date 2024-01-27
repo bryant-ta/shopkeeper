@@ -27,12 +27,15 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void FixedUpdate() {
-        // Translation
-        Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
-        rb.AddForce(moveDir * speed * 1000 * Time.fixedDeltaTime);
-        
-        // Rotation
-        rb.AddTorque(transform.up * rotateInput * rotationSpeed * Time.fixedDeltaTime, ForceMode.VelocityChange);
+        if (moveInput.sqrMagnitude != 0) {
+            // Translation
+            Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
+            rb.AddForce(moveDir * speed * 1000 * Time.fixedDeltaTime);
+
+            // Rotation
+            Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+            rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+        }
     }
 
     void SetMoveInput(MoveInputArgs moveInputArgs) {

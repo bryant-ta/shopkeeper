@@ -1787,7 +1787,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2107359958}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: b5b255547f588154085c42108fc33316, type: 2}
   m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 0.5
@@ -1840,7 +1840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  rotationSpeed: 50
+  rotationSpeed: 5
 --- !u!54 &2107359964
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1869,7 +1869,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730feb2c7e5b8424a8035d551d7f977a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dragHoverHeight: 2
+  dragHoverHeight: 1
 --- !u!114 &2107359966
 MonoBehaviour:
   m_ObjectHideFlags: 0
