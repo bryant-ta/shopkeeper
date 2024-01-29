@@ -25,9 +25,10 @@ public class PlayerDrag : MonoBehaviour {
         if (!player.IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
 
-        if (targetObj.TryGetComponent(out IInteractable interactable)) {
-            interactable.Interact();
-        }
+        // TODO: move to Player
+        // if (targetObj.TryGetComponent(out IInteractable interactable)) {
+        //     interactable.Interact();
+        // }
         
         // TODO: add tag or something for objects that should be moveable
         if (targetObj.TryGetComponent(out Rigidbody rb)) {
@@ -64,12 +65,22 @@ public class PlayerDrag : MonoBehaviour {
 
         heldObjRb.MovePosition(new Vector3(hoverPoint.x, yOffset, hoverPoint.z));
     }
+    
     void ReleaseHeld() {
         if (heldObjRb == null) return;
         if (heldObjCol == null) { Debug.LogError("Held object with Rigidbody requires a collider."); }
         
+        // Remove from PlayerDrag
         heldObjRb.isKinematic = false;
         heldObjCol.enabled = true;
+        
+        // Remove from stack if it was in one
+        // player.Drop();
+        
+        
+        
+        
         heldObjRb = null;
+        heldObjCol = null;
     }
 }

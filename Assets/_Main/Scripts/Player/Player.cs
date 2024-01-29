@@ -34,7 +34,7 @@ public class Player : MonoBehaviour {
         }
     }
 
-    void Drop() {
+    public void Drop() {
         Transform droppedStackTrans = stack.Pop();
         droppedStackTrans.position = dropPos.position;
         
