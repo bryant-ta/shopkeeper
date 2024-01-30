@@ -67,6 +67,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "40feb516-6a10-4c34-97cd-ab83120c6386",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -258,7 +267,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "QE",
+                    "name": "[]",
                     "id": "dc6b2e6c-b94d-44fe-967a-8313712301f3",
                     "path": "1DAxis",
                     "interactions": "",
@@ -289,6 +298,17 @@
                     "action": "Rotate",
                     "isComposite": false,
                     "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "256c23f5-9371-4100-aa08-19342fa376bc",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },

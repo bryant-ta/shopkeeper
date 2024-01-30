@@ -7,7 +7,7 @@ public class Stack : MonoBehaviour {
     List<IStackable> items = new List<IStackable>();
 
     public bool isLocked;
-    public bool destroyOnEmpty = true;
+    public bool DestroyOnEmpty = true;
 
     // Initialize items with any IStackable in transform children
     public void Init() {
@@ -35,6 +35,7 @@ public class Stack : MonoBehaviour {
         }
         MoveRangeTo(destStack, startIndex, endIndex);
     }
+    public void PlaceAll(Stack destStack) { PlaceRange(destStack, 0, items.Count - 1); }
 
     /// <summary>
     /// Creates a new stack from taking every item above input IStackable (inclusive). Use when moving items to a non-existent stack.
@@ -50,7 +51,10 @@ public class Stack : MonoBehaviour {
         return newStack;
     }
 
-    public Stack Pop() { return Take(Top()); }
+    public Stack Pop() {
+        if (items.Count == 0) return null;
+        return Take(Top());
+    }
 
     // SplitStack returns a new stack (+object) containing all cards from input card to end of current stack
     Stack SplitStack(IStackable s) {
@@ -83,6 +87,7 @@ public class Stack : MonoBehaviour {
         Transform itemTrans = s.GetTransform();
         itemTrans.parent = transform;
         itemTrans.localPosition = s.CalculateStackPosition(curStackHeight);
+        itemTrans.localRotation = Quaternion.identity;
         if (itemTrans.TryGetComponent(out Rigidbody rb)) {
             rb.isKinematic = true;
         }
@@ -91,15 +96,11 @@ public class Stack : MonoBehaviour {
         items.Remove(s);
         Transform itemTrans = s.GetTransform();
         itemTrans.parent = null;
-        if (itemTrans.TryGetComponent(out Rigidbody rb)) {
-            rb.isKinematic = false;
-        }
-        
-        // TODO: prob flag for "temp stacks" that should be destroyed when empty vs. permanent stacks like on shelves
-        print(items.Count);
-        if (destroyOnEmpty && items.Count == 0) {
-            Destroy(gameObject);
-        }
+        // if (itemTrans.TryGetComponent(out Rigidbody rb)) {
+        //     rb.isKinematic = false;
+        // }
+
+        TryDestroyStack();
     }
 
     public void ModifyStackProperties(Action<IStackable> modifier) {
@@ -142,7 +143,13 @@ public class Stack : MonoBehaviour {
     }
     public int IndexOf(IStackable s) { return items.IndexOf(s); }
     public List<IStackable> StackCopy() { return new List<IStackable>(items); }
+    public void TryDestroyStack() {
+        if (DestroyOnEmpty && items.Count == 0) {
+            Destroy(gameObject);
+        }
+    }
     public int Size() { return items.Count; }
+    public bool IsEmpty() { return items.Count == 0; }
     // Top returns the highest (i.e. has objs under) card in the stack
     public IStackable Top() { return items.Count > 0 ? items.Last() : null; }
 

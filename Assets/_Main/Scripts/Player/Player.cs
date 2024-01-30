@@ -25,6 +25,12 @@ public class Player : MonoBehaviour {
     void PickUp(ClickInputArgs clickInputArgs) {
         if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
+        
+        // TODO: figure out interact action: use click or 'E' ?
+        if (targetObj.TryGetComponent(out IInteractable interactable)) {
+            interactable.Interact();
+            return;
+        }
 
         if (targetObj.TryGetComponent(out IStackable s)) {
             Stack clickedStack = s.GetStack();
@@ -33,6 +39,8 @@ public class Player : MonoBehaviour {
     }
 
     void DropOne() {
+        if (heldStack.Size() == 0) return;
+        
         Stack droppedStack = heldStack.Pop();
         droppedStack.transform.position = dropPos.position;
     }

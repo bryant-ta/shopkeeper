@@ -14,6 +14,8 @@ public class PlayerInput : MonoBehaviour {
 
     void Awake() { mainCam = Camera.main; }
 
+    #region Mouse
+    
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
@@ -65,6 +67,8 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
+    #endregion
+    
     public void OnMove(InputAction.CallbackContext ctx) {
         Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
     }
@@ -79,6 +83,12 @@ public class PlayerInput : MonoBehaviour {
     public void OnDrop(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             Events.Invoke(gameObject, EventID.Drop);
+        }
+    }
+    
+    public void OnCancel(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            Events.Invoke(gameObject, EventID.Cancel);
         }
     }
 }

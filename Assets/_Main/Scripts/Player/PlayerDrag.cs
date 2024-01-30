@@ -9,6 +9,9 @@ public class PlayerDrag : MonoBehaviour {
     Collider bottomObjCol;
     Stack heldStack;
 
+    Stack lastStack;        // heldStack's previous location/stack
+    LastStackState lastStackState;
+
     Player player;
 
     void Awake() {
@@ -19,6 +22,7 @@ public class PlayerDrag : MonoBehaviour {
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
         Events.Sub(gameObject, EventID.PrimaryUp, Release);
         Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
+        Events.Sub(gameObject, EventID.Cancel, Cancel);
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -27,18 +31,20 @@ public class PlayerDrag : MonoBehaviour {
         IStackable s = targetObj.GetComponent<IStackable>();
         if (s == null) return;
 
-        // TODO: move to Player
-        // if (targetObj.TryGetComponent(out IInteractable interactable)) {
-        //     interactable.Interact();
-        // }
         // TODO: add tag or something for objects that should be moveable
         
+        // Save last stack state for drag canceling
+        lastStack = s.GetStack();
+        lastStackState.DestroyOnEmpty = lastStack.DestroyOnEmpty;
+        lastStackState.ColliderEnabled = targetObj.GetComponent<Collider>().enabled;
+        
+        lastStack.DestroyOnEmpty = false;
+
         // Remove target obj from its stack
         bottomObjCol = targetObj.GetComponent<Collider>();
-        heldStack = s.GetStack().Take(s);
+        heldStack = lastStack.Take(s);
         heldStack.ModifyStackProperties(stackable => {
             Transform t = stackable.GetTransform();
-            t.GetComponent<Rigidbody>().isKinematic = true;
             t.GetComponent<Collider>().enabled = false;
         });
         
@@ -76,13 +82,36 @@ public class PlayerDrag : MonoBehaviour {
     void Release() {
         if (heldStack == null) return;
         
+        lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
         heldStack.ModifyStackProperties(stackable => {
             Transform t = stackable.GetTransform();
-            t.GetComponent<Rigidbody>().isKinematic = false;
             t.GetComponent<Collider>().enabled = true;
         });
 
+        lastStack.TryDestroyStack();
+
         bottomObjCol = null;
+        lastStack = null;
         heldStack = null;
     }
+    void Cancel() {
+        if (heldStack == null) return;
+        
+        lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
+        heldStack.ModifyStackProperties(stackable => {
+            Transform t = stackable.GetTransform();
+            t.GetComponent<Collider>().enabled = lastStackState.ColliderEnabled;
+        });
+
+        heldStack.PlaceAll(lastStack);
+        
+        bottomObjCol = null;
+        lastStack = null;
+        heldStack = null;
+    }
+}
+
+struct LastStackState {
+    public bool DestroyOnEmpty;
+    public bool ColliderEnabled;
 }

@@ -1,4 +1,3 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
 
@@ -13,25 +12,18 @@ public enum EventID {
     SecondaryUp = 6,
     Point = 7,
     Scroll = 8,
-    Move = 9,
-    Rotate = 10,
-    Drop = 11,
+    Move = 10,
+    Rotate = 11,
+    Drop = 12,
+    Cancel = 13,
 }
 
-public class Events : MonoBehaviour {
+public class Events : Singleton<Events> {
     // holds events per gameObject instance
     static Dictionary<object, Dictionary<EventID, Delegate>> eventsDict;
     static Dictionary<object, Dictionary<EventID, Delegate>> oneParamEventsDict;
 
-    static Events _instance;
-
     void Awake() {
-        if (_instance != null && _instance != this) {
-            Destroy(gameObject);
-        } else {
-            _instance = this;
-        }
-
         eventsDict = new Dictionary<object, Dictionary<EventID, Delegate>>();
         oneParamEventsDict = new Dictionary<object, Dictionary<EventID, Delegate>>();
     }
