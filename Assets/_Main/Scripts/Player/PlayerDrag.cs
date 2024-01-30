@@ -7,7 +7,6 @@ public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
 
     Collider bottomObjCol;
-
     Stack heldStack;
 
     Player player;
@@ -32,21 +31,18 @@ public class PlayerDrag : MonoBehaviour {
         // if (targetObj.TryGetComponent(out IInteractable interactable)) {
         //     interactable.Interact();
         // }
+        // TODO: add tag or something for objects that should be moveable
         
         // Remove target obj from its stack
+        bottomObjCol = targetObj.GetComponent<Collider>();
         heldStack = s.GetStack().Take(s);
+        heldStack.ModifyStackProperties(stackable => {
+            Transform t = stackable.GetTransform();
+            t.GetComponent<Rigidbody>().isKinematic = true;
+            t.GetComponent<Collider>().enabled = false;
+        });
         
-        // TODO: add tag or something for objects that should be moveable
-        if (targetObj.TryGetComponent(out Collider col)) {
-            bottomObjCol = col;
-            heldStack.ModifyStackProperties(stackable => {
-                Transform t = stackable.GetTransform();
-                t.GetComponent<Rigidbody>().isKinematic = true;
-                t.GetComponent<Collider>().enabled = false;
-            });
-            
-            Drag(heldStack.transform.position); // One Drag to update held obj position on initial click
-        }
+        Drag(heldStack.transform.position); // One Drag to update held obj position on initial click
     }
 
     void Drag(Vector3 hitPoint) {

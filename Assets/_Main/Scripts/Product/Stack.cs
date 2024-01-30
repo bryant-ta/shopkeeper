@@ -7,17 +7,16 @@ public class Stack : MonoBehaviour {
     List<IStackable> items = new List<IStackable>();
 
     public bool isLocked;
+    public bool destroyOnEmpty = true;
 
     // TEMP
     [SerializeField] GameObject stackBaseObj;
 
-    void Start() { Init(); }
-
     // Initialize items with any IStackable in transform children
-    void Init() {
+    public void Init() {
         for (int i = 0; i < transform.childCount; i++) {
             if (transform.GetChild(i).TryGetComponent(out IStackable s)) {
-                Add(s);
+                Place(s);
             } else {
                 Debug.LogError("Expected only IStackables in children");
             }
@@ -57,14 +56,13 @@ public class Stack : MonoBehaviour {
     }
 
     void MoveRangeTo(Stack newStack, int startIndex, int count) {
-        List<IStackable>
-            stackables = items.GetRange(startIndex, count); // Create copy for adding to newStack bc RemoveCard() will delete objs
-        foreach (IStackable s in stackables) {
-            Remove(s);
+        List<IStackable> stackables = items.GetRange(startIndex, count); // Create copy for adding to newStack bc Remove() will delete objs
+        for (int i = startIndex; i < items.Count; i++) {
+            Remove(items[i]);
         }
-
-        foreach (IStackable s in stackables) {
-            newStack.Add(s);
+        
+        for (int i = 0; i < stackables.Count; i++) {
+            newStack.Add(stackables[i]);
         }
     }
     void Add(IStackable s) {
@@ -88,10 +86,11 @@ public class Stack : MonoBehaviour {
         if (itemTrans.TryGetComponent(out Rigidbody rb)) {
             rb.isKinematic = false;
         }
+        
         // TODO: prob flag for "temp stacks" that should be destroyed when empty vs. permanent stacks like on shelves
-        // if (stack.Count == 0) {
-        //     Destroy(gameObject);
-        // }
+        if (destroyOnEmpty && items.Count == 0) {
+            Destroy(gameObject);
+        }
     }
 
     public void ModifyStackProperties(Action<IStackable> modifier) {
