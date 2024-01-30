@@ -8,10 +8,10 @@ public class Player : MonoBehaviour {
 
     public Transform dropPos;
     
-    Stack stack;
+    Stack heldStack;
 
     void Awake() {
-        stack = GetComponentInChildren<Stack>();
+        heldStack = GetComponentInChildren<Stack>();
     }
 
     void Start() {
@@ -27,15 +27,13 @@ public class Player : MonoBehaviour {
         GameObject targetObj = clickInputArgs.TargetObj;
 
         if (targetObj.TryGetComponent(out IStackable s)) {
-            stack.Place(s);
-            
-            // Player specific stack item changes
-            
+            Stack clickedStack = s.GetStack();
+            clickedStack.PlaceRange(heldStack, clickedStack.IndexOf(s), clickedStack.Size() - 1);
         }
     }
 
-    public void DropOne() {
-        Stack droppedStack = stack.Pop();
+    void DropOne() {
+        Stack droppedStack = heldStack.Pop();
         droppedStack.transform.position = dropPos.position;
     }
     

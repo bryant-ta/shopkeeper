@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 public class PlayerInput : MonoBehaviour {
     [Tooltip("Point raycast detects this layer.")]
     [SerializeField] LayerMask pointLayer;
-    
+
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
 
@@ -20,7 +20,10 @@ public class PlayerInput : MonoBehaviour {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
                 if (hit.collider != null) {
-                    Events.Invoke(gameObject, EventID.PrimaryDown, new ClickInputArgs{TargetObj = hit.collider.gameObject});
+                    Events.Invoke(gameObject, EventID.PrimaryDown, new ClickInputArgs {
+                        hitPoint = hit.point,
+                        TargetObj = hit.collider.gameObject
+                    });
                 }
             }
         } else if (ctx.canceled) {
@@ -33,7 +36,7 @@ public class PlayerInput : MonoBehaviour {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
                 if (hit.collider != null) {
-                    Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs{TargetObj = hit.collider.gameObject});
+                    Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs {TargetObj = hit.collider.gameObject});
                 }
             }
         } else if (ctx.canceled) {
@@ -68,11 +71,11 @@ public class PlayerInput : MonoBehaviour {
 
     public void OnRotate(InputAction.CallbackContext ctx) {
         float rotateInput = ctx.ReadValue<float>();
-        if (ctx.performed || ctx.canceled) {    // essentially detecting hold
+        if (ctx.performed || ctx.canceled) { // essentially detecting hold
             Events.Invoke(gameObject, EventID.Rotate, rotateInput);
         }
     }
-    
+
     public void OnDrop(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             Events.Invoke(gameObject, EventID.Drop);

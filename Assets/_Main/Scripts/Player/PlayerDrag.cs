@@ -42,7 +42,7 @@ public class PlayerDrag : MonoBehaviour {
             t.GetComponent<Collider>().enabled = false;
         });
         
-        Drag(heldStack.transform.position); // One Drag to update held obj position on initial click
+        Drag(clickInputArgs.hitPoint); // One Drag to update held obj position on initial click
     }
 
     void Drag(Vector3 hitPoint) {

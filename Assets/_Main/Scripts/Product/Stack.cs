@@ -9,9 +9,6 @@ public class Stack : MonoBehaviour {
     public bool isLocked;
     public bool destroyOnEmpty = true;
 
-    // TEMP
-    [SerializeField] GameObject stackBaseObj;
-
     // Initialize items with any IStackable in transform children
     public void Init() {
         for (int i = 0; i < transform.childCount; i++) {
@@ -25,13 +22,24 @@ public class Stack : MonoBehaviour {
 
     public void Place(IStackable stackable) { Add(stackable); }
 
-    // null input treated as placing stack on nothing
-    public void PlaceAll(Stack destStack) { MoveRangeTo(destStack, 0, items.Count); }
+    /// <summary>
+    /// Moves range of items from this stack to destStack. Use when directly moving items between two existing stacks.
+    /// </summary>
+    /// <param name="destStack">Stack to move to.</param>
+    /// <param name="startIndex">Range start (inclusive).</param>
+    /// <param name="endIndex">Range end (inclusive).</param>
+    public void PlaceRange(Stack destStack, int startIndex, int endIndex) {
+        if (destStack == null) {
+            Debug.LogError("Cannot place stack on nothing.");
+            return;
+        }
+        MoveRangeTo(destStack, startIndex, endIndex);
+    }
 
     /// <summary>
-    /// Returns the new stack created from taking every item above input IStackable (inclusive).
+    /// Creates a new stack from taking every item above input IStackable (inclusive). Use when moving items to a non-existent stack.
     /// </summary>
-    /// <param name="s">Stack item that will be the first item in a new stack, also moving everything above it.</param>
+    /// <param name="s">Stack item that will be the first item of the new stack.</param>
     public Stack Take(IStackable s) {
         if (!items.Contains(s)) {
             Debug.LogWarningFormat("Item {0} does not exist in stack.", s.GetTransform().name);
@@ -47,22 +55,22 @@ public class Stack : MonoBehaviour {
     // SplitStack returns a new stack (+object) containing all cards from input card to end of current stack
     Stack SplitStack(IStackable s) {
         int splitIndex = items.IndexOf(s);
-        GameObject newStackObj = Instantiate(stackBaseObj, transform.position, Quaternion.identity);
-        Stack newStack = newStackObj.GetComponent<Stack>();
+        Stack newStack = Factory.Instance.CreateStack();
 
-        MoveRangeTo(newStack, splitIndex, items.Count - splitIndex);
+        MoveRangeTo(newStack, splitIndex, items.Count - 1);
 
         return newStack;
     }
 
-    void MoveRangeTo(Stack newStack, int startIndex, int count) {
-        List<IStackable> stackables = items.GetRange(startIndex, count); // Create copy for adding to newStack bc Remove() will delete objs
-        for (int i = startIndex; i < items.Count; i++) {
-            Remove(items[i]);
+    void MoveRangeTo(Stack newStack, int startIndex, int endIndex) {
+        // Needs to be foreach on list copy because modifying items list while iterating
+        List<IStackable> stackables = items.GetRange(startIndex, endIndex - startIndex + 1);
+        foreach (IStackable s in stackables) {
+            Remove(s);
         }
         
-        for (int i = 0; i < stackables.Count; i++) {
-            newStack.Add(stackables[i]);
+        foreach (IStackable s in stackables) {
+            newStack.Add(s);
         }
     }
     void Add(IStackable s) {
@@ -88,6 +96,7 @@ public class Stack : MonoBehaviour {
         }
         
         // TODO: prob flag for "temp stacks" that should be destroyed when empty vs. permanent stacks like on shelves
+        print(items.Count);
         if (destroyOnEmpty && items.Count == 0) {
             Destroy(gameObject);
         }
@@ -101,7 +110,7 @@ public class Stack : MonoBehaviour {
 
     #region Helper
 
-    public List<T> GetObjComponents<T>() where T : Component {
+    public List<T> GetItemComponents<T>() where T : Component {
         List<T> components = new List<T>();
         foreach (IStackable s in items) {
             T component = s.GetTransform().GetComponent<T>();
@@ -114,25 +123,26 @@ public class Stack : MonoBehaviour {
 
         return components;
     }
-    public List<string> GetObjNames() {
-        List<string> cardNames = new List<string>();
+    public List<string> GetItemNames() {
+        List<string> itemNames = new List<string>();
         foreach (IStackable s in items) {
-            cardNames.Add(s.GetTransform().name);
+            itemNames.Add(s.GetTransform().gameObject.name);
         }
 
-        return cardNames;
+        return itemNames;
     }
-    public IStackable GetObjByName(string cardName) {
+    public IStackable GetItemByName(string itemName) {
         foreach (IStackable s in items) {
-            if (s.GetTransform().name == cardName) {
+            if (s.GetTransform().name == itemName) {
                 return s;
             }
         }
 
         return null;
     }
+    public int IndexOf(IStackable s) { return items.IndexOf(s); }
     public List<IStackable> StackCopy() { return new List<IStackable>(items); }
-    public int GetStackSize() { return items.Count; }
+    public int Size() { return items.Count; }
     // Top returns the highest (i.e. has objs under) card in the stack
     public IStackable Top() { return items.Count > 0 ? items.Last() : null; }
 
