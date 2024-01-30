@@ -16,7 +16,7 @@ public class Player : MonoBehaviour {
 
     void Start() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
-        Events.Sub(gameObject, EventID.Drop, Drop);
+        Events.Sub(gameObject, EventID.Drop, DropOne);
 
         GetComponent<Rigidbody>().centerOfMass = transform.position; // required for correct rotation when holding box
         GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
@@ -34,10 +34,9 @@ public class Player : MonoBehaviour {
         }
     }
 
-    public void Drop() {
-        Transform droppedStackTrans = stack.Pop();
-        droppedStackTrans.position = dropPos.position;
-        
+    public void DropOne() {
+        Stack droppedStack = stack.Pop();
+        droppedStack.transform.position = dropPos.position;
     }
     
     public bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < InteractionRange; }

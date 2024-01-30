@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,32 +11,49 @@ public class Stack : MonoBehaviour {
     // TEMP
     [SerializeField] GameObject stackBaseObj;
 
+    void Start() { Init(); }
+
+    // Initialize items with any IStackable in transform children
+    void Init() {
+        for (int i = 0; i < transform.childCount; i++) {
+            if (transform.GetChild(i).TryGetComponent(out IStackable s)) {
+                Add(s);
+            } else {
+                Debug.LogError("Expected only IStackables in children");
+            }
+        }
+    }
+
     public void Place(IStackable stackable) { Add(stackable); }
 
     // null input treated as placing stack on nothing
     public void PlaceAll(Stack destStack) { MoveRangeTo(destStack, 0, items.Count); }
 
-    public Transform Take(IStackable s) {
+    /// <summary>
+    /// Returns the new stack created from taking every item above input IStackable (inclusive).
+    /// </summary>
+    /// <param name="s">Stack item that will be the first item in a new stack, also moving everything above it.</param>
+    public Stack Take(IStackable s) {
         if (!items.Contains(s)) {
             Debug.LogWarningFormat("Item {0} does not exist in stack.", s.GetTransform().name);
             return null;
         }
 
-        Transform newStack = SplitStack(s).transform;
+        Stack newStack = SplitStack(s);
         return newStack;
     }
 
-    public Transform Pop() { return Take(Top()); }
+    public Stack Pop() { return Take(Top()); }
 
     // SplitStack returns a new stack (+object) containing all cards from input card to end of current stack
-    Transform SplitStack(IStackable s) {
+    Stack SplitStack(IStackable s) {
         int splitIndex = items.IndexOf(s);
         GameObject newStackObj = Instantiate(stackBaseObj, transform.position, Quaternion.identity);
         Stack newStack = newStackObj.GetComponent<Stack>();
 
         MoveRangeTo(newStack, splitIndex, items.Count - splitIndex);
 
-        return newStack.transform;
+        return newStack;
     }
 
     void MoveRangeTo(Stack newStack, int startIndex, int count) {
@@ -50,10 +68,15 @@ public class Stack : MonoBehaviour {
         }
     }
     void Add(IStackable s) {
+        float curStackHeight = 0f; // y value of highest obj's top edge within stack
+        if (items.Count > 0) {
+            curStackHeight = items.Last().GetTransform().position.y + items.Last().GetCollider().bounds.extents.y;
+        }
+        
         items.Add(s);
         Transform itemTrans = s.GetTransform();
         itemTrans.parent = transform;
-        itemTrans.localPosition = s.CalculateStackPosition(items.Count - 1);
+        itemTrans.localPosition = s.CalculateStackPosition(curStackHeight);
         if (itemTrans.TryGetComponent(out Rigidbody rb)) {
             rb.isKinematic = true;
         }
@@ -70,6 +93,14 @@ public class Stack : MonoBehaviour {
         //     Destroy(gameObject);
         // }
     }
+
+    public void ModifyStackProperties(Action<IStackable> modifier) {
+        for (int i = 0; i < items.Count; i++) {
+            modifier(items[i]);
+        }
+    }
+
+    #region Helper
 
     public List<T> GetObjComponents<T>() where T : Component {
         List<T> components = new List<T>();
@@ -108,4 +139,6 @@ public class Stack : MonoBehaviour {
 
     // TODO: RecalculateStackPositions moves stack objs to their correct positions
     public void RecalculateStackPositions() { }
+    
+    #endregion
 }

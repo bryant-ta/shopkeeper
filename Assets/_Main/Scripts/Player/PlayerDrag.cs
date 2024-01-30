@@ -6,8 +6,9 @@ using UnityEngine;
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
 
-    Rigidbody heldObjRb;
-    Collider heldObjCol;
+    Collider bottomObjCol;
+
+    Stack heldStack;
 
     Player player;
 
@@ -16,34 +17,44 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Start() {
-        Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Interact);
-        Events.Sub(gameObject, EventID.PrimaryUp, ReleaseHeld);
-        Events.Sub<Vector3>(gameObject, EventID.Point, DragHeld);
+        Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
+        Events.Sub(gameObject, EventID.PrimaryUp, Release);
+        Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
     }
 
-    void Interact(ClickInputArgs clickInputArgs) {
-        if (!player.IsInRange(clickInputArgs.TargetObj.transform.position)) return;
+    void Grab(ClickInputArgs clickInputArgs) {
         GameObject targetObj = clickInputArgs.TargetObj;
+        if (!player.IsInRange(targetObj.transform.position)) return;
+        IStackable s = targetObj.GetComponent<IStackable>();
+        if (s == null) return;
 
         // TODO: move to Player
         // if (targetObj.TryGetComponent(out IInteractable interactable)) {
         //     interactable.Interact();
         // }
         
+        // Remove target obj from its stack
+        heldStack = s.GetStack().Take(s);
+        
         // TODO: add tag or something for objects that should be moveable
-        if (targetObj.TryGetComponent(out Rigidbody rb)) {
-            heldObjRb = rb;
-            heldObjCol = rb.GetComponent<Collider>();
+        if (targetObj.TryGetComponent(out Collider col)) {
+            bottomObjCol = col;
+            heldStack.ModifyStackProperties(stackable => {
+                Transform t = stackable.GetTransform();
+                t.GetComponent<Rigidbody>().isKinematic = true;
+                t.GetComponent<Collider>().enabled = false;
+            });
             
-            heldObjRb.isKinematic = true;
-            heldObjCol.enabled = false;
-            DragHeld(heldObjRb.transform.position);
+            Drag(heldStack.transform.position); // One Drag to update held obj position on initial click
         }
     }
 
-    void DragHeld(Vector3 hitPoint) {
-        if (heldObjRb == null) return; // Drag is constantly called from Point input, so only Drag if holding an object
-        if (heldObjCol == null) { Debug.LogError("Held object with Rigidbody requires a collider."); }
+    void Drag(Vector3 hitPoint) {
+        if (heldStack == null) return;
+        if (bottomObjCol == null) {
+            Debug.LogError("Held object is missing a collider.");
+            return;
+        }
 
         // If held out of interactable range, use closest point in range adjusted for hit point height
         Vector3 hoverPoint = hitPoint;
@@ -54,33 +65,28 @@ public class PlayerDrag : MonoBehaviour {
 
         // Calculate hoverPoint y from objects underneath held object's footprint + object's height + manual offset
         float yOffset = 0f;
-        Vector3 castCenter = new Vector3(heldObjCol.transform.position.x, 50f, heldObjCol.transform.position.z); // some high point
-        if (Physics.BoxCast(castCenter, heldObjRb.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
+        Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point
+        if (Physics.BoxCast(castCenter, bottomObjCol.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
                 100f, LayerMask.GetMask("Point"), QueryTriggerInteraction.Ignore)) {
             if (hit.collider) {
                 yOffset = hit.point.y;
             }
         }
-        yOffset += heldObjCol.bounds.extents.y + dragHoverHeight;
-
-        heldObjRb.MovePosition(new Vector3(hoverPoint.x, yOffset, hoverPoint.z));
+        yOffset += dragHoverHeight;
+        
+        heldStack.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
     }
     
-    void ReleaseHeld() {
-        if (heldObjRb == null) return;
-        if (heldObjCol == null) { Debug.LogError("Held object with Rigidbody requires a collider."); }
+    void Release() {
+        if (heldStack == null) return;
         
-        // Remove from PlayerDrag
-        heldObjRb.isKinematic = false;
-        heldObjCol.enabled = true;
-        
-        // Remove from stack if it was in one
-        // player.Drop();
-        
-        
-        
-        
-        heldObjRb = null;
-        heldObjCol = null;
+        heldStack.ModifyStackProperties(stackable => {
+            Transform t = stackable.GetTransform();
+            t.GetComponent<Rigidbody>().isKinematic = false;
+            t.GetComponent<Collider>().enabled = true;
+        });
+
+        bottomObjCol = null;
+        heldStack = null;
     }
 }
