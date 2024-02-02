@@ -1,6 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface IGridShape {
+    public ShapeData ShapeData { get; }
+
+    public Transform GetTransform();
+}
+
 public class Grid {
     // Min LHW defined as -max LHW
     // Center defined as (0,0,0)
@@ -30,13 +36,13 @@ public class Grid {
 
     #region Validation
 
-    public bool ValidateShapePlacement() {
-        // foreach (Block block in piece.Blocks) {
-        //     Vector2Int boardPos = new Vector2Int(x + block.Position.x, y + block.Position.y);
-        //     if (!checkType(boardPos.x, boardPos.y)) {
-        //         return false;
-        //     }
-        // }
+    public bool ValidateShapePlacement(Vector3Int rootCoord, IGridShape gridShape) {
+        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+            Vector3Int checkPos = new Vector3Int(rootCoord.x + offset.x, rootCoord.y + offset.y, rootCoord.z + offset.z);
+            if (!IsValidPlacement(checkPos)) {
+                return false;
+            }
+        }
 
         return true;
     }
@@ -45,26 +51,36 @@ public class Grid {
 
     #region Manipulation
 
-    public bool Place(IGridShape gridShape, int x, int y, int z) {
-        if (!IsValidPlacement(x, y, z)) return false;
+    public bool PlaceShape(Vector3Int rootCoord, IGridShape gridShape) {
+        if (!ValidateShapePlacement(rootCoord, gridShape)) return false;
 
-        cells[new Vector3Int(x, y, z)] = gridShape;
+        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+            cells[rootCoord] = gridShape;
+        }
+
+        return true;
+    }
+
+    public bool Set(Vector3Int coord, IGridShape gridShape) {
+        if (!IsValidPlacement(coord)) return false;
+
+        cells[coord] = gridShape;
         return true;
     }
     
-    public void Remove(int x, int y, int z) {
-        if (IsOpen(x, y, z) || !IsInBounds(x, z)) return;
+    public void Remove(Vector3Int coord) {
+        if (IsOpen(coord) || !IsInBounds(coord.x, coord.z)) return;
 
-        cells.Remove(new Vector3Int(x, y, z));
+        cells.Remove(coord);
     }
 
     #endregion
 
     #region Selection
 
-    public IGridShape SelectPosition(int x, int y, int z) {
-        if (!IsInBounds(x, y)) return null;
-        return cells[new Vector3Int(x, y, z)];
+    public IGridShape SelectPosition(Vector3Int coord) {
+        if (!IsInBounds(coord.x, coord.z)) return null;
+        return cells[coord];
     }
 
     public IGridShape SelectOffset(Vector3Int origin, Vector3Int offset) {
@@ -112,12 +128,9 @@ public class Grid {
 
     #region Helper
 
-    public bool IsValidPlacement(int x, int y, int z) { return IsInBounds(x, y) && IsOpen(x, y, z); }
-    public bool IsOpen(int x, int y, int z) { return cells.ContainsKey(new Vector3Int(x, y, z)); }
+    public bool IsValidPlacement(Vector3Int coord) { return IsInBounds(coord.x, coord.z) && IsOpen(coord); }
+    public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(int x, int z) { return validCells.Contains(new Vector2Int(x, z)); }
 
     #endregion
-}
-
-public interface IGridShape {
 }

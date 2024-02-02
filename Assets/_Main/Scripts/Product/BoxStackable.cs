@@ -2,9 +2,15 @@ using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
+    public ShapeType ShapeType => shapeType;
+    [SerializeField] ShapeType shapeType;
+    public ShapeData ShapeData => shapeData;
+    ShapeData shapeData;
+    
     BoxCollider boxCol;
 
     void Awake() {
+        shapeData = ShapeDataLookUp.LookUp[shapeType];
         boxCol = GetComponent<BoxCollider>();
     }
 

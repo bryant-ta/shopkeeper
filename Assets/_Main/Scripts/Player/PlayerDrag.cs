@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EventManager;
 using UnityEngine;
 
@@ -99,8 +100,20 @@ public class PlayerDrag : MonoBehaviour {
         }
         
         // Validate + Place/Move heldStack to grid cell
-        if (!grid.ValidateShapePlacement()) return;
+        List<IGridShape> gridShapes = heldStack.GetItemComponents<IGridShape>();
+        foreach (IGridShape shape in gridShapes) {
+            // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
+            if (!grid.ValidateShapePlacement(selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition), shape)) {
+                return;
+            }
+        }
         
+        foreach (IGridShape shape in gridShapes) {
+            // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
+            Vector3Int rootCoord = selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition);
+            grid.PlaceShape(rootCoord, shape);
+            shape.GetTransform().position = rootCoord;
+        }
         
         // Restore lastStack state + do cleanup, no longer need to cancel drag
         lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
@@ -116,6 +129,7 @@ public class PlayerDrag : MonoBehaviour {
         lastStack = null;
         heldStack = null;
     }
+    
     void Cancel() {
         if (heldStack == null) return;
         

@@ -65,6 +65,8 @@ public class Stack : MonoBehaviour {
 
         return newStack;
     }
+    
+    #region Internal
 
     void MoveRangeTo(Stack newStack, int startIndex, int endIndex) {
         // Needs to be foreach on list copy because modifying items list while iterating
@@ -108,14 +110,15 @@ public class Stack : MonoBehaviour {
             modifier(items[i]);
         }
     }
+    
+    #endregion
 
     #region Helper
 
-    public List<T> GetItemComponents<T>() where T : Component {
+    public List<T> GetItemComponents<T>() {
         List<T> components = new List<T>();
         foreach (IStackable s in items) {
-            T component = s.GetTransform().GetComponent<T>();
-            if (component != null) {
+            if (s.GetTransform().TryGetComponent(out T component)) {
                 components.Add(component);
             } else {
                 Debug.LogErrorFormat("Component %s missing from card stack", typeof(T));
@@ -142,7 +145,7 @@ public class Stack : MonoBehaviour {
         return null;
     }
     public int IndexOf(IStackable s) { return items.IndexOf(s); }
-    public List<IStackable> StackCopy() { return new List<IStackable>(items); }
+    public List<IStackable> ItemsCopy() { return new List<IStackable>(items); }
     public void TryDestroyStack() {
         if (DestroyOnEmpty && items.Count == 0) {
             Destroy(gameObject);
