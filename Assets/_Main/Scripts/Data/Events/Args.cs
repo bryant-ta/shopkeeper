@@ -2,7 +2,8 @@ using UnityEngine;
 
 namespace EventManager {
     public struct ClickInputArgs {
-        public Vector3 hitPoint;
+        public Vector3 HitNormal;
+        public Vector3 HitPoint;
         public GameObject TargetObj;
     }
 

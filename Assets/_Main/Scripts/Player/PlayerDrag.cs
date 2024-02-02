@@ -20,7 +20,7 @@ public class PlayerDrag : MonoBehaviour {
 
     void Start() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
-        Events.Sub(gameObject, EventID.PrimaryUp, Release);
+        Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryUp, Release);
         Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
         Events.Sub(gameObject, EventID.Cancel, Cancel);
     }
@@ -48,7 +48,7 @@ public class PlayerDrag : MonoBehaviour {
             t.GetComponent<Collider>().enabled = false;
         });
         
-        Drag(clickInputArgs.hitPoint); // One Drag to update held obj position on initial click
+        Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
     }
 
     void Drag(Vector3 hitPoint) {
@@ -79,9 +79,30 @@ public class PlayerDrag : MonoBehaviour {
         heldStack.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
     }
     
-    void Release() {
+    void Release(ClickInputArgs clickInputArgs) {
         if (heldStack == null) return;
+
+        // Find selected grid cell
+        // TEMP: prob replace with tilemap
+        Vector3Int selectedCellCoord;
+        if (clickInputArgs.TargetObj.CompareTag("PlayArea")) { // Hit floor
+            selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.HitPoint);
+        } else { // Hit object
+            selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.TargetObj.transform.position);
+        }
+
+        Grid grid = GameManager.WorldGrid;
+        if (grid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
+            selectedCellCoord.y = lowestOpenY;
+        } else {
+            return;
+        }
         
+        // Validate + Place/Move heldStack to grid cell
+        if (!grid.ValidateShapePlacement()) return;
+        
+        
+        // Restore lastStack state + do cleanup, no longer need to cancel drag
         lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
         heldStack.ModifyStackProperties(stackable => {
             Transform t = stackable.GetTransform();
@@ -89,7 +110,8 @@ public class PlayerDrag : MonoBehaviour {
         });
 
         lastStack.TryDestroyStack();
-
+        
+        // Reset PlayerDrag
         bottomObjCol = null;
         lastStack = null;
         heldStack = null;

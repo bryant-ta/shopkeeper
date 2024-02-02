@@ -4,9 +4,14 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
     public bool debug;
-    
+
+    public static Grid WorldGrid => worldGrid;
+    static Grid worldGrid;
+
     void Start() {
         if (debug) { DebugTasks(); }
+
+        worldGrid = new Grid(20, 5, 20);
     }
 
     void DebugTasks() {

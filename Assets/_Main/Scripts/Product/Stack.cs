@@ -6,7 +6,7 @@ using UnityEngine;
 public class Stack : MonoBehaviour {
     List<IStackable> items = new List<IStackable>();
 
-    public bool isLocked;
+    public bool IsLocked;
     public bool DestroyOnEmpty = true;
 
     // Initialize items with any IStackable in transform children

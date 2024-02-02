@@ -296,7 +296,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406910043502633073, guid: 1562329cae55d914987727b5ab8dab43, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.974
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8406910043502633073, guid: 1562329cae55d914987727b5ab8dab43, type: 3}
       propertyPath: m_LocalPosition.y
@@ -304,7 +304,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8406910043502633073, guid: 1562329cae55d914987727b5ab8dab43, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3.989
+      value: -1
       objectReference: {fileID: 0}
     - target: {fileID: 8406910043502633073, guid: 1562329cae55d914987727b5ab8dab43, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1541,7 +1541,7 @@ GameObject:
   - component: {fileID: 2111481138}
   m_Layer: 6
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: PlayArea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

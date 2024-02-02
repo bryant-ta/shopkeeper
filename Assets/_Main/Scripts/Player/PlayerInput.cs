@@ -15,21 +15,25 @@ public class PlayerInput : MonoBehaviour {
     void Awake() { mainCam = Camera.main; }
 
     #region Mouse
-    
+
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
-        if (ctx.performed) {
+        ClickInputArgs clickInputArgs = new();
+        if (ctx.performed || ctx.canceled) {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
                 if (hit.collider != null) {
-                    Events.Invoke(gameObject, EventID.PrimaryDown, new ClickInputArgs {
-                        hitPoint = hit.point,
-                        TargetObj = hit.collider.gameObject
-                    });
+                    clickInputArgs.HitNormal = hit.normal;
+                    clickInputArgs.HitPoint = hit.point;
+                    clickInputArgs.TargetObj = hit.collider.gameObject;
                 }
             }
+        }
+
+        if (ctx.performed) {
+            Events.Invoke(gameObject, EventID.PrimaryDown, clickInputArgs);
         } else if (ctx.canceled) {
-            Events.Invoke(gameObject, EventID.PrimaryUp);
+            Events.Invoke(gameObject, EventID.PrimaryUp, clickInputArgs);
         }
     }
 
@@ -68,7 +72,7 @@ public class PlayerInput : MonoBehaviour {
     }
 
     #endregion
-    
+
     public void OnMove(InputAction.CallbackContext ctx) {
         Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
     }
@@ -85,7 +89,7 @@ public class PlayerInput : MonoBehaviour {
             Events.Invoke(gameObject, EventID.Drop);
         }
     }
-    
+
     public void OnCancel(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             Events.Invoke(gameObject, EventID.Cancel);
