@@ -10,9 +10,6 @@ public class PlayerDrag : MonoBehaviour {
     Collider bottomObjCol;
     Stack heldStack;
 
-    Stack lastStack;        // heldStack's previous location/stack
-    LastStackState lastStackState;
-
     Player player;
 
     void Awake() {
@@ -23,7 +20,6 @@ public class PlayerDrag : MonoBehaviour {
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryUp, Release);
         Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
-        Events.Sub(gameObject, EventID.Cancel, Cancel);
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -33,17 +29,10 @@ public class PlayerDrag : MonoBehaviour {
         if (s == null) return;
 
         // TODO: add tag or something for objects that should be moveable
-        
-        // Save last stack state for drag canceling
-        lastStack = s.GetStack();
-        lastStackState.DestroyOnEmpty = lastStack.DestroyOnEmpty;
-        lastStackState.ColliderEnabled = targetObj.GetComponent<Collider>().enabled;
-        
-        lastStack.DestroyOnEmpty = false;
 
         // Remove target obj from its stack
         bottomObjCol = targetObj.GetComponent<Collider>();
-        heldStack = lastStack.Take(s);
+        heldStack = s.GetStack().Take(s);
         heldStack.ModifyStackProperties(stackable => {
             Transform t = stackable.GetTransform();
             t.GetComponent<Collider>().enabled = false;
@@ -89,6 +78,7 @@ public class PlayerDrag : MonoBehaviour {
         if (clickInputArgs.TargetObj.CompareTag("PlayArea")) { // Hit floor
             selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.HitPoint);
         } else { // Hit object
+            // TEMP: does not work with non 1x1 box shapes
             selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.TargetObj.transform.position);
         }
 
@@ -114,35 +104,9 @@ public class PlayerDrag : MonoBehaviour {
             grid.PlaceShape(rootCoord, shape);
             shape.GetTransform().position = rootCoord;
         }
-        
-        // Restore lastStack state + do cleanup, no longer need to cancel drag
-        lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
-        heldStack.ModifyStackProperties(stackable => {
-            Transform t = stackable.GetTransform();
-            t.GetComponent<Collider>().enabled = true;
-        });
 
-        lastStack.TryDestroyStack();
-        
         // Reset PlayerDrag
         bottomObjCol = null;
-        lastStack = null;
-        heldStack = null;
-    }
-    
-    void Cancel() {
-        if (heldStack == null) return;
-        
-        lastStack.DestroyOnEmpty = lastStackState.DestroyOnEmpty;
-        heldStack.ModifyStackProperties(stackable => {
-            Transform t = stackable.GetTransform();
-            t.GetComponent<Collider>().enabled = lastStackState.ColliderEnabled;
-        });
-
-        heldStack.PlaceAll(lastStack);
-        
-        bottomObjCol = null;
-        lastStack = null;
         heldStack = null;
     }
 }
