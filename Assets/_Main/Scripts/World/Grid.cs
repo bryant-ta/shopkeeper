@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public interface IGridShape {
+    public Vector3Int RootCoord { get; }
+    public Transform ShapeTransform { get; }
+    public Transform ColliderTransform { get; }
+    
     public ShapeData ShapeData { get; }
-
-    public Transform GetTransform();
 }
 
 public class Grid : MonoBehaviour {
@@ -44,9 +46,8 @@ public class Grid : MonoBehaviour {
             cells[rootCoord + offset] = gridShape;
         }
 
-        Transform fullGridShapeTrans = gridShape.GetTransform().parent;
-        fullGridShapeTrans.SetParent(transform);
-        fullGridShapeTrans.localPosition = rootCoord;
+        gridShape.ShapeTransform.SetParent(transform);
+        gridShape.ShapeTransform.localPosition = rootCoord;
 
         return true;
     }
@@ -56,7 +57,7 @@ public class Grid : MonoBehaviour {
             cells.Remove(rootCoord + offset);
         }
         
-        gridShape.GetTransform().parent.SetParent(null);
+        gridShape.ShapeTransform.SetParent(null);
     }
 
     // Modify exactly one cell

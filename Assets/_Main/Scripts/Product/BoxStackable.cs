@@ -2,16 +2,23 @@ using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
-    public ShapeType ShapeType => shapeType;
-    [SerializeField] ShapeType shapeType;
+    public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.position);
+    public Transform ShapeTransform => shapeTransform;
+    public Transform shapeTransform;
+    public Transform ColliderTransform => transform;
+
     public ShapeData ShapeData => shapeData;
     ShapeData shapeData;
-    
+
+    public ShapeType ShapeType => shapeType;
+    [SerializeField] ShapeType shapeType;
+
     BoxCollider boxCol;
 
     void Awake() {
-        shapeData = ShapeDataLookUp.LookUp[shapeType];
         boxCol = GetComponent<BoxCollider>();
+        shapeTransform = transform.parent;
+        shapeData = ShapeDataLookUp.LookUp[shapeType];
     }
 
     public Vector3 CalculateStackPosition(float stackHeight) {

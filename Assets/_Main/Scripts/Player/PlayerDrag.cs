@@ -40,17 +40,17 @@ public class PlayerDrag : MonoBehaviour {
         // Remove target obj from world grid
         Vector3Int rootCoord = Vector3Int.RoundToInt(heldObj.transform.parent.localPosition);
         GameManager.WorldGrid.RemoveShape(rootCoord, heldShape);
-        
+
         // Pick up target obj
         bottomObjCol = heldObj.GetComponent<Collider>();
         bottomObjCol.enabled = false;
         holdGrid.PlaceShape(Vector3Int.zero, heldShape); // placement should already be validated
-        
+
         // heldStack.ModifyStackProperties(stackable => {
         //     Transform t = stackable.GetTransform();
         //     t.GetComponent<Collider>().enabled = false;
         // });
-        
+
         Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
     }
 
@@ -77,18 +77,20 @@ public class PlayerDrag : MonoBehaviour {
                 yOffset = hit.point.y;
             }
         }
+
         yOffset += dragHoverHeight;
-        
+
         holdGrid.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
     }
-    
+
     void Release(ClickInputArgs clickInputArgs) {
         if (heldShape == null) return;
 
         // Find selected grid cell
         // TEMP: prob replace with tilemap
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(clickInputArgs.HitPoint + clickInputArgs.HitNormal + new Vector3(0.5f, 0, 0.5f));
+        Vector3 hitNormalClamped = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
+        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(clickInputArgs.HitPoint + hitNormalClamped + new Vector3(0.5f, 0, 0.5f));
 
         Grid targetGrid = GameManager.WorldGrid;
         if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
@@ -96,11 +98,11 @@ public class PlayerDrag : MonoBehaviour {
         } else {
             return;
         }
-        
+
         // Validate + Place/Move held obj to grid cell
         heldShape = holdGrid.SelectPosition(Vector3Int.zero);
         targetGrid.ValidateShapePlacement(selectedCellCoord, heldShape);
-        
+
         // List<IGridShape> gridShapes = heldStack.GetItemComponents<IGridShape>();
         // foreach (IGridShape shape in gridShapes) {
         //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
@@ -111,7 +113,7 @@ public class PlayerDrag : MonoBehaviour {
 
         holdGrid.RemoveShape(Vector3Int.zero, heldShape);
         targetGrid.PlaceShape(selectedCellCoord, heldShape);
-        
+
         // foreach (IGridShape shape in gridShapes) {
         //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
         //     Vector3Int rootCoord = selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition);
