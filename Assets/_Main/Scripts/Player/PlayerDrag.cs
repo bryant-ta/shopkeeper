@@ -47,8 +47,8 @@ public class PlayerDrag : MonoBehaviour {
         }
 
         bottomObjCol = clickedObj.GetComponent<Collider>();
-        foreach (IGridShape gridShape in heldShapes) {
-            gridShape.ColliderTransform.GetComponent<Collider>().enabled = false;
+        foreach (IGridShape shape in heldShapes) {
+            shape.ColliderTransform.GetComponent<Collider>().enabled = false;
         }
 
         Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
@@ -105,8 +105,8 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        foreach (IGridShape gridShape in heldShapes) {
-            gridShape.ColliderTransform.GetComponent<Collider>().enabled = true;
+        foreach (IGridShape shape in heldShapes) {
+            shape.ColliderTransform.GetComponent<Collider>().enabled = true;
         }
 
         // Reset PlayerDrag

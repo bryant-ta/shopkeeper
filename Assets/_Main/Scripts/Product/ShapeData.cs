@@ -10,21 +10,21 @@ public enum ShapeType {
 
 [Serializable]
 public struct ShapeData {
-    [HideInInspector] public List<Vector3Int> Shape;
+    [NonSerialized] public List<Vector3Int> ShapeOffsets;
 }
 
 public static class ShapeDataLookUp {
     public static Dictionary<ShapeType, ShapeData> LookUp = new Dictionary<ShapeType, ShapeData>() {
         {
             ShapeType._1x1x1, new ShapeData() {
-                Shape = new List<Vector3Int>() {
+                ShapeOffsets = new List<Vector3Int>() {
                     new(0,0,0)
                 }
             }
         },
         {
             ShapeType._1x2x1, new ShapeData() {
-                Shape = new List<Vector3Int>() {
+                ShapeOffsets = new List<Vector3Int>() {
                     new(0,0,0),
                     new(1,0,0),
                 }
@@ -32,7 +32,7 @@ public static class ShapeDataLookUp {
         },
         {
             ShapeType._2x2x2, new ShapeData() {
-                Shape = new List<Vector3Int>() {
+                ShapeOffsets = new List<Vector3Int>() {
                     new(0,0,0),
                     new(1,0,0),
                     new(0,0,1),

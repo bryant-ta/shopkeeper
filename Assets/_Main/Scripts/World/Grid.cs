@@ -43,8 +43,8 @@ public class Grid : MonoBehaviour {
         
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
-            if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape gridShape)) {
-                if (!PlaceShape(gridShape.RootCoord, gridShape)) {
+            if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape shape)) {
+                if (!PlaceShape(shape.RootCoord, shape)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
                 }
             } else {
@@ -55,66 +55,66 @@ public class Grid : MonoBehaviour {
 
     #region Manipulation
 
-    public bool PlaceShape(Vector3Int targetCoord, IGridShape gridShape) {
-        if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
-        PlaceShapeNoValidate(targetCoord, gridShape);
+    public bool PlaceShape(Vector3Int targetCoord, IGridShape shape) {
+        if (!ValidateShapePlacement(targetCoord, shape)) return false;
+        PlaceShapeNoValidate(targetCoord, shape);
 
         return true;
     }
-    void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape gridShape) {
-        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            cells[targetCoord + offset] = gridShape;
+    void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape shape) {
+        foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
+            cells[targetCoord + offset] = shape;
         }
 
-        gridShape.ShapeTransform.SetParent(transform);
-        gridShape.ShapeTransform.localPosition = targetCoord;
-        gridShape.ShapeTransform.localRotation = Quaternion.identity;
+        shape.ShapeTransform.SetParent(transform);
+        shape.ShapeTransform.localPosition = targetCoord;
+        shape.ShapeTransform.localRotation = Quaternion.identity;
     }
 
-    // Returns false if any placement of shape in gridShapes is invalid.
+    // Returns false if any placement of shape in shapes is invalid.
     // Placement is relative to first shape's root coord placed at targetCoord.
-    public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> gridShapes) {
-        if (gridShapes.Count == 0) return false;
-        if (!ValidateShapesPlacement(targetCoord, gridShapes)) return false;
+    public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes) {
+        if (shapes.Count == 0) return false;
+        if (!ValidateShapesPlacement(targetCoord, shapes)) return false;
 
-        Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
-        foreach (IGridShape gridShape in gridShapes) {
-            targetCoord += gridShape.RootCoord - lastShapeRootCoord;
-            lastShapeRootCoord = gridShape.RootCoord;
-            PlaceShapeNoValidate(targetCoord, gridShape);
+        Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
+        foreach (IGridShape shape in shapes) {
+            targetCoord += shape.RootCoord - lastShapeRootCoord;
+            lastShapeRootCoord = shape.RootCoord;
+            PlaceShapeNoValidate(targetCoord, shape);
         }
 
         return true;
     }
 
-    public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> gridShapes) {
-        // Save original gridShape coords in original grid for removal
+    public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes) {
+        // Save original shape coords in original grid for removal
         List<Vector3Int> origRootCoords = new();
-        for (int i = 0; i < gridShapes.Count; i++) {
-            origRootCoords.Add(gridShapes[i].RootCoord);
+        for (int i = 0; i < shapes.Count; i++) {
+            origRootCoords.Add(shapes[i].RootCoord);
         }
 
-        if (!targetGrid.PlaceShapes(targetCoord, gridShapes)) return false;
+        if (!targetGrid.PlaceShapes(targetCoord, shapes)) return false;
 
-        for (int i = 0; i < gridShapes.Count; i++) {
-            RemoveShapeCells(origRootCoords[i], gridShapes[i]);
+        for (int i = 0; i < shapes.Count; i++) {
+            RemoveShapeCells(origRootCoords[i], shapes[i]);
         }
 
         return true;
     }
 
-    public void DestroyShape(IGridShape gridShape) {
-        RemoveShapeCells(gridShape.RootCoord, gridShape);
+    public void DestroyShape(IGridShape shape) {
+        RemoveShapeCells(shape.RootCoord, shape);
 
-        // TODO: prob let gridshape handle its destruction, just call that on gridShape
-        Destroy(gridShape.ShapeTransform.gameObject);
+        // TODO: prob let IGridShape handle its destruction, just call that on shape
+        Destroy(shape.ShapeTransform.gameObject);
     }
 
     // Set exactly one cell
-    public bool SetCoord(Vector3Int coord, IGridShape gridShape) {
+    public bool SetCoord(Vector3Int coord, IGridShape shape) {
         if (!IsValidPlacement(coord)) return false;
 
-        cells[coord] = gridShape;
+        cells[coord] = shape;
         return true;
     }
     // Remove exactly one cell
@@ -123,8 +123,8 @@ public class Grid : MonoBehaviour {
 
         cells.Remove(coord);
     }
-    void RemoveShapeCells(Vector3Int rootCoord, IGridShape gridShape) {
-        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+    void RemoveShapeCells(Vector3Int rootCoord, IGridShape shape) {
+        foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells.Remove(rootCoord + offset);
         }
     }
@@ -208,8 +208,8 @@ public class Grid : MonoBehaviour {
     #region Validation
 
     // Validates placement of shape when shape's root coord is placed at targetCoord
-    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape gridShape) {
-        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape shape) {
+        foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos)) {
                 return false;
@@ -221,14 +221,14 @@ public class Grid : MonoBehaviour {
 
     // Validates placement of shapes in input list using current positioning in their current grid.
     // Placement is relative to first shape's root coord placed at targetCoord;
-    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> gridShapes) {
-        if (gridShapes.Count == 0) return true;
+    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes) {
+        if (shapes.Count == 0) return true;
 
-        Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
-        foreach (IGridShape gridShape in gridShapes) {
-            targetCoord += gridShape.RootCoord - lastShapeRootCoord;
-            lastShapeRootCoord = gridShape.RootCoord;
-            if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
+        Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
+        foreach (IGridShape shape in shapes) {
+            targetCoord += shape.RootCoord - lastShapeRootCoord;
+            lastShapeRootCoord = shape.RootCoord;
+            if (!ValidateShapePlacement(targetCoord, shape)) return false;
         }
 
         return true;
