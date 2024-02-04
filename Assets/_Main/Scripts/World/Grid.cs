@@ -1,97 +1,183 @@
 using System;
 using System.Collections.Generic;
+using TriInspector;
 using UnityEngine;
 
 public interface IGridShape {
     public Vector3Int RootCoord { get; }
+    public Grid Grid { get; }
+
     public Transform ShapeTransform { get; }
     public Transform ColliderTransform { get; }
-    
+
     public ShapeData ShapeData { get; }
 }
 
 public class Grid : MonoBehaviour {
-    // Min LHW defined as -max LHW
-    // Center defined as (0,0,0)
+    [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")] // not showing in inspector for now
     public int MaxLength => maxLength;
-    int maxLength;
+    [SerializeField] int maxLength;
     public int MaxHeight => maxHeight;
-    int maxHeight;
+    [SerializeField] int maxHeight;
     public int MaxWidth => maxWidth;
-    int maxWidth;
-    
+    [SerializeField] int maxWidth;
+
     Dictionary<Vector3Int, IGridShape> cells = new();
 
-    List<Vector2Int> validCells = new();
+    [ReadOnly,SerializeField] List<Vector2Int> validCells = new();
 
-    public void Init(int maxLength, int maxHeight, int maxWidth) {
+    void Start() { Init(maxLength, maxHeight, maxWidth); }
+
+    void Init(int maxLength, int maxHeight, int maxWidth) {
         this.maxLength = maxLength;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
+
+        // Set grid bounds
+        // actual length/width rounds to odd num due to centering on (0,0,0)
+        for (int x = -maxLength/2; x <= maxLength/2; x++) {
+            for (int z = -maxWidth/2; z <= maxWidth/2; z++) {
+                validCells.Add(new Vector2Int(x, z));
+            }
+        }
         
-        // TEMP: Define initial play area
-        for (int x = -10; x <= 10; x++) {
-            for (int y = -10; y <= 10; y++) {
-                validCells.Add(new Vector2Int(x, y));
+        // Add pre-existing scene shapes to grid
+        for (int i = 0; i < transform.childCount; i++) {
+            if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape gridShape)) {
+                if (!PlaceShape(gridShape.RootCoord, gridShape)) {
+                    Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
+                }
+            } else {
+                Debug.LogErrorFormat("Only shapes with IGridShape component should be a child of Grid. ({0})", transform.GetChild(i).name);
             }
         }
     }
 
     #region Manipulation
 
-    public bool PlaceShape(Vector3Int rootCoord, IGridShape gridShape) {
-        if (!ValidateShapePlacement(rootCoord, gridShape)) return false;
-
-        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            cells[rootCoord + offset] = gridShape;
-        }
-
-        gridShape.ShapeTransform.SetParent(transform);
-        gridShape.ShapeTransform.localPosition = rootCoord;
+    public bool PlaceShape(Vector3Int targetCoord, IGridShape gridShape) {
+        if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
+        PlaceShapeNoValidate(targetCoord, gridShape);
 
         return true;
     }
-    
-    public void RemoveShape(Vector3Int rootCoord, IGridShape gridShape) {
+    void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape gridShape) {
         foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            cells.Remove(rootCoord + offset);
+            cells[targetCoord + offset] = gridShape;
         }
-        
-        gridShape.ShapeTransform.SetParent(null);
+
+        gridShape.ShapeTransform.SetParent(transform);
+        gridShape.ShapeTransform.localPosition = targetCoord;
     }
 
-    // Modify exactly one cell
-    public bool Set(Vector3Int coord, IGridShape gridShape) {
+    // Returns false if any placement of shape in gridShapes is invalid.
+    // Placement is relative to first shape's root coord placed at targetCoord.
+    public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> gridShapes) {
+        if (gridShapes.Count == 0) return false;
+        if (!ValidateShapesPlacement(targetCoord, gridShapes)) return false;
+
+        Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
+        foreach (IGridShape gridShape in gridShapes) {
+            targetCoord += gridShape.RootCoord - lastShapeRootCoord;
+            PlaceShapeNoValidate(targetCoord, gridShape);
+            lastShapeRootCoord = gridShape.RootCoord;
+        }
+
+        return true;
+    }
+
+    public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> gridShapes) {
+        if (!targetGrid.PlaceShapes(targetCoord, gridShapes)) return false;
+
+        foreach (IGridShape gridShape in gridShapes) {
+            RemoveShapeCells(gridShape);
+        }
+
+        return true;
+    }
+
+    public void DestroyShape(IGridShape gridShape) {
+        RemoveShapeCells(gridShape);
+
+        // TODO: prob let gridshape handle its destruction, just call that on gridShape
+        Destroy(gridShape.ShapeTransform.gameObject);
+    }
+
+    // Set exactly one cell
+    public bool SetCoord(Vector3Int coord, IGridShape gridShape) {
         if (!IsValidPlacement(coord)) return false;
 
         cells[coord] = gridShape;
         return true;
     }
-    
-    // Modify exactly one cell
-    public void Remove(Vector3Int coord) {
-        if (IsOpen(coord) || !IsInBounds(coord.x, coord.z)) return;
+    // Remove exactly one cell
+    public void RemoveCoord(Vector3Int coord) {
+        if (IsOpen(coord) || !IsInBounds(coord)) return;
 
         cells.Remove(coord);
+    }
+    void RemoveShapeCells(IGridShape gridShape) {
+        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+            cells.Remove(gridShape.RootCoord + offset);
+        }
     }
 
     #endregion
 
     #region Selection
 
+    // Simple form of SelectStackedShapes. Assumes all shapes are 1x1x1
+    // TODO: Modify for multi-space shapes
+    public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
+        List<IGridShape> stackedShapes = new();
+        while (coord.y < maxHeight && !IsOpen(coord)) {
+            IGridShape shape = cells[coord];
+
+            if (!stackedShapes.Contains(shape)) {
+                stackedShapes.Add(shape);
+            }
+
+            coord.y++;
+        }
+
+        return stackedShapes;
+    }
+
+    // TODO: untested. Possible infinite loop with enqueuing cells that have already been checked?
+    // public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
+    //     List<IGridShape> stackedShapes = new();
+    //     Queue<Vector3Int> cellsToCheck = new Queue<Vector3Int>();
+    //
+    //     cellsToCheck.Enqueue(coord);
+    //     while (cellsToCheck.Count > 0) {
+    //         Vector3Int checkCoord = cellsToCheck.Dequeue();
+    //         checkCoord += Vector3Int.up; // Search above check cell
+    //         if (checkCoord.y < maxHeight !IsOpen(checkCoord)) {
+    //             IGridShape shape = cells[checkCoord];
+    //             
+    //             if (!stackedShapes.Contains(shape)) { // Add shape if new
+    //                 stackedShapes.Add(shape);
+    //                 
+    //                 foreach (Vector3Int offset in shape.ShapeData.Shape) { // Add cells of this shape to the check queue
+    //                     cellsToCheck.Enqueue(checkCoord + offset);
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     return stackedShapes;
+    // }
+
     public IGridShape SelectPosition(Vector3Int coord) {
-        if (!IsInBounds(coord.x, coord.z)) return null;
+        if (!IsInBounds(coord)) return null;
         return cells[coord];
     }
 
     public IGridShape SelectOffset(Vector3Int origin, Vector3Int offset) {
-        int targetX = origin.x + offset.x;
-        int targetY = origin.y + offset.y;
-        int targetZ = origin.z + offset.z;
+        Vector3Int targetCoord = new Vector3Int(origin.x + offset.x, origin.y + offset.y, origin.z + offset.z);
+        if (!IsInBounds(targetCoord)) return null;
 
-        if (!IsInBounds(targetX, targetY)) return null;
-
-        return cells[new Vector3Int(targetX, targetY, targetZ)];
+        return cells[targetCoord];
     }
 
     /// <summary>
@@ -114,9 +200,10 @@ public class Grid : MonoBehaviour {
 
     #region Validation
 
-    public bool ValidateShapePlacement(Vector3Int rootCoord, IGridShape gridShape) {
+    // Validates placement of shape when shape's root coord is placed at targetCoord
+    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape gridShape) {
         foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            Vector3Int checkPos = new Vector3Int(rootCoord.x + offset.x, rootCoord.y + offset.y, rootCoord.z + offset.z);
+            Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos)) {
                 return false;
             }
@@ -125,8 +212,23 @@ public class Grid : MonoBehaviour {
         return true;
     }
 
+    // Validates placement of shapes in input list using current positioning in their current grid.
+    // Placement is relative to first shape's root coord placed at targetCoord;
+    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> gridShapes) {
+        if (gridShapes.Count == 0) return true;
+
+        Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
+        foreach (IGridShape gridShape in gridShapes) {
+            targetCoord += gridShape.RootCoord - lastShapeRootCoord;
+            if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
+            lastShapeRootCoord = gridShape.RootCoord;
+        }
+
+        return true;
+    }
+
     #endregion
-    
+
     #region ValidCells
 
     /// <summary>
@@ -144,9 +246,9 @@ public class Grid : MonoBehaviour {
 
     #region Helper
 
-    public bool IsValidPlacement(Vector3Int coord) { return IsInBounds(coord.x, coord.z) && IsOpen(coord); }
+    public bool IsValidPlacement(Vector3Int coord) { return IsInBounds(coord) && IsOpen(coord); }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
-    public bool IsInBounds(int x, int z) { return validCells.Contains(new Vector2Int(x, z)); }
+    public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
     #endregion
 }

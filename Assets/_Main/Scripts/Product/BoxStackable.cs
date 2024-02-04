@@ -1,18 +1,30 @@
+using System;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
     public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.position);
+    public Grid Grid {
+        get {
+            if (shapeTransform.parent.TryGetComponent(out Grid grid)) {
+                return grid;
+            }
+            
+            Debug.LogError("IGridShape is not in a grid.");
+            return null;
+        }
+    }
+    
     public Transform ShapeTransform => shapeTransform;
     public Transform shapeTransform;
     public Transform ColliderTransform => transform;
 
-    public ShapeData ShapeData => shapeData;
-    ShapeData shapeData;
-
     public ShapeType ShapeType => shapeType;
     [SerializeField] ShapeType shapeType;
 
+    public ShapeData ShapeData => shapeData;
+    ShapeData shapeData;
+    
     BoxCollider boxCol;
 
     void Awake() {

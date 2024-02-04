@@ -13,7 +13,6 @@ public class GameManager : Singleton<GameManager> {
         if (debug) { DebugTasks(); }
 
         worldGrid = _worldGrid;
-        worldGrid.Init(20, 5, 20);
     }
 
     void DebugTasks() {

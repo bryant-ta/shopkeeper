@@ -7,14 +7,14 @@ using UnityEngine;
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
 
-    Collider bottomObjCol;
     [SerializeField] Grid holdGrid;
-    IGridShape heldShape; // TEMP
+    List<IGridShape> heldShapes = new();
+
+    Collider bottomObjCol;
 
     Player player;
 
     void Awake() {
-        holdGrid.Init(1, 1, 1); // TEMP
         player = GetComponent<Player>();
     }
 
@@ -25,37 +25,36 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
-        GameObject heldObj = clickInputArgs.TargetObj;
-        if (!player.IsInRange(heldObj.transform.position)) return;
-        heldShape = heldObj.GetComponent<IGridShape>();
-        if (heldShape == null) return;
-
-        if (!holdGrid.ValidateShapePlacement(Vector3Int.zero, heldShape)) {
-            Debug.Log("Object too big to pick up!"); // TEMP
-            return;
-        }
+        GameObject clickedObj = clickInputArgs.TargetObj;
+        if (!player.IsInRange(clickedObj.transform.position)) return;
+        IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
+        if (clickedShape == null) return;
 
         // TODO: add tag or something for objects that should be moveable
 
-        // Remove target obj from world grid
-        Vector3Int rootCoord = Vector3Int.RoundToInt(heldObj.transform.parent.localPosition);
-        GameManager.WorldGrid.RemoveShape(rootCoord, heldShape);
+        // Try to pick up stack of shapes
+        Grid targetGrid = clickedShape.Grid;
+        heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
+        if (heldShapes.Count == 0) {
+            Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
+            return;
+        }
 
-        // Pick up target obj
-        bottomObjCol = heldObj.GetComponent<Collider>();
-        bottomObjCol.enabled = false;
-        holdGrid.PlaceShape(Vector3Int.zero, heldShape); // placement should already be validated
+        if (!targetGrid.MoveShapes(holdGrid, Vector3Int.zero, heldShapes)) {
+            Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+            return;
+        }
 
-        // heldStack.ModifyStackProperties(stackable => {
-        //     Transform t = stackable.GetTransform();
-        //     t.GetComponent<Collider>().enabled = false;
-        // });
+        bottomObjCol = clickedObj.GetComponent<Collider>();
+        foreach (IGridShape gridShape in heldShapes) {
+            gridShape.ColliderTransform.GetComponent<Collider>().enabled = false;
+        }
 
         Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
     }
 
     void Drag(Vector3 hitPoint) {
-        if (heldShape == null) return;
+        if (heldShapes.Count == 0) return;
         if (bottomObjCol == null) {
             Debug.LogError("Held object is missing a collider.");
             return;
@@ -84,7 +83,7 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Release(ClickInputArgs clickInputArgs) {
-        if (heldShape == null) return;
+        if (heldShapes.Count == 0) return;
 
         // Find selected grid cell
         // TEMP: prob replace with tilemap
@@ -99,32 +98,18 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Validate + Place/Move held obj to grid cell
-        heldShape = holdGrid.SelectPosition(Vector3Int.zero);
-        targetGrid.ValidateShapePlacement(selectedCellCoord, heldShape);
+        // Try to place held stack of shapes
+        if (!holdGrid.MoveShapes(targetGrid, selectedCellCoord, heldShapes)) {
+            Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+            return;
+        }
 
-        // List<IGridShape> gridShapes = heldStack.GetItemComponents<IGridShape>();
-        // foreach (IGridShape shape in gridShapes) {
-        //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
-        //     if (!targetGrid.ValidateShapePlacement(selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition), shape)) {
-        //         return;
-        //     }
-        // }
-
-        holdGrid.RemoveShape(Vector3Int.zero, heldShape);
-        targetGrid.PlaceShape(selectedCellCoord, heldShape);
-
-        // foreach (IGridShape shape in gridShapes) {
-        //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
-        //     Vector3Int rootCoord = selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition);
-        //     targetGrid.PlaceShape(rootCoord, shape);
-        //     shape.GetTransform().position = rootCoord;
-        // }
-
-        bottomObjCol.enabled = true;
+        foreach (IGridShape gridShape in heldShapes) {
+            gridShape.ColliderTransform.GetComponent<Collider>().enabled = true;
+        }
 
         // Reset PlayerDrag
+        heldShapes.Clear();
         bottomObjCol = null;
-        heldShape = null;
     }
 }
