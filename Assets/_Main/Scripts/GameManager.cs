@@ -7,11 +7,13 @@ public class GameManager : Singleton<GameManager> {
 
     public static Grid WorldGrid => worldGrid;
     static Grid worldGrid;
+    [SerializeField] Grid _worldGrid;
 
     void Start() {
         if (debug) { DebugTasks(); }
 
-        worldGrid = new Grid(20, 5, 20);
+        worldGrid = _worldGrid;
+        worldGrid.Init(20, 5, 20);
     }
 
     void DebugTasks() {

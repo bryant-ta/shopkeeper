@@ -8,11 +8,13 @@ public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
 
     Collider bottomObjCol;
-    Stack heldStack;
+    [SerializeField] Grid holdGrid;
+    IGridShape heldShape; // TEMP
 
     Player player;
 
     void Awake() {
+        holdGrid.Init(1, 1, 1); // TEMP
         player = GetComponent<Player>();
     }
 
@@ -23,26 +25,37 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
-        GameObject targetObj = clickInputArgs.TargetObj;
-        if (!player.IsInRange(targetObj.transform.position)) return;
-        IStackable s = targetObj.GetComponent<IStackable>();
-        if (s == null) return;
+        GameObject heldObj = clickInputArgs.TargetObj;
+        if (!player.IsInRange(heldObj.transform.position)) return;
+        heldShape = heldObj.GetComponent<IGridShape>();
+        if (heldShape == null) return;
+
+        if (!holdGrid.ValidateShapePlacement(Vector3Int.zero, heldShape)) {
+            Debug.Log("Object too big to pick up!"); // TEMP
+            return;
+        }
 
         // TODO: add tag or something for objects that should be moveable
 
-        // Remove target obj from its stack
-        bottomObjCol = targetObj.GetComponent<Collider>();
-        heldStack = s.GetStack().Take(s);
-        heldStack.ModifyStackProperties(stackable => {
-            Transform t = stackable.GetTransform();
-            t.GetComponent<Collider>().enabled = false;
-        });
+        // Remove target obj from world grid
+        Vector3Int rootCoord = Vector3Int.RoundToInt(heldObj.transform.parent.localPosition);
+        GameManager.WorldGrid.RemoveShape(rootCoord, heldShape);
+        
+        // Pick up target obj
+        bottomObjCol = heldObj.GetComponent<Collider>();
+        bottomObjCol.enabled = false;
+        holdGrid.PlaceShape(Vector3Int.zero, heldShape); // placement should already be validated
+        
+        // heldStack.ModifyStackProperties(stackable => {
+        //     Transform t = stackable.GetTransform();
+        //     t.GetComponent<Collider>().enabled = false;
+        // });
         
         Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
     }
 
     void Drag(Vector3 hitPoint) {
-        if (heldStack == null) return;
+        if (heldShape == null) return;
         if (bottomObjCol == null) {
             Debug.LogError("Held object is missing a collider.");
             return;
@@ -66,52 +79,50 @@ public class PlayerDrag : MonoBehaviour {
         }
         yOffset += dragHoverHeight;
         
-        heldStack.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
+        holdGrid.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
     }
     
     void Release(ClickInputArgs clickInputArgs) {
-        if (heldStack == null) return;
+        if (heldShape == null) return;
 
         // Find selected grid cell
         // TEMP: prob replace with tilemap
-        Vector3Int selectedCellCoord;
-        if (clickInputArgs.TargetObj.CompareTag("PlayArea")) { // Hit floor
-            selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.HitPoint);
-        } else { // Hit object
-            // TEMP: does not work with non 1x1 box shapes
-            selectedCellCoord = Vector3Int.RoundToInt(clickInputArgs.TargetObj.transform.position);
-        }
+        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
+        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(clickInputArgs.HitPoint + clickInputArgs.HitNormal + new Vector3(0.5f, 0, 0.5f));
 
-        Grid grid = GameManager.WorldGrid;
-        if (grid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
+        Grid targetGrid = GameManager.WorldGrid;
+        if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
         } else {
             return;
         }
         
-        // Validate + Place/Move heldStack to grid cell
-        List<IGridShape> gridShapes = heldStack.GetItemComponents<IGridShape>();
-        foreach (IGridShape shape in gridShapes) {
-            // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
-            if (!grid.ValidateShapePlacement(selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition), shape)) {
-                return;
-            }
-        }
+        // Validate + Place/Move held obj to grid cell
+        heldShape = holdGrid.SelectPosition(Vector3Int.zero);
+        targetGrid.ValidateShapePlacement(selectedCellCoord, heldShape);
         
-        foreach (IGridShape shape in gridShapes) {
-            // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
-            Vector3Int rootCoord = selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition);
-            grid.PlaceShape(rootCoord, shape);
-            shape.GetTransform().position = rootCoord;
-        }
+        // List<IGridShape> gridShapes = heldStack.GetItemComponents<IGridShape>();
+        // foreach (IGridShape shape in gridShapes) {
+        //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
+        //     if (!targetGrid.ValidateShapePlacement(selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition), shape)) {
+        //         return;
+        //     }
+        // }
+
+        holdGrid.RemoveShape(Vector3Int.zero, heldShape);
+        targetGrid.PlaceShape(selectedCellCoord, heldShape);
+        
+        // foreach (IGridShape shape in gridShapes) {
+        //     // TEMP: rootCoord won't work if obj pivot is not regular (fitting in stack like a box)
+        //     Vector3Int rootCoord = selectedCellCoord + Vector3Int.RoundToInt(shape.GetTransform().localPosition);
+        //     targetGrid.PlaceShape(rootCoord, shape);
+        //     shape.GetTransform().position = rootCoord;
+        // }
+
+        bottomObjCol.enabled = true;
 
         // Reset PlayerDrag
         bottomObjCol = null;
-        heldStack = null;
+        heldShape = null;
     }
-}
-
-struct LastStackState {
-    public bool DestroyOnEmpty;
-    public bool ColliderEnabled;
 }

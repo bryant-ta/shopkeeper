@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ public interface IGridShape {
     public Transform GetTransform();
 }
 
-public class Grid {
+public class Grid : MonoBehaviour {
     // Min LHW defined as -max LHW
     // Center defined as (0,0,0)
     public int MaxLength => maxLength;
@@ -21,7 +22,7 @@ public class Grid {
 
     List<Vector2Int> validCells = new();
 
-    public Grid(int maxLength, int maxHeight, int maxWidth) {
+    public void Init(int maxLength, int maxHeight, int maxWidth) {
         this.maxLength = maxLength;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
@@ -34,33 +35,31 @@ public class Grid {
         }
     }
 
-    #region Validation
-
-    public bool ValidateShapePlacement(Vector3Int rootCoord, IGridShape gridShape) {
-        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            Vector3Int checkPos = new Vector3Int(rootCoord.x + offset.x, rootCoord.y + offset.y, rootCoord.z + offset.z);
-            if (!IsValidPlacement(checkPos)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    #endregion
-
     #region Manipulation
 
     public bool PlaceShape(Vector3Int rootCoord, IGridShape gridShape) {
         if (!ValidateShapePlacement(rootCoord, gridShape)) return false;
 
         foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            cells[rootCoord] = gridShape;
+            cells[rootCoord + offset] = gridShape;
         }
+
+        Transform fullGridShapeTrans = gridShape.GetTransform().parent;
+        fullGridShapeTrans.SetParent(transform);
+        fullGridShapeTrans.localPosition = rootCoord;
 
         return true;
     }
+    
+    public void RemoveShape(Vector3Int rootCoord, IGridShape gridShape) {
+        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+            cells.Remove(rootCoord + offset);
+        }
+        
+        gridShape.GetTransform().parent.SetParent(null);
+    }
 
+    // Modify exactly one cell
     public bool Set(Vector3Int coord, IGridShape gridShape) {
         if (!IsValidPlacement(coord)) return false;
 
@@ -68,6 +67,7 @@ public class Grid {
         return true;
     }
     
+    // Modify exactly one cell
     public void Remove(Vector3Int coord) {
         if (IsOpen(coord) || !IsInBounds(coord.x, coord.z)) return;
 
@@ -111,6 +111,21 @@ public class Grid {
 
     #endregion
 
+    #region Validation
+
+    public bool ValidateShapePlacement(Vector3Int rootCoord, IGridShape gridShape) {
+        foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
+            Vector3Int checkPos = new Vector3Int(rootCoord.x + offset.x, rootCoord.y + offset.y, rootCoord.z + offset.z);
+            if (!IsValidPlacement(checkPos)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    #endregion
+    
     #region ValidCells
 
     /// <summary>
