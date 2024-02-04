@@ -7,7 +7,7 @@ using UnityEngine;
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
 
-    [SerializeField] Grid holdGrid;
+    [SerializeField] Grid dragGrid;
     List<IGridShape> heldShapes = new();
 
     Collider bottomObjCol;
@@ -40,8 +40,9 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        if (!targetGrid.MoveShapes(holdGrid, Vector3Int.zero, heldShapes)) {
+        if (!targetGrid.MoveShapes(dragGrid, Vector3Int.zero, heldShapes)) {
             Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+            heldShapes.Clear();
             return;
         }
 
@@ -79,7 +80,7 @@ public class PlayerDrag : MonoBehaviour {
 
         yOffset += dragHoverHeight;
 
-        holdGrid.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
+        dragGrid.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
     }
 
     void Release(ClickInputArgs clickInputArgs) {
@@ -99,7 +100,7 @@ public class PlayerDrag : MonoBehaviour {
         }
 
         // Try to place held stack of shapes
-        if (!holdGrid.MoveShapes(targetGrid, selectedCellCoord, heldShapes)) {
+        if (!dragGrid.MoveShapes(targetGrid, selectedCellCoord, heldShapes)) {
             Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
             return;
         }

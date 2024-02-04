@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EventManager;
 using UnityEngine;
 
@@ -7,12 +8,8 @@ public class Player : MonoBehaviour {
     public float InteractionRange => interactionRange;
 
     public Transform dropPos;
-    
-    Stack heldStack;
 
-    void Awake() {
-        heldStack = GetComponentInChildren<Stack>();
-    }
+    [SerializeField] Grid holdGrid;
 
     void Start() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
@@ -32,17 +29,29 @@ public class Player : MonoBehaviour {
             return;
         }
 
-        if (targetObj.TryGetComponent(out IStackable s)) {
-            Stack clickedStack = s.GetStack();
-            clickedStack.PlaceRange(heldStack, clickedStack.IndexOf(s), clickedStack.Size() - 1);
+        if (targetObj.TryGetComponent(out IGridShape clickedShape)) {
+            Grid targetGrid = clickedShape.Grid;
+            List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
+            if (heldShapes.Count == 0) {
+                Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
+                return;
+            }
+
+            Vector3Int nextOpenHoldStackCoord = Vector3Int.zero;
+            if (holdGrid.SelectLowestOpen(0, 0, out int lowestOpenY)) {
+                nextOpenHoldStackCoord.y = lowestOpenY;
+
+                if (!targetGrid.MoveShapes(holdGrid, nextOpenHoldStackCoord, heldShapes)) {
+                    Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+                }
+            }
         }
     }
 
     void DropOne() {
-        if (heldStack.Size() == 0) return;
+        if (holdGrid.GridIsEmpty()) return;
         
-        Stack droppedStack = heldStack.Pop();
-        droppedStack.transform.position = dropPos.position;
+        // TODO: implement
     }
     
     public bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < InteractionRange; }

@@ -68,6 +68,7 @@ public class Grid : MonoBehaviour {
 
         gridShape.ShapeTransform.SetParent(transform);
         gridShape.ShapeTransform.localPosition = targetCoord;
+        gridShape.ShapeTransform.localRotation = Quaternion.identity;
     }
 
     // Returns false if any placement of shape in gridShapes is invalid.
@@ -79,25 +80,31 @@ public class Grid : MonoBehaviour {
         Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
         foreach (IGridShape gridShape in gridShapes) {
             targetCoord += gridShape.RootCoord - lastShapeRootCoord;
-            PlaceShapeNoValidate(targetCoord, gridShape);
             lastShapeRootCoord = gridShape.RootCoord;
+            PlaceShapeNoValidate(targetCoord, gridShape);
         }
 
         return true;
     }
 
     public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> gridShapes) {
+        // Save original gridShape coords in original grid for removal
+        List<Vector3Int> origRootCoords = new();
+        for (int i = 0; i < gridShapes.Count; i++) {
+            origRootCoords.Add(gridShapes[i].RootCoord);
+        }
+
         if (!targetGrid.PlaceShapes(targetCoord, gridShapes)) return false;
 
-        foreach (IGridShape gridShape in gridShapes) {
-            RemoveShapeCells(gridShape);
+        for (int i = 0; i < gridShapes.Count; i++) {
+            RemoveShapeCells(origRootCoords[i], gridShapes[i]);
         }
 
         return true;
     }
 
     public void DestroyShape(IGridShape gridShape) {
-        RemoveShapeCells(gridShape);
+        RemoveShapeCells(gridShape.RootCoord, gridShape);
 
         // TODO: prob let gridshape handle its destruction, just call that on gridShape
         Destroy(gridShape.ShapeTransform.gameObject);
@@ -116,9 +123,9 @@ public class Grid : MonoBehaviour {
 
         cells.Remove(coord);
     }
-    void RemoveShapeCells(IGridShape gridShape) {
+    void RemoveShapeCells(Vector3Int rootCoord, IGridShape gridShape) {
         foreach (Vector3Int offset in gridShape.ShapeData.Shape) {
-            cells.Remove(gridShape.RootCoord + offset);
+            cells.Remove(rootCoord + offset);
         }
     }
 
@@ -220,8 +227,8 @@ public class Grid : MonoBehaviour {
         Vector3Int lastShapeRootCoord = gridShapes[0].RootCoord;
         foreach (IGridShape gridShape in gridShapes) {
             targetCoord += gridShape.RootCoord - lastShapeRootCoord;
-            if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
             lastShapeRootCoord = gridShape.RootCoord;
+            if (!ValidateShapePlacement(targetCoord, gridShape)) return false;
         }
 
         return true;
@@ -249,6 +256,8 @@ public class Grid : MonoBehaviour {
     public bool IsValidPlacement(Vector3Int coord) { return IsInBounds(coord) && IsOpen(coord); }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
+
+    public bool GridIsEmpty() { return cells.Count == 0; }
 
     #endregion
 }

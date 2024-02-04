@@ -3,7 +3,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
-    public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.position);
+    public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.localPosition);
     public Grid Grid {
         get {
             if (shapeTransform.parent.TryGetComponent(out Grid grid)) {
