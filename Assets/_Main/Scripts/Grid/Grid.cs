@@ -16,6 +16,7 @@ public interface IGridShape {
 public class Grid : MonoBehaviour {
     [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")] // not showing in inspector for now
     public int MaxLength => maxLength;
+
     [SerializeField] int maxLength;
     public int MaxHeight => maxHeight;
     [SerializeField] int maxHeight;
@@ -24,7 +25,8 @@ public class Grid : MonoBehaviour {
 
     Dictionary<Vector3Int, Cell> cells = new();
 
-    [ReadOnly,SerializeField] List<Vector2Int> validCells = new();
+    List<Zone> zones = new();
+    HashSet<Vector2Int> validCells = new();
 
     void Start() { Init(maxLength, maxHeight, maxWidth); }
 
@@ -32,15 +34,15 @@ public class Grid : MonoBehaviour {
         this.maxLength = maxLength;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
-        
+
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
-        for (int x = -maxLength/2; x <= maxLength/2; x++) {
-            for (int z = -maxWidth/2; z <= maxWidth/2; z++) {
+        for (int x = -maxLength / 2; x <= maxLength / 2; x++) {
+            for (int z = -maxWidth / 2; z <= maxWidth / 2; z++) {
                 validCells.Add(new Vector2Int(x, z));
             }
         }
-        
+
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
             if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape shape)) {
@@ -89,7 +91,7 @@ public class Grid : MonoBehaviour {
 
     public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes) {
         for (int i = 0; i < shapes.Count; i++) {
-            if (!cells[shapes[i].RootCoord].Zone.ZoneProps.CanTake) {
+            if (CheckZones(shapes[i].RootCoord, prop => !prop.CanTake)) {
                 return false;
             }
         }
@@ -242,6 +244,38 @@ public class Grid : MonoBehaviour {
 
     #endregion
 
+    #region Zones
+
+    public void AddZone(Zone zone) {
+        foreach (Vector3Int coord in zone.AllCoords) {
+            if (!IsInBounds(coord)) {
+                Debug.Log("Cannot add zone to grid: out of bounds.");
+                return;
+            }
+        }
+
+        zones.Add(zone);
+    }
+    public void RemoveZone(Zone zone) { zones.Remove(zone); }
+
+    /// <summary>
+    /// Returns true if coord is within this Grid's Zones and matches zone properties.
+    /// Example usage: CheckZone(coord, prop => prop.CanPlace, prop => !prop.CanTake, ...)
+    /// </summary>
+    bool CheckZones(Vector3Int coord, params Func<ZoneProperties, bool>[] props) {
+        for (int i = 0; i < zones.Count; i++) {
+            if (zones[i].AllCoords.Contains(coord)) {
+                foreach (Func<ZoneProperties, bool> prop in props) {
+                    if (!prop(zones[i].ZoneProps)) return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    #endregion
+
     #region ValidCells
 
     /// <summary>
@@ -259,7 +293,9 @@ public class Grid : MonoBehaviour {
 
     #region Helper
 
-    public bool IsValidPlacement(Vector3Int coord) { return IsOpen(coord) && IsInBounds(coord) && cells[coord].Zone.ZoneProps.CanPlace; }
+    public bool IsValidPlacement(Vector3Int coord) {
+        return IsOpen(coord) && IsInBounds(coord) && CheckZones(coord, prop => prop.CanPlace);
+    }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 

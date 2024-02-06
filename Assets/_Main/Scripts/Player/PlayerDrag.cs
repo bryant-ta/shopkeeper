@@ -25,6 +25,8 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
+        if (heldShapes.Count > 0) return;
+        
         GameObject clickedObj = clickInputArgs.TargetObj;
         if (!player.IsInRange(clickedObj.transform.position)) return;
         IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
