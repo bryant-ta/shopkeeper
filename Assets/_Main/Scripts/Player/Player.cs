@@ -31,6 +31,8 @@ public class Player : MonoBehaviour {
 
         if (targetObj.TryGetComponent(out IGridShape clickedShape)) {
             Grid targetGrid = clickedShape.Grid;
+            if (targetGrid == holdGrid) return;
+            
             List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
             if (heldShapes.Count == 0) {
                 Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");

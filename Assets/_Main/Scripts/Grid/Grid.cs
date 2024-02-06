@@ -22,7 +22,7 @@ public class Grid : MonoBehaviour {
     public int MaxWidth => maxWidth;
     [SerializeField] int maxWidth;
 
-    Dictionary<Vector3Int, IGridShape> cells = new();
+    Dictionary<Vector3Int, Cell> cells = new();
 
     [ReadOnly,SerializeField] List<Vector2Int> validCells = new();
 
@@ -32,7 +32,7 @@ public class Grid : MonoBehaviour {
         this.maxLength = maxLength;
         this.maxHeight = maxHeight;
         this.maxWidth = maxWidth;
-
+        
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
         for (int x = -maxLength/2; x <= maxLength/2; x++) {
@@ -63,7 +63,7 @@ public class Grid : MonoBehaviour {
     }
     void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape shape) {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
-            cells[targetCoord + offset] = shape;
+            cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
 
         shape.ShapeTransform.SetParent(transform);
@@ -114,7 +114,7 @@ public class Grid : MonoBehaviour {
     public bool SetCoord(Vector3Int coord, IGridShape shape) {
         if (!IsValidPlacement(coord)) return false;
 
-        cells[coord] = shape;
+        cells[coord] = new Cell(coord, shape);
         return true;
     }
     // Remove exactly one cell
@@ -138,7 +138,7 @@ public class Grid : MonoBehaviour {
     public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
         List<IGridShape> stackedShapes = new();
         while (coord.y < maxHeight && !IsOpen(coord)) {
-            IGridShape shape = cells[coord];
+            IGridShape shape = cells[coord].Shape;
 
             if (!stackedShapes.Contains(shape)) {
                 stackedShapes.Add(shape);
@@ -177,14 +177,14 @@ public class Grid : MonoBehaviour {
 
     public IGridShape SelectPosition(Vector3Int coord) {
         if (!IsInBounds(coord)) return null;
-        return cells[coord];
+        return cells[coord].Shape;
     }
 
     public IGridShape SelectOffset(Vector3Int origin, Vector3Int offset) {
         Vector3Int targetCoord = new Vector3Int(origin.x + offset.x, origin.y + offset.y, origin.z + offset.z);
         if (!IsInBounds(targetCoord)) return null;
 
-        return cells[targetCoord];
+        return cells[targetCoord].Shape;
     }
 
     /// <summary>
