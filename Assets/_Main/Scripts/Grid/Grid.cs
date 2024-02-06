@@ -88,6 +88,12 @@ public class Grid : MonoBehaviour {
     }
 
     public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes) {
+        for (int i = 0; i < shapes.Count; i++) {
+            if (!cells[shapes[i].RootCoord].Zone.ZoneProps.CanTake) {
+                return false;
+            }
+        }
+
         // Save original shape coords in original grid for removal
         List<Vector3Int> origRootCoords = new();
         for (int i = 0; i < shapes.Count; i++) {
@@ -253,7 +259,7 @@ public class Grid : MonoBehaviour {
 
     #region Helper
 
-    public bool IsValidPlacement(Vector3Int coord) { return IsInBounds(coord) && IsOpen(coord); }
+    public bool IsValidPlacement(Vector3Int coord) { return IsOpen(coord) && IsInBounds(coord) && cells[coord].Zone.ZoneProps.CanPlace; }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
