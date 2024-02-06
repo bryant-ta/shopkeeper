@@ -44,7 +44,7 @@ public class Player : MonoBehaviour {
                 nextOpenHoldStackCoord.y = lowestOpenY;
 
                 if (!targetGrid.MoveShapes(holdGrid, nextOpenHoldStackCoord, heldShapes)) {
-                    Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+                    Debug.LogFormat("Unable to move shapes to target grid ({0}).", holdGrid.gameObject.name); // TEMP
                 }
             }
         }

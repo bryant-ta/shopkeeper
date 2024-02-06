@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -24,7 +23,7 @@ public class Zone {
         Length = length;
         Height = height;
         Width = width;
-        
+
         UpdateAllCoords();
         UpdateXZCoords();
     }

@@ -45,20 +45,19 @@ public class Grid : MonoBehaviour {
 
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
+            if (transform.GetChild(i).childCount == 0) continue;
             if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape shape)) {
-                if (!PlaceShape(shape.RootCoord, shape)) {
+                if (!PlaceShape(shape.RootCoord, shape, true)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
                 }
-            } else {
-                Debug.LogErrorFormat("Only shapes with IGridShape component should be a child of Grid. ({0})", transform.GetChild(i).name);
             }
         }
     }
 
     #region Manipulation
 
-    public bool PlaceShape(Vector3Int targetCoord, IGridShape shape) {
-        if (!ValidateShapePlacement(targetCoord, shape)) return false;
+    public bool PlaceShape(Vector3Int targetCoord, IGridShape shape, bool ignoreZone = false) {
+        if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
         PlaceShapeNoValidate(targetCoord, shape);
 
         return true;
@@ -75,9 +74,9 @@ public class Grid : MonoBehaviour {
 
     // Returns false if any placement of shape in shapes is invalid.
     // Placement is relative to first shape's root coord placed at targetCoord.
-    public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes) {
+    public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
         if (shapes.Count == 0) return false;
-        if (!ValidateShapesPlacement(targetCoord, shapes)) return false;
+        if (!ValidateShapesPlacement(targetCoord, shapes, ignoreZone)) return false;
 
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
@@ -89,10 +88,12 @@ public class Grid : MonoBehaviour {
         return true;
     }
 
-    public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes) {
-        for (int i = 0; i < shapes.Count; i++) {
-            if (CheckZones(shapes[i].RootCoord, prop => !prop.CanTake)) {
-                return false;
+    public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
+        if (!ignoreZone) {
+            for (int i = 0; i < shapes.Count; i++) {
+                if (!CheckZones(shapes[i].RootCoord, prop => prop.CanTake)) {
+                    return false;
+                }
             }
         }
 
@@ -102,7 +103,7 @@ public class Grid : MonoBehaviour {
             origRootCoords.Add(shapes[i].RootCoord);
         }
 
-        if (!targetGrid.PlaceShapes(targetCoord, shapes)) return false;
+        if (!targetGrid.PlaceShapes(targetCoord, shapes, ignoreZone)) return false;
 
         for (int i = 0; i < shapes.Count; i++) {
             RemoveShapeCells(origRootCoords[i], shapes[i]);
@@ -120,7 +121,7 @@ public class Grid : MonoBehaviour {
 
     // Set exactly one cell
     public bool SetCoord(Vector3Int coord, IGridShape shape) {
-        if (!IsValidPlacement(coord)) return false;
+        if (!IsValidPlacement(coord, true)) return false;
 
         cells[coord] = new Cell(coord, shape);
         return true;
@@ -216,10 +217,15 @@ public class Grid : MonoBehaviour {
     #region Validation
 
     // Validates placement of shape when shape's root coord is placed at targetCoord
-    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape shape) {
+    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape shape, bool ignoreZone = false) {
+        if (shape == null) {
+            Debug.LogError("Cannot validate shape placement: shape is null");
+            return false;
+        }
+        
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
-            if (!IsValidPlacement(checkPos)) {
+            if (!IsValidPlacement(checkPos, ignoreZone)) {
                 return false;
             }
         }
@@ -229,14 +235,14 @@ public class Grid : MonoBehaviour {
 
     // Validates placement of shapes in input list using current positioning in their current grid.
     // Placement is relative to first shape's root coord placed at targetCoord;
-    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes) {
+    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
         if (shapes.Count == 0) return true;
 
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.RootCoord - lastShapeRootCoord;
             lastShapeRootCoord = shape.RootCoord;
-            if (!ValidateShapePlacement(targetCoord, shape)) return false;
+            if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
         }
 
         return true;
@@ -259,9 +265,15 @@ public class Grid : MonoBehaviour {
     public void RemoveZone(Zone zone) { zones.Remove(zone); }
 
     /// <summary>
-    /// Returns true if coord is within this Grid's Zones and matches zone properties.
-    /// Example usage: CheckZone(coord, prop => prop.CanPlace, prop => !prop.CanTake, ...)
+    /// Returns true if coord is within a zone and matches zone properties OR coord is outside applicable zones.
     /// </summary>
+    /// <example>CheckZone(coord, prop => prop.CanPlace, prop => prop.CanTake, ...)</example>
+    /// <remarks>
+    /// Checking prop is false actually requires !CheckZone(coord, prop => prop.CanPlace)
+    ///    NOT CheckZone(coord, prop => !prop.CanPlace)
+    ///    This is due to CheckZones returns true when coord is not in any zone.
+    /// TODO: this is confusing, possibly not working when checking multiple props at once.
+    /// </remarks>
     bool CheckZones(Vector3Int coord, params Func<ZoneProperties, bool>[] props) {
         for (int i = 0; i < zones.Count; i++) {
             if (zones[i].AllCoords.Contains(coord)) {
@@ -293,8 +305,8 @@ public class Grid : MonoBehaviour {
 
     #region Helper
 
-    public bool IsValidPlacement(Vector3Int coord) {
-        return IsOpen(coord) && IsInBounds(coord) && CheckZones(coord, prop => prop.CanPlace);
+    public bool IsValidPlacement(Vector3Int coord, bool ignoreZone = false) {
+        return IsOpen(coord) && IsInBounds(coord) && (ignoreZone || CheckZones(coord, prop => prop.CanPlace));
     }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }

@@ -8,10 +8,6 @@ public class GameManager : Singleton<GameManager> {
     public static Grid WorldGrid => worldGrid;
     static Grid worldGrid;
     [SerializeField] Grid _worldGrid;
-    
-    // TEMP
-    [SerializeField] Transform deliveryZoneRootCoord;
-    Zone deliveryZone;
 
     void Start() {
         if (debug) { DebugTasks(); }
@@ -27,13 +23,5 @@ public class GameManager : Singleton<GameManager> {
             preMadeStacks[i].Init();
         }
         
-        // Create zones
-        ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
-        deliveryZone = new Zone(Vector3Int.RoundToInt(deliveryZoneRootCoord.position), 5, 5, 5, deliveryZoneProps);
-        worldGrid.AddZone(deliveryZone);
-    }
-
-    void Delivery() {
-        // spawn boxes on xz coords
     }
 }

@@ -6,7 +6,7 @@ public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
     public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.localPosition);
     public Grid Grid {
         get {
-            if (shapeTransform.parent.TryGetComponent(out Grid grid)) {
+            if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {
                 return grid;
             }
             
@@ -15,8 +15,7 @@ public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
         }
     }
     
-    public Transform ShapeTransform => shapeTransform;
-    public Transform shapeTransform;
+    public Transform ShapeTransform { get; private set; }
     public Transform ColliderTransform => transform;
 
     public ShapeType ShapeType => shapeType;
@@ -29,7 +28,7 @@ public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
 
     void Awake() {
         boxCol = GetComponent<BoxCollider>();
-        shapeTransform = transform.parent;
+        ShapeTransform = transform.parent;
         shapeData = ShapeDataLookUp.LookUp[shapeType];
     }
 

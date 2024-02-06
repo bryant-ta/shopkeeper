@@ -43,7 +43,7 @@ public class PlayerDrag : MonoBehaviour {
         }
 
         if (!targetGrid.MoveShapes(dragGrid, Vector3Int.zero, heldShapes)) {
-            Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+            Debug.LogFormat("Unable to move shapes to target grid ({0}).", dragGrid.gameObject.name); // TEMP
             heldShapes.Clear();
             return;
         }
@@ -103,7 +103,7 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to place held stack of shapes
         if (!dragGrid.MoveShapes(targetGrid, selectedCellCoord, heldShapes)) {
-            Debug.LogFormat("Not enough space in target grid ({0}) to move shapes.", targetGrid.gameObject.name); // TEMP
+            Debug.LogFormat("Unable to move shapes to target grid ({0}).", targetGrid.gameObject.name); // TEMP
             return;
         }
 
