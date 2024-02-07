@@ -1,21 +1,20 @@
-using System;
 using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numProductsInDelivery;
     [SerializeField] Transform deliveryZoneRootCoord; // TEMP: replace when attached to delivery structure
-    
+
     Zone deliveryZone;
     Grid grid;
-    
+
     void Start() {
         grid = GameManager.WorldGrid;
-        
+
         // Create delivery zone
         ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
         deliveryZone = new Zone(Vector3Int.RoundToInt(deliveryZoneRootCoord.localPosition), 5, 5, 5, deliveryZoneProps);
         grid.AddZone(deliveryZone);
-        
+
         DoDelivery();
     }
 
@@ -25,7 +24,7 @@ public class DeliveryManager : MonoBehaviour {
         int numProductsDelivered = 0;
         while (numProductsDelivered < numProductsInDelivery) {
             int prodsDeliveredSoFar = numProductsDelivered;
-            
+
             for (int x = 0; x < deliveryZone.Length; x++) {
                 for (int z = 0; z < deliveryZone.Width; z++) {
                     Vector3Int deliveryCoord;
@@ -35,9 +34,16 @@ public class DeliveryManager : MonoBehaviour {
                         continue;
                     }
 
-                    IGridShape shape = Factory.Instance.CreateProduct();
-                    if (!grid.PlaceShape(deliveryCoord, shape, true)) {
-                        Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord); }
+                    SO_Product p = ProductFactory.Instance.ProductLookUp[ProductID.Blank]; // TEMP
+                    Product product = ProductFactory.Instance.CreateProduct(p);
+                    if (product.TryGetComponent(out IGridShape shape)) {
+                        if (!grid.PlaceShape(deliveryCoord, shape, true)) {
+                            Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord);
+                        }
+                    } else {
+                        Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
+                        return;
+                    }
 
                     numProductsDelivered++;
                     if (numProductsDelivered == numProductsInDelivery) return;

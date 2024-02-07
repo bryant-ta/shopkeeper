@@ -59,7 +59,7 @@ public class Stack : MonoBehaviour {
     // SplitStack returns a new stack (+object) containing all cards from input card to end of current stack
     Stack SplitStack(IStackable s) {
         int splitIndex = items.IndexOf(s);
-        Stack newStack = Factory.Instance.CreateStack();
+        Stack newStack = ProductFactory.Instance.CreateStack();
 
         MoveRangeTo(newStack, splitIndex, items.Count - 1);
 

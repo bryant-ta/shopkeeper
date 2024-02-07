@@ -1,8 +1,7 @@
-using System;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
-public class BoxStackable : MonoBehaviour, IStackable, IGridShape {
+public class BoxProduct : Product, IGridShape {
     public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.localPosition);
     public Grid Grid {
         get {
