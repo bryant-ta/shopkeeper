@@ -88,12 +88,18 @@ public class PlayerDrag : MonoBehaviour {
     void Release(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
 
+        // If releasing out of interactable range, fail to place.
+        if (!player.IsInRange(clickInputArgs.HitPoint)) {
+            // TODO: some sort of feedback
+            return;
+        }
+
         // Find selected grid cell
         // TEMP: prob replace with tilemap
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
         Vector3 hitNormalClamped = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
         Vector3Int selectedCellCoord = Vector3Int.FloorToInt(clickInputArgs.HitPoint + hitNormalClamped + new Vector3(0.5f, 0, 0.5f));
-
+        
         Grid targetGrid = GameManager.WorldGrid;
         if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
