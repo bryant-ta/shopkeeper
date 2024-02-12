@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour {
     [SerializeField] float interactionRange;
     public float InteractionRange => interactionRange;
+    [SerializeField] float interactionHeight;
 
     public Transform dropPos;
 
@@ -55,5 +56,9 @@ public class Player : MonoBehaviour {
         // TODO: implement
     }
 
-    public bool IsInRange(Vector3 targetPos) { return (targetPos - transform.position).magnitude < InteractionRange; }
+    public bool IsInRange(Vector3 targetPos) {
+        Vector3 xzDif = targetPos - transform.position;
+        xzDif.y = 0;
+        return targetPos.y - transform.position.y < interactionHeight && xzDif.magnitude < interactionRange;
+    }
 }

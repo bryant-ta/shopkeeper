@@ -14,14 +14,13 @@ public interface IGridShape {
 }
 
 public class Grid : MonoBehaviour {
-    [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")] // not showing in inspector for now
-    public int MaxLength => maxLength;
-
+    [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
     [SerializeField] int maxLength;
-    public int MaxHeight => maxHeight;
+    public int MaxLength => maxLength;
     [SerializeField] int maxHeight;
-    public int MaxWidth => maxWidth;
+    public int MaxHeight => maxHeight;
     [SerializeField] int maxWidth;
+    public int MaxWidth => maxWidth;
 
     Dictionary<Vector3Int, Cell> cells = new();
 

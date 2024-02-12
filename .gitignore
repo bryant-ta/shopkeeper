@@ -72,3 +72,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 #/[Aa]ssets/_Game/Models
+
+/Assets/_Main/Art/T
