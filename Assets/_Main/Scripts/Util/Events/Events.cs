@@ -16,6 +16,10 @@ public enum EventID {
     Rotate = 11,
     Drop = 12,
     Cancel = 13,
+    
+    // ProductDelivered = 100,
+    // ProductOrdered = 101,
+    // ProductFulfilled = 102,
 }
 
 public class Events : Singleton<Events> {

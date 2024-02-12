@@ -47,10 +47,13 @@ public class DeliveryManager : MonoBehaviour {
 
                     SO_Product p = ProductFactory.Instance.ProductLookUp[productRollTable.GetRandom()];
                     Product product = ProductFactory.Instance.CreateProduct(p);
+                    
                     if (product.TryGetComponent(out IGridShape shape)) {
                         if (!grid.PlaceShape(deliveryCoord, shape, true)) {
                             Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord);
                         }
+                        
+                        GameManager.AddStockedProduct(product);
                     } else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
                         return;

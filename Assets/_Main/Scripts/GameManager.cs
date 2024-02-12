@@ -3,16 +3,19 @@ using System.Linq;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
-    public bool debug;
+    public bool Debug;
 
-    public static Grid WorldGrid => worldGrid;
-    static Grid worldGrid;
-    [SerializeField] Grid _worldGrid;
+    [SerializeField] Grid worldGrid;
+    public static Grid WorldGrid => _worldGrid;
+    static Grid _worldGrid;
+
+    public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
+    static Dictionary<ProductID, List<Product>> stockedProducts = new();
 
     void Start() {
-        if (debug) { DebugTasks(); }
+        if (Debug) { DebugTasks(); }
 
-        worldGrid = _worldGrid;
+        _worldGrid = worldGrid;
     }
 
     void DebugTasks() {
@@ -22,6 +25,18 @@ public class GameManager : Singleton<GameManager> {
         for (int i = 0; i < preMadeStacks.Count; i++) {
             preMadeStacks[i].Init();
         }
-        
+    }
+
+    public static void AddStockedProduct(Product product) {
+        if (stockedProducts.ContainsKey(product.ID)) { stockedProducts[product.ID].Add(product); }
+        else { stockedProducts[product.ID] = new List<Product> {product}; }
+    }
+    public static void RemoveStockedProduct(Product product) {
+        if (stockedProducts.ContainsKey(product.ID)) { stockedProducts[product.ID].Remove(product); }
+
+        if (stockedProducts[product.ID].Count == 0) { stockedProducts.Remove(product.ID); }
+    }
+    public static List<ProductID> GetStockedProductIDs() {
+        return stockedProducts.Keys.ToList();
     }
 }
