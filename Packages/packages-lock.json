@@ -9,6 +9,12 @@
       },
       "hash": "6a5af4e687cd1c85a27fbab8a74068a20152f95c"
     },
+    "com.unity.2d.sprite": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
     "com.unity.collab-proxy": {
       "version": "2.2.0",
       "depth": 0,
