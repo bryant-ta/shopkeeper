@@ -21,7 +21,7 @@ public class PlayerInput : MonoBehaviour {
         ClickInputArgs clickInputArgs = new();
         if (ctx.performed || ctx.canceled) {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, ~0, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
                     clickInputArgs.HitNormal = hit.normal;
                     clickInputArgs.HitPoint = hit.point;
@@ -40,7 +40,7 @@ public class PlayerInput : MonoBehaviour {
     public void OnSecondary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f)) {
+            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, ~0, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
                     Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs {TargetObj = hit.collider.gameObject});
                 }

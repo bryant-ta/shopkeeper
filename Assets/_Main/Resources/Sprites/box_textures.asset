@@ -44,98 +44,98 @@ MonoBehaviour:
     m_Unicode: 65534
     m_GlyphIndex: 0
     m_Scale: 1
-    m_Name: beacon
-    m_HashCode: -414598844
+    m_Name: Beacon
+    m_HashCode: -1593543580
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 1
     m_Scale: 1
-    m_Name: bedrock
-    m_HashCode: -802381002
+    m_Name: Bedrock
+    m_HashCode: -1043373034
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 2
     m_Scale: 1
-    m_Name: cobblestone
-    m_HashCode: -391718746
+    m_Name: Cobblestone
+    m_HashCode: -425494906
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 3
     m_Scale: 1
-    m_Name: stone_granite_smooth
-    m_HashCode: -197888541
+    m_Name: StoneGranite
+    m_HashCode: -2091059935
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 4
     m_Scale: 1
-    m_Name: diamond_ore
-    m_HashCode: 1953821731
+    m_Name: DiamondOre
+    m_HashCode: -1293869604
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 5
     m_Scale: 1
-    m_Name: dirt
-    m_HashCode: 3500619
+    m_Name: Dirt
+    m_HashCode: 2418283
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 6
     m_Scale: 1
-    m_Name: emerald_block
-    m_HashCode: -2068998624
+    m_Name: Emerald
+    m_HashCode: -303812298
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 7
     m_Scale: 1
-    m_Name: wool_colored_purple
-    m_HashCode: -1322777175
+    m_Name: WoolPurple
+    m_HashCode: 1086093397
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 8
     m_Scale: 1
-    m_Name: glass
-    m_HashCode: 121248522
+    m_Name: Glass
+    m_HashCode: 85531626
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 9
     m_Scale: 1
-    m_Name: glazedterracottaorange
-    m_HashCode: -1941373476
+    m_Name: GlazedTerracotta
+    m_HashCode: 167877100
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 10
     m_Scale: 1
-    m_Name: gold_block
-    m_HashCode: 1682687830
+    m_Name: Gold
+    m_HashCode: 2586304
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 11
     m_Scale: 1
-    m_Name: iron_block
-    m_HashCode: 1414669996
+    m_Name: Iron
+    m_HashCode: 2535162
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 12
     m_Scale: 1
-    m_Name: mushroom_block_skin_red
-    m_HashCode: 1983572454
+    m_Name: Mushroom
+    m_HashCode: 1069373212
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 13
     m_Scale: 1
-    m_Name: planks_oak
-    m_HashCode: -1353743055
+    m_Name: Planks
+    m_HashCode: -1186786709
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 14
     m_Scale: 1
-    m_Name: redstone_lamp_on
-    m_HashCode: 2101684705
+    m_Name: RedstoneLamp
+    m_HashCode: 1031980960
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 15
     m_Scale: 1
-    m_Name: sand
-    m_HashCode: 4094072
+    m_Name: Sand
+    m_HashCode: 3019928
   m_SpriteGlyphTable:
   - m_Index: 0
     m_Metrics:

@@ -3,13 +3,14 @@ using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numProductsInDelivery;
-    [SerializeField] Transform deliveryZoneRootCoord; // TEMP: replace when attached to delivery structure
-    [SerializeField] Vector3Int deliveryZoneDimensions;
 
     [SerializeField] List<ProductID> initialPossibleProducts;
     
-    Zone deliveryZone;
+    [Header("Zone")]
+    [SerializeField] Vector3Int deliveryZoneDimensions;
+    [SerializeField] Zone deliveryZone;
     Grid grid;
+    
     RollTable<ProductID> productRollTable = new();
 
     void Start() {
@@ -17,11 +18,10 @@ public class DeliveryManager : MonoBehaviour {
 
         // Create delivery zone
         ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
-        deliveryZone = new Zone(Vector3Int.RoundToInt(deliveryZoneRootCoord.localPosition), 
-            deliveryZoneDimensions.x, deliveryZoneDimensions.y, deliveryZoneDimensions.z, deliveryZoneProps);
+        deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition), deliveryZoneDimensions, deliveryZoneProps);
         grid.AddZone(deliveryZone);
 
-        // Load initial posssible products
+        // Load initial possible products
         foreach (ProductID productID in initialPossibleProducts) {
             AddPossibleProduct(productID);
         }

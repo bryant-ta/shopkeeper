@@ -114,7 +114,7 @@ public class Grid : MonoBehaviour {
     public void DestroyShape(IGridShape shape) {
         RemoveShapeCells(shape.RootCoord, shape);
 
-        // TODO: prob let IGridShape handle its destruction, just call that on shape
+        // TODO: prob call IGridShape cleanup tasks on its destruction
         Destroy(shape.ShapeTransform.gameObject);
     }
 
@@ -311,6 +311,15 @@ public class Grid : MonoBehaviour {
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
     public bool GridIsEmpty() { return cells.Count == 0; }
+    
+    public List<IGridShape> AllShapes() {
+        List<IGridShape> shapes = new();
+        foreach (Cell cell in cells.Values) {
+            shapes.Add(cell.Shape);
+        }
+
+        return shapes;
+    }
 
     #endregion
 }

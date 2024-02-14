@@ -1,28 +1,31 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Zone {
+public class Zone : MonoBehaviour {
     public Vector3Int RootCoord { get; private set; }
     public int Length { get; private set; }
     public int Height { get; private set; }
     public int Width { get; private set; }
 
     public ZoneProperties ZoneProps;
-
+    
     public HashSet<Vector3Int> AllCoords { get; private set; }
     public HashSet<Vector2Int> XZCoords { get; private set; }
+    
+    public Action<Grid> OnEnterZone;
 
-    public Zone(Vector3Int rootCoord, int length, int height, int width, ZoneProperties zoneProps) {
-        UpdateZonePosition(rootCoord, length, height, width);
+    public void Setup(Vector3Int rootCoord, Vector3Int dimensions, ZoneProperties zoneProps) {
+        UpdateZonePosition(rootCoord, dimensions);
 
         ZoneProps = zoneProps;
     }
 
-    public void UpdateZonePosition(Vector3Int rootCoord, int length, int height, int width) {
+    public void UpdateZonePosition(Vector3Int rootCoord, Vector3Int dimensions) {
         RootCoord = rootCoord;
-        Length = length;
-        Height = height;
-        Width = width;
+        Length = dimensions.x;
+        Height = dimensions.y;
+        Width = dimensions.z;
 
         UpdateAllCoords();
         UpdateXZCoords();
@@ -56,6 +59,12 @@ public class Zone {
         }
 
         XZCoords = xzCoords;
+    }
+    
+    void OnTriggerEnter(Collider col) {
+        if (col.TryGetComponent(out Grid grid)) {
+            OnEnterZone?.Invoke(grid);
+        }
     }
 }
 

@@ -3,12 +3,19 @@ using System.Linq;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
+    [Header("Debug")]
     public bool Debug;
 
+    [Header("World Grid")]
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
     static Grid _worldGrid;
 
+    [Header("Coins")]
+    [SerializeField] int coins;
+    public int Coins => coins;
+    
+    // Stocked Products
     public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
     static Dictionary<ProductID, List<Product>> stockedProducts = new();
 
@@ -27,6 +34,28 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
+    #region Coins
+    
+    /// <summary>
+    /// Applies delta to current coin value. 
+    /// </summary>
+    /// <param name="delta">(+/-)</param>
+    public bool ModifyCoins(int delta) {
+        int newCoins = coins + delta;
+        if (newCoins < 0) {
+            return false;
+        }
+
+        coins = newCoins;
+        // TODO: modify coins event
+        
+        return true;
+    }
+    
+    #endregion
+    
+    #region Stocked Products
+    
     public static void AddStockedProduct(Product product) {
         if (stockedProducts.ContainsKey(product.ID)) { stockedProducts[product.ID].Add(product); }
         else { stockedProducts[product.ID] = new List<Product> {product}; }
@@ -39,4 +68,6 @@ public class GameManager : Singleton<GameManager> {
     public static List<ProductID> GetStockedProductIDs() {
         return stockedProducts.Keys.ToList();
     }
+    
+    #endregion
 }
