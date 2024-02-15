@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(OrderManager))]
 public class UI_OrderManager : MonoBehaviour {
@@ -10,9 +7,9 @@ public class UI_OrderManager : MonoBehaviour {
 
     OrderManager orderMngr;
 
-    void Awake() { orderMngr = GetComponent<OrderManager>(); }
+    void Awake() {
+        orderMngr = GetComponent<OrderManager>();
 
-    void Start() {
         orderMngr.OnNewActiveOrder += UpdateOrderBubble;
     }
 
@@ -21,7 +18,7 @@ public class UI_OrderManager : MonoBehaviour {
             orderBubbles[activeOrderIndex].gameObject.SetActive(false);
             return;
         }
-        
+
         orderBubbles[activeOrderIndex].gameObject.SetActive(true);
         orderBubbles[activeOrderIndex].DisplayNewOrder(order);
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TriInspector;
 using UnityEngine;
 
@@ -132,8 +133,25 @@ public class Grid : MonoBehaviour {
         cells.Remove(coord);
     }
     void RemoveShapeCells(Vector3Int rootCoord, IGridShape shape) {
+        Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells.Remove(rootCoord + offset);
+            gapCoords.Enqueue(rootCoord + offset);
+        }
+        
+        // Trigger falling for any shapes above removed shape cells
+        while (gapCoords.Count > 0) {
+            Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
+            if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord)) {
+                // Check every cell beneath the above shape is open
+                IGridShape aboveShape = cells[aboveCoord].Shape;
+                bool canFall = aboveShape.ShapeData.ShapeOffsets.All(offset => IsOpen(aboveCoord + offset + Vector3Int.down));
+                
+                if (canFall) {
+                    // Will recursively cause all shapes above to fall as well
+                    MoveShapes(this, aboveShape.RootCoord + Vector3Int.down, new List<IGridShape> {aboveShape}, true);
+                }
+            }
         }
     }
 

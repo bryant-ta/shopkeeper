@@ -6,6 +6,9 @@ namespace Timers {
         public float Duration;
         public bool IsTicking { get; private set; }
 
+        public float RemainingTimePercent => _timer / Duration;
+        public float RemainingTimeSeconds => _timer;
+
         /// <summary>
         /// TickEvent sends percentage of time remaining on invoke.
         /// </summary>

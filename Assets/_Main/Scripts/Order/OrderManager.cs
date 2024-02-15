@@ -153,11 +153,15 @@ public class OrderManager : MonoBehaviour {
             }
         }
     }
-
+    
     // Returns true if successfully fulfilled an order with product
     bool MatchOrder(Product product) {
-        for (int i = 0; i < activeOrders.Length; i++) {
-            if (activeOrders[i].TryFulfill(product.ID)) {
+        // Prioritize order with least time left
+        List<Order> sortedActiveOrders = activeOrders.ToList();
+        sortedActiveOrders.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
+        
+        for (int i = 0; i < sortedActiveOrders.Count; i++) {
+            if (sortedActiveOrders[i].TryFulfill(product.ID)) {
                 return true;
             }
         }
