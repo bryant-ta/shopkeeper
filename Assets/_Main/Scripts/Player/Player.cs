@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using EventManager;
 using UnityEngine;
@@ -11,10 +12,12 @@ public class Player : MonoBehaviour {
 
     [SerializeField] Grid holdGrid;
 
-    void Start() {
+    void Awake() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
         Events.Sub(gameObject, EventID.Drop, DropOne);
+    }
 
+    void Start() {
         GetComponent<Rigidbody>().centerOfMass = transform.position;           // required for correct rotation when holding box
         GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
     }

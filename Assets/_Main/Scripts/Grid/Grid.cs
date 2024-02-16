@@ -30,6 +30,8 @@ public class Grid : MonoBehaviour {
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
 
+    // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
+    // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
     void Start() { Init(maxLength, maxHeight, maxWidth); }
 
     void Init(int maxLength, int maxHeight, int maxWidth) {

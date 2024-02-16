@@ -23,9 +23,7 @@ public class CameraController : MonoBehaviour {
     void Awake() {
         cam = GetComponent<Camera>();
         targetZoom = cam.orthographicSize;
-    }
-
-    void Start() {
+        
         Events.Sub<float>(gameObject, EventID.Scroll, ZoomView);
     }
 

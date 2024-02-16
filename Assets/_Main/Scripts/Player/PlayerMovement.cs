@@ -19,9 +19,7 @@ public class PlayerMovement : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
 
         SetMovementAxes();
-    }
-
-    void Start() {
+        
         Events.Sub<MoveInputArgs>(gameObject, EventID.Move, SetMoveInput);
         Events.Sub<float>(gameObject, EventID.Rotate, SetRotateInput);
     }

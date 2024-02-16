@@ -29,6 +29,8 @@ public class OrderManager : MonoBehaviour {
 
     void Awake() {
         activeOrders = new Order[numActiveOrders];
+
+        dropOffZone.OnEnterZone += TryFulfillOrder;
     }
 
     void Start() {
@@ -36,8 +38,6 @@ public class OrderManager : MonoBehaviour {
         ZoneProperties dropOffZoneProps = new ZoneProperties() {CanPlace = false};
         dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
         GameManager.WorldGrid.AddZone(dropOffZone);
-
-        dropOffZone.OnEnterZone += TryFulfillOrder;
         
         StartOrders();
     }

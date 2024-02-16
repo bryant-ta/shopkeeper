@@ -22,6 +22,10 @@ public enum EventID {
     // ProductFulfilled = 102,
 }
 
+/// <summary>
+/// Set Events to load first in script order (Project Settings) to enable events subs in Awake().
+/// Otherwise, event subs must occur in Start().
+/// </summary>
 public class Events : Singleton<Events> {
     // holds events per gameObject instance
     static Dictionary<object, Dictionary<EventID, Delegate>> eventsDict;
