@@ -4297,7 +4297,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5551c34d271b8d409ec16f12c7c0bc8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactionRange: 5
+  interactionRange: 6
   interactionHeight: 20
   dropPos: {fileID: 698564376}
   holdGrid: {fileID: 1816176236}

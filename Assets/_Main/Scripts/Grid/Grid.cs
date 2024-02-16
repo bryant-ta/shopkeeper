@@ -108,14 +108,14 @@ public class Grid : MonoBehaviour {
         if (!targetGrid.PlaceShapes(targetCoord, shapes, ignoreZone)) return false;
 
         for (int i = 0; i < shapes.Count; i++) {
-            RemoveShapeCells(origRootCoords[i], shapes[i]);
+            RemoveShapeCells(origRootCoords[i], shapes[i], false);
         }
 
         return true;
     }
 
     public void DestroyShape(IGridShape shape) {
-        RemoveShapeCells(shape.RootCoord, shape);
+        RemoveShapeCells(shape.RootCoord, shape, true);
 
         // TODO: prob call IGridShape cleanup tasks on its destruction
         Destroy(shape.ShapeTransform.gameObject);
@@ -134,24 +134,45 @@ public class Grid : MonoBehaviour {
 
         cells.Remove(coord);
     }
-    void RemoveShapeCells(Vector3Int rootCoord, IGridShape shape) {
+
+    /// <summary>
+    /// Removes shapes from grid.
+    /// </summary>
+    /// <param name="coord">Original coord of shape to remove. Can be different from that shape's current RootCoord,
+    /// such as when the shape was just placed in the new grid, but still needs to be removed from the old.</param>
+    /// <param name="shape">Shape of cells to remove</param>
+    /// <param name="triggerAllFall">If false, shapes directly above coord will ignore falling. Set false to correctly move
+    /// a stack of shapes.</param>
+    void RemoveShapeCells(Vector3Int coord, IGridShape shape, bool triggerAllFall) {
         Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
-            cells.Remove(rootCoord + offset);
-            gapCoords.Enqueue(rootCoord + offset);
+            cells.Remove(coord + offset);
+            gapCoords.Enqueue(coord + offset);
         }
-        
+
         // Trigger falling for any shapes above removed shape cells
         while (gapCoords.Count > 0) {
             Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
             if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord)) {
                 // Check every cell beneath the above shape is open
                 IGridShape aboveShape = cells[aboveCoord].Shape;
-                bool canFall = aboveShape.ShapeData.ShapeOffsets.All(offset => IsOpen(aboveCoord + offset + Vector3Int.down));
-                
+                bool canFall = false;
+                foreach (var offset in aboveShape.ShapeData.ShapeOffsets) {
+                    if (!triggerAllFall && offset == Vector3Int.zero) continue; // no fall for cells directly above input coord
+                    
+                    if (IsOpen(aboveCoord + offset + Vector3Int.down)) {
+                        canFall = true;
+                    }
+                    else {
+                        canFall = false;
+                        break;
+                    }
+                }
+
                 if (canFall) {
                     // Will recursively cause all shapes above to fall as well
                     MoveShapes(this, aboveShape.RootCoord + Vector3Int.down, new List<IGridShape> {aboveShape}, true);
+                    gapCoords.Enqueue(aboveCoord);
                 }
             }
         }
@@ -241,7 +262,7 @@ public class Grid : MonoBehaviour {
             Debug.LogError("Cannot validate shape placement: shape is null");
             return false;
         }
-        
+
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos, ignoreZone)) {
@@ -331,7 +352,7 @@ public class Grid : MonoBehaviour {
     public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
     public bool GridIsEmpty() { return cells.Count == 0; }
-    
+
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();
         foreach (Cell cell in cells.Values) {

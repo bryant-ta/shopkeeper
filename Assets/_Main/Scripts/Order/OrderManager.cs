@@ -106,7 +106,7 @@ public class OrderManager : MonoBehaviour {
         Order order = new Order();
         ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
         
-        int quantity = Math.Min(randomQuantity, GameManager.StockedProducts[requestedProductID].Count);
+        int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
         for (int i = 0; i < quantity; i++) {
             order.Add(requestedProductID);
             availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
@@ -124,7 +124,7 @@ public class OrderManager : MonoBehaviour {
             ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
 
             int randomQuantity = Random.Range(1, varietyOrderIndividualMax + 1);
-            int quantity = Math.Min(randomQuantity, GameManager.StockedProducts[requestedProductID].Count);
+            int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
 
             for (int j = 0; j < quantity; j++) {
                 order.Add(requestedProductID);
@@ -169,11 +169,16 @@ public class OrderManager : MonoBehaviour {
     // Returns true if successfully fulfilled an order with product
     bool MatchOrder(Product product) {
         // Prioritize order with least time left
-        List<Order> sortedActiveOrders = activeOrders.ToList();
-        sortedActiveOrders.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
-        
-        for (int i = 0; i < sortedActiveOrders.Count; i++) {
-            if (sortedActiveOrders[i].TryFulfill(product.ID)) {
+        List<Order> activeOrdersList = activeOrders.ToList();
+        for (int i = activeOrdersList.Count - 1; i >= 0; i--) {
+            if (activeOrdersList[i].Timer == null || !activeOrdersList[i].Timer.IsTicking) {
+                activeOrdersList.Remove(activeOrdersList[i]);
+            }
+        }
+        activeOrdersList.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
+
+        for (int i = 0; i < activeOrdersList.Count; i++) {
+            if (activeOrdersList[i].TryFulfill(product.ID)) {
                 return true;
             }
         }

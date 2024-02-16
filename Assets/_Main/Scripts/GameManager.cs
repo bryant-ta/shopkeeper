@@ -15,7 +15,7 @@ public class GameManager : Singleton<GameManager> {
     [Header("Coins")]
     [SerializeField] int coins;
     public int Coins => coins;
-    
+
     // Stocked Products
     public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
     static Dictionary<ProductID, List<Product>> stockedProducts;
@@ -40,7 +40,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     #region Coins
-    
+
     /// <summary>
     /// Applies delta to current coin value. 
     /// </summary>
@@ -53,31 +53,43 @@ public class GameManager : Singleton<GameManager> {
 
         coins = newCoins;
         // TODO: modify coins event
-        
+
         return true;
     }
-    
+
     #endregion
-    
+
     #region Stocked Products
-    
+
     public static void AddStockedProduct(Product product) {
         if (stockedProducts.ContainsKey(product.ID)) {
             stockedProducts[product.ID].Add(product);
         }
-        else { stockedProducts[product.ID] = new List<Product> {product}; }
+        else {
+            stockedProducts[product.ID] = new List<Product> {product};
+        }
     }
     public static void RemoveStockedProduct(Product product) {
-        if (stockedProducts.ContainsKey(product.ID)) { stockedProducts[product.ID].Remove(product); }
+        if (stockedProducts.ContainsKey(product.ID)) {
+            stockedProducts[product.ID].Remove(product);
+        }
 
-        if (stockedProducts[product.ID].Count == 0) { stockedProducts.Remove(product.ID); }
+        if (stockedProducts[product.ID].Count == 0) {
+            stockedProducts.Remove(product.ID);
+        }
     }
-    public static List<ProductID> GetStockedProductIDs() {
-        return stockedProducts.Keys.ToList();
-    }
+    public static List<ProductID> GetStockedProductIDs() { return stockedProducts.Keys.ToList(); }
     public static Dictionary<ProductID, List<Product>> GetStockedProductsCopy() {
-        return new Dictionary<ProductID, List<Product>>(stockedProducts);
+        Dictionary<ProductID, List<Product>> copy = new();
+
+        // Deep copy
+        foreach (KeyValuePair<ProductID, List<Product>> kvp in stockedProducts) {
+            List<Product> newList = new List<Product>(kvp.Value);
+            copy.Add(kvp.Key, newList);
+        }
+
+        return copy;
     }
-    
+
     #endregion
 }
