@@ -18,10 +18,12 @@ public class GameManager : Singleton<GameManager> {
     
     // Stocked Products
     public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
-    static Dictionary<ProductID, List<Product>> stockedProducts = new();
+    static Dictionary<ProductID, List<Product>> stockedProducts;
 
     void Awake() {
+        // Required to reset every Play mode start because static
         _worldGrid = worldGrid;
+        stockedProducts = new();
     }
 
     void Start() {
@@ -60,7 +62,9 @@ public class GameManager : Singleton<GameManager> {
     #region Stocked Products
     
     public static void AddStockedProduct(Product product) {
-        if (stockedProducts.ContainsKey(product.ID)) { stockedProducts[product.ID].Add(product); }
+        if (stockedProducts.ContainsKey(product.ID)) {
+            stockedProducts[product.ID].Add(product);
+        }
         else { stockedProducts[product.ID] = new List<Product> {product}; }
     }
     public static void RemoveStockedProduct(Product product) {
@@ -70,6 +74,9 @@ public class GameManager : Singleton<GameManager> {
     }
     public static List<ProductID> GetStockedProductIDs() {
         return stockedProducts.Keys.ToList();
+    }
+    public static Dictionary<ProductID, List<Product>> GetStockedProductsCopy() {
+        return new Dictionary<ProductID, List<Product>>(stockedProducts);
     }
     
     #endregion

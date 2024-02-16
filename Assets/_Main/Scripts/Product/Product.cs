@@ -1,7 +1,8 @@
+using TriInspector;
 using UnityEngine;
 
 public class Product : MonoBehaviour {
-    public ProductID ID { get; private set; }
+    [field: SerializeField, ReadOnly] public ProductID ID { get; private set; }
     public string Name { get; private set; }
 
     public void Init(SO_Product productData) {

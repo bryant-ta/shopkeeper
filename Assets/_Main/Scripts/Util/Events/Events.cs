@@ -28,6 +28,7 @@ public class Events : Singleton<Events> {
     static Dictionary<object, Dictionary<EventID, Delegate>> oneParamEventsDict;
 
     void Awake() {
+        // Required to reset dicts every Play mode start because static
         eventsDict = new Dictionary<object, Dictionary<EventID, Delegate>>();
         oneParamEventsDict = new Dictionary<object, Dictionary<EventID, Delegate>>();
     }

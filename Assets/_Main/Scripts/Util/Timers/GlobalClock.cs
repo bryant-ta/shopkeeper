@@ -13,6 +13,7 @@ public class GlobalClock : Singleton<GlobalClock> {
 	public static Action<float> OnTick;
 
 	void Awake() {
+		// Required to reset subscribers every Play mode start because static
 		OnTick = null; // null is same as saying onTick has no subscribers
 	}
 

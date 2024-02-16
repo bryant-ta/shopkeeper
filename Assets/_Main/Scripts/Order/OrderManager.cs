@@ -76,15 +76,18 @@ public class OrderManager : MonoBehaviour {
 
     // Populates backlog of orders
     bool GenerateOrders() {
+        // Stock is taken out from availableStock as they are added to generated orders, avoids repeats with non-existent stock.
+        Dictionary<ProductID, List<Product>> availableStock = GameManager.GetStockedProductsCopy();
+        
         for (int i = 0; i < numTotalOrders; i++) {
             int orderType = Random.Range(0, 2);
             Order order;
             switch (orderType) {
                 case 0: // Quantity
-                    order = GenerateQuantityOrder();
+                    order = GenerateQuantityOrder(availableStock);
                     break;
                 case 1: // Variety
-                    order = GenerateVarietyOrder();
+                    order = GenerateVarietyOrder(availableStock);
                     break;
                 default:
                     Debug.LogError("Unexpected orderType.");
@@ -97,29 +100,39 @@ public class OrderManager : MonoBehaviour {
         return true;
     }
 
-    Order GenerateQuantityOrder() {
-        int orderTotal = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
+    Order GenerateQuantityOrder(Dictionary<ProductID, List<Product>> availableStock) {
+        int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
 
         Order order = new Order();
-        List<ProductID> availableStock = GameManager.GetStockedProductIDs();
-        ProductID requestedProductID = availableStock[Random.Range(0, availableStock.Count)];
-        for (int i = 0; i < orderTotal; i++) {
+        ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
+        
+        int quantity = Math.Min(randomQuantity, GameManager.StockedProducts[requestedProductID].Count);
+        for (int i = 0; i < quantity; i++) {
             order.Add(requestedProductID);
+            availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
+            if (availableStock[requestedProductID].Count == 0) availableStock.Remove(requestedProductID);
         }
+        
+        
+        print(quantity + "|" + randomQuantity + " " + GameManager.StockedProducts[requestedProductID].Count);
 
         return order;
     }
 
-    Order GenerateVarietyOrder() {
+    Order GenerateVarietyOrder(Dictionary<ProductID, List<Product>> availableStock) {
         int orderTotal = Random.Range(varietyOrderTotalMin, varietyOrderTotalMax + 1);
-
+        
         Order order = new Order();
         for (int i = 0; i < orderTotal; i++) {
-            List<ProductID> availableStock = GameManager.GetStockedProductIDs();
-            ProductID requestedProductID = availableStock[Random.Range(0, availableStock.Count)];
-            int individualCount = Random.Range(1, varietyOrderIndividualMax + 1);
-            for (int j = 0; j < individualCount; j++) {
+            ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
+
+            int randomQuantity = Random.Range(1, varietyOrderIndividualMax + 1);
+            int quantity = Math.Min(randomQuantity, GameManager.StockedProducts[requestedProductID].Count);
+
+            for (int j = 0; j < quantity; j++) {
                 order.Add(requestedProductID);
+                availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
+                if (availableStock[requestedProductID].Count == 0) availableStock.Remove(requestedProductID);
             }
         }
 
@@ -138,6 +151,8 @@ public class OrderManager : MonoBehaviour {
                 if (MatchOrder(product)) {
                     // Consume product from its grid
                     fulfillmentGrid.DestroyShape(shapes[i]);
+                    
+                    GameManager.RemoveStockedProduct(product);
                 }
             }
         }
@@ -178,21 +193,22 @@ public class Order {
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
-    Dictionary<ProductID, int> orders;
+    public Dictionary<ProductID, int> Products => products;
+    Dictionary<ProductID, int> products;
 
     public Action OnProductFulfilled;
 
-    public Order() { orders = new(); }
+    public Order() { products = new(); }
 
     public void Start() {
         Timer = new CountdownTimer(TimeToComplete);
         Timer.Start();
     }
     public bool TryFulfill(ProductID productID) {
-        if (orders.ContainsKey(productID)) { orders[productID]--; }
+        if (products.ContainsKey(productID)) { products[productID]--; }
         else { return false; }
         
-        if (orders[productID] == 0) { orders.Remove(productID); }
+        if (products[productID] == 0) { products.Remove(productID); }
         
         OnProductFulfilled?.Invoke();
         
@@ -200,32 +216,32 @@ public class Order {
     }
 
     public void Add(ProductID productID) {
-        if (orders.ContainsKey(productID)) { orders[productID]++; }
-        else { orders[productID] = 1; }
+        if (products.ContainsKey(productID)) { products[productID]++; }
+        else { products[productID] = 1; }
 
         TimeToComplete += 10f;
         Value += 10;
     }
     public void Remove(ProductID productID) {
-        if (orders.ContainsKey(productID)) {
-            orders[productID]--;
+        if (products.ContainsKey(productID)) {
+            products[productID]--;
             TimeToComplete -= 10f;
             Value -= 10;
         }
 
-        if (orders[productID] == 0) {
-            orders.Remove(productID);
+        if (products[productID] == 0) {
+            products.Remove(productID);
         }
     }
     
     // Don't need to explicitly cleanup event listeners, as long as all references of this Order are gone.
 
     public int TotalReward() { return Value + (int) TimeToComplete; }
-    public bool IsComplete() { return orders.Count == 0; }
+    public bool IsComplete() { return products.Count == 0; }
     public new string ToString() {
         string t = "";
         
-        foreach (KeyValuePair<ProductID, int> order in orders) {
+        foreach (KeyValuePair<ProductID, int> order in products) {
             t += $"<sprite name={order.Key}> {order.Value}\n"; // TEMP: -1 from how productID is setup currently
         }
         
