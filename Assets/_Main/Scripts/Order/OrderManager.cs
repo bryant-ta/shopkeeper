@@ -159,7 +159,7 @@ public class OrderManager : MonoBehaviour {
         // Finished fully fulfilled orders
         for (int i = 0; i < activeOrders.Length; i++) {
             if (activeOrders[i].IsComplete()) {
-                GameManager.Instance.ModifyCoins(activeOrders[i].TotalReward());
+                GameManager.Instance.ModifyGold(activeOrders[i].TotalReward());
         
                 ActivateNextOrder(i);
             }

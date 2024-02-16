@@ -12,9 +12,11 @@ public class GameManager : Singleton<GameManager> {
     public static Grid WorldGrid => _worldGrid;
     static Grid _worldGrid;
 
-    [Header("Coins")]
-    [SerializeField] int coins;
-    public int Coins => coins;
+    [Header("Gold")]
+    [SerializeField] int initialGold;
+    [SerializeField] int gold;
+    public int Gold => gold;
+    public Action<DeltaArgs> OnModifyMoney;
 
     // Stocked Products
     public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
@@ -28,6 +30,8 @@ public class GameManager : Singleton<GameManager> {
 
     void Start() {
         if (Debug) { DebugTasks(); }
+        
+        ModifyGold(initialGold);
     }
 
     void DebugTasks() {
@@ -39,20 +43,20 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
-    #region Coins
+    #region Gold
 
     /// <summary>
     /// Applies delta to current coin value. 
     /// </summary>
     /// <param name="delta">(+/-)</param>
-    public bool ModifyCoins(int delta) {
-        int newCoins = coins + delta;
-        if (newCoins < 0) {
+    public bool ModifyGold(int delta) {
+        int newGold = gold + delta;
+        if (newGold < 0) {
             return false;
         }
 
-        coins = newCoins;
-        // TODO: modify coins event
+        gold = newGold;
+        OnModifyMoney?.Invoke(new DeltaArgs {NewValue = newGold, DeltaValue = delta});
 
         return true;
     }
