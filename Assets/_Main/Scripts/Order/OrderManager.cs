@@ -112,9 +112,6 @@ public class OrderManager : MonoBehaviour {
             availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
             if (availableStock[requestedProductID].Count == 0) availableStock.Remove(requestedProductID);
         }
-        
-        
-        print(quantity + "|" + randomQuantity + " " + GameManager.StockedProducts[requestedProductID].Count);
 
         return order;
     }

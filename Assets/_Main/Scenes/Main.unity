@@ -1794,6 +1794,7 @@ GameObject:
   m_Component:
   - component: {fileID: 976189240}
   - component: {fileID: 976189241}
+  - component: {fileID: 976189242}
   m_Layer: 0
   m_Name: WorldGrid
   m_TagString: Untagged
@@ -1837,6 +1838,21 @@ MonoBehaviour:
   maxLength: 30
   maxHeight: 10
   maxWidth: 30
+--- !u!114 &976189242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976189239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 915b440ef54edac48ac339778b86aab9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minBounds: {x: -10, y: 0, z: -10}
+  maxBounds: {x: 10, y: 0, z: 10}
+  offset: {x: 0.5, y: 0.5}
 --- !u!1001 &1021295399
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3189,8 +3205,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1816176235}
-  - component: {fileID: 1816176236}
   - component: {fileID: 1816176237}
+  - component: {fileID: 1816176236}
   m_Layer: 0
   m_Name: HoldGrid
   m_TagString: Untagged

@@ -5,6 +5,7 @@ using TriInspector;
 using UnityEngine;
 
 public interface IGridShape {
+    public string Name { get; } // auto-implemented by Unity
     public Vector3Int RootCoord { get; }
     public Grid Grid { get; }
 
@@ -23,7 +24,8 @@ public class Grid : MonoBehaviour {
     [SerializeField] int maxWidth;
     public int MaxWidth => maxWidth;
 
-    Dictionary<Vector3Int, Cell> cells = new();
+    public Dictionary<Vector3Int, Cell> Cells => cells;
+    [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
 
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
