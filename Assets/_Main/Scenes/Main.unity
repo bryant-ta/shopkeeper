@@ -1137,8 +1137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1aaa4959d975da48b569fa2a72f5215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Debug: 0
+  DebugMode: 1
   worldGrid: {fileID: 976189241}
+  dayDuration: 100
+  openPhaseTime: 5
+  closePhaseTime: 10
   initialGold: 10
   gold: 0
 --- !u!114 &525756790

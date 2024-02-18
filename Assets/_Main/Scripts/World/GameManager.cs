@@ -19,7 +19,7 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] [Tooltip("Time of day Open Phase starts in seconds")] float openPhaseTime;
     [SerializeField] [Tooltip("Time of day Close Phase starts in seconds")] float closePhaseTime;
     public StageTimer DayTimer { get; private set; }
-    StateMachine<DayPhase> SM_dayPhase;
+    public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
 
     [Header("Gold")]
@@ -55,6 +55,8 @@ public class GameManager : Singleton<GameManager> {
         if (DebugMode) { DebugTasks(); }
         
         ModifyGold(initialGold);
+        
+        MainLoop();
     }
 
     void DebugTasks() {
@@ -68,60 +70,10 @@ public class GameManager : Singleton<GameManager> {
 
     #region Main
 
-    public void MainLoop() {
+    void MainLoop() {
+        // need to wait for all scripts' Start to finish
+        Util.DoAfterOneFrame(this, () => DayTimer.Start());
     }
-    
-    
-    // public void MainLoop() {
-    //     // Start Day Cycle
-    //     DayTimer.EndEvent += DayCycle;
-    //     DayCycle();
-    // }
-    //
-    // void DayCycle() {
-    //     DayTimer.Start(); 
-    //     StartCoroutine(nameof(DeliveryPhase));
-    // }
-    //
-    // // JUST DO THE STATE MACHINE YOU KNOW YOU WANT TO
-    //
-    //
-    // // TODO: prob convert this to state machine
-    // IEnumerator DeliveryPhase() {
-    //     // TODO: Do new deliveries
-    //     
-    //     // Wait until Delivery Phase is finished
-    //     float endTime = dayDuration - openPhaseTime;
-    //     while (DayTimer.RemainingTimeSeconds > endTime) {
-    //         yield return null;
-    //     }
-    //     
-    //     StartCoroutine(nameof(OpenPhase));
-    // }
-    // IEnumerator OpenPhase() {
-    //     // TODO: Enable new orders
-    //     
-    //     
-    //     // Wait until Open Phase is finished
-    //     float endTime = dayDuration - closePhaseTime;
-    //     while (DayTimer.RemainingTimeSeconds > endTime) {
-    //         yield return null;
-    //     }
-    //     
-    //     // TODO: Disable new orders
-    //     
-    //     
-    //     StartCoroutine(nameof(ClosePhase));
-    // }
-    // IEnumerator ClosePhase() {
-    //     
-    //     
-    //     // Wait until Close Phase is finished
-    //     float endTime = 0f;
-    //     while (DayTimer.RemainingTimeSeconds > endTime) {
-    //         yield return null;
-    //     }
-    // }
 
     #endregion
 

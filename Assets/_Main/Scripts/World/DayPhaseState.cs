@@ -17,14 +17,6 @@ public class DeliveryDayPhaseState : DayPhaseState {
 
     public DeliveryDayPhaseState() { ID = DayPhase.Delivery; }
 
-    // public void Enter() {
-    //     base.Enter();
-    // }
-    //
-    // public void Exit() {
-    //     base.Exit();
-    // }
-
     public override IState<DayPhase> NextState() { return new OpenDayPhaseState(); }
 }
 

@@ -6,13 +6,17 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numProductsInDelivery;
 
     [SerializeField] List<ProductID> initialPossibleProducts;
-    
+
     [Header("Zone")]
     [SerializeField] Vector3Int deliveryZoneDimensions;
     [SerializeField] Zone deliveryZone;
     Grid grid;
-    
+
     RollTable<ProductID> productRollTable = new();
+
+    void Awake() {
+        GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
+    }
 
     void Start() {
         grid = GameManager.WorldGrid;
@@ -26,11 +30,13 @@ public class DeliveryManager : MonoBehaviour {
         foreach (ProductID productID in initialPossibleProducts) {
             AddPossibleProduct(productID);
         }
-        
-        DoDelivery();
     }
 
-    public void DoDelivery() {
+    void StateTrigger(IState<DayPhase> state) { 
+        if (state.ID == DayPhase.Delivery) 
+        DoDelivery(); 
+    }
+    void DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
         // Order of placement is one product on next open y of (x, z), then next (x, z)
         int numProductsDelivered = 0;
@@ -42,20 +48,22 @@ public class DeliveryManager : MonoBehaviour {
                     Vector3Int deliveryCoord;
                     if (grid.SelectLowestOpen(deliveryZone.RootCoord.x + x, deliveryZone.RootCoord.z + z, out int y)) {
                         deliveryCoord = deliveryZone.RootCoord + new Vector3Int(x, y, z);
-                    } else { // this xz coord has no free cells
+                    }
+                    else { // this xz coord has no free cells
                         continue;
                     }
 
                     SO_Product p = ProductFactory.Instance.ProductLookUp[productRollTable.GetRandom()];
                     Product product = ProductFactory.Instance.CreateProduct(p);
-                    
+
                     if (product.TryGetComponent(out IGridShape shape)) {
                         if (!grid.PlaceShape(deliveryCoord, shape, true)) {
                             Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord);
                         }
-                        
+
                         GameManager.AddStockedProduct(product);
-                    } else {
+                    }
+                    else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
                         return;
                     }
