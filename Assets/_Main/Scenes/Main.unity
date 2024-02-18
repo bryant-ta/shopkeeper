@@ -1177,9 +1177,13 @@ MonoBehaviour:
   DebugMode: 1
   isPaused: 0
   worldGrid: {fileID: 976189241}
-  dayDuration: 100
-  openPhaseTime: 1
-  closePhaseTime: 10
+  dayStartClockTime: 8:00AM
+  dayEndClockTime: 12:00AM
+  dayClockTickDurationSeconds: 1
+  dayclockTickStepMinutes: 10
+  deliveryPhaseClockTime: 8:00AM
+  openPhaseClockTime: 8:30AM
+  closePhaseClockTime: 12:00PM
   initialGold: 10
   gold: 0
 --- !u!114 &525756790
@@ -4547,6 +4551,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 94a6147a-e8e8-4798-848d-a2141cb4d393
     m_ActionName: Player/Pause[/Keyboard/escape]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInputManager, Assembly-CSharp
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: bc3882fe-645b-4918-bf4b-74258cf404a3
+    m_ActionName: UI/Pause[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

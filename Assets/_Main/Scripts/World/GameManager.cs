@@ -21,10 +21,22 @@ public class GameManager : Singleton<GameManager> {
     static Grid _worldGrid;
 
     [Header("Time")]
-    [SerializeField] [Tooltip("Length of day in seconds")] float dayDuration;
-    [SerializeField] [Tooltip("Time of day Open Phase starts in seconds")] float openPhaseTime;
-    [SerializeField] [Tooltip("Time of day Close Phase starts in seconds")] float closePhaseTime;
-    public StageTimer DayTimer { get; private set; }
+    [SerializeField] [Tooltip("Time on clock that day starts")]
+    string dayStartClockTime;
+    [SerializeField] [Tooltip("Time on clock that day ends")]
+    string dayEndClockTime;
+    [SerializeField] [Tooltip("Real-time duration until clock moves to next step (seconds)")]
+    float dayClockTickDurationSeconds;
+    [SerializeField] [Tooltip("Increment of time on clock that clock will move after tick duration (minutes)")]
+    int dayclockTickStepMinutes;
+    
+    [SerializeField] [Tooltip("Time on clock Open Phase starts")]
+    string deliveryPhaseClockTime;
+    [SerializeField] [Tooltip("Time on clock Open Phase starts")]
+    string openPhaseClockTime;
+    [SerializeField] [Tooltip("Time on clock Close Phase starts")]
+    string closePhaseClockTime;
+    public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
 
@@ -44,24 +56,16 @@ public class GameManager : Singleton<GameManager> {
         stockedProducts = new();
 
         // Setup Day Cycle
-        if (openPhaseTime > dayDuration || closePhaseTime > dayDuration) {
-            Debug.LogError("A phase time is outside the duration of a day.");
-        }
-        
-        List<float> dayPhaseIntervals = new();
-        dayPhaseIntervals.Add(openPhaseTime);
-        dayPhaseIntervals.Add(closePhaseTime);
-        DayTimer = new StageTimer(dayDuration, dayPhaseIntervals);
-        
+        DayTimer = new ClockTimer(-1, dayStartClockTime, dayEndClockTime, dayClockTickDurationSeconds, dayclockTickStepMinutes);
+        DayTimer.TickEvent += TriggerDayPhase;
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
-        DayTimer.TickEvent += SM_dayPhase.ExecuteNextState;
     }
 
     void Start() {
         if (DebugMode) { DebugTasks(); }
-        
+
         ModifyGold(initialGold);
-        
+
         MainLoop();
     }
 
@@ -91,8 +95,23 @@ public class GameManager : Singleton<GameManager> {
     #region Main
 
     void MainLoop() {
-        // need to wait for all scripts' Start to finish
+        // need to wait for all scripts' Start to finish before starting day timer
         Util.DoAfterOneFrame(this, () => DayTimer.Start());
+    }
+
+    #endregion
+
+    #region Time
+
+    void TriggerDayPhase(string clockTime) {
+        // TODO: using clockTime mapped directly to phases
+        if (Util.CompareTime(clockTime, deliveryPhaseClockTime) == 0) {
+            SM_dayPhase.ExecuteNextState();
+        }else if (Util.CompareTime(clockTime, openPhaseClockTime) == 0) {
+            SM_dayPhase.ExecuteNextState();
+        } else if (Util.CompareTime(clockTime, closePhaseClockTime) == 0) {
+            SM_dayPhase.ExecuteNextState();
+        }
     }
 
     #endregion

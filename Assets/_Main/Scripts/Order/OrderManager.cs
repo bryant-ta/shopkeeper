@@ -102,6 +102,11 @@ public class OrderManager : MonoBehaviour {
     }
 
     Order GenerateQuantityOrder(Dictionary<ProductID, List<Product>> availableStock) {
+        if (availableStock.Count == 0) {
+            Debug.LogWarning("No available stock to generate orders from!");
+            return null;
+        }
+        
         int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
 
         Order order = new Order();

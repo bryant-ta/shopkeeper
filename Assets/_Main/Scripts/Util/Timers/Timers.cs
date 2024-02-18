@@ -7,8 +7,9 @@ public abstract class TimerBase {
     public float Duration { get; }
     public bool IsTicking { get; protected set; }
 
-    public abstract float RemainingTimePercent { get; }
+    public abstract float TimeElapsedSeconds { get; }
     public abstract float RemainingTimeSeconds { get; }
+    public abstract float RemainingTimePercent { get; }
 
     public event Action EndEvent;
 
@@ -36,8 +37,9 @@ public abstract class TimerBase {
 }
 
 public class CountdownTimer : TimerBase {
-    public override float RemainingTimePercent => timer / Duration;
+    public override float TimeElapsedSeconds => Duration - timer;
     public override float RemainingTimeSeconds => timer;
+    public override float RemainingTimePercent => timer / Duration;
 
     public event Action<float> TickEvent;
 
@@ -63,8 +65,9 @@ public class CountdownTimer : TimerBase {
 }
 
 public class StageTimer : TimerBase {
-    public override float RemainingTimePercent => 1 - (timer / Duration);
+    public override float TimeElapsedSeconds => timer;
     public override float RemainingTimeSeconds => Duration - timer;
+    public override float RemainingTimePercent => 1 - (timer / Duration);
 
     public event Action TickEvent;
 
@@ -91,6 +94,70 @@ public class StageTimer : TimerBase {
             Stop();
             return;
         }
+    }
+}
+
+public class ClockTimer : TimerBase {
+    public override float TimeElapsedSeconds => timer;
+    public override float RemainingTimeSeconds => Duration - timer;
+    public override float RemainingTimePercent => 1 - (timer / Duration);
+
+    string startClockTime;        // Time on clock that the timer will start
+    string endClockTime;          // Time on clock that the timer will end
+    float clockTickDurationSeconds; // Real-time duration until clock moves to next step (seconds)
+    int clockTickStepMinutes;     // Increment of time on clock that clock will move after tick duration (minutes)
+
+    public string ClockTime { get; private set; }
+
+    public event Action<string> TickEvent;
+
+    public ClockTimer(float duration, string startClockTime, string endClockTime, float clockTickDurationSeconds,
+        int clockTickStepMinutes) : base(duration) {
+        this.startClockTime = startClockTime;
+        this.endClockTime = endClockTime;
+        this.clockTickDurationSeconds = clockTickDurationSeconds;
+        this.clockTickStepMinutes = clockTickStepMinutes;
+
+        if (!DateTime.TryParse(startClockTime, out DateTime parsedTime)) {
+            Debug.LogError("Unable to parse input time string.");
+            return;
+        }
+
+        ClockTime = parsedTime.ToString("h:mm tt");
+    }
+
+    public override void Start() {
+        timer = 0f;
+        TickEvent?.Invoke(ClockTime);
+        base.Start();
+    }
+
+    float clockTickTimer = 0f;
+    protected override void Tick(float deltaTime) {
+        timer += deltaTime;
+        clockTickTimer += deltaTime;
+
+        if (clockTickTimer >= clockTickDurationSeconds) {
+            clockTickTimer = 0f;
+            TickEvent?.Invoke(AddTickStep());
+        }
+
+        if ((int)Duration != -1 && timer >= Duration) {
+            Stop();
+            return;
+        }
+    }
+
+    string AddTickStep() {
+        if (!DateTime.TryParse(ClockTime, out DateTime parsedTime)) {
+            Debug.LogError("Unable to parse input time string.");
+            return ClockTime;
+        }
+
+        parsedTime = parsedTime.AddMinutes(clockTickStepMinutes);
+        ClockTime = parsedTime.ToString("h:mm tt");
+
+        return ClockTime;
     }
 }
 }
