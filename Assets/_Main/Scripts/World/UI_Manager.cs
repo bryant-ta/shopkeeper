@@ -4,6 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(GameManager))]
 public class UI_Manager : MonoBehaviour {
     [SerializeField] TextMeshProUGUI moneyText;
+    [SerializeField] TextMeshProUGUI timeText;
+    [SerializeField] TextMeshProUGUI phaseText;
     
     [SerializeField] GameObject pauseMenuPanel;
 
@@ -13,6 +15,9 @@ public class UI_Manager : MonoBehaviour {
         gameMngr = GetComponent<GameManager>();
         
         gameMngr.OnModifyMoney += UpdateMoneyText;
+        gameMngr.DayTimer.TickEvent += UpdateTimeText;
+        gameMngr.SM_dayPhase.OnStateEnter += UpdatePhaseText;
+        
         gameMngr.OnPause += TogglePauseMenu;
     }
 
@@ -20,6 +25,14 @@ public class UI_Manager : MonoBehaviour {
         moneyText.text = "Gold: " + args.NewValue.ToString();
     }
     
+    void UpdateTimeText(string time) {
+        timeText.text = time;
+    }
+
+    void UpdatePhaseText(IState<DayPhase> phase) {
+        phaseText.text = phase.ID.ToString();
+    }
+
     void TogglePauseMenu(bool isPaused) {
         pauseMenuPanel.SetActive(isPaused);
     }
