@@ -1,5 +1,3 @@
-using System;
-using EventManager;
 using TMPro;
 using UnityEngine;
 

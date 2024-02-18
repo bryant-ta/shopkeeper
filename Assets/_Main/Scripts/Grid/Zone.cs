@@ -13,7 +13,7 @@ public class Zone : MonoBehaviour {
     public HashSet<Vector3Int> AllCoords { get; private set; }
     public HashSet<Vector2Int> XZCoords { get; private set; }
     
-    public Action<Grid> OnEnterZone;
+    public event Action<Grid> OnEnterZone;
 
     public void Setup(Vector3Int rootCoord, Vector3Int dimensions, ZoneProperties zoneProps) {
         UpdateZonePosition(rootCoord, dimensions);

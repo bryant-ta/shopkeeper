@@ -25,7 +25,7 @@ public class OrderManager : MonoBehaviour {
     Queue<Order> backlogOrders = new();
     Order[] activeOrders;
 
-    public Action<int, Order> OnNewActiveOrder;
+    public event Action<int, Order> OnNewActiveOrder;
 
     void Awake() {
         activeOrders = new Order[numActiveOrders];
@@ -198,7 +198,7 @@ public class Order {
     public Dictionary<ProductID, int> Products => products;
     Dictionary<ProductID, int> products;
 
-    public Action OnProductFulfilled;
+    public event Action OnProductFulfilled;
 
     public Order() { products = new(); }
 

@@ -10,7 +10,7 @@ public class GlobalClock : Singleton<GlobalClock> {
 	/// <summary>
 	/// OnTick sends deltaTime on invoke.
 	/// </summary>
-	public static Action<float> OnTick;
+	public static event Action<float> OnTick;
 
 	void Awake() {
 		// Required to reset subscribers every Play mode start because static

@@ -1,50 +1,96 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Timers {
-    public class CountdownTimer {
-        public float Duration;
-        public bool IsTicking { get; private set; }
+public abstract class TimerBase {
+    public float Duration { get; }
+    public bool IsTicking { get; protected set; }
 
-        public float RemainingTimePercent => _timer / Duration;
-        public float RemainingTimeSeconds => _timer;
+    public abstract float RemainingTimePercent { get; }
+    public abstract float RemainingTimeSeconds { get; }
 
-        /// <summary>
-        /// TickEvent sends percentage of time remaining on invoke.
-        /// </summary>
-        public Action<float> TickEvent;
-        public Action EndEvent;
+    public event Action EndEvent;
 
-        float _timer;
+    protected float timer = 0f;
 
-        public CountdownTimer(float duration) {
-            Duration = duration;
+    protected TimerBase(float duration) { Duration = duration; }
+
+    public virtual void Start() {
+        if (IsTicking) {
+            Debug.LogWarning("Timer has already started!");
+            return;
         }
 
-        public void Start() {
-            if (IsTicking) Stop();
-            
-            _timer = Duration;
-            IsTicking = true;
-            GlobalClock.OnTick += Timer;
-        }
-        public void Stop() {
-            IsTicking = false;
-            GlobalClock.OnTick -= Timer;
-            EndEvent?.Invoke();
-        }
+        IsTicking = true;
+        GlobalClock.OnTick += Tick;
+    }
 
-        void Timer(float deltaTime) {
-            _timer -= deltaTime;
+    public virtual void Stop() {
+        IsTicking = false;
+        GlobalClock.OnTick -= Tick;
+        EndEvent?.Invoke();
+    }
 
-            // Invoke TickEvent
-            if (_timer < 0) _timer = 0; // needed for invoking TickEvent with non-negative percent
-            if (TickEvent != null) TickEvent?.Invoke(_timer / Duration);
+    protected abstract void Tick(float deltaTime);
+}
 
-            // Finished Timer
-            if (_timer == 0) {
-                Stop();
-            }
+public class CountdownTimer : TimerBase {
+    public override float RemainingTimePercent => timer / Duration;
+    public override float RemainingTimeSeconds => timer;
+
+    public event Action<float> TickEvent;
+
+    public CountdownTimer(float duration) : base(duration) { }
+
+    public override void Start() {
+        timer = Duration;
+        TickEvent?.Invoke(RemainingTimePercent);
+        base.Start();
+    }
+
+    protected override void Tick(float deltaTime) {
+        timer -= deltaTime;
+
+        if (timer < 0) timer = 0; // Ensure non-negative percent for TickEvent
+        TickEvent?.Invoke(RemainingTimePercent);
+
+        if (timer <= 0f) {
+            Stop();
+            return;
         }
     }
+}
+
+public class StageTimer : TimerBase {
+    public override float RemainingTimePercent => 1 - (timer / Duration);
+    public override float RemainingTimeSeconds => Duration - timer;
+
+    public event Action TickEvent;
+
+    List<float> intervals;
+    int curIntervalIndex = 0;
+
+    public StageTimer(float duration, List<float> intervals) : base(duration) { this.intervals = intervals; }
+
+    public override void Start() {
+        timer = 0f;
+        TickEvent?.Invoke();
+        base.Start();
+    }
+
+    protected override void Tick(float deltaTime) {
+        timer += deltaTime;
+
+        if (curIntervalIndex < intervals.Count && timer >= intervals[curIntervalIndex]) {
+            TickEvent?.Invoke();
+            curIntervalIndex++;
+        }
+
+        if (timer >= Duration) {
+            Stop();
+            return;
+        }
+    }
+}
 }
