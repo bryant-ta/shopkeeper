@@ -16,6 +16,7 @@ public enum EventID {
     Rotate = 11,
     Drop = 12,
     Cancel = 13,
+    Pause = 14,
     
     // ProductDelivered = 100,
     // ProductOrdered = 101,

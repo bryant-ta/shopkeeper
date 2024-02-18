@@ -32,10 +32,7 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    void StateTrigger(IState<DayPhase> state) { 
-        if (state.ID == DayPhase.Delivery) 
-        DoDelivery(); 
-    }
+    void StateTrigger(IState<DayPhase> state) { if (state.ID == DayPhase.Delivery) DoDelivery(); }
     void DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
         // Order of placement is one product on next open y of (x, z), then next (x, z)

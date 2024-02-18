@@ -5,7 +5,7 @@ using UnityEngine;
 /// GlobalClock is the ticker every other Timer type uses to tick. All Timers can be stopped by stopping GlobalClock.
 /// </summary>
 public class GlobalClock : Singleton<GlobalClock> {
-	public float timeScale = 1f;
+	public static float TimeScale = 1f;
 
 	/// <summary>
 	/// OnTick sends deltaTime on invoke.
@@ -18,7 +18,7 @@ public class GlobalClock : Singleton<GlobalClock> {
 	}
 
 	void Update() {
-		if (timeScale == 0) return; // prevents ticks of 0 delta time
-		OnTick?.Invoke(Time.deltaTime * timeScale);
+		if (TimeScale == 0) return; // prevents ticks of 0 delta time
+		OnTick?.Invoke(Time.deltaTime * TimeScale);
 	}
 }

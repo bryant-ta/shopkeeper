@@ -5,14 +5,19 @@ using UnityEngine.InputSystem;
 
 // Should be attached to Player GameObject for movement inputs
 [RequireComponent(typeof(Player))]
-public class PlayerInput : MonoBehaviour {
+public class PlayerInputManager : MonoBehaviour {
     [Tooltip("Point raycast detects this layer.")]
     [SerializeField] LayerMask pointLayer;
 
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
+    
+    PlayerInput playerInput; // TEMP: change for local multiplayer
 
-    void Awake() { mainCam = Camera.main; }
+    void Awake() {
+        mainCam = Camera.main;
+        playerInput = GetComponent<PlayerInput>();
+    }
 
     #region Mouse
 
@@ -93,6 +98,13 @@ public class PlayerInput : MonoBehaviour {
     public void OnCancel(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             Events.Invoke(gameObject, EventID.Cancel);
+        }
+    }
+    
+    public void OnPause(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            GameManager.Instance.TogglePause();
+            playerInput.SwitchCurrentActionMap(GameManager.Instance.IsPaused ? "UI" : "Player");
         }
     }
 }

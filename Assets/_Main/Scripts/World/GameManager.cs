@@ -1,13 +1,19 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using EventManager;
 using Timers;
+using TriInspector;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
     [Header("Debug")]
     public bool DebugMode;
+
+    [Header("General")]
+    [SerializeField, ReadOnly] bool isPaused;
+    public bool IsPaused => isPaused;
+    public event Action<bool> OnPause;
 
     [Header("World Grid")]
     [SerializeField] Grid worldGrid;
@@ -65,6 +71,20 @@ public class GameManager : Singleton<GameManager> {
         List<Stack> preMadeStacks = FindObjectsByType<Stack>(FindObjectsSortMode.None).ToList();
         for (int i = 0; i < preMadeStacks.Count; i++) {
             preMadeStacks[i].Init();
+        }
+    }
+
+    public void TogglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            Time.timeScale = 0f;
+            GlobalClock.TimeScale = 0f;
+            OnPause?.Invoke(true);
+        }
+        else {
+            Time.timeScale = 1f;
+            GlobalClock.TimeScale = 1f;
+            OnPause?.Invoke(false);
         }
     }
 
