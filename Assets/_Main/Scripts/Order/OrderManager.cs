@@ -36,7 +36,8 @@ public class OrderManager : MonoBehaviour {
 
         dropOffZone.OnEnterZone += TryFulfillOrder;
 
-        GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
+        GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
+        GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
     }
 
     void Start() {
@@ -45,10 +46,10 @@ public class OrderManager : MonoBehaviour {
         dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
         GameManager.WorldGrid.AddZone(dropOffZone);
     }
+    
+    #region Active Orders
 
-    #region Order Generation
-
-    void StateTrigger(IState<DayPhase> state) {
+    void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Open) StartOrders();
     }
     void StartOrders() {
@@ -67,35 +68,20 @@ public class OrderManager : MonoBehaviour {
         }
     }
 
-    // IEnumerator ActivateNextOrderDelayed(int activeOrderIndex, int delay) {
-    //     activeOrders[activeOrderIndex] = null;
-    //     OnNewActiveOrder?.Invoke(activeOrderIndex, null);
-    //
-    //     if (backlogOrders.Count == 0) {
-    //         yield break;
-    //     }
-    //
-    //     yield return DelayActiveOrder(delay);
-    //
-    //     Order nextOrder = backlogOrders.Dequeue();
-    //     nextOrder.Start();
-    //
-    //     activeOrders[activeOrderIndex] = nextOrder;
-    //     OnNewActiveOrder?.Invoke(activeOrderIndex, nextOrder);
-    // }
-    // IEnumerator DelayActiveOrder(float seconds) {
-    //     float t = 0f;
-    //     while (t < seconds) {
-    //         yield return null;
-    //         t += Time.deltaTime; // NOTE: not affected by GlobalClock.TimeScale
-    //     }
-    // }
+    void ExitStateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Open) StopOrders();
+    }
+    void StopOrders() {
+        for (int i = 0; i < activeOrders.Length; i++) {
+            ResetActiveOrderSlot(i);
+        }
 
-    void ActivateNextOrderDelayed(int activeOrderIndex, int delay) {
-        activeOrders[activeOrderIndex] = null;
-        OnNewActiveOrder?.Invoke(activeOrderIndex, null);
+        backlogOrders.Clear();
+    }
 
-        Util.DoAfterSeconds(this, delay, () => ActivateNextOrder(activeOrderIndex));
+    void ActivateNextOrderDelayed(int activeOrderIndex) {
+        ResetActiveOrderSlot(activeOrderIndex);
+        Util.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), () => ActivateNextOrder(activeOrderIndex));
     }
     void ActivateNextOrder(int activeOrderIndex) {
         if (GameManager.Instance.SM_dayPhase.CurState.ID != DayPhase.Open) {
@@ -103,17 +89,27 @@ public class OrderManager : MonoBehaviour {
         }
 
         if (backlogOrders.Count == 0) {
-            activeOrders[activeOrderIndex] = null;
-            OnNewActiveOrder?.Invoke(activeOrderIndex, null);
+            ResetActiveOrderSlot(activeOrderIndex);
             return;
         }
 
         Order nextOrder = backlogOrders.Dequeue();
         nextOrder.Start();
+        nextOrder.OnOrderFulfilled += FulfillOrder;
+        nextOrder.OnOrderFailed += FailOrder;
 
         activeOrders[activeOrderIndex] = nextOrder;
+        nextOrder.ActiveOrderIndex = activeOrderIndex;
         OnNewActiveOrder?.Invoke(activeOrderIndex, nextOrder);
     }
+
+    void ResetActiveOrderSlot(int activeOrderIndex) {
+        OnNewActiveOrder?.Invoke(activeOrderIndex, null);
+    }
+    
+    #endregion
+
+    #region Order Generation
 
     // Populates backlog of orders
     bool GenerateOrders(int numOrders) {
@@ -135,7 +131,7 @@ public class OrderManager : MonoBehaviour {
                     return false;
             }
 
-            backlogOrders.Enqueue(order);
+            if (order != null) backlogOrders.Enqueue(order);
         }
 
         return true;
@@ -167,6 +163,11 @@ public class OrderManager : MonoBehaviour {
 
         Order order = new Order(goldPerProduct, timePerProduct);
         for (int i = 0; i < orderTotal; i++) {
+            if (availableStock.Count == 0) {
+                Debug.LogWarning("No available stock to generate orders from!");
+                return null;
+            }
+            
             ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
 
             int randomQuantity = Random.Range(1, varietyOrderIndividualMax + 1);
@@ -199,15 +200,6 @@ public class OrderManager : MonoBehaviour {
                 }
             }
         }
-
-        // Finish fully fulfilled orders
-        for (int i = 0; i < activeOrders.Length; i++) {
-            if (activeOrders[i].IsComplete()) {
-                GameManager.Instance.ModifyGold(activeOrders[i].TotalReward());
-
-                ActivateNextOrderDelayed(i, Random.Range(minNextOrderDelay, maxNextOrderDelay));
-            }
-        }
     }
 
     // Returns true if successfully fulfilled an order with product
@@ -215,7 +207,7 @@ public class OrderManager : MonoBehaviour {
         // Prioritize order with least time left
         List<Order> activeOrdersList = activeOrders.ToList();
         for (int i = activeOrdersList.Count - 1; i >= 0; i--) {
-            if (activeOrdersList[i] == null || activeOrdersList[i].Timer == null || !activeOrdersList[i].Timer.IsTicking) {
+            if (!activeOrdersList[i].Timer.IsTicking) {
                 activeOrdersList.Remove(activeOrdersList[i]);
             }
         }
@@ -231,6 +223,14 @@ public class OrderManager : MonoBehaviour {
         return false;
     }
 
+    void FulfillOrder(int activeOrderIndex) {
+        GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalReward());
+        ActivateNextOrderDelayed(activeOrderIndex);
+    }
+    void FailOrder(int activeOrderIndex) {
+        ActivateNextOrderDelayed(activeOrderIndex);
+    }
+
     #endregion
 }
 
@@ -239,11 +239,15 @@ public class Order {
 
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
+    
+    public int ActiveOrderIndex;
 
     public Dictionary<ProductID, int> Products => products;
     Dictionary<ProductID, int> products;
 
     public event Action OnProductFulfilled;
+    public event Action<int> OnOrderFulfilled;
+    public event Action<int> OnOrderFailed;
 
     int valuePerProduct;
     int timePerProduct;
@@ -257,8 +261,10 @@ public class Order {
 
     public void Start() {
         Timer = new CountdownTimer(TimeToComplete);
+        Timer.EndEvent += Fail;
         Timer.Start();
     }
+    
     public bool TryFulfill(ProductID productID) {
         if (products.ContainsKey(productID)) { products[productID]--; }
         else { return false; }
@@ -267,7 +273,12 @@ public class Order {
 
         OnProductFulfilled?.Invoke();
 
+        if (products.Count == 0) OnOrderFulfilled?.Invoke(ActiveOrderIndex);
+
         return true;
+    }
+    void Fail() {
+        OnOrderFailed?.Invoke(ActiveOrderIndex);
     }
 
     public void Add(ProductID productID) {
@@ -292,7 +303,6 @@ public class Order {
     // Don't need to explicitly cleanup event listeners, as long as all references of this Order are gone.
 
     public int TotalReward() { return Value + (int) TimeToComplete; }
-    public bool IsComplete() { return products.Count == 0; }
     public new string ToString() {
         string t = "";
 

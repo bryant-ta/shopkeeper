@@ -1220,7 +1220,7 @@ MonoBehaviour:
   dayclockTickStepMinutes: 10
   deliveryPhaseClockTime: 8:00AM
   openPhaseClockTime: 8:30AM
-  closePhaseClockTime: 12:00PM
+  closePhaseClockTime: 9:00AM
   initialGold: 10
   gold: 0
 --- !u!114 &525756790
@@ -2690,10 +2690,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numTotalOrders: 6
+  numTotalOrders: 10
   numActiveOrders: 3
   minNextOrderDelay: 1
   maxNextOrderDelay: 5
+  goldPerProduct: 10
+  timePerProduct: 10
   quantityOrderTotalMin: 5
   quantityOrderTotalMax: 10
   varietyOrderTotalMin: 1

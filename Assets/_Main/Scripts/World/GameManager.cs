@@ -107,7 +107,7 @@ public class GameManager : Singleton<GameManager> {
         // TODO: using clockTime mapped directly to phases
         if (Util.CompareTime(clockTime, deliveryPhaseClockTime) == 0) {
             SM_dayPhase.ExecuteNextState();
-        }else if (Util.CompareTime(clockTime, openPhaseClockTime) == 0) {
+        } else if (Util.CompareTime(clockTime, openPhaseClockTime) == 0) {
             SM_dayPhase.ExecuteNextState();
         } else if (Util.CompareTime(clockTime, closePhaseClockTime) == 0) {
             SM_dayPhase.ExecuteNextState();
