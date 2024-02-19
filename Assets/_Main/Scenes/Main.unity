@@ -1263,6 +1263,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moneyText: {fileID: 370300677}
   timeText: {fileID: 1877508470}
+  phaseText: {fileID: 986965303}
   pauseMenuPanel: {fileID: 512864081}
 --- !u!1001 &546741877
 PrefabInstance:
@@ -2689,8 +2690,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numTotalOrders: 4
+  numTotalOrders: 6
   numActiveOrders: 3
+  minNextOrderDelay: 1
+  maxNextOrderDelay: 5
   quantityOrderTotalMin: 5
   quantityOrderTotalMax: 10
   varietyOrderTotalMin: 1

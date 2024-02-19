@@ -8,6 +8,10 @@ using Random = UnityEngine.Random;
 public class OrderManager : MonoBehaviour {
     [SerializeField] int numTotalOrders;
     [SerializeField] int numActiveOrders;
+    [SerializeField] int minNextOrderDelay;
+    [SerializeField] int maxNextOrderDelay;
+    [SerializeField] int goldPerProduct;
+    [SerializeField] int timePerProduct;
 
     [Header("Quantity Order Type")]
     [SerializeField] int quantityOrderTotalMin;
@@ -31,7 +35,7 @@ public class OrderManager : MonoBehaviour {
         activeOrders = new Order[numActiveOrders];
 
         dropOffZone.OnEnterZone += TryFulfillOrder;
-        
+
         GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
     }
 
@@ -43,15 +47,17 @@ public class OrderManager : MonoBehaviour {
     }
 
     #region Order Generation
-    
-    void StateTrigger(IState<DayPhase> state) { if (state.ID == DayPhase.Open) StartOrders(); }
+
+    void StateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Open) StartOrders();
+    }
     void StartOrders() {
         if (backlogOrders.Count > 0) {
             Debug.LogError("Unable to start new orders: orders remain in backlog orders.");
             return;
         }
-        
-        if (!GenerateOrders()) {
+
+        if (!GenerateOrders(numTotalOrders)) {
             Debug.LogError("Unable to generate orders.");
             return;
         }
@@ -61,13 +67,47 @@ public class OrderManager : MonoBehaviour {
         }
     }
 
+    // IEnumerator ActivateNextOrderDelayed(int activeOrderIndex, int delay) {
+    //     activeOrders[activeOrderIndex] = null;
+    //     OnNewActiveOrder?.Invoke(activeOrderIndex, null);
+    //
+    //     if (backlogOrders.Count == 0) {
+    //         yield break;
+    //     }
+    //
+    //     yield return DelayActiveOrder(delay);
+    //
+    //     Order nextOrder = backlogOrders.Dequeue();
+    //     nextOrder.Start();
+    //
+    //     activeOrders[activeOrderIndex] = nextOrder;
+    //     OnNewActiveOrder?.Invoke(activeOrderIndex, nextOrder);
+    // }
+    // IEnumerator DelayActiveOrder(float seconds) {
+    //     float t = 0f;
+    //     while (t < seconds) {
+    //         yield return null;
+    //         t += Time.deltaTime; // NOTE: not affected by GlobalClock.TimeScale
+    //     }
+    // }
+
+    void ActivateNextOrderDelayed(int activeOrderIndex, int delay) {
+        activeOrders[activeOrderIndex] = null;
+        OnNewActiveOrder?.Invoke(activeOrderIndex, null);
+
+        Util.DoAfterSeconds(this, delay, () => ActivateNextOrder(activeOrderIndex));
+    }
     void ActivateNextOrder(int activeOrderIndex) {
+        if (GameManager.Instance.SM_dayPhase.CurState.ID != DayPhase.Open) {
+            return;
+        }
+
         if (backlogOrders.Count == 0) {
             activeOrders[activeOrderIndex] = null;
             OnNewActiveOrder?.Invoke(activeOrderIndex, null);
             return;
         }
-        
+
         Order nextOrder = backlogOrders.Dequeue();
         nextOrder.Start();
 
@@ -76,11 +116,11 @@ public class OrderManager : MonoBehaviour {
     }
 
     // Populates backlog of orders
-    bool GenerateOrders() {
+    bool GenerateOrders(int numOrders) {
         // Stock is taken out from availableStock as they are added to generated orders, avoids repeats with non-existent stock.
         Dictionary<ProductID, List<Product>> availableStock = GameManager.GetStockedProductsCopy();
-        
-        for (int i = 0; i < numTotalOrders; i++) {
+
+        for (int i = 0; i < numOrders; i++) {
             int orderType = Random.Range(0, 2);
             Order order;
             switch (orderType) {
@@ -94,7 +134,7 @@ public class OrderManager : MonoBehaviour {
                     Debug.LogError("Unexpected orderType.");
                     return false;
             }
-            
+
             backlogOrders.Enqueue(order);
         }
 
@@ -106,12 +146,12 @@ public class OrderManager : MonoBehaviour {
             Debug.LogWarning("No available stock to generate orders from!");
             return null;
         }
-        
+
         int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
 
-        Order order = new Order();
+        Order order = new Order(goldPerProduct, timePerProduct);
         ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
-        
+
         int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
         for (int i = 0; i < quantity; i++) {
             order.Add(requestedProductID);
@@ -124,8 +164,8 @@ public class OrderManager : MonoBehaviour {
 
     Order GenerateVarietyOrder(Dictionary<ProductID, List<Product>> availableStock) {
         int orderTotal = Random.Range(varietyOrderTotalMin, varietyOrderTotalMax + 1);
-        
-        Order order = new Order();
+
+        Order order = new Order(goldPerProduct, timePerProduct);
         for (int i = 0; i < orderTotal; i++) {
             ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
 
@@ -141,7 +181,7 @@ public class OrderManager : MonoBehaviour {
 
         return order;
     }
-    
+
     #endregion
 
     #region Order Fulfillment
@@ -154,33 +194,32 @@ public class OrderManager : MonoBehaviour {
                 if (MatchOrder(product)) {
                     // Consume product from its grid
                     fulfillmentGrid.DestroyShape(shapes[i]);
-                    
+
                     GameManager.RemoveStockedProduct(product);
                 }
             }
         }
-        
-        // TODO: something about remaining products falling down in place of consumed ones
-        
-        // Finished fully fulfilled orders
+
+        // Finish fully fulfilled orders
         for (int i = 0; i < activeOrders.Length; i++) {
             if (activeOrders[i].IsComplete()) {
                 GameManager.Instance.ModifyGold(activeOrders[i].TotalReward());
-        
-                ActivateNextOrder(i);
+
+                ActivateNextOrderDelayed(i, Random.Range(minNextOrderDelay, maxNextOrderDelay));
             }
         }
     }
-    
+
     // Returns true if successfully fulfilled an order with product
     bool MatchOrder(Product product) {
         // Prioritize order with least time left
         List<Order> activeOrdersList = activeOrders.ToList();
         for (int i = activeOrdersList.Count - 1; i >= 0; i--) {
-            if (activeOrdersList[i].Timer == null || !activeOrdersList[i].Timer.IsTicking) {
+            if (activeOrdersList[i] == null || activeOrdersList[i].Timer == null || !activeOrdersList[i].Timer.IsTicking) {
                 activeOrdersList.Remove(activeOrdersList[i]);
             }
         }
+
         activeOrdersList.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
 
         for (int i = 0; i < activeOrdersList.Count; i++) {
@@ -197,7 +236,7 @@ public class OrderManager : MonoBehaviour {
 
 public class Order {
     public int Value { get; private set; }
-    
+
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
@@ -206,7 +245,15 @@ public class Order {
 
     public event Action OnProductFulfilled;
 
-    public Order() { products = new(); }
+    int valuePerProduct;
+    int timePerProduct;
+
+    public Order(int valuePerProduct, int timePerProduct) {
+        this.valuePerProduct = valuePerProduct;
+        this.timePerProduct = timePerProduct;
+
+        products = new();
+    }
 
     public void Start() {
         Timer = new CountdownTimer(TimeToComplete);
@@ -215,11 +262,11 @@ public class Order {
     public bool TryFulfill(ProductID productID) {
         if (products.ContainsKey(productID)) { products[productID]--; }
         else { return false; }
-        
+
         if (products[productID] == 0) { products.Remove(productID); }
-        
+
         OnProductFulfilled?.Invoke();
-        
+
         return true;
     }
 
@@ -227,32 +274,32 @@ public class Order {
         if (products.ContainsKey(productID)) { products[productID]++; }
         else { products[productID] = 1; }
 
-        TimeToComplete += 10f;
-        Value += 10;
+        TimeToComplete += timePerProduct;
+        Value += valuePerProduct;
     }
     public void Remove(ProductID productID) {
         if (products.ContainsKey(productID)) {
             products[productID]--;
-            TimeToComplete -= 10f;
-            Value -= 10;
+            TimeToComplete -= timePerProduct;
+            Value -= valuePerProduct;
         }
 
         if (products[productID] == 0) {
             products.Remove(productID);
         }
     }
-    
+
     // Don't need to explicitly cleanup event listeners, as long as all references of this Order are gone.
 
     public int TotalReward() { return Value + (int) TimeToComplete; }
     public bool IsComplete() { return products.Count == 0; }
     public new string ToString() {
         string t = "";
-        
+
         foreach (KeyValuePair<ProductID, int> order in products) {
             t += $"<sprite name={order.Key}> {order.Value}\n"; // TEMP: -1 from how productID is setup currently
         }
-        
+
         if (t.Length > 0) t = t.Remove(t.Length - 1, 1);
 
         return t;

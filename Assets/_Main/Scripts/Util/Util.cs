@@ -17,6 +17,14 @@ public class Util : MonoBehaviour {
         action?.Invoke();
     }
 
+    public static void DoAfterSeconds(MonoBehaviour obj, float seconds, Action action) {
+        obj.StartCoroutine(DoAfterSecondsCoroutine(seconds, action));
+    }
+    static IEnumerator DoAfterSecondsCoroutine(float seconds, Action onComplete) {
+        yield return new WaitForSeconds(seconds);
+        onComplete?.Invoke();
+    }
+
     public static int CompareTime(string timeA, string timeB) {
         if (!DateTime.TryParse(timeA, out DateTime t1)) {
             Debug.LogError($"Unable to parse time string {timeA}");
