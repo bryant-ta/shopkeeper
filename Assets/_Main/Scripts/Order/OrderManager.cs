@@ -46,12 +46,16 @@ public class OrderManager : MonoBehaviour {
         dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
         GameManager.WorldGrid.AddZone(dropOffZone);
     }
-    
-    #region Active Orders
 
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Open) StartOrders();
     }
+    void ExitStateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Open) StopOrders();
+    }
+    
+    #region Active Orders
+    
     void StartOrders() {
         if (backlogOrders.Count > 0) {
             Debug.LogError("Unable to start new orders: orders remain in backlog orders.");
@@ -66,10 +70,6 @@ public class OrderManager : MonoBehaviour {
         for (int i = 0; i < numActiveOrders; i++) {
             ActivateNextOrder(i);
         }
-    }
-
-    void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Open) StopOrders();
     }
     void StopOrders() {
         for (int i = 0; i < activeOrders.Length; i++) {

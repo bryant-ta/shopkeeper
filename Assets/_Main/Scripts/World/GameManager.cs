@@ -40,6 +40,8 @@ public class GameManager : Singleton<GameManager> {
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
 
+    public event Action OnDayEnd;
+
     [Header("Gold")]
     [SerializeField] int initialGold;
     [SerializeField] int gold;
@@ -57,8 +59,10 @@ public class GameManager : Singleton<GameManager> {
 
         // Setup Day Cycle
         DayTimer = new ClockTimer(-1, dayStartClockTime, dayEndClockTime, dayClockTickDurationSeconds, dayclockTickStepMinutes);
-        DayTimer.TickEvent += TriggerDayPhase;
+        DayTimer.TickEvent += DayPhaseTrigger;
+        
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
+        SM_dayPhase.OnStateExit += ExitStateTrigger;
     }
 
     void Start() {
@@ -67,6 +71,10 @@ public class GameManager : Singleton<GameManager> {
         ModifyGold(initialGold);
 
         MainLoop();
+    }
+    
+    void ExitStateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Close) EndDayTrigger();
     }
 
     void DebugTasks() {
@@ -103,7 +111,7 @@ public class GameManager : Singleton<GameManager> {
 
     #region Time
 
-    void TriggerDayPhase(string clockTime) {
+    void DayPhaseTrigger(string clockTime) {
         // TODO: using clockTime mapped directly to phases
         if (Util.CompareTime(clockTime, deliveryPhaseClockTime) == 0) {
             SM_dayPhase.ExecuteNextState();
@@ -112,6 +120,10 @@ public class GameManager : Singleton<GameManager> {
         } else if (Util.CompareTime(clockTime, closePhaseClockTime) == 0) {
             SM_dayPhase.ExecuteNextState();
         }
+    }
+
+    void EndDayTrigger() {
+        OnDayEnd?.Invoke();
     }
 
     #endregion

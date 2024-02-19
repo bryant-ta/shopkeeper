@@ -7,6 +7,8 @@ public class UI_Manager : MonoBehaviour {
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI phaseText;
     
+    [SerializeField] TextMeshProUGUI nextDayText; // TEMP: until making better next day screen
+    
     [SerializeField] GameObject pauseMenuPanel;
 
     GameManager gameMngr;
@@ -17,6 +19,8 @@ public class UI_Manager : MonoBehaviour {
         gameMngr.OnModifyMoney += UpdateMoneyText;
         gameMngr.DayTimer.TickEvent += UpdateTimeText;
         gameMngr.SM_dayPhase.OnStateEnter += UpdatePhaseText;
+
+        gameMngr.OnDayEnd += UpdateNextDayText;
         
         gameMngr.OnPause += TogglePauseMenu;
     }
@@ -31,6 +35,10 @@ public class UI_Manager : MonoBehaviour {
 
     void UpdatePhaseText(IState<DayPhase> phase) {
         phaseText.text = phase.ID.ToString();
+    }
+    
+    void UpdateNextDayText() {
+        // TODO
     }
 
     void TogglePauseMenu(bool isPaused) {
