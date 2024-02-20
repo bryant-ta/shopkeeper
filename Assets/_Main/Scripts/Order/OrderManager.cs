@@ -82,6 +82,7 @@ public class OrderManager : MonoBehaviour {
     }
     void StopOrders() {
         for (int i = 0; i < activeOrders.Length; i++) {
+            activeOrders[i].StopOrder();
             activeOrders[i] = null;
             ResetActiveOrderSlot(i);
         }
@@ -91,7 +92,7 @@ public class OrderManager : MonoBehaviour {
 
     void ActivateNextOrderDelayed(int activeOrderIndex) {
         ResetActiveOrderSlot(activeOrderIndex);
-        Util.Instance.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex));
+        Util.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex));
     }
     void ActivateNextOrder(int activeOrderIndex) {
         if (GameManager.Instance.SM_dayPhase.CurState.ID != DayPhase.Open) {
@@ -104,7 +105,7 @@ public class OrderManager : MonoBehaviour {
         }
 
         Order nextOrder = backlogOrders.Dequeue();
-        nextOrder.Start();
+        nextOrder.StartOrder();
         nextOrder.OnOrderFulfilled += FulfillOrder;
         nextOrder.OnOrderFailed += FailOrder;
 
@@ -268,8 +269,12 @@ public class Order {
 
         products = new();
     }
+    
+    ~Order() {
+        StopOrder();
+    }
 
-    public void Start() {
+    public void StartOrder() {
         Timer = new CountdownTimer(TimeToComplete);
         Timer.EndEvent += Fail;
         Timer.Start();
@@ -283,12 +288,22 @@ public class Order {
 
         OnProductFulfilled?.Invoke();
 
-        if (products.Count == 0) OnOrderFulfilled?.Invoke(ActiveOrderIndex);
+        if (products.Count == 0) {
+            StopOrder();
+            OnOrderFulfilled?.Invoke(ActiveOrderIndex);
+        }
 
         return true;
     }
     void Fail() {
         OnOrderFailed?.Invoke(ActiveOrderIndex);
+    }
+
+    public void StopOrder() {
+        if (Timer.IsTicking) {
+            Timer.EndEvent -= Fail;
+            Timer.Stop();
+        }
     }
 
     public void Add(ProductID productID) {

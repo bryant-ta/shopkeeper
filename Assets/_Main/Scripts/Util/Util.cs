@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class Util : Singleton<Util> {
+public class Util : MonoBehaviour {
     public class ValueRef<T> where T : struct
     {
         public T Value { get; set; }
@@ -30,11 +30,10 @@ public class Util : Singleton<Util> {
     /// <param name="seconds">Action execution delay.</param>
     /// <param name="interrupt">Condition for canceling action. MUST be passed by ref using a value reference wrapper.</param>
     /// <param name="action">Function to execute.</param>
-    public void DoAfterSeconds(MonoBehaviour obj, float seconds, ValueRef<bool> interrupt, Action action) {
-        Debug.Log(seconds);
+    public static void DoAfterSeconds(MonoBehaviour obj, float seconds, ValueRef<bool> interrupt, Action action) {
         obj.StartCoroutine(DoAfterSecondsCoroutine(seconds, interrupt, action));
-    } 
-    IEnumerator DoAfterSecondsCoroutine(float seconds, ValueRef<bool> interrupt, Action onComplete) {
+    }
+    static IEnumerator DoAfterSecondsCoroutine(float seconds, ValueRef<bool> interrupt, Action onComplete) {
         float t = 0f;
         Debug.Log(seconds);
         while (t < seconds) {
