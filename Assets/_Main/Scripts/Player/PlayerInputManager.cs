@@ -83,6 +83,10 @@ public class PlayerInputManager : MonoBehaviour {
     public void OnMove(InputAction.CallbackContext ctx) {
         Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
     }
+    
+    public void OnDash(InputAction.CallbackContext ctx) {
+        Events.Invoke(gameObject, EventID.Dash);
+    }
 
     public void OnRotate(InputAction.CallbackContext ctx) {
         float rotateInput = ctx.ReadValue<float>();
