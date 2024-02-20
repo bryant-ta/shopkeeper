@@ -107,7 +107,8 @@ public class ClockTimer : TimerBase {
     float clockTickDurationSeconds; // Real-time duration until clock moves to next step (seconds)
     int clockTickStepMinutes;     // Increment of time on clock that clock will move after tick duration (minutes)
 
-    public string ClockTime { get; private set; }
+    public string ClockTime => parsedTime.ToString("h:mm tt");
+    DateTime parsedTime;
 
     public event Action<string> TickEvent;
 
@@ -118,16 +119,16 @@ public class ClockTimer : TimerBase {
         this.clockTickDurationSeconds = clockTickDurationSeconds;
         this.clockTickStepMinutes = clockTickStepMinutes;
 
-        if (!DateTime.TryParse(startClockTime, out DateTime parsedTime)) {
-            Debug.LogError("Unable to parse input time string.");
-            return;
-        }
-
-        ClockTime = parsedTime.ToString("h:mm tt");
+        parsedTime = DateTime.MinValue;
     }
 
     public override void Start() {
         timer = 0f;
+        if (!DateTime.TryParse(startClockTime, out parsedTime)) {
+            Debug.LogError("Unable to parse input time string.");
+            return;
+        }
+        
         TickEvent?.Invoke(ClockTime);
         base.Start();
     }
@@ -142,21 +143,14 @@ public class ClockTimer : TimerBase {
             TickEvent?.Invoke(AddTickStep());
         }
 
-        if ((int)Duration != -1 && timer >= Duration) {
+        if (Util.CompareTime(ClockTime, endClockTime) == 0 || ((int)Duration != -1 && timer >= Duration)) {
             Stop();
             return;
         }
     }
 
     string AddTickStep() {
-        if (!DateTime.TryParse(ClockTime, out DateTime parsedTime)) {
-            Debug.LogError("Unable to parse input time string.");
-            return ClockTime;
-        }
-
         parsedTime = parsedTime.AddMinutes(clockTickStepMinutes);
-        ClockTime = parsedTime.ToString("h:mm tt");
-
         return ClockTime;
     }
 }

@@ -29,10 +29,13 @@ public class OrderManager : MonoBehaviour {
     Queue<Order> backlogOrders = new();
     Order[] activeOrders;
 
+    Util.ValueRef<bool> isOpenPhase;
+
     public event Action<int, Order> OnNewActiveOrder;
 
     void Awake() {
         activeOrders = new Order[numActiveOrders];
+        isOpenPhase = new Util.ValueRef<bool>(false);
 
         dropOffZone.OnEnterZone += TryFulfillOrder;
 
@@ -48,10 +51,16 @@ public class OrderManager : MonoBehaviour {
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Open) StartOrders();
+        if (state.ID == DayPhase.Open) {
+            isOpenPhase.Value = true;
+            StartOrders();
+        }
     }
     void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Open) StopOrders();
+        if (state.ID == DayPhase.Open) {
+            isOpenPhase.Value = false;
+            StopOrders();
+        }
     }
     
     #region Active Orders
@@ -73,6 +82,7 @@ public class OrderManager : MonoBehaviour {
     }
     void StopOrders() {
         for (int i = 0; i < activeOrders.Length; i++) {
+            activeOrders[i] = null;
             ResetActiveOrderSlot(i);
         }
 
@@ -81,7 +91,7 @@ public class OrderManager : MonoBehaviour {
 
     void ActivateNextOrderDelayed(int activeOrderIndex) {
         ResetActiveOrderSlot(activeOrderIndex);
-        Util.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), () => ActivateNextOrder(activeOrderIndex));
+        Util.Instance.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex));
     }
     void ActivateNextOrder(int activeOrderIndex) {
         if (GameManager.Instance.SM_dayPhase.CurState.ID != DayPhase.Open) {

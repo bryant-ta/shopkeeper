@@ -33,5 +33,5 @@ public class CloseDayPhaseState : DayPhaseState {
 
     public CloseDayPhaseState() { ID = DayPhase.Close; }
 
-    public override IState<DayPhase> NextState() { return new DeliveryDayPhaseState(); }
+    public override IState<DayPhase> NextState() { return null; }
 }

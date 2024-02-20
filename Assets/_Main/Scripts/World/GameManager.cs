@@ -39,6 +39,8 @@ public class GameManager : Singleton<GameManager> {
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
+    
+    List<string> phaseTriggerTimes = new();
 
     public event Action OnDayEnd;
 
@@ -63,6 +65,11 @@ public class GameManager : Singleton<GameManager> {
         
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
+        
+        phaseTriggerTimes.Add(deliveryPhaseClockTime);
+        phaseTriggerTimes.Add(openPhaseClockTime);
+        phaseTriggerTimes.Add(closePhaseClockTime);
+        phaseTriggerTimes.Add(dayEndClockTime);
     }
 
     void Start() {
@@ -113,17 +120,19 @@ public class GameManager : Singleton<GameManager> {
 
     void DayPhaseTrigger(string clockTime) {
         // TODO: using clockTime mapped directly to phases
-        if (Util.CompareTime(clockTime, deliveryPhaseClockTime) == 0) {
-            SM_dayPhase.ExecuteNextState();
-        } else if (Util.CompareTime(clockTime, openPhaseClockTime) == 0) {
-            SM_dayPhase.ExecuteNextState();
-        } else if (Util.CompareTime(clockTime, closePhaseClockTime) == 0) {
-            SM_dayPhase.ExecuteNextState();
+        for (int i = 0; i < phaseTriggerTimes.Count; i++) {
+            if (Util.CompareTime(clockTime, phaseTriggerTimes[i]) == 0) {
+                SM_dayPhase.ExecuteNextState();
+            }
         }
     }
 
     void EndDayTrigger() {
         OnDayEnd?.Invoke();
+    }
+
+    public void StartNextDay() {
+        DayTimer.Start();
     }
 
     #endregion

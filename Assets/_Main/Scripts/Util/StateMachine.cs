@@ -18,8 +18,13 @@ public class StateMachine<T>  {
             OnStateExit?.Invoke(CurState);
 
             CurState = CurState.NextState();
+
+            // When current state was terminal, do nothing (Must ExecuteNextState() to enter into initial state again)
+            if (CurState == null) {
+                return;
+            }
         }
-        else { // When first executed, enter into initial state only
+        else { // When first executed, enter into initial state
             CurState = initialState;
         }
 
@@ -27,8 +32,8 @@ public class StateMachine<T>  {
         OnStateEnter?.Invoke(CurState);
     }
 
-    public void ResetState() {
-        CurState = initialState;
+    public void Reset() {
+        CurState = null;
     }
 }
 

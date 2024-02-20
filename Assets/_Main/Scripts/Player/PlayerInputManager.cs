@@ -35,6 +35,8 @@ public class PlayerInputManager : MonoBehaviour {
             }
         }
 
+        if (clickInputArgs.TargetObj == null) return;
+
         if (ctx.performed) {
             Events.Invoke(gameObject, EventID.PrimaryDown, clickInputArgs);
         } else if (ctx.canceled) {
