@@ -8,6 +8,7 @@ public interface IGridShape {
 
     public Transform ShapeTransform { get; }
     public Transform ColliderTransform { get; }
+    public Collider Collider { get; }
 
     public ShapeData ShapeData { get; }
     

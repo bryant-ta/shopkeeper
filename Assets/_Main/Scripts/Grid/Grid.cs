@@ -65,17 +65,15 @@ public class Grid : MonoBehaviour {
 
         DOTween.Kill(shape.ShapeTransform);
         shape.ShapeTransform.SetParent(transform, true);
-        
-        // shape.ShapeTransform.localPosition = targetCoord;
-        // shape.ShapeTransform.localRotation = Quaternion.identity;
-        // print(shape.ShapeTransform.position);
-        // print(shape.ShapeTransform.localPosition);
 
         shape.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
-            shape.ShapeTransform.DOLocalMove(targetCoord, Constants.AnimPlaceShapeDur);
-            shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, Constants.AnimPlaceShapeDur);
+            shape.Collider.enabled = false;
+            Sequence seq = DOTween.Sequence();
+            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, Constants.AnimPlaceShapeDur));
+            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, Constants.AnimPlaceShapeDur));
+            seq.Play().OnComplete(() => shape.Collider.enabled = true);
         } else {
             shape.ShapeTransform.localPosition = targetCoord;
             shape.ShapeTransform.localRotation = Quaternion.identity;
