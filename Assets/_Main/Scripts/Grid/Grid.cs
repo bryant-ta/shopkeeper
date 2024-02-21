@@ -5,17 +5,6 @@ using DG.Tweening;
 using TriInspector;
 using UnityEngine;
 
-public interface IGridShape {
-    public string Name { get; } // auto-implemented by Unity
-    public Vector3Int RootCoord { get; set; }
-    public Grid Grid { get; }
-
-    public Transform ShapeTransform { get; }
-    public Transform ColliderTransform { get; }
-
-    public ShapeData ShapeData { get; }
-}
-
 public class Grid : MonoBehaviour {
     [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
     [SerializeField] int maxLength;
@@ -73,8 +62,8 @@ public class Grid : MonoBehaviour {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
-        
-        print(DOTween.Kill(shape.ShapeTransform));
+
+        DOTween.Kill(shape.ShapeTransform);
         shape.ShapeTransform.SetParent(transform, true);
         
         // shape.ShapeTransform.localPosition = targetCoord;
@@ -85,8 +74,8 @@ public class Grid : MonoBehaviour {
         shape.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
-            shape.ShapeTransform.DOLocalMove(targetCoord, 0.2f);
-            shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, 0.2f);
+            shape.ShapeTransform.DOLocalMove(targetCoord, Constants.AnimPlaceShapeDur);
+            shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, Constants.AnimPlaceShapeDur);
         } else {
             shape.ShapeTransform.localPosition = targetCoord;
             shape.ShapeTransform.localRotation = Quaternion.identity;
@@ -137,7 +126,7 @@ public class Grid : MonoBehaviour {
         RemoveShapeCells(shape.RootCoord, shape, true);
 
         // TODO: prob call IGridShape cleanup tasks on its destruction
-        Destroy(shape.ShapeTransform.gameObject);
+        shape.DestroyShape();
     }
 
     // Set exactly one cell

@@ -14,7 +14,7 @@ public class BoxProduct : Product, IGridShape {
             return null;
         }
     }
-    
+
     public Transform ShapeTransform { get; private set; }
     public Transform ColliderTransform => transform;
 

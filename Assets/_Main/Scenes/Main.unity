@@ -1214,8 +1214,8 @@ MonoBehaviour:
   dayClockTickDurationSeconds: 1
   dayclockTickStepMinutes: 10
   deliveryPhaseClockTime: 8:00AM
-  openPhaseClockTime: 8:30AM
-  closePhaseClockTime: 9:00AM
+  openPhaseClockTime: 8:20AM
+  closePhaseClockTime: 1:00PM
   initialGold: 10
   gold: 0
 --- !u!114 &525756790

@@ -35,12 +35,9 @@ public class Util : MonoBehaviour {
     }
     static IEnumerator DoAfterSecondsCoroutine(float seconds, ValueRef<bool> interrupt, Action onComplete) {
         float t = 0f;
-        Debug.Log(seconds);
         while (t < seconds) {
             t += Time.deltaTime * GlobalClock.TimeScale;
-            Debug.Log(interrupt.Value);
             if (!interrupt.Value) {
-                Debug.Log("canceled!");
                 yield break;
             }
             
