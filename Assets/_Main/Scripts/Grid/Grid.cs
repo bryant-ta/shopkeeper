@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using TriInspector;
 using UnityEngine;
 
 public interface IGridShape {
     public string Name { get; } // auto-implemented by Unity
-    public Vector3Int RootCoord { get; }
+    public Vector3Int RootCoord { get; set; }
     public Grid Grid { get; }
 
     public Transform ShapeTransform { get; }
@@ -23,6 +24,8 @@ public class Grid : MonoBehaviour {
     public int MaxHeight => maxHeight;
     [SerializeField] int maxWidth;
     public int MaxWidth => maxWidth;
+
+    [SerializeField] bool smoothPlaceMovement = true;
 
     public Dictionary<Vector3Int, Cell> Cells => cells;
     [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
@@ -70,10 +73,24 @@ public class Grid : MonoBehaviour {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
+        
+        print(DOTween.Kill(shape.ShapeTransform));
+        shape.ShapeTransform.SetParent(transform, true);
+        
+        // shape.ShapeTransform.localPosition = targetCoord;
+        // shape.ShapeTransform.localRotation = Quaternion.identity;
+        // print(shape.ShapeTransform.position);
+        // print(shape.ShapeTransform.localPosition);
 
-        shape.ShapeTransform.SetParent(transform);
-        shape.ShapeTransform.localPosition = targetCoord;
-        shape.ShapeTransform.localRotation = Quaternion.identity;
+        shape.RootCoord = targetCoord;
+
+        if (smoothPlaceMovement) {
+            shape.ShapeTransform.DOLocalMove(targetCoord, 0.2f);
+            shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, 0.2f);
+        } else {
+            shape.ShapeTransform.localPosition = targetCoord;
+            shape.ShapeTransform.localRotation = Quaternion.identity;
+        }
     }
 
     // Returns false if any placement of shape in shapes is invalid.

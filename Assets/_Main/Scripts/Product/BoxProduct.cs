@@ -1,8 +1,9 @@
+using TriInspector;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxProduct : Product, IGridShape {
-    public Vector3Int RootCoord => Vector3Int.RoundToInt(ShapeTransform.localPosition);
+    [field:SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; }
     public Grid Grid {
         get {
             if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {

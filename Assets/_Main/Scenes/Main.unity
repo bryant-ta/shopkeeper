@@ -1745,6 +1745,7 @@ MonoBehaviour:
   maxLength: 1
   maxHeight: 10
   maxWidth: 1
+  smoothPlaceMovement: 0
 --- !u!4 &827863212
 Transform:
   m_ObjectHideFlags: 0
@@ -1827,6 +1828,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numProductsInDelivery: 25
   initialPossibleProducts: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000
+  productSpawnPosition: {fileID: 1138930278}
   deliveryZoneDimensions: {x: 5, y: 5, z: 5}
   deliveryZone: {fileID: 434739750}
 --- !u!1001 &928624161
@@ -2109,6 +2111,7 @@ MonoBehaviour:
   maxLength: 30
   maxHeight: 10
   maxWidth: 30
+  smoothPlaceMovement: 1
 --- !u!114 &976189242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2259,6 +2262,38 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 986965301}
   m_CullTransparentMesh: 1
+--- !u!1 &1017125741
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1017125742}
+  m_Layer: 0
+  m_Name: TEMP
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1017125742
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1017125741}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1138930278}
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1021295399
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2623,6 +2658,37 @@ Transform:
   - {fileID: 1969509191}
   m_Father: {fileID: 1192559127}
   m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1138930277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1138930278}
+  m_Layer: 0
+  m_Name: ProductSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1138930278
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1138930277}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 15, z: -30}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1017125742}
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1144238678
 PrefabInstance:
@@ -3996,6 +4062,7 @@ MonoBehaviour:
   maxLength: 1
   maxHeight: 10
   maxWidth: 1
+  smoothPlaceMovement: 1
 --- !u!65 &1816176237
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -83,7 +83,6 @@ public class OrderManager : MonoBehaviour {
     void StopOrders() {
         for (int i = 0; i < activeOrders.Length; i++) {
             activeOrders[i].StopOrder();
-            activeOrders[i] = null;
             ResetActiveOrderSlot(i);
         }
 

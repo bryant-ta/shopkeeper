@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +5,9 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numProductsInDelivery;
 
     [SerializeField] List<ProductID> initialPossibleProducts;
+    
+    // TEMP
+    [SerializeField] Transform productSpawnPosition;
 
     [Header("Zone")]
     [SerializeField] Vector3Int deliveryZoneDimensions;
@@ -14,9 +16,7 @@ public class DeliveryManager : MonoBehaviour {
 
     RollTable<ProductID> productRollTable = new();
 
-    void Awake() {
-        GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
-    }
+    void Awake() { GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger; }
 
     void Start() {
         grid = GameManager.WorldGrid;
@@ -32,7 +32,9 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    void StateTrigger(IState<DayPhase> state) { if (state.ID == DayPhase.Delivery) DoDelivery(); }
+    void StateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Delivery) DoDelivery();
+    }
     void DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
         // Order of placement is one product on next open y of (x, z), then next (x, z)
@@ -54,6 +56,7 @@ public class DeliveryManager : MonoBehaviour {
                     Product product = ProductFactory.Instance.CreateProduct(p);
 
                     if (product.TryGetComponent(out IGridShape shape)) {
+                        shape.ShapeTransform.position = productSpawnPosition.position;
                         if (!grid.PlaceShape(deliveryCoord, shape, true)) {
                             Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord);
                         }
