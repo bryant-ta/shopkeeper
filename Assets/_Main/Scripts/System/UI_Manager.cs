@@ -5,13 +5,13 @@ using UnityEngine.UI;
 
 [RequireComponent(typeof(GameManager))]
 public class UI_Manager : MonoBehaviour {
-    [SerializeField] TextMeshProUGUI moneyText;
+    [SerializeField] NumberCounter goldCounter;
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI phaseText;
 
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI nextDayText; // TEMP: until making better next day screen
-    [SerializeField] Button nextDayButton; // TEMP: until making better next day screen
+    [SerializeField] Button nextDayButton;        // TEMP: until making better next day screen
 
     [SerializeField] GameObject pauseMenuPanel;
 
@@ -29,7 +29,7 @@ public class UI_Manager : MonoBehaviour {
         gameMngr.OnPause += TogglePauseMenu;
     }
 
-    void UpdateMoneyText(DeltaArgs args) { moneyText.text = "Gold: " + args.NewValue.ToString(); }
+    void UpdateMoneyText(DeltaArgs args) { goldCounter.SetValue(args.NewValue); }
 
     void UpdateTimeText(string time) { timeText.text = time; }
 

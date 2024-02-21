@@ -617,6 +617,7 @@ GameObject:
   m_Component:
   - component: {fileID: 370300676}
   - component: {fileID: 370300678}
+  - component: {fileID: 370300679}
   - component: {fileID: 370300677}
   m_Layer: 5
   m_Name: GoldText
@@ -742,6 +743,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 370300675}
   m_CullTransparentMesh: 1
+--- !u!114 &370300679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 370300675}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f3b717e9ee771c43b821106c5a42850, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  countingDuration: 5
+  prefix: 'Gold: '
 --- !u!1001 &377915070
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1256,7 +1271,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ae185e4527c52741a228ee04d0da0d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moneyText: {fileID: 370300677}
+  goldCounter: {fileID: 370300679}
   timeText: {fileID: 1877508470}
   phaseText: {fileID: 986965303}
   nextDayPanel: {fileID: 1433320123}
@@ -1826,7 +1841,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numProductsInDelivery: 100
+  numProductsInDelivery: 25
   initialPossibleProducts: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000
   productSpawnPosition: {fileID: 1138930278}
   deliveryZoneDimensions: {x: 5, y: 5, z: 5}
