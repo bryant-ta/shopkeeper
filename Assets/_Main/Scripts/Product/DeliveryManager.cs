@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -33,9 +34,9 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void StateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Delivery) DoDelivery();
+        if (state.ID == DayPhase.Delivery) StartCoroutine(DoDelivery());
     }
-    void DoDelivery() {
+    IEnumerator DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
         // Order of placement is one product on next open y of (x, z), then next (x, z)
         int numProductsDelivered = 0;
@@ -62,21 +63,24 @@ public class DeliveryManager : MonoBehaviour {
                         }
 
                         GameManager.AddStockedProduct(product);
+                        
+                        // Stagger delivery anim
+                        yield return new WaitForSeconds(Constants.AnimIndividualDeliveryDelay);
                     }
                     else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
-                        return;
+                        yield break;
                     }
 
                     numProductsDelivered++;
-                    if (numProductsDelivered == numProductsInDelivery) return;
+                    if (numProductsDelivered == numProductsInDelivery) yield break;
                 }
             }
 
             // Did not finish delivering target number of products
             if (prodsDeliveredLastCycle == numProductsDelivered) {
                 Debug.LogWarning("Unable to deliver all products: delivery zone is full.");
-                return;
+                yield break;
             }
         }
     }
