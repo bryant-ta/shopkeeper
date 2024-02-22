@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(GameManager))]
-public class UI_Manager : MonoBehaviour {
+public class UIManager : MonoBehaviour {
     [SerializeField] NumberCounter goldCounter;
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI phaseText;

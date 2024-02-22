@@ -3,8 +3,8 @@ using DG.Tweening;
 using UnityEngine;
 
 [RequireComponent(typeof(OrderManager))]
-public class UI_OrderManager : MonoBehaviour {
-    [SerializeField] List<UI_OrderBubble> orderBubbles;
+public class OrderManagerUI : MonoBehaviour {
+    [SerializeField] List<OrderBubbleUI> orderBubbles;
 
     OrderManager orderMngr;
 

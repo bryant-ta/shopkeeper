@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_OrderBubble : MonoBehaviour {
+public class OrderBubbleUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI orderText;
     [SerializeField] Image orderTimerBar;
 
