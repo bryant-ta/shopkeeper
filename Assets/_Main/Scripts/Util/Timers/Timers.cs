@@ -102,33 +102,38 @@ public class ClockTimer : TimerBase {
     public override float RemainingTimeSeconds => Duration - timer;
     public override float RemainingTimePercent => 1 - (timer / Duration);
 
-    string startClockTime;        // Time on clock that the timer will start
-    string endClockTime;          // Time on clock that the timer will end
+    public DateTime StartClockTime; // Time on clock that the timer will start
+    public DateTime EndClockTime;   // Time on clock that the timer will end
     float clockTickDurationSeconds; // Real-time duration until clock moves to next step (seconds)
-    int clockTickStepMinutes;     // Increment of time on clock that clock will move after tick duration (minutes)
+    int clockTickStepMinutes;       // Increment of time on clock that clock will move after tick duration (minutes)
 
     public string ClockTime => parsedTime.ToString("h:mm tt");
     DateTime parsedTime;
 
     public event Action<string> TickEvent;
 
+    /// <remarks>
+    /// duration input is ignored, will be calculated from other inputs
+    /// </remarks>
     public ClockTimer(float duration, string startClockTime, string endClockTime, float clockTickDurationSeconds,
-        int clockTickStepMinutes) : base(duration) {
-        this.startClockTime = startClockTime;
-        this.endClockTime = endClockTime;
+        int clockTickStepMinutes) : base(CalculateRealTimeDuration(startClockTime, endClockTime, clockTickDurationSeconds,
+        clockTickStepMinutes)) {
+        if (!DateTime.TryParse(startClockTime, out StartClockTime)) {
+            Debug.LogError("Unable to parse start time string.");
+            return;
+        }
+        if (!DateTime.TryParse(endClockTime, out EndClockTime)) {
+            Debug.LogError("Unable to parse end time string.");
+            return;
+        }
         this.clockTickDurationSeconds = clockTickDurationSeconds;
         this.clockTickStepMinutes = clockTickStepMinutes;
 
-        parsedTime = DateTime.MinValue;
+        parsedTime = StartClockTime;
     }
 
     public override void Start() {
         timer = 0f;
-        if (!DateTime.TryParse(startClockTime, out parsedTime)) {
-            Debug.LogError("Unable to parse input time string.");
-            return;
-        }
-        
         TickEvent?.Invoke(ClockTime);
         base.Start();
     }
@@ -143,7 +148,7 @@ public class ClockTimer : TimerBase {
             TickEvent?.Invoke(AddTickStep());
         }
 
-        if (Util.CompareTime(ClockTime, endClockTime) == 0 || ((int)Duration != -1 && timer >= Duration)) {
+        if (parsedTime == EndClockTime) {
             Stop();
             return;
         }
@@ -152,6 +157,31 @@ public class ClockTimer : TimerBase {
     string AddTickStep() {
         parsedTime = parsedTime.AddMinutes(clockTickStepMinutes);
         return ClockTime;
+    }
+
+    static float CalculateRealTimeDuration(string startClockTime, string endClockTime, float clockTickDurationSeconds,
+        int clockTickStepMinutes) {
+        DateTime startTime;
+        if (!DateTime.TryParse(startClockTime, out startTime)) {
+            Debug.LogError("Unable to parse input time string.");
+            return 0f;
+        }
+
+        DateTime endTime;
+        if (!DateTime.TryParse(endClockTime, out endTime)) {
+            Debug.LogError("Unable to parse input time string.");
+            return 0f;
+        }
+
+        TimeSpan totalClockDuration = endTime - startTime;
+        if (totalClockDuration < TimeSpan.Zero) { // e.g. 8AM-12AM gives negative totalClockDuration, so convert to actual difference
+            totalClockDuration = TimeSpan.FromDays(1) + totalClockDuration;
+        }
+        
+        int numClockTicks = (int) totalClockDuration.TotalMinutes / clockTickStepMinutes;
+        float realTimeDuration = numClockTicks * clockTickDurationSeconds;
+
+        return realTimeDuration;
     }
 }
 }
