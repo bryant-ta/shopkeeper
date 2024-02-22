@@ -326,6 +326,7 @@ GameObject:
   - component: {fileID: 8277879995462119087}
   - component: {fileID: 8277879995462119085}
   - component: {fileID: 8277879995462119084}
+  - component: {fileID: 57875423250773063}
   - component: {fileID: 2884596153838708176}
   m_Layer: 5
   m_Name: OrderBubble
@@ -394,6 +395,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &57875423250773063
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8277879995462119086}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!114 &2884596153838708176
 MonoBehaviour:
   m_ObjectHideFlags: 0

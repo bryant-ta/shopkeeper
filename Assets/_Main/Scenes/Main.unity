@@ -755,7 +755,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f3b717e9ee771c43b821106c5a42850, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  countingDuration: 5
+  countingDuration: 1.5
   prefix: 'Gold: '
 --- !u!1001 &377915070
 PrefabInstance:
@@ -6002,6 +6002,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8277879994112575239, guid: 2567cd1b388ccd447b1357c7b47200ef, type: 3}
       propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277879994519611479, guid: 2567cd1b388ccd447b1357c7b47200ef, type: 3}
+      propertyPath: m_fontColor.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277879994519611479, guid: 2567cd1b388ccd447b1357c7b47200ef, type: 3}
+      propertyPath: m_fontColor32.rgba
+      value: 4278190080
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277879995462119084, guid: 2567cd1b388ccd447b1357c7b47200ef, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8277879995462119086, guid: 2567cd1b388ccd447b1357c7b47200ef, type: 3}
+      propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
