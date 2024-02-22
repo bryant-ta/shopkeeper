@@ -25,7 +25,7 @@ public class PlayerInputManager : MonoBehaviour {
     public void OnPrimary(InputAction.CallbackContext ctx) {
         ClickInputArgs clickInputArgs = new();
         if (ctx.performed || ctx.canceled) {
-            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = mainCam.ScreenPointToRay(cursorPosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, ~0, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
                     clickInputArgs.HitNormal = hit.normal;
@@ -46,7 +46,7 @@ public class PlayerInputManager : MonoBehaviour {
 
     public void OnSecondary(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = mainCam.ScreenPointToRay(cursorPosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, ~0, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
                     Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs {TargetObj = hit.collider.gameObject});
@@ -69,16 +69,21 @@ public class PlayerInputManager : MonoBehaviour {
     // Sends collision point from cursor raycast
     public void OnPoint(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
-                if (hit.collider != null) {
-                    ClickInputArgs clickInputArgs = new ClickInputArgs {
-                        HitNormal = hit.normal,
-                        HitPoint = hit.point,
-                        TargetObj = hit.collider.gameObject,
-                    };
-                    Events.Invoke(gameObject, EventID.Point, clickInputArgs);
-                }
+            cursorPosition = ctx.ReadValue<Vector2>();
+        }
+    }
+
+    Vector2 cursorPosition;
+    void Update() {
+        Ray ray = mainCam.ScreenPointToRay(cursorPosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
+            if (hit.collider != null) {
+                ClickInputArgs clickInputArgs = new ClickInputArgs {
+                    HitNormal = hit.normal,
+                    HitPoint = hit.point,
+                    TargetObj = hit.collider.gameObject,
+                };
+                Events.Invoke(gameObject, EventID.Point, clickInputArgs);
             }
         }
     }

@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using EventManager;
 using UnityEngine;
 
 [RequireComponent(typeof(Player))]
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
-
     [SerializeField] Grid dragGrid;
+    
     List<IGridShape> heldShapes = new();
 
     Collider bottomObjCol;
@@ -40,6 +41,9 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
+        // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
+        dragGrid.transform.position = clickedShape.ShapeTransform.position;
+        
         if (!targetGrid.MoveShapes(dragGrid, Vector3Int.zero, heldShapes)) {
             Debug.LogFormat("Unable to move shapes to target grid ({0}).", dragGrid.gameObject.name); // TEMP
             heldShapes.Clear();
@@ -68,8 +72,6 @@ public class PlayerDrag : MonoBehaviour {
             Vector3 dir = hitPoint - transform.position;
             rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
         }
-        
-        // Calculate grid coord y from hit point + clamped point
         Vector3Int coord = Vector3Int.RoundToInt(new Vector3(rangeClampedPoint.x, hitPoint.y, rangeClampedPoint.z));
 
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
@@ -84,8 +86,8 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
         
-
-        dragGrid.transform.position = selectedCellCoord;
+        dragGrid.transform.DOKill();
+        dragGrid.transform.DOMove(selectedCellCoord, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
     }
 
     void Release(ClickInputArgs clickInputArgs) {
@@ -97,7 +99,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Try to place held stack of shapes
+        // Try to place held shapes
         Grid targetGrid = GameManager.WorldGrid; // TEMP: change when having vehicle grids/ other grids to drag into
         if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
             Debug.LogFormat("Unable to move shapes to target grid ({0}).", targetGrid.gameObject.name); // TEMP
