@@ -5680,9 +5680,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 6
   rotationSpeed: 5
-  dashForce: 125
+  dashSpeed: 12
   dashDuration: 0.5
-  dashCooldown: 2
+  dashCooldown: 1
 --- !u!54 &2107359964
 Rigidbody:
   m_ObjectHideFlags: 0

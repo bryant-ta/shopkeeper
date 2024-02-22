@@ -122,10 +122,12 @@ public class ClockTimer : TimerBase {
             Debug.LogError("Unable to parse start time string.");
             return;
         }
+
         if (!DateTime.TryParse(endClockTime, out EndClockTime)) {
             Debug.LogError("Unable to parse end time string.");
             return;
         }
+
         this.clockTickDurationSeconds = clockTickDurationSeconds;
         this.clockTickStepMinutes = clockTickStepMinutes;
 
@@ -177,7 +179,7 @@ public class ClockTimer : TimerBase {
         if (totalClockDuration < TimeSpan.Zero) { // e.g. 8AM-12AM gives negative totalClockDuration, so convert to actual difference
             totalClockDuration = TimeSpan.FromDays(1) + totalClockDuration;
         }
-        
+
         int numClockTicks = (int) totalClockDuration.TotalMinutes / clockTickStepMinutes;
         float realTimeDuration = numClockTicks * clockTickDurationSeconds;
 

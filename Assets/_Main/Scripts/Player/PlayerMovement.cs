@@ -15,10 +15,10 @@ public class PlayerMovement : MonoBehaviour {
     float rotateInput;
 
     [Header("Dash")]
-    [SerializeField] float dashForce;
+    [SerializeField] float dashSpeed;
     [SerializeField] float dashDuration;
     [SerializeField] float dashCooldown;
-    CountdownTimer dashTimer;
+    CountdownTimer dashCooldownTimer;
 
     Camera mainCam;
     Rigidbody rb;
@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour {
         mainCam = Camera.main;
         rb = GetComponent<Rigidbody>();
 
-        dashTimer = new CountdownTimer(dashCooldown);
+        dashCooldownTimer = new CountdownTimer(dashCooldown);
 
         SetMovementAxes();
 
@@ -51,19 +51,15 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Dash() {
-        if (!dashTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
-            dashTimer.Start();
-            StartCoroutine(DashForceSmooth());
-        }
-    }
-    IEnumerator DashForceSmooth() {
-        float t = 0f;
-        while (t < dashDuration) {
-            Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
-            rb.AddForce(moveDir * dashForce);
-            t += Time.deltaTime * GlobalClock.TimeScale;
+        if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
+            float origSpeed = speed;
+            speed = dashSpeed;
             
-            yield return null;
+            CountdownTimer dashDurationTimer = new CountdownTimer(dashDuration);
+            dashDurationTimer.Start();
+            dashDurationTimer.EndEvent += () => speed = origSpeed;
+            
+            dashCooldownTimer.Start();
         }
     }
 
