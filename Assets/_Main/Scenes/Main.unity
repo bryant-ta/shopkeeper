@@ -4213,7 +4213,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxLength: 1
-  maxHeight: 10
+  maxHeight: 5
   maxWidth: 1
   smoothPlaceMovement: 1
 --- !u!65 &1816176237

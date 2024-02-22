@@ -65,18 +65,29 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // If held out of interactable range, use closest point in range adjusted for hit point height
+        // If held out of interactable range, use closest point in range with adjusted hover height
         Vector3 hitPoint = clickInputArgs.HitPoint;
-        Vector3 rangeClampedPoint = hitPoint;
         if (!player.IsInRange(hitPoint)) {
             Vector3 dir = hitPoint - transform.position;
-            rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
+            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
+            
+            // Calculate hoverPoint y from objects underneath held object's footprint + manual offset
+            Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point
+            if (Physics.BoxCast(castCenter, bottomObjCol.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
+                    100f, LayerMask.GetMask("Point"), QueryTriggerInteraction.Ignore)) {
+                if (hit.collider) {
+                    rangeClampedPoint.y = hit.point.y;
+                }
+            }
+            
+            dragGrid.transform.DOKill();
+            dragGrid.transform.DOMove(rangeClampedPoint, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
+            return;
         }
-        Vector3Int coord = Vector3Int.RoundToInt(new Vector3(rangeClampedPoint.x, hitPoint.y, rangeClampedPoint.z));
 
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
-        Vector3 hitNormalClamped = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(hitPoint + hitNormalClamped + new Vector3(0.5f, 0, 0.5f));
+        Vector3 hitNormal = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
+        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(hitPoint + hitNormal + new Vector3(0.5f, 0, 0.5f));
         
         Grid targetGrid = GameManager.WorldGrid;
         if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
