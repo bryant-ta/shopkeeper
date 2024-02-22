@@ -12,6 +12,7 @@ public enum EventID {
     SecondaryUp = 6,
     Point = 7,
     Scroll = 8,
+    RotateCamera = 9,
     Move = 10,
     Dash = 11,
     Rotate = 12,

@@ -34,6 +34,8 @@ public class PlayerMovement : MonoBehaviour {
         Events.Sub<MoveInputArgs>(gameObject, EventID.Move, SetMoveInput);
         Events.Sub<float>(gameObject, EventID.Rotate, SetRotateInput);
         Events.Sub(gameObject, EventID.Dash, Dash);
+
+        mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
     }
 
     void FixedUpdate() {

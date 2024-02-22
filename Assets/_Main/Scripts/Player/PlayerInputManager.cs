@@ -79,6 +79,13 @@ public class PlayerInputManager : MonoBehaviour {
     }
 
     #endregion
+    
+    public void OnRotateCamera(InputAction.CallbackContext ctx) {
+        float rotateCameraInput = ctx.ReadValue<float>();
+        if (ctx.performed) {
+            Events.Invoke(mainCam.gameObject, EventID.RotateCamera, rotateCameraInput);
+        }
+    }
 
     public void OnMove(InputAction.CallbackContext ctx) {
         Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
