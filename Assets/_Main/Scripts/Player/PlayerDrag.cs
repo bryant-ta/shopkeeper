@@ -19,7 +19,7 @@ public class PlayerDrag : MonoBehaviour {
         
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryUp, Release);
-        Events.Sub<Vector3>(gameObject, EventID.Point, Drag);
+        Events.Sub<ClickInputArgs>(gameObject, EventID.Point, Drag);
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -51,10 +51,10 @@ public class PlayerDrag : MonoBehaviour {
             shape.Collider.enabled = false;
         }
 
-        Drag(clickInputArgs.HitPoint); // One Drag to update held obj position on initial click
+        Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
 
-    void Drag(Vector3 hitPoint) {
+    void Drag(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
         if (bottomObjCol == null) {
             Debug.LogError("Held object is missing a collider.");
@@ -62,25 +62,30 @@ public class PlayerDrag : MonoBehaviour {
         }
 
         // If held out of interactable range, use closest point in range adjusted for hit point height
-        Vector3 hoverPoint = hitPoint;
+        Vector3 hitPoint = clickInputArgs.HitPoint;
+        Vector3 rangeClampedPoint = hitPoint;
         if (!player.IsInRange(hitPoint)) {
             Vector3 dir = hitPoint - transform.position;
-            hoverPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
+            rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
         }
+        
+        // Calculate grid coord y from hit point + clamped point
+        Vector3Int coord = Vector3Int.RoundToInt(new Vector3(rangeClampedPoint.x, hitPoint.y, rangeClampedPoint.z));
 
-        // Calculate hoverPoint y from objects underneath held object's footprint + object's height + manual offset
-        float yOffset = 0f;
-        Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point
-        if (Physics.BoxCast(castCenter, bottomObjCol.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
-                100f, LayerMask.GetMask("Point"), QueryTriggerInteraction.Ignore)) {
-            if (hit.collider) {
-                yOffset = hit.point.y;
-            }
+        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
+        Vector3 hitNormalClamped = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
+        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(hitPoint + hitNormalClamped + new Vector3(0.5f, 0, 0.5f));
+        
+        Grid targetGrid = GameManager.WorldGrid;
+        if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
+            selectedCellCoord.y = lowestOpenY;
+        } else {
+            // TODO: some feedback that this point is occupied/out of bounds
+            return;
         }
+        
 
-        yOffset += dragHoverHeight;
-
-        dragGrid.transform.position = new Vector3(hoverPoint.x, yOffset, hoverPoint.z);
+        dragGrid.transform.position = selectedCellCoord;
     }
 
     void Release(ClickInputArgs clickInputArgs) {
@@ -92,21 +97,9 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Find selected grid cell
-        // TEMP: prob replace with tilemap
-        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
-        Vector3 hitNormalClamped = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(clickInputArgs.HitPoint + hitNormalClamped + new Vector3(0.5f, 0, 0.5f));
-        
-        Grid targetGrid = GameManager.WorldGrid;
-        if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
-            selectedCellCoord.y = lowestOpenY;
-        } else {
-            return;
-        }
-
         // Try to place held stack of shapes
-        if (!dragGrid.MoveShapes(targetGrid, selectedCellCoord, heldShapes)) {
+        Grid targetGrid = GameManager.WorldGrid; // TEMP: change when having vehicle grids/ other grids to drag into
+        if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
             Debug.LogFormat("Unable to move shapes to target grid ({0}).", targetGrid.gameObject.name); // TEMP
             return;
         }

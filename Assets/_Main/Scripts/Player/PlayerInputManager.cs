@@ -72,7 +72,12 @@ public class PlayerInputManager : MonoBehaviour {
             Ray ray = mainCam.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
                 if (hit.collider != null) {
-                    Events.Invoke(gameObject, EventID.Point, hit.point);
+                    ClickInputArgs clickInputArgs = new ClickInputArgs {
+                        HitNormal = hit.normal,
+                        HitPoint = hit.point,
+                        TargetObj = hit.collider.gameObject,
+                    };
+                    Events.Invoke(gameObject, EventID.Point, clickInputArgs);
                 }
             }
         }
