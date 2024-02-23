@@ -15,6 +15,9 @@ public class Grid : MonoBehaviour {
     public int MaxWidth => maxWidth;
 
     [SerializeField] bool smoothPlaceMovement = true;
+    
+    [Header("Animation")]
+    [SerializeField] float animPlaceShapeDur; // anim duration of shape placement to grids
 
     public Dictionary<Vector3Int, Cell> Cells => cells;
     [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
@@ -71,8 +74,8 @@ public class Grid : MonoBehaviour {
         if (smoothPlaceMovement) {
             shape.Collider.enabled = false;
             Sequence seq = DOTween.Sequence();
-            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, Constants.AnimPlaceShapeDur));
-            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, Constants.AnimPlaceShapeDur));
+            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, animPlaceShapeDur));
+            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, animPlaceShapeDur));
             seq.Play().OnComplete(() => shape.Collider.enabled = true);
         } else {
             shape.ShapeTransform.localPosition = targetCoord;

@@ -5713,6 +5713,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dragHoverHeight: 0
   dragGrid: {fileID: 827863211}
+  animDragSnapDur: 0.15
+  animShakeInvalidRelease:
+    Duration: 0.2
+    Strength: 0.1
+    Vibrato: 30
+    Randomness: 20
 --- !u!114 &2107359966
 MonoBehaviour:
   m_ObjectHideFlags: 0
