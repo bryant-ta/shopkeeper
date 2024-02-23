@@ -1896,6 +1896,7 @@ MonoBehaviour:
   maxHeight: 5
   maxWidth: 1
   smoothPlaceMovement: 0
+  animPlaceShapeDur: 0.2
 --- !u!4 &827863212
 Transform:
   m_ObjectHideFlags: 0
@@ -1983,6 +1984,7 @@ MonoBehaviour:
   productSpawnPosition: {fileID: 1138930278}
   deliveryZoneDimensions: {x: 5, y: 5, z: 5}
   deliveryZone: {fileID: 434739750}
+  animIndividualDeliveryDelay: 0.1
 --- !u!1001 &928624161
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2265,6 +2267,7 @@ MonoBehaviour:
   maxHeight: 5
   maxWidth: 30
   smoothPlaceMovement: 1
+  animPlaceShapeDur: 0.2
 --- !u!114 &976189242
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3066,6 +3069,7 @@ MonoBehaviour:
   - {fileID: 2096604410}
   - {fileID: 1871364274}
   - {fileID: 1223362061}
+  animOrderBubbleFadeDur: 0.75
 --- !u!1001 &1206842650
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4216,6 +4220,7 @@ MonoBehaviour:
   maxHeight: 5
   maxWidth: 1
   smoothPlaceMovement: 1
+  animPlaceShapeDur: 0.2
 --- !u!65 &1816176237
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5714,7 +5719,7 @@ MonoBehaviour:
   dragHoverHeight: 0
   dragGrid: {fileID: 827863211}
   animDragSnapDur: 0.15
-  animShakeInvalidRelease:
+  animInvalidReleaseShake:
     Duration: 0.2
     Strength: 0.1
     Vibrato: 30
@@ -5733,8 +5738,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactionRange: 5.5
   interactionHeight: 20
-  dropPos: {fileID: 698564376}
   holdGrid: {fileID: 1816176236}
+  animInvalidPickUpShake:
+    Duration: 0.2
+    Strength: 0.1
+    Vibrato: 30
+    Randomness: 20
+  dropPos: {fileID: 698564376}
 --- !u!1001 &2109784616
 PrefabInstance:
   m_ObjectHideFlags: 0

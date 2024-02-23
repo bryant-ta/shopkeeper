@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using EventManager;
 using UnityEngine;
 
@@ -8,9 +9,9 @@ public class Player : MonoBehaviour {
     public float InteractionRange => interactionRange;
     [SerializeField] float interactionHeight;
 
-    public Transform dropPos;
-
     [SerializeField] Grid holdGrid;
+    
+    public Transform dropPos;
 
     void Awake() {
         Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
@@ -22,6 +23,7 @@ public class Player : MonoBehaviour {
         GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
     }
 
+    Tweener invalidPickUpTween;
     void PickUp(ClickInputArgs clickInputArgs) {
         if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
@@ -47,8 +49,10 @@ public class Player : MonoBehaviour {
                 nextOpenHoldStackCoord.y = lowestOpenY;
 
                 if (!targetGrid.MoveShapes(holdGrid, nextOpenHoldStackCoord, heldShapes)) {
-                    Debug.LogFormat("Unable to move shapes to target grid ({0}).", holdGrid.gameObject.name); // TEMP
+                    PlayInvalidPickUpAnim(heldShapes);
                 }
+            } else { // no more space in hold grid
+                PlayInvalidPickUpAnim(heldShapes);
             }
         }
     }
@@ -57,6 +61,19 @@ public class Player : MonoBehaviour {
         if (holdGrid.GridIsEmpty()) return;
 
         // TODO: implement
+    }
+
+    void PlayInvalidPickUpAnim(List<IGridShape> heldShapes) {
+        for (int i = 0; i < heldShapes.Count; i++) {
+            heldShapes[i].ShapeTransform.DOKill();
+            heldShapes[i].ShapeTransform.position = heldShapes[i].RootCoord;
+            heldShapes[i].ShapeTransform.DOShakePosition(
+                Constants.AnimInvalidShake.Duration,
+                new Vector3(1, 0, 1) * Constants.AnimInvalidShake.Strength,
+                Constants.AnimInvalidShake.Vibrato,
+                Constants.AnimInvalidShake.Randomness
+            );
+        }
     }
 
     public bool IsInRange(Vector3 targetPos) {

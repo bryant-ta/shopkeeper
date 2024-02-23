@@ -16,9 +16,6 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Zone deliveryZone;
     Grid grid;
 
-    [Header("Animation")]
-    [SerializeField] float animIndividualDeliveryDelay; // delay between delivery of individual products
-
     RollTable<ProductID> productRollTable = new();
 
     void Awake() { GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger; }
@@ -75,7 +72,7 @@ public class DeliveryManager : MonoBehaviour {
                         GameManager.AddStockedProduct(product);
                         
                         // Stagger delivery anim
-                        yield return new WaitForSeconds(animIndividualDeliveryDelay);
+                        yield return new WaitForSeconds(Constants.AnimIndividualDeliveryDelay);
                     }
                     else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);

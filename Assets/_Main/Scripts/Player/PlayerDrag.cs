@@ -2,15 +2,12 @@ using System.Collections.Generic;
 using DG.Tweening;
 using EventManager;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Player))]
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
     [SerializeField] Grid dragGrid;
-
-    [Header("Animation")]
-    [SerializeField] float animDragSnapDur;            // anim duration of moving dragged shapes on grid
-    [SerializeField] DOTweenShakeArgs animShakeInvalidRelease; // shake args for releasing shapes at invalid coord
 
     List<IGridShape> heldShapes = new();
     Collider bottomObjCol;
@@ -90,7 +87,7 @@ public class PlayerDrag : MonoBehaviour {
             }
 
             dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(rangeClampedPoint, animDragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DOMove(rangeClampedPoint, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
 
             return;
         }
@@ -111,7 +108,7 @@ public class PlayerDrag : MonoBehaviour {
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
             dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(selectedCellCoord, animDragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DOMove(selectedCellCoord, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
         }
     }
 
@@ -123,10 +120,10 @@ public class PlayerDrag : MonoBehaviour {
         if (!player.IsInRange(clickInputArgs.HitPoint)) {
             invalidReleaseTween.Kill();
             invalidReleaseTween = dragGrid.transform.DOShakePosition(
-                animShakeInvalidRelease.Duration,
-                new Vector3(1, 0, 1) * animShakeInvalidRelease.Strength,
-                animShakeInvalidRelease.Vibrato,
-                animShakeInvalidRelease.Randomness
+                Constants.AnimInvalidShake.Duration,
+                new Vector3(1, 0, 1) * Constants.AnimInvalidShake.Strength,
+                Constants.AnimInvalidShake.Vibrato,
+                Constants.AnimInvalidShake.Randomness
             );
 
             return;
