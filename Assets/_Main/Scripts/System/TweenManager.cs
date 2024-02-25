@@ -15,7 +15,9 @@ public static class TweenManager {
         Randomness = 20f
     };
 
+    public const string PlaceShapeID = "_placeShape";
     const string InvalidShakeID = "_invalidShake";
+    
     public static void Shake(IGridShape shape) {
         string tweenID = shape.ShapeTransform.GetInstanceID() + InvalidShakeID;
         

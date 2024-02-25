@@ -45,7 +45,7 @@ public class PlayerDrag : MonoBehaviour {
         dragGrid.transform.position = clickedShape.ShapeTransform.position;
 
         if (!targetGrid.MoveShapes(dragGrid, Vector3Int.zero, heldShapes)) {
-            Debug.LogFormat("Unable to move shapes to target grid ({0}).", dragGrid.gameObject.name); // TEMP
+            TweenManager.Shake(heldShapes);
             heldShapes.Clear();
             return;
         }

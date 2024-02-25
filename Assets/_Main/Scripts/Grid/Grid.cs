@@ -62,18 +62,22 @@ public class Grid : MonoBehaviour {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
-
-        DOTween.Kill(shape.ShapeTransform);
+        
+        DOTween.Kill(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
+        
         shape.ShapeTransform.SetParent(transform, true);
-
         shape.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
             shape.Collider.enabled = false;
-            Sequence seq = DOTween.Sequence();
+        
+            Sequence seq = DOTween.Sequence().SetId(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
             seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
-            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, TweenManager.PlaceShapeDur));
-            seq.Play().OnComplete(() => shape.Collider.enabled = true);
+            seq.Join(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, TweenManager.PlaceShapeDur));
+            seq.Play().OnComplete(() => {
+                    shape.Collider.enabled = true;
+                }
+            );
         } else {
             shape.ShapeTransform.localPosition = targetCoord;
             shape.ShapeTransform.localRotation = Quaternion.identity;
