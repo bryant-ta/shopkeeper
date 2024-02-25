@@ -16,11 +16,11 @@ public class OrderManagerUI : MonoBehaviour {
 
     void UpdateOrderBubble(int activeOrderIndex, Order order) {
         if (order == null) { // no new active order, disable the bubble at index
-            DOVirtual.Float(1f, 0f, Constants.AnimOrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
+            DOVirtual.Float(1f, 0f, TweenManager.OrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
             return;
         }
 
-        DOVirtual.Float(0f, 1f, Constants.AnimOrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
+        DOVirtual.Float(0f, 1f, TweenManager.OrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
         orderBubbles[activeOrderIndex].DisplayNewOrder(order);
     }
 }

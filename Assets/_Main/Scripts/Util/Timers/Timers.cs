@@ -107,8 +107,10 @@ public class ClockTimer : TimerBase {
     float clockTickDurationSeconds; // Real-time duration until clock moves to next step (seconds)
     int clockTickStepMinutes;       // Increment of time on clock that clock will move after tick duration (minutes)
 
-    public string ClockTime => parsedTime.ToString("h:mm tt");
-    DateTime parsedTime;
+    public string ClockTime => parsedClockTime.ToString("h:mm tt");
+    DateTime parsedClockTime;
+    
+    float clockTickTimer = 0f;
 
     public event Action<string> TickEvent;
 
@@ -131,7 +133,7 @@ public class ClockTimer : TimerBase {
         this.clockTickDurationSeconds = clockTickDurationSeconds;
         this.clockTickStepMinutes = clockTickStepMinutes;
 
-        parsedTime = StartClockTime;
+        parsedClockTime = StartClockTime;
     }
 
     public override void Start() {
@@ -140,7 +142,6 @@ public class ClockTimer : TimerBase {
         base.Start();
     }
 
-    float clockTickTimer = 0f;
     protected override void Tick(float deltaTime) {
         timer += deltaTime;
         clockTickTimer += deltaTime;
@@ -150,14 +151,20 @@ public class ClockTimer : TimerBase {
             TickEvent?.Invoke(AddTickStep());
         }
 
-        if (parsedTime == EndClockTime) {
+        if (parsedClockTime == EndClockTime) {
             Stop();
             return;
         }
     }
 
+    public void Reset() {
+        parsedClockTime = StartClockTime;
+        timer = 0f;
+        clockTickTimer = 0f;
+    }
+
     string AddTickStep() {
-        parsedTime = parsedTime.AddMinutes(clockTickStepMinutes);
+        parsedClockTime = parsedClockTime.AddMinutes(clockTickStepMinutes);
         return ClockTime;
     }
 

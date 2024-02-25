@@ -72,7 +72,7 @@ public class DeliveryManager : MonoBehaviour {
                         GameManager.AddStockedProduct(product);
                         
                         // Stagger delivery anim
-                        yield return new WaitForSeconds(Constants.AnimIndividualDeliveryDelay);
+                        yield return new WaitForSeconds(TweenManager.IndividualDeliveryDelay);
                     }
                     else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);

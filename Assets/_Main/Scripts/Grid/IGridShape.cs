@@ -13,7 +13,7 @@ public interface IGridShape {
     public ShapeData ShapeData { get; }
     
     public void DestroyShape() {
-        ColliderTransform.DOScale(Vector3.zero, Constants.AnimDestroyShapeDur).OnComplete(() => {
+        ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(() => {
             ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object
             Object.Destroy(ShapeTransform.gameObject);
         });

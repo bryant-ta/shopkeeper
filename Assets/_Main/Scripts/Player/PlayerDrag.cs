@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using EventManager;
 using UnityEngine;
@@ -87,7 +88,7 @@ public class PlayerDrag : MonoBehaviour {
             }
 
             dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(rangeClampedPoint, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DOMove(rangeClampedPoint, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
 
             return;
         }
@@ -108,31 +109,28 @@ public class PlayerDrag : MonoBehaviour {
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
             dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(selectedCellCoord, Constants.AnimDragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DOMove(selectedCellCoord, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
         }
     }
 
-    Tweener invalidReleaseTween;
     void Release(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
 
         // If releasing out of interactable range, fail to place.
         if (!player.IsInRange(clickInputArgs.HitPoint)) {
-            invalidReleaseTween.Kill();
-            invalidReleaseTween = dragGrid.transform.DOShakePosition(
-                Constants.AnimInvalidShake.Duration,
-                new Vector3(1, 0, 1) * Constants.AnimInvalidShake.Strength,
-                Constants.AnimInvalidShake.Vibrato,
-                Constants.AnimInvalidShake.Randomness
-            );
-
+            TweenManager.Shake(heldShapes);
             return;
         }
 
         // Try to place held shapes
         Grid targetGrid = GameManager.WorldGrid; // TEMP: change when having vehicle grids/ other grids to drag into
         if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
-            Debug.LogFormat("Unable to move shapes to target grid ({0}).", targetGrid.gameObject.name); // TEMP
+            for (int i = 0; i < heldShapes.Count; i++) {
+                if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.MaxHeight) {
+                    TweenManager.Shake(heldShapes[i]);
+                }
+            }
+            
             return;
         }
 

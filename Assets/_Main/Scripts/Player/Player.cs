@@ -49,10 +49,10 @@ public class Player : MonoBehaviour {
                 nextOpenHoldStackCoord.y = lowestOpenY;
 
                 if (!targetGrid.MoveShapes(holdGrid, nextOpenHoldStackCoord, heldShapes)) {
-                    PlayInvalidPickUpAnim(heldShapes);
+                    TweenManager.Shake(heldShapes);
                 }
             } else { // no more space in hold grid
-                PlayInvalidPickUpAnim(heldShapes);
+                TweenManager.Shake(heldShapes);
             }
         }
     }
@@ -61,19 +61,6 @@ public class Player : MonoBehaviour {
         if (holdGrid.GridIsEmpty()) return;
 
         // TODO: implement
-    }
-
-    void PlayInvalidPickUpAnim(List<IGridShape> heldShapes) {
-        for (int i = 0; i < heldShapes.Count; i++) {
-            heldShapes[i].ShapeTransform.DOKill();
-            heldShapes[i].ShapeTransform.position = heldShapes[i].RootCoord;
-            heldShapes[i].ShapeTransform.DOShakePosition(
-                Constants.AnimInvalidShake.Duration,
-                new Vector3(1, 0, 1) * Constants.AnimInvalidShake.Strength,
-                Constants.AnimInvalidShake.Vibrato,
-                Constants.AnimInvalidShake.Randomness
-            );
-        }
     }
 
     public bool IsInRange(Vector3 targetPos) {

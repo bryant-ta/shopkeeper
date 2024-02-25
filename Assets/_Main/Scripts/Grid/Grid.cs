@@ -71,8 +71,8 @@ public class Grid : MonoBehaviour {
         if (smoothPlaceMovement) {
             shape.Collider.enabled = false;
             Sequence seq = DOTween.Sequence();
-            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, Constants.AnimPlaceShapeDur));
-            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, Constants.AnimPlaceShapeDur));
+            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
+            seq.Append(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, TweenManager.PlaceShapeDur));
             seq.Play().OnComplete(() => shape.Collider.enabled = true);
         } else {
             shape.ShapeTransform.localPosition = targetCoord;
