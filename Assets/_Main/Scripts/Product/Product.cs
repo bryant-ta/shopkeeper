@@ -10,7 +10,7 @@ public class Product : MonoBehaviour {
         ID = productData.ID;
         Name = productData.ID.ToString();
         gameObject.name = Name;
-
-        GetComponent<MeshRenderer>().material.SetTexture("_MainTex", productData.Texture);
+        
+        GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", productData.Texture);
     }
 }

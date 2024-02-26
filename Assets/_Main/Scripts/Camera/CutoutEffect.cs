@@ -1,27 +1,68 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
+// Note: Setup object with box collider of chosen width/height with length extending from camera to target object
+[RequireComponent(typeof(Collider))]
 public class CutoutEffect : MonoBehaviour {
+    // Set cutout params on material directly. Possibly add runtime override here
+    [SerializeField] float size;
+    // [SerializeField] float smoothness;
+    // [SerializeField] float opacity;
+    
+    [Tooltip("Cutout shader on material applied to occluding objects, such as walls.")]
+    [SerializeField] Shader cutOutShader;
+    [Tooltip("LayerMask applied to occluding objects")]
+    [SerializeField] LayerMask cutOutMask;
+
+    [Tooltip("Target object to always show through occluding objects.")]
     [SerializeField] Transform targetObject;
-    [SerializeField] LayerMask wallMask;
+
+    [SerializeField] List<Material> occludingObjectsMaterials = new();
 
     Camera mainCamera;
 
-    void Awake() { mainCamera = GetComponent<Camera>(); }
+    void Awake() {
+        mainCamera = Camera.main;
+        
+        
+    }
 
     void Update() {
-        Vector2 cutoutPos = mainCamera.WorldToViewportPoint(targetObject.position);
-        cutoutPos.y /= (Screen.width / Screen.height);
+        for (int i = 0; i < occludingObjectsMaterials.Count; i++) {
+            // Set position of cutout in material
+            Vector2 cutOutPos = mainCamera.WorldToViewportPoint(targetObject.position);
+            occludingObjectsMaterials[i].SetVector("_TargetPosition", cutOutPos);
+        }
+    }
+    
+    void EnableEffect(Material material) {
+        material.SetFloat("_Size", size);
+    }
+    void DisableEffect(Material material) {
+        material.SetFloat("_Size", 0);
+    }
 
-        Vector3 offset = targetObject.position - transform.position;
-        RaycastHit[] hitObjects = Physics.RaycastAll(transform.position, offset, offset.magnitude, wallMask);
-
-        for (int i = 0; i < hitObjects.Length; ++i) {
-            Material[] materials = hitObjects[i].transform.GetComponent<Renderer>().materials;
-
-            for (int m = 0; m < materials.Length; ++m) {
-                materials[m].SetVector("_CutoutPos", cutoutPos);
-                materials[m].SetFloat("_CutoutSize", 0.1f);
-                materials[m].SetFloat("_FalloffSize", 0.05f);
+    void OnTriggerEnter(Collider col) {
+        if ((cutOutMask & (1 << col.gameObject.layer)) != 0) {
+            if (col.TryGetComponent(out Renderer r)) {
+                Material mat = r.material;
+                if (mat.shader.Equals(cutOutShader))
+                {
+                    occludingObjectsMaterials.Add(mat);
+                    EnableEffect(mat);
+                    
+                }
+            }
+        }
+    }
+    
+    void OnTriggerExit(Collider col) {
+        if ((cutOutMask & (1 << col.gameObject.layer)) != 0) {
+            if (col.TryGetComponent(out Renderer r)) {
+                Material mat = r.material;
+                occludingObjectsMaterials.Remove(mat);
+                DisableEffect(mat);
             }
         }
     }
