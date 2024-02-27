@@ -9,6 +9,9 @@ using UnityEngine.Serialization;
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
     [SerializeField] Grid dragGrid;
+    
+    // TEMP: Particles
+    [SerializeField] ParticleSystem ps;
 
     List<IGridShape> heldShapes = new();
     Collider bottomObjCol;
@@ -57,6 +60,9 @@ public class PlayerDrag : MonoBehaviour {
 
         Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
+
+
+    
 
     Vector3 lastHitPoint;
     Vector3Int lastSelectedCellCoord;
@@ -133,6 +139,12 @@ public class PlayerDrag : MonoBehaviour {
             
             return;
         }
+        
+        // TEMP: place shape smoke burst particles
+        ParticleSystem.Burst burst = ps.emission.GetBurst(0);
+        burst.count = heldShapes.Count * 3;
+        ps.emission.SetBurst(0, burst);
+        ps.Play();
 
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = true;

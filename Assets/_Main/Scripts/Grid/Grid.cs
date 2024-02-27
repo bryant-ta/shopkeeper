@@ -83,7 +83,7 @@ public class Grid : MonoBehaviour {
             shape.ShapeTransform.localRotation = Quaternion.identity;
         }
     }
-
+    
     // Returns false if any placement of shape in shapes is invalid.
     // Placement is relative to first shape's root coord placed at targetCoord.
     public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
