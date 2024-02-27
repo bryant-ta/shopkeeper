@@ -11,7 +11,7 @@ public class PlayerDrag : MonoBehaviour {
     [SerializeField] Grid dragGrid;
     
     // TEMP: Particles
-    [SerializeField] ParticleSystem ps;
+    [SerializeField] ParticleSystem releaseDraggedPs;
 
     List<IGridShape> heldShapes = new();
     Collider bottomObjCol;
@@ -140,11 +140,11 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
         
-        // TEMP: place shape smoke burst particles
-        ParticleSystem.Burst burst = ps.emission.GetBurst(0);
-        burst.count = heldShapes.Count * 3;
-        ps.emission.SetBurst(0, burst);
-        ps.Play();
+        // TEMP: play shape placement smoke burst particles
+        ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
+        burst.count = heldShapes.Count * 2 + 3;
+        releaseDraggedPs.emission.SetBurst(0, burst);
+        releaseDraggedPs.Play();
 
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = true;

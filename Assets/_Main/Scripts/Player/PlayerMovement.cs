@@ -20,6 +20,8 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] float dashCooldown;
     CountdownTimer dashCooldownTimer;
 
+    [SerializeField] ParticleSystem dashPs;
+
     Camera mainCam;
     Rigidbody rb;
 
@@ -57,9 +59,15 @@ public class PlayerMovement : MonoBehaviour {
             
             CountdownTimer dashDurationTimer = new CountdownTimer(dashDuration);
             dashDurationTimer.Start();
-            dashDurationTimer.EndEvent += () => speed = origSpeed;
+            dashDurationTimer.EndEvent += () => {
+                speed = origSpeed;
+                dashPs.Stop();
+            };
+            
+            dashPs.Play();
             
             dashCooldownTimer.Start();
+            
         }
     }
 

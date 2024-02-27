@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6208304563614729578}
   - component: {fileID: 6208304563614729579}
   m_Layer: 0
-  m_Name: Particle_LineBurst
+  m_Name: FX_LineBurst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

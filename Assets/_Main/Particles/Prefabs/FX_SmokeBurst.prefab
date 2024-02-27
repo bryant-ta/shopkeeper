@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3489332832767024110}
   - component: {fileID: 3489332832767024111}
   m_Layer: 0
-  m_Name: Particle_SmokeBurst
+  m_Name: FX_SmokeBurst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
