@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(OrderManager))]
 public class OrderManagerUI : MonoBehaviour {
     [SerializeField] List<OrderBubbleUI> orderBubbles;
-    
+
     OrderManager orderMngr;
 
     void Awake() {
@@ -16,11 +16,16 @@ public class OrderManagerUI : MonoBehaviour {
 
     void UpdateOrderBubble(int activeOrderIndex, Order order) {
         if (order == null) { // no new active order, disable the bubble at index
-            DOVirtual.Float(1f, 0f, TweenManager.OrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
+            DOVirtual.Float(
+                orderBubbles[activeOrderIndex].Alpha, 0f, TweenManager.OrderBubbleFadeDur,
+                alpha => orderBubbles[activeOrderIndex].Alpha = alpha
+            );
             return;
         }
 
-        DOVirtual.Float(0f, 1f, TweenManager.OrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].SetAlpha(alpha));
+        DOVirtual.Float(
+            orderBubbles[activeOrderIndex].Alpha, 1f, TweenManager.OrderBubbleFadeDur, alpha => orderBubbles[activeOrderIndex].Alpha = alpha
+        );
         orderBubbles[activeOrderIndex].DisplayNewOrder(order);
     }
 }

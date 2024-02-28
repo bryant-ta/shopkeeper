@@ -7,6 +7,11 @@ public class OrderBubbleUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI orderText;
     [SerializeField] Image orderTimerBar;
 
+    public float Alpha {
+        get => canvasGroup.alpha;
+        set => canvasGroup.alpha = value;
+    }
+
     Order displayedOrder;
 
     CanvasGroup canvasGroup;
@@ -33,9 +38,5 @@ public class OrderBubbleUI : MonoBehaviour {
 
     void UpdateTimer(float percent) {
         orderTimerBar.fillAmount = percent;
-    }
-
-    public void SetAlpha(float value) {
-        canvasGroup.alpha = value;
     }
 }

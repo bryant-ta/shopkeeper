@@ -53,6 +53,7 @@ public class OrderManager : MonoBehaviour {
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Open) {
             isOpenPhase.Value = true;
+            ScaleOrderDifficulty(GameManager.Instance.Day);
             StartOrders();
         }
     }
@@ -191,6 +192,15 @@ public class OrderManager : MonoBehaviour {
         }
 
         return order;
+    }
+
+    void ScaleOrderDifficulty(int day) {
+        if (day > 10) return;
+        
+        numTotalOrders = day / 2 + 3;
+        quantityOrderTotalMin++;
+        quantityOrderTotalMax++;
+        varietyOrderIndividualMax++;
     }
 
     #endregion

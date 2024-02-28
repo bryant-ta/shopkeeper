@@ -144,6 +144,11 @@ public class GameManager : Singleton<GameManager> {
             OnPause?.Invoke(false);
         }
     }
+
+    public void DebugStartNextPhase() {
+        SM_dayPhase.ExecuteNextState();
+        // DayTimer.SetClockTime();
+    }
     
     #endregion
 
