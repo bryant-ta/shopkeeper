@@ -227,7 +227,7 @@ public class OrderManager : MonoBehaviour {
         // Prioritize order with least time left
         List<Order> activeOrdersList = activeOrders.ToList();
         for (int i = activeOrdersList.Count - 1; i >= 0; i--) {
-            if (!activeOrdersList[i].Timer.IsTicking) {
+            if (activeOrdersList[i] == null || !activeOrdersList[i].Timer.IsTicking) {
                 activeOrdersList.Remove(activeOrdersList[i]);
             }
         }

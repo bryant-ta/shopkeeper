@@ -121,7 +121,6 @@ public class PlayerDrag : MonoBehaviour {
 
     void Release(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
-
         // If releasing out of interactable range, fail to place.
         if (!player.IsInRange(clickInputArgs.HitPoint)) {
             TweenManager.Shake(heldShapes);
@@ -131,10 +130,16 @@ public class PlayerDrag : MonoBehaviour {
         // Try to place held shapes
         Grid targetGrid = GameManager.WorldGrid; // TEMP: change when having vehicle grids/ other grids to drag into
         if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
+            bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
                 if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.MaxHeight) {
+                    outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
                 }
+            }
+
+            if (!outOfHeightBounds) {
+                TweenManager.Shake(heldShapes);
             }
             
             return;
