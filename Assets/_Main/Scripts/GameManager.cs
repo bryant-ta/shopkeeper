@@ -34,6 +34,8 @@ public class GameManager : Singleton<GameManager> {
     string openPhaseClockTime;
     [SerializeField] [Tooltip("Time on clock Close Phase starts")]
     string closePhaseClockTime;
+
+    [field:SerializeField] public int Day { get; private set; }
     
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
@@ -80,7 +82,7 @@ public class GameManager : Singleton<GameManager> {
     }
     
     void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Close) EndDayTrigger();
+        if (state.ID == DayPhase.Close) DayEndTrigger();
     }
 
     void DebugTasks() {
@@ -89,20 +91,6 @@ public class GameManager : Singleton<GameManager> {
         List<Stack> preMadeStacks = FindObjectsByType<Stack>(FindObjectsSortMode.None).ToList();
         for (int i = 0; i < preMadeStacks.Count; i++) {
             preMadeStacks[i].Init();
-        }
-    }
-
-    public void TogglePause() {
-        isPaused = !isPaused;
-        if (isPaused) {
-            Time.timeScale = 0f;
-            GlobalClock.TimeScale = 0f;
-            OnPause?.Invoke(true);
-        }
-        else {
-            Time.timeScale = 1f;
-            GlobalClock.TimeScale = 1f;
-            OnPause?.Invoke(false);
         }
     }
 
@@ -126,15 +114,37 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
-    void EndDayTrigger() {
+    // End of day trigger/actions, next day has not started yet
+    void DayEndTrigger() {
         OnDayEnd?.Invoke();
     }
-
+    
+    // actions for starting a new following day
     public void StartNextDay() {
+        Day++;
+        
         DayTimer.Reset();
         DayTimer.Start();
     }
 
+    #endregion
+
+    #region Control
+
+    public void TogglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+            Time.timeScale = 0f;
+            GlobalClock.TimeScale = 0f;
+            OnPause?.Invoke(true);
+        }
+        else {
+            Time.timeScale = 1f;
+            GlobalClock.TimeScale = 1f;
+            OnPause?.Invoke(false);
+        }
+    }
+    
     #endregion
 
     #region Gold

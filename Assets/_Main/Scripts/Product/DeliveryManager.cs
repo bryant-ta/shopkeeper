@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
-    [SerializeField] int numProductsInDelivery;
+    [SerializeField] int productsPerDayGrowth;
+    [SerializeField] int maxProductsInDelivery;
     [SerializeField, Min(1)] int minGroupQuantity = 1;
     [SerializeField, Min(1)] int maxGroupQuantity = 1;
 
-    [SerializeField] List<ProductID> initialPossibleProducts;
-    
+    [SerializeField] ListList<ProductID> possibleProductLists;
+
     [SerializeField] Transform productSpawnPosition; // TEMP: until delivery animation/theme chosen
 
     [Header("Zone")]
@@ -17,6 +18,8 @@ public class DeliveryManager : MonoBehaviour {
     Grid grid;
 
     RollTable<ProductID> productRollTable = new();
+
+    int numProductsInDelivery;
 
     void Awake() { GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger; }
 
@@ -27,16 +30,30 @@ public class DeliveryManager : MonoBehaviour {
         ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
         deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition), deliveryZoneDimensions, deliveryZoneProps);
         grid.AddZone(deliveryZone);
-
-        // Load initial possible products
-        foreach (ProductID productID in initialPossibleProducts) {
-            AddPossibleProduct(productID);
-        }
     }
 
     void StateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Delivery) StartCoroutine(DoDelivery());
+        if (state.ID == DayPhase.Delivery) {
+            ScaleDeliveryDifficulty(GameManager.Instance.Day);
+            StartCoroutine(DoDelivery());
+        }
     }
+
+    void ScaleDeliveryDifficulty(int day) { // TEMP: pre-crafting difficulty formulas
+        // Scale quantity
+        numProductsInDelivery = productsPerDayGrowth * day;
+        if (numProductsInDelivery > maxProductsInDelivery) {
+            numProductsInDelivery = maxProductsInDelivery;
+        }
+
+        // Scale variety
+        if (day-1 < possibleProductLists.outerList.Count) {
+            foreach (ProductID productID in possibleProductLists.outerList[day-1].innerList) {
+                AddPossibleProduct(productID);
+            }
+        }
+    }
+
     IEnumerator DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
         // Order of placement is alternating forward/backwards every other row, one product on next open y of (x, z).
@@ -69,8 +86,9 @@ public class DeliveryManager : MonoBehaviour {
                         productData = ProductFactory.Instance.ProductLookUp[productRollTable.GetRandom()];
                         groupQuantity = Random.Range(minGroupQuantity, maxGroupQuantity + 1);
                     }
+
                     groupQuantity--;
-                    
+
                     Product product = ProductFactory.Instance.CreateProduct(productData);
 
                     if (product.TryGetComponent(out IGridShape shape)) {
@@ -80,11 +98,10 @@ public class DeliveryManager : MonoBehaviour {
                         }
 
                         GameManager.AddStockedProduct(product);
-                        
+
                         // Stagger delivery anim
                         yield return new WaitForSeconds(TweenManager.IndividualDeliveryDelay);
-                    }
-                    else {
+                    } else {
                         Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
                         yield break;
                     }
@@ -102,7 +119,7 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    public void AddPossibleProduct(ProductID productID) {
+    void AddPossibleProduct(ProductID productID) {
         if (!productRollTable.Contains(productID)) {
             productRollTable.Add(productID, 1);
         }

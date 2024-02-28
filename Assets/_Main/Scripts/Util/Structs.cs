@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 public struct DeltaArgs {
     public int NewValue;
@@ -11,4 +12,14 @@ public struct DOTweenShakeArgs {
     public float Strength; // .1
     public int Vibrato;    // 20
     public float Randomness; //20
+}
+
+// Inspector serializable list of lists
+[Serializable]
+public class ListT<T> {
+    public List<T> innerList;
+}
+[Serializable]
+public class ListList<T> {
+    public List<ListT<T>> outerList;
 }

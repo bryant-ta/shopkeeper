@@ -1472,6 +1472,7 @@ MonoBehaviour:
   deliveryPhaseClockTime: 8:00AM
   openPhaseClockTime: 8:20AM
   closePhaseClockTime: 1:00PM
+  <Day>k__BackingField: 1
   initialGold: 10
   gold: 0
 --- !u!114 &525756790
@@ -2295,10 +2296,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numProductsInDelivery: 25
+  productsPerDayGrowth: 25
+  maxProductsInDelivery: 75
   minGroupQuantity: 1
-  maxGroupQuantity: 10
-  initialPossibleProducts: 0100000002000000030000000400000005000000060000000700000008000000090000000a0000000b0000000c0000000d0000000e0000000f00000010000000
+  maxGroupQuantity: 5
+  possibleProductLists:
+    outerList:
+    - innerList: 05000000030000000b0000000e0000000c000000
+    - innerList: 0700000008000000020000000d00000010000000
+    - innerList: 0400000009000000060000000a0000000f000000
+    - innerList: 01000000
   productSpawnPosition: {fileID: 1138930278}
   deliveryZoneDimensions: {x: 5, y: 5, z: 5}
   deliveryZone: {fileID: 434739750}
@@ -3919,7 +3926,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1433320124
 RectTransform:
   m_ObjectHideFlags: 0
