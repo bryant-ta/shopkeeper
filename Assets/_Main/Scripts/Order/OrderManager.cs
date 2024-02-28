@@ -94,7 +94,7 @@ public class OrderManager : MonoBehaviour {
         Util.DoAfterSeconds(this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex));
     }
     void ActivateNextOrder(int activeOrderIndex) {
-        if (GameManager.Instance.SM_dayPhase.CurState.ID != DayPhase.Open) {
+        if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
             return;
         }
 

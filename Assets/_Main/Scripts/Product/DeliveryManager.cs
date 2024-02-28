@@ -9,7 +9,7 @@ public class DeliveryManager : MonoBehaviour {
 
     [SerializeField] List<ProductID> initialPossibleProducts;
     
-    [SerializeField] Transform productSpawnPosition; // TEMP
+    [SerializeField] Transform productSpawnPosition; // TEMP: until delivery animation/theme chosen
 
     [Header("Zone")]
     [SerializeField] Vector3Int deliveryZoneDimensions;
@@ -39,7 +39,7 @@ public class DeliveryManager : MonoBehaviour {
     }
     IEnumerator DoDelivery() {
         // Place products starting from (0, 0, 0) within deliveryZone
-        // Order of placement is one product on next open y of (x, z), then next (x, z)
+        // Order of placement is alternating forward/backwards every other row, one product on next open y of (x, z).
         int numProductsDelivered = 0;
         while (numProductsDelivered < numProductsInDelivery) {
             SO_Product productData = null;
@@ -47,7 +47,17 @@ public class DeliveryManager : MonoBehaviour {
             int prodsDeliveredLastCycle = numProductsDelivered;
 
             for (int x = 0; x < deliveryZone.Length; x++) {
-                for (int z = 0; z < deliveryZone.Width; z++) {
+                int startZ = 0;
+                int endZ = deliveryZone.Width;
+                int stepZ = 1;
+                if (x % 2 == 1) // iterate backwards every other row
+                {
+                    startZ = deliveryZone.Width - 1;
+                    endZ = -1;
+                    stepZ = -1;
+                }
+
+                for (int z = startZ; z != endZ; z += stepZ) {
                     Vector3Int deliveryCoord;
                     if (grid.SelectLowestOpen(deliveryZone.RootCoord.x + x, deliveryZone.RootCoord.z + z, out int y)) {
                         deliveryCoord = deliveryZone.RootCoord + new Vector3Int(x, y, z);

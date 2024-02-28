@@ -28,13 +28,13 @@ public class GameManager : Singleton<GameManager> {
     float dayClockTickDurationSeconds;
     [SerializeField] [Tooltip("Increment of time on clock that clock will move after tick duration (minutes)")]
     int dayclockTickStepMinutes;
-    
     [SerializeField] [Tooltip("Time on clock Open Phase starts")]
     string deliveryPhaseClockTime;
     [SerializeField] [Tooltip("Time on clock Open Phase starts")]
     string openPhaseClockTime;
     [SerializeField] [Tooltip("Time on clock Close Phase starts")]
     string closePhaseClockTime;
+    
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
