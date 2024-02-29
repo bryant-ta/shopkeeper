@@ -161,6 +161,10 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
+    public void SetTimeScale(float value) {
+        GlobalClock.TimeScale = value;
+    }
+
     public void DebugStartNextPhase() {
         SM_dayPhase.ExecuteNextState();
         // DayTimer.SetClockTime();
