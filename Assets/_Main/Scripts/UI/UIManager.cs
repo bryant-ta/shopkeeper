@@ -9,10 +9,12 @@ public class UIManager : MonoBehaviour {
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI phaseText;
 
+    [Header("Next Day")]
     [SerializeField] GameObject nextDayPanel;
-    [SerializeField] TextMeshProUGUI nextDayText; // TEMP: until making better next day screen
     [SerializeField] Button nextDayButton;        // TEMP: until making better next day screen
+    [SerializeField] TextMeshProUGUI perfectOrdersText; // TEMP: until making better next day screen
 
+    [Header("Pause Menu")]
     [SerializeField] GameObject pauseMenuPanel;
 
     GameManager gameMngr;
@@ -38,13 +40,15 @@ public class UIManager : MonoBehaviour {
     void UpdateNextDayPanel() {
         nextDayPanel.SetActive(true);
         nextDayButton.gameObject.SetActive(true);
+
+        if (Ref.Instance.OrderMngr.PerfectOrders) {
+            perfectOrdersText.text = "PERFECT!\n+100";
+        } else {
+            perfectOrdersText.text = "GOOD";
+        }
     }
     public void NextDayTransition() {
-        nextDayButton.gameObject.SetActive(false);
-        nextDayText.DOFade(0f, 2f).OnComplete(() => {
-            nextDayText.alpha = 1f;
-            nextDayPanel.SetActive(false);
-        });
+        nextDayPanel.SetActive(false);
     }
 
     void TogglePauseMenu(bool isPaused) { pauseMenuPanel.SetActive(isPaused); }

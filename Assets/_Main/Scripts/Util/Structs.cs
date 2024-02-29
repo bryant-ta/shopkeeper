@@ -23,3 +23,16 @@ public class ListT<T> {
 public class ListList<T> {
     public List<ListT<T>> outerList;
 }
+
+////////////////////////////   Debug   ////////////////////////////
+
+[Serializable]
+public struct DebugDayClockTimes {
+    public string DayStartClockTime;
+    public string DayEndClockTime;
+    public float DayClockTickDurationSeconds;
+    public int DayclockTickStepMinutes;
+    public string DeliveryPhaseClockTime;
+    public string OpenPhaseClockTime;
+    public string ClosePhaseClockTime;
+}

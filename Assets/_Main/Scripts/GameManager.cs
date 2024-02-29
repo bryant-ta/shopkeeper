@@ -8,6 +8,8 @@ using UnityEngine;
 public class GameManager : Singleton<GameManager> {
     [Header("Debug")]
     public bool DebugMode;
+    [SerializeField] bool useDebugDayClockTimes;
+    [SerializeField] DebugDayClockTimes debugDayClockTimes;
 
     [Header("General")]
     [SerializeField, ReadOnly] bool isPaused;
@@ -49,6 +51,8 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] int initialGold;
     [SerializeField] int gold;
     public int Gold => gold;
+    [SerializeField] int perfectOrdersGoldBonus;
+    
     public event Action<DeltaArgs> OnModifyMoney;
 
     // Stocked Products
@@ -56,6 +60,8 @@ public class GameManager : Singleton<GameManager> {
     static Dictionary<ProductID, List<Product>> stockedProducts;
 
     void Awake() {
+        if (DebugMode) AwakeDebugTasks();
+        
         // Required to reset every Play mode start because static
         _worldGrid = worldGrid;
         stockedProducts = new();
@@ -74,7 +80,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     void Start() {
-        if (DebugMode) { DebugTasks(); }
+        if (DebugMode) StartDebugTasks();
 
         ModifyGold(initialGold);
 
@@ -85,13 +91,19 @@ public class GameManager : Singleton<GameManager> {
         if (state.ID == DayPhase.Close) DayEndTrigger();
     }
 
-    void DebugTasks() {
-        // Initialize items with any IStackable in transform children
-        // In game, stacks containing items should only be created after game start and inited on instantiation
-        List<Stack> preMadeStacks = FindObjectsByType<Stack>(FindObjectsSortMode.None).ToList();
-        for (int i = 0; i < preMadeStacks.Count; i++) {
-            preMadeStacks[i].Init();
+    void AwakeDebugTasks() {
+        if (useDebugDayClockTimes) {
+            dayStartClockTime = debugDayClockTimes.DayStartClockTime;
+            dayEndClockTime = debugDayClockTimes.DayEndClockTime;
+            dayClockTickDurationSeconds = debugDayClockTimes.DayClockTickDurationSeconds;
+            dayclockTickStepMinutes = debugDayClockTimes.DayclockTickStepMinutes;
+            deliveryPhaseClockTime = debugDayClockTimes.DeliveryPhaseClockTime;
+            openPhaseClockTime = debugDayClockTimes.OpenPhaseClockTime;
+            closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
         }
+    }
+    
+    void StartDebugTasks() {
     }
 
     #region Main
@@ -116,6 +128,10 @@ public class GameManager : Singleton<GameManager> {
 
     // End of day trigger/actions, next day has not started yet
     void DayEndTrigger() {
+        if (Ref.Instance.OrderMngr.PerfectOrders) {
+            ModifyGold(perfectOrdersGoldBonus);
+        }
+        
         OnDayEnd?.Invoke();
     }
     

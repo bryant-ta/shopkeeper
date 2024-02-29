@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Timers;
+using TriInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -25,6 +26,9 @@ public class OrderManager : MonoBehaviour {
     [Header("Zone")]
     [SerializeField] Vector3Int dropOffZoneDimensions;
     [SerializeField] Zone dropOffZone;
+    
+    // true if all orders for the day are fulfilled
+    [field:SerializeField, ReadOnly] public bool PerfectOrders { get; private set; }
 
     Queue<Order> backlogOrders = new();
     Order[] activeOrders;
@@ -77,14 +81,18 @@ public class OrderManager : MonoBehaviour {
             return;
         }
 
+        PerfectOrders = true;
+
         for (int i = 0; i < numActiveOrders; i++) {
             ActivateNextOrder(i);
         }
     }
     void StopOrders() {
         for (int i = 0; i < activeOrders.Length; i++) {
-            activeOrders[i].StopOrder();
-            ResetActiveOrderSlot(i);
+            if (activeOrders[i] != null) {
+                activeOrders[i].StopOrder();
+                ResetActiveOrderSlot(i);
+            }
         }
 
         backlogOrders.Clear();
@@ -248,6 +256,7 @@ public class OrderManager : MonoBehaviour {
         ActivateNextOrderDelayed(activeOrderIndex);
     }
     void FailOrder(int activeOrderIndex) {
+        PerfectOrders = false;
         ActivateNextOrderDelayed(activeOrderIndex);
     }
 

@@ -61,9 +61,6 @@ public class PlayerDrag : MonoBehaviour {
         Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
 
-
-    
-
     Vector3 lastHitPoint;
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
