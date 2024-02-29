@@ -1,9 +1,7 @@
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-[RequireComponent(typeof(GameManager))]
 public class UIManager : MonoBehaviour {
     [SerializeField] NumberCounter goldCounter;
     [SerializeField] TextMeshProUGUI timeText;
@@ -20,7 +18,7 @@ public class UIManager : MonoBehaviour {
     GameManager gameMngr;
 
     void Awake() {
-        gameMngr = GetComponent<GameManager>();
+        gameMngr = GameManager.Instance;
 
         gameMngr.OnModifyMoney += UpdateMoneyText;
         gameMngr.DayTimer.TickEvent += UpdateTimeText;
