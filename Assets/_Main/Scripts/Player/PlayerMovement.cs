@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using EventManager;
 using Timers;
 using UnityEngine;
@@ -53,6 +50,8 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Dash() {
+        if (!UpgradeManager.UpgradeFlags.Dash) { return; }
+        
         if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
             float origSpeed = speed;
             speed = dashSpeed;
@@ -67,7 +66,6 @@ public class PlayerMovement : MonoBehaviour {
             dashPs.Play();
             
             dashCooldownTimer.Start();
-            
         }
     }
 
