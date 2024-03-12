@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UpgradeEntry : MonoBehaviour {
+public class UpgradeEntryUI : MonoBehaviour {
     public Upgrade Upgrade;
     
     public TextMeshProUGUI nameText;

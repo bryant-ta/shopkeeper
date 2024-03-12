@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1329654352337355544}
   - component: {fileID: 7660404521857322065}
   - component: {fileID: 8424033361423054387}
+  - component: {fileID: 648453578937864295}
   m_Layer: 5
   m_Name: UpgradeCostText
   m_TagString: Untagged
@@ -135,6 +136,20 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &648453578937864295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 808983335370479157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c10defbf3c13b7947b934a918d2a423e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canAffordColor: {r: 0, g: 0, b: 0, a: 1}
+  cannotAffordColor: {r: 0.9245283, g: 0, b: 0, a: 1}
 --- !u!1 &2289670435041791202
 GameObject:
   m_ObjectHideFlags: 0

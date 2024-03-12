@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 3
   Name: Carry More
-  Cost: 1
+  Cost: 50
   Description: Increase max carry limit.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 11400000}

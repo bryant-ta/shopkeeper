@@ -81,10 +81,9 @@ public class GameManager : Singleton<GameManager> {
 
     void Start() {
         if (DebugMode) StartDebugTasks();
-
-        ModifyGold(initialGold);
-
-        MainLoop();
+        
+        // need to wait for all scripts' Start to finish before starting main loop
+        Util.DoAfterOneFrame(this, () => MainLoop());
     }
     
     void ExitStateTrigger(IState<DayPhase> state) {
@@ -102,15 +101,15 @@ public class GameManager : Singleton<GameManager> {
             closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
         }
     }
-    
     void StartDebugTasks() {
     }
 
     #region Main
 
     void MainLoop() {
-        // need to wait for all scripts' Start to finish before starting day timer
-        Util.DoAfterOneFrame(this, () => DayTimer.Start());
+        ModifyGold(initialGold);
+        
+        DayTimer.Start();
     }
 
     #endregion

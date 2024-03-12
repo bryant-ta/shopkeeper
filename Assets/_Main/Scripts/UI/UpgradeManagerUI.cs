@@ -8,7 +8,7 @@ public class UpgradeManagerUI : MonoBehaviour {
     [SerializeField] GameObject contentObj;
     [SerializeField] GameObject upgradeEntryPrefab;
 
-    [SerializeField] List<UpgradeEntry> upgradeEntries = new();
+    [SerializeField] List<UpgradeEntryUI> upgradeEntries = new();
     
     UpgradeManager upgradeMngr;
 
@@ -20,14 +20,14 @@ public class UpgradeManagerUI : MonoBehaviour {
     }
 
     void AddAvailableUpgradeEntry(Upgrade upgrade) {
-        UpgradeEntry upgradeEntry = Instantiate(upgradeEntryPrefab, contentObj.transform).GetComponent<UpgradeEntry>();
+        UpgradeEntryUI upgradeEntry = Instantiate(upgradeEntryPrefab, contentObj.transform).GetComponent<UpgradeEntryUI>();
         upgradeEntry.Init(upgrade);
         
         upgradeEntries.Add(upgradeEntry);
     }
 
     public void RemoveAvailableUpgradeEntry(Upgrade upgrade) {
-        UpgradeEntry availableUpgradeEntry = upgradeEntries.Find(upgradeEntry => upgradeEntry.Upgrade == upgrade);
+        UpgradeEntryUI availableUpgradeEntry = upgradeEntries.Find(upgradeEntry => upgradeEntry.Upgrade == upgrade);
         upgradeEntries.Remove(availableUpgradeEntry);
         Destroy(availableUpgradeEntry.gameObject);
     }
