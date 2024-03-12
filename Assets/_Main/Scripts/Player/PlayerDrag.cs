@@ -1,15 +1,13 @@
 using System.Collections.Generic;
-using System.Linq;
 using DG.Tweening;
 using EventManager;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [RequireComponent(typeof(Player))]
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
     [SerializeField] Grid dragGrid;
-    
+
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
 
@@ -103,8 +101,7 @@ public class PlayerDrag : MonoBehaviour {
         Grid targetGrid = GameManager.WorldGrid;
         if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
-        }
-        else {
+        } else {
             // TODO: some feedback that this point is occupied/out of bounds
             return;
         }
@@ -138,10 +135,10 @@ public class PlayerDrag : MonoBehaviour {
             if (!outOfHeightBounds) {
                 TweenManager.Shake(heldShapes);
             }
-            
+
             return;
         }
-        
+
         // TEMP: play shape placement smoke burst particles
         ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
         burst.count = heldShapes.Count * 2 + 3;
@@ -156,4 +153,10 @@ public class PlayerDrag : MonoBehaviour {
         heldShapes.Clear();
         bottomObjCol = null;
     }
+
+    #region Upgrades
+
+    public void ModifyMaxDragHeight(int delta) { dragGrid.SetMaxHeight(dragGrid.MaxHeight + delta); }
+
+    #endregion
 }

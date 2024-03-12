@@ -18,14 +18,14 @@ public class UpgradeManagerUI : MonoBehaviour {
         upgradeMngr.OnUpgradePurchased += RemoveAvailableUpgradeEntry;
     }
 
-    void AddAvailableUpgradeEntry(SO_Upgrade upgrade) {
+    void AddAvailableUpgradeEntry(Upgrade upgrade) {
         UpgradeEntry upgradeEntry = Instantiate(upgradeEntryPrefab, contentObj.transform).GetComponent<UpgradeEntry>();
         upgradeEntry.Init(upgrade);
         
         upgradeEntries.Add(upgradeEntry);
     }
 
-    public void RemoveAvailableUpgradeEntry(SO_Upgrade upgrade) {
+    public void RemoveAvailableUpgradeEntry(Upgrade upgrade) {
         UpgradeEntry availableUpgradeEntry = upgradeEntries.Find(upgradeEntry => upgradeEntry.Upgrade == upgrade);
         upgradeEntries.Remove(availableUpgradeEntry);
         Destroy(availableUpgradeEntry.gameObject);

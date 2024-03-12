@@ -10,7 +10,7 @@ public class Player : MonoBehaviour {
     [SerializeField] float interactionHeight;
 
     [SerializeField] Grid holdGrid;
-    
+
     public Transform dropPos;
 
     void Awake() {
@@ -68,4 +68,10 @@ public class Player : MonoBehaviour {
         xzDif.y = 0;
         return targetPos.y - transform.position.y < interactionHeight && xzDif.magnitude < interactionRange;
     }
+
+    #region Upgrades
+
+    public void ModifyMaxHoldHeight(int delta) { holdGrid.SetMaxHeight(holdGrid.MaxHeight + delta); }
+
+    #endregion
 }

@@ -62,19 +62,20 @@ public class Grid : MonoBehaviour {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
-        
+
         DOTween.Kill(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
-        
+
         shape.ShapeTransform.SetParent(transform, true);
         shape.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
             shape.Collider.enabled = false;
-        
+
             Sequence seq = DOTween.Sequence().SetId(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
             seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
             seq.Join(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, TweenManager.PlaceShapeDur));
-            seq.Play().OnComplete(() => {
+            seq.Play().OnComplete(
+                () => {
                     shape.Collider.enabled = true;
                 }
             );
@@ -83,7 +84,7 @@ public class Grid : MonoBehaviour {
             shape.ShapeTransform.localRotation = Quaternion.identity;
         }
     }
-    
+
     // Returns false if any placement of shape in shapes is invalid.
     // Placement is relative to first shape's root coord placed at targetCoord.
     public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
@@ -169,11 +170,10 @@ public class Grid : MonoBehaviour {
                 bool canFall = false;
                 foreach (var offset in aboveShape.ShapeData.ShapeOffsets) {
                     if (!triggerAllFall && offset == Vector3Int.zero) continue; // no fall for cells directly above input coord
-                    
+
                     if (IsOpen(aboveCoord + offset + Vector3Int.down)) {
                         canFall = true;
-                    }
-                    else {
+                    } else {
                         canFall = false;
                         break;
                     }
@@ -345,11 +345,13 @@ public class Grid : MonoBehaviour {
     /// </summary>
     public void AddRange(int startX, int startY, int endX, int endY) {
         for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= startY; y++) {
+            for (int y = startY; y <= endY; y++) {
                 validCells.Add(new Vector2Int(x, y));
             }
         }
     }
+
+    public void SetMaxHeight(int height) { maxHeight = height; }
 
     #endregion
 

@@ -3,14 +3,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UpgradeEntry : MonoBehaviour {
-    public SO_Upgrade Upgrade;
+    public Upgrade Upgrade;
     
     public TextMeshProUGUI nameText;
     public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI costText;
     public Image icon;
     
-    public void Init(SO_Upgrade upgrade) {
+    public void Init(Upgrade upgrade) {
         Upgrade = upgrade;
         
         nameText.text = upgrade.Name;
