@@ -20,3 +20,4 @@ MonoBehaviour:
   NextUpgrade: {fileID: 0}
   IsRepeating: 0
   RepeatsRemaining: 0
+  maxGroupQuantity: 5
