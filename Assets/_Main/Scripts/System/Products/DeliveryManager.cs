@@ -47,8 +47,8 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         // Scale variety
-        if (day-1 < possibleProductLists.outerList.Count) {
-            foreach (ProductID productID in possibleProductLists.outerList[day-1].innerList) {
+        if (day - 1 < possibleProductLists.outerList.Count) {
+            foreach (ProductID productID in possibleProductLists.outerList[day - 1].innerList) {
                 AddPossibleProduct(productID);
             }
         }
@@ -67,8 +67,7 @@ public class DeliveryManager : MonoBehaviour {
                 int startZ = 0;
                 int endZ = deliveryZone.Width;
                 int stepZ = 1;
-                if (x % 2 == 1) // iterate backwards every other row
-                {
+                if (x % 2 == 1) { // iterate backwards every other row
                     startZ = deliveryZone.Width - 1;
                     endZ = -1;
                     stepZ = -1;
@@ -124,4 +123,10 @@ public class DeliveryManager : MonoBehaviour {
             productRollTable.Add(productID, 1);
         }
     }
+
+    #region Upgrades
+
+    public void SetMaxGroupQuantity(int value) { maxGroupQuantity = value; }
+
+    #endregion
 }

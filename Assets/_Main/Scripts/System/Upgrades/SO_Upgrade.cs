@@ -1,7 +1,6 @@
 using System;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class SO_Upgrade : ScriptableObject {
     public UpgradeID ID;
@@ -14,6 +13,7 @@ public class SO_Upgrade : ScriptableObject {
     public SO_Upgrade NextUpgrade;
     public bool IsRepeating;
     [Tooltip("Number of times the upgrade can be repeated. NextUpgrade should usually reference this upgrade (itself).")]
+    [ShowIf(nameof(IsRepeating))]
     public int RepeatsRemaining;
 
     public virtual void Apply() { }
@@ -31,6 +31,7 @@ public class Upgrade {
     
     public SO_Upgrade NextUpgradeData;
     public bool IsRepeating;
+    [ShowIf(nameof(IsRepeating))]
     public int RepeatsRemaining;
     
     public Upgrade(SO_Upgrade upgradeData) {

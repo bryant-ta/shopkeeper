@@ -1608,7 +1608,7 @@ MonoBehaviour:
   dayEndClockTime: 12:00AM
   dayClockTickDurationSeconds: 1
   dayclockTickStepMinutes: 10
-  deliveryPhaseClockTime: 8:00AM
+  deliveryPhaseClockTime: 8:10AM
   openPhaseClockTime: 8:50AM
   closePhaseClockTime: 1:00PM
   <Day>k__BackingField: 1

@@ -3,7 +3,7 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "Upgrades/CarryLimit")]
 public class SO_UpgradeCarryLimit : SO_Upgrade {
-    [Title("Carry Limit Upgrade")]
+    [Title("UpgradeCarryLimit")]
     [SerializeField] int increaseAmt;
     
     public override void Apply() {
