@@ -126,7 +126,7 @@ public class PlayerDrag : MonoBehaviour {
         if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
-                if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.MaxHeight) {
+                if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.Height) {
                     outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
                 }
@@ -156,7 +156,7 @@ public class PlayerDrag : MonoBehaviour {
 
     #region Upgrades
 
-    public void ModifyMaxDragHeight(int delta) { dragGrid.SetMaxHeight(dragGrid.MaxHeight + delta); }
+    public void ModifyMaxDragHeight(int delta) { dragGrid.SetMaxHeight(dragGrid.Height + delta); }
 
     #endregion
 }

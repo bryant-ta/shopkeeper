@@ -18,3 +18,6 @@ MonoBehaviour:
   Description: Expand the shop.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 11400000, guid: 62c50f21c2eb57e48aa07fa7c04da94a, type: 2}
+  IsRepeating: 0
+  RepeatsRemaining: 0
+  expansionIndex: 1

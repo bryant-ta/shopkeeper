@@ -17,3 +17,7 @@ MonoBehaviour:
   Cost: 1
   Description: Expand the shop more.
   Icon: {fileID: 0}
+  NextUpgrade: {fileID: 0}
+  IsRepeating: 0
+  RepeatsRemaining: 0
+  expansionIndex: 2

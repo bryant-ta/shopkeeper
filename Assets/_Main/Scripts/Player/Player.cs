@@ -71,7 +71,7 @@ public class Player : MonoBehaviour {
 
     #region Upgrades
 
-    public void ModifyMaxHoldHeight(int delta) { holdGrid.SetMaxHeight(holdGrid.MaxHeight + delta); }
+    public void ModifyMaxHoldHeight(int delta) { holdGrid.SetMaxHeight(holdGrid.Height + delta); }
 
     #endregion
 }

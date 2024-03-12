@@ -4,15 +4,16 @@ using System.Linq;
 using DG.Tweening;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Grid : MonoBehaviour {
     [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
-    [SerializeField] int maxLength;
-    public int MaxLength => maxLength;
-    [SerializeField] int maxHeight;
-    public int MaxHeight => maxHeight;
-    [SerializeField] int maxWidth;
-    public int MaxWidth => maxWidth;
+    [SerializeField] int length;
+    public int Length => length;
+    [SerializeField] int height;
+    public int Height => height;
+    [SerializeField] int width;
+    public int Width => width;
 
     [SerializeField] bool smoothPlaceMovement = true;
 
@@ -24,12 +25,12 @@ public class Grid : MonoBehaviour {
 
     // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
     // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
-    void Start() { Init(maxLength, maxHeight, maxWidth); }
+    void Start() { Init(length, height, width); }
 
     void Init(int maxLength, int maxHeight, int maxWidth) {
-        this.maxLength = maxLength;
-        this.maxHeight = maxHeight;
-        this.maxWidth = maxWidth;
+        this.length = maxLength;
+        this.height = maxHeight;
+        this.width = maxWidth;
 
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
@@ -196,7 +197,7 @@ public class Grid : MonoBehaviour {
     // TODO: Modify for multi-space shapes
     public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
         List<IGridShape> stackedShapes = new();
-        while (coord.y < maxHeight && !IsOpen(coord)) {
+        while (coord.y < height && !IsOpen(coord)) {
             IGridShape shape = cells[coord].Shape;
 
             if (!stackedShapes.Contains(shape)) {
@@ -250,7 +251,7 @@ public class Grid : MonoBehaviour {
     /// Returns true if valid highest open cell exists in column at (x, z).
     /// </summary>
     public bool SelectLowestOpen(int x, int z, out int lowestOpenY) {
-        for (int y = 0; y < maxHeight; y++) {
+        for (int y = 0; y < height; y++) {
             Vector3Int coord = new Vector3Int(x, y, z);
             if (!cells.ContainsKey(coord)) {
                 lowestOpenY = coord.y;
@@ -342,16 +343,17 @@ public class Grid : MonoBehaviour {
 
     /// <summary>
     /// Adds a range of valid cells to grid (inclusive)
+    /// - Note: currently does not update length/width bc only used in initial grid setup
     /// </summary>
-    public void AddRange(int startX, int startY, int endX, int endY) {
-        for (int x = startX; x <= endX; x++) {
-            for (int y = startY; y <= endY; y++) {
+    public void AddValidCellsRange(Vector2Int startPos, Vector2Int endPos) {
+        for (int x = startPos.x; x <= endPos.x; x++) {
+            for (int y = startPos.y; y <= endPos.y; y++) {
                 validCells.Add(new Vector2Int(x, y));
             }
         }
     }
 
-    public void SetMaxHeight(int height) { maxHeight = height; }
+    public void SetMaxHeight(int height) { this.height = height; }
 
     #endregion
 
@@ -361,7 +363,7 @@ public class Grid : MonoBehaviour {
         return IsOpen(coord) && IsInBounds(coord) && (ignoreZone || CheckZones(coord, prop => prop.CanPlace));
     }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
-    public bool IsInBounds(Vector3Int coord) { return coord.y < maxHeight && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
+    public bool IsInBounds(Vector3Int coord) { return coord.y < height && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
     public bool GridIsEmpty() { return cells.Count == 0; }
 
