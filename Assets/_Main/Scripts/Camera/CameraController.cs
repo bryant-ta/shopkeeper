@@ -61,6 +61,8 @@ public class CameraController : MonoBehaviour {
     }
 
     void ZoomView(float scrollInput) {
+        if (!UpgradeManager.Flags.Zoom) return;
+        
         targetZoom = cam.orthographicSize - scrollInput * zoomStep;
         targetZoom = Mathf.Clamp(targetZoom, zoomMin, zoomMax);
     }

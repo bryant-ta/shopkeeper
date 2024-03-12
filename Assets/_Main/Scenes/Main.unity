@@ -825,6 +825,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 94fb7b4aa4fd8da428cb3743ebec84fe, type: 3}
   m_PrefabInstance: {fileID: 436722159}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &360067975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 360067976}
+  - component: {fileID: 360067977}
+  m_Layer: 0
+  m_Name: UpgradeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &360067976
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360067975}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 525756788}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &360067977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360067975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6938a96265abcbe4aacbd106e6a392c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  AvailableUpgrades:
+  - {fileID: 11400000, guid: fed40698445a7ed489659f4fb8e742e8, type: 2}
+  - {fileID: 11400000, guid: d4fe895cf7899104db039512586d7b13, type: 2}
+  - {fileID: 11400000, guid: e56ba1c6e2f2b3648b0642554d64ceb6, type: 2}
+  - {fileID: 11400000, guid: 18d15b7e374ea164f81156fd005b561d, type: 2}
+  - {fileID: 11400000, guid: 493baf1137c6d164c8cb997044a7df68, type: 2}
+  PurchasedUpgrades:
+  - {fileID: 11400000, guid: fed40698445a7ed489659f4fb8e742e8, type: 2}
+  - {fileID: 11400000, guid: d4fe895cf7899104db039512586d7b13, type: 2}
 --- !u!1 &370300675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1522,7 +1575,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 360067976}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1599,6 +1653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a87430ef86746b643928aae374a9bde7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UpgradeMngr: {fileID: 360067977}
   DeliveryMngr: {fileID: 919245942}
   OrderMngr: {fileID: 1192559128}
 --- !u!1001 &546741877
@@ -4020,6 +4075,7 @@ GameObject:
   - component: {fileID: 1251621389}
   - component: {fileID: 1251621391}
   - component: {fileID: 1251621390}
+  - component: {fileID: 1251621392}
   m_Layer: 5
   m_Name: UpgradePanel
   m_TagString: Untagged
@@ -4087,6 +4143,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1251621388}
   m_CullTransparentMesh: 1
+--- !u!114 &1251621392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1251621388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f73a9b1dae7ce224294ce9303a2957b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  contentObj: {fileID: 1470736066}
+  upgradeEntryPrefab: {fileID: 5233103453947150404, guid: fda11d6a4f07e43409a7bb1f86f77dde, type: 3}
 --- !u!1001 &1267710282
 PrefabInstance:
   m_ObjectHideFlags: 0

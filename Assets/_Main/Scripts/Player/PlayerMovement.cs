@@ -50,7 +50,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Dash() {
-        if (!UpgradeManager.UpgradeFlags.Dash) { return; }
+        if (!UpgradeManager.Flags.Dash) { return; }
         
         if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
             float origSpeed = speed;
