@@ -61,7 +61,6 @@ public class PlayerDrag : MonoBehaviour {
 
     Vector3 lastHitPoint;
     Vector3Int lastSelectedCellCoord;
-    GameObject lastHitObj;
     Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
@@ -96,14 +95,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Select grid that is currently dragged over, caches last selected
-        if (clickInputArgs.TargetObj != lastHitObj) {
-            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
-                targetGrid = gridPlane.Grid;
-                lastHitObj = clickInputArgs.TargetObj;
-            }
-        }
-        if (targetGrid == null) {
+        if (!SelectGrid(clickInputArgs)) {
             return;
         }
 
@@ -139,14 +131,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Select grid that is currently dragged over, caches last selected
-        if (clickInputArgs.TargetObj != lastHitObj) {
-            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
-                targetGrid = gridPlane.Grid;
-                lastHitObj = clickInputArgs.TargetObj;
-            }
-        }
-        if (targetGrid == null) {
+        if (!SelectGrid(clickInputArgs)) {
             return;
         }
         
@@ -181,6 +166,22 @@ public class PlayerDrag : MonoBehaviour {
         // Reset PlayerDrag
         heldShapes.Clear();
         bottomObjCol = null;
+    }
+    
+    // Select grid that is currently dragged over, caches last selected
+    // Returns false if targetGrid is not set
+    GameObject lastHitObj;
+    bool SelectGrid(ClickInputArgs clickInputArgs) {
+        if (clickInputArgs.TargetObj != lastHitObj) {
+            lastHitObj = clickInputArgs.TargetObj;
+            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
+                targetGrid = gridPlane.Grid;
+            } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
+                targetGrid = shape.Grid;
+            }
+        }
+
+        return targetGrid != null;
     }
 
     #region Upgrades
