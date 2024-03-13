@@ -61,6 +61,8 @@ public class PlayerDrag : MonoBehaviour {
 
     Vector3 lastHitPoint;
     Vector3Int lastSelectedCellCoord;
+    GameObject lastHitObj;
+    Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
         if (bottomObjCol == null) {
@@ -94,11 +96,23 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored)
-        Vector3 hitNormal = Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f);
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(hitPoint + hitNormal + new Vector3(0.5f, 0, 0.5f));
+        // Select grid that is currently dragged over, caches last selected
+        if (clickInputArgs.TargetObj != lastHitObj) {
+            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
+                targetGrid = gridPlane.Grid;
+                lastHitObj = clickInputArgs.TargetObj;
+            }
+        }
+        if (targetGrid == null) {
+            return;
+        }
 
-        Grid targetGrid = GameManager.WorldGrid;
+        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(hitPoint);
+        Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
+        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
+
+        // Get lowest open grid cell
         if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
         } else {
@@ -106,10 +120,14 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
+        // Do drag movement
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
+            Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
+            
             dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(selectedCellCoord, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
+            dragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
         }
     }
 
@@ -121,9 +139,20 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
+        // Select grid that is currently dragged over, caches last selected
+        if (clickInputArgs.TargetObj != lastHitObj) {
+            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
+                targetGrid = gridPlane.Grid;
+                lastHitObj = clickInputArgs.TargetObj;
+            }
+        }
+        if (targetGrid == null) {
+            return;
+        }
+        
         // Try to place held shapes
-        Grid targetGrid = GameManager.WorldGrid; // TEMP: change when having vehicle grids/ other grids to drag into
-        if (!dragGrid.MoveShapes(targetGrid, Vector3Int.RoundToInt(dragGrid.transform.position), heldShapes)) {
+        Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(dragGrid.transform.position));
+        if (!dragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
                 if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.Height) {

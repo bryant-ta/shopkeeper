@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using DG.Tweening;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class Grid : MonoBehaviour {
     [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
