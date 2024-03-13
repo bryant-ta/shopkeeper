@@ -3,7 +3,7 @@ using DG.Tweening;
 using EventManager;
 using UnityEngine;
 
-[RequireComponent(typeof(Player))]
+[RequireComponent(typeof(PlayerInteract))]
 public class PlayerDrag : MonoBehaviour {
     [SerializeField] float dragHoverHeight;
     [SerializeField] Grid dragGrid;
@@ -14,10 +14,10 @@ public class PlayerDrag : MonoBehaviour {
     List<IGridShape> heldShapes = new();
     Collider bottomObjCol;
 
-    Player player;
+    PlayerInteract playerInteract;
 
     void Awake() {
-        player = GetComponent<Player>();
+        playerInteract = GetComponent<PlayerInteract>();
 
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
         Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryUp, Release);
@@ -28,7 +28,7 @@ public class PlayerDrag : MonoBehaviour {
         if (heldShapes.Count > 0) return;
 
         GameObject clickedObj = clickInputArgs.TargetObj;
-        if (!player.IsInRange(clickedObj.transform.position)) return;
+        if (!playerInteract.IsInRange(clickedObj.transform.position)) return;
         IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
 
@@ -71,12 +71,12 @@ public class PlayerDrag : MonoBehaviour {
 
         // If held out of interactable range, use closest point in range with adjusted hover height
         Vector3 hitPoint = clickInputArgs.HitPoint;
-        if (!player.IsInRange(hitPoint)) {
+        if (!playerInteract.IsInRange(hitPoint)) {
             if (hitPoint == lastHitPoint) return;
             lastHitPoint = hitPoint;
 
             Vector3 dir = hitPoint - transform.position;
-            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, player.InteractionRange);
+            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, playerInteract.InteractionRange);
 
             // Calculate hoverPoint y from objects underneath held object's footprint + manual offset
             Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point
@@ -126,7 +126,7 @@ public class PlayerDrag : MonoBehaviour {
     void Release(ClickInputArgs clickInputArgs) {
         if (heldShapes.Count == 0) return;
         // If releasing out of interactable range, fail to place.
-        if (!player.IsInRange(clickInputArgs.HitPoint)) {
+        if (!playerInteract.IsInRange(clickInputArgs.HitPoint)) {
             TweenManager.Shake(heldShapes);
             return;
         }

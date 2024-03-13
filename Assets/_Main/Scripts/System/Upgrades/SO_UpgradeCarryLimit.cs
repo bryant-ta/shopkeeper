@@ -8,9 +8,10 @@ public class SO_UpgradeCarryLimit : SO_Upgrade {
     
     public override void Apply() {
         Player player = Ref.Instance.Player;
+        PlayerInteract playerInteract = player.GetComponent<PlayerInteract>();
         PlayerDrag playerDrag = player.GetComponent<PlayerDrag>();
         
-        player.ModifyMaxHoldHeight(increaseAmt);
+        playerInteract.ModifyMaxHoldHeight(increaseAmt);
         playerDrag.ModifyMaxDragHeight(increaseAmt);
     }
 }
