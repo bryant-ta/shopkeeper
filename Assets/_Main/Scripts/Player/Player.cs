@@ -23,16 +23,15 @@ public class Player : MonoBehaviour {
         GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
     }
 
-    Tweener invalidPickUpTween;
+    void Interact() {
+        // find closest interactable
+        
+        // trigger interact
+    }
+
     void PickUp(ClickInputArgs clickInputArgs) {
         if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
-
-        // TODO: figure out interact action: use click or 'E' ?
-        if (targetObj.TryGetComponent(out IInteractable interactable)) {
-            interactable.Interact();
-            return;
-        }
 
         if (targetObj.TryGetComponent(out IGridShape clickedShape)) {
             Grid targetGrid = clickedShape.Grid;

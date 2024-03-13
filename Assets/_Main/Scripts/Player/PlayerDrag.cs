@@ -174,8 +174,8 @@ public class PlayerDrag : MonoBehaviour {
     bool SelectGrid(ClickInputArgs clickInputArgs) {
         if (clickInputArgs.TargetObj != lastHitObj) {
             lastHitObj = clickInputArgs.TargetObj;
-            if (clickInputArgs.TargetObj.TryGetComponent(out GridPlaneHelper gridPlane)) {
-                targetGrid = gridPlane.Grid;
+            if (clickInputArgs.TargetObj.TryGetComponent(out GridFloorHelper gridFloor)) {
+                targetGrid = gridFloor.Grid;
             } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
                 targetGrid = shape.Grid;
             }
