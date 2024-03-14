@@ -14,8 +14,8 @@ public class PlayerInteract : MonoBehaviour {
     [SerializeField] Grid holdGrid;
 
     void Awake() {
-        Events.Sub(gameObject, EventID.Interact, Interact);
-        Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp); 
+        Ref.Player.PlayerInput.InputInteract += Interact;
+        Ref.Player.PlayerInput.InputSecondaryDown += PickUp;
     }
 
     void Start() {

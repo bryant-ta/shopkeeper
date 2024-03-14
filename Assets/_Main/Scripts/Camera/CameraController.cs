@@ -45,8 +45,8 @@ public class CameraController : MonoBehaviour {
         targetZoom = cam.orthographicSize;
         targetRotation = transform.rotation.eulerAngles;
 
-        Events.Sub<float>(gameObject, EventID.Scroll, ZoomView);
-        Events.Sub<float>(gameObject, EventID.RotateCamera, RotateCamera);
+        Ref.Player.PlayerInput.InputScroll += ZoomView;
+        Ref.Player.PlayerInput.InputRotateCamera += RotateCamera;
     }
 
     void LateUpdate() {

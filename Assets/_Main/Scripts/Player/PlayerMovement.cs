@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour {
     float rotateInput; // TEMP: unused for now, for rotating products in hand
 
     public bool CanMove { get; private set; }
-    
+
     [Header("Dash")]
     [SerializeField] float dashSpeed;
     [SerializeField] float dashDuration;
@@ -20,7 +20,7 @@ public class PlayerMovement : MonoBehaviour {
     CountdownTimer dashCooldownTimer;
 
     [SerializeField] ParticleSystem dashPs;
-    
+
     public bool CanDash { get; private set; }
 
     Camera mainCam;
@@ -33,10 +33,11 @@ public class PlayerMovement : MonoBehaviour {
         dashCooldownTimer = new CountdownTimer(dashCooldown);
 
         SetMovementAxes();
+        EnableMovement();
 
-        Events.Sub<MoveInputArgs>(gameObject, EventID.Move, SetMoveInput);
-        Events.Sub<float>(gameObject, EventID.Rotate, SetRotateInput);
-        Events.Sub(gameObject, EventID.Dash, Dash);
+        Ref.Player.PlayerInput.InputMove += SetMoveInput;
+        Ref.Player.PlayerInput.InputRotate += SetRotateInput;
+        Ref.Player.PlayerInput.InputDash += Dash;
 
         mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
     }
@@ -51,6 +52,7 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void FixedUpdate() {
+        if (!CanMove) return;
         if (moveInput.sqrMagnitude != 0) {
             // Translation
             Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
@@ -64,29 +66,27 @@ public class PlayerMovement : MonoBehaviour {
 
     void Dash() {
         if (!UpgradeManager.Flags.Dash) { return; }
+
         if (!CanDash) return;
-        
+
         if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
             float origSpeed = speed;
             speed = dashSpeed;
-            
+
             CountdownTimer dashDurationTimer = new CountdownTimer(dashDuration);
             dashDurationTimer.Start();
             dashDurationTimer.EndEvent += () => {
                 speed = origSpeed;
                 dashPs.Stop();
             };
-            
+
             dashPs.Play();
-            
+
             dashCooldownTimer.Start();
         }
     }
 
-    void SetMoveInput(MoveInputArgs moveInputArgs) {
-        if (!CanMove) return;
-        moveInput = moveInputArgs.MoveInput;
-    }
+    void SetMoveInput(MoveInputArgs moveInputArgs) { moveInput = moveInputArgs.MoveInput; }
     void SetRotateInput(float val) { rotateInput = val; }
 
     void SetMovementAxes() {

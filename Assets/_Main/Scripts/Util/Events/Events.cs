@@ -4,22 +4,6 @@ using System.Collections.Generic;
 namespace EventManager {
 public enum EventID {
     None = 0,        // default value - should never be invoked
-    PrimaryDown = 1, // Input
-    PrimaryHeld = 2,
-    PrimaryUp = 3,
-    SecondaryDown = 4,
-    SecondaryHeld = 5,
-    SecondaryUp = 6,
-    Point = 7,
-    Scroll = 8,
-    RotateCamera = 9,
-    Interact = 10,
-    Cancel = 15,
-    Rotate = 16,
-    Drop = 17,
-    Move = 20,
-    Dash = 21,
-    Pause = 30,
     
     // ProductDelivered = 100,
     // ProductOrdered = 101,

@@ -19,9 +19,9 @@ public class PlayerDrag : MonoBehaviour {
     void Awake() {
         playerInteract = GetComponent<PlayerInteract>();
 
-        Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryDown, Grab);
-        Events.Sub<ClickInputArgs>(gameObject, EventID.PrimaryUp, Release);
-        Events.Sub<ClickInputArgs>(gameObject, EventID.Point, Drag);
+        Ref.Player.PlayerInput.InputPrimaryDown += Grab;
+        Ref.Player.PlayerInput.InputPrimaryUp += Release;
+        Ref.Player.PlayerInput.InputPoint += Drag;
     }
 
     void Grab(ClickInputArgs clickInputArgs) {

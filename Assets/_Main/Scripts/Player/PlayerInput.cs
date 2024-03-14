@@ -3,7 +3,6 @@ using EventManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// Should be attached to Player GameObject for movement inputs
 [RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
     [Tooltip("Point raycast detects this layer.")]
@@ -20,9 +19,37 @@ public class PlayerInput : MonoBehaviour {
     }
 
     #region Mouse
+    
+    public event Action<ClickInputArgs> InputPrimaryDown;
+    public event Action<ClickInputArgs> InputPrimaryUp;
+    public event Action<ClickInputArgs> InputSecondaryDown;
+    public event Action<ClickInputArgs> InputSecondaryUp;
+    public event Action<ClickInputArgs> InputPoint;
 
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
+        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(ctx);
+        if (clickInputArgs.TargetObj == null) return;
+
+        if (ctx.performed) {
+            InputPrimaryDown?.Invoke(clickInputArgs);
+        } else if (ctx.canceled) {
+            InputPrimaryUp?.Invoke(clickInputArgs);
+        }
+    }
+
+    public void OnSecondary(InputAction.CallbackContext ctx) {
+        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(ctx);
+        if (clickInputArgs.TargetObj == null) return;
+        
+        if (ctx.performed) {
+            InputSecondaryDown?.Invoke(clickInputArgs);
+        } else if (ctx.canceled) {
+            InputSecondaryUp?.Invoke(clickInputArgs);
+        }
+    }
+
+    ClickInputArgs ClickInputArgsRaycast(InputAction.CallbackContext ctx) {
         ClickInputArgs clickInputArgs = new();
         if (ctx.performed || ctx.canceled) {
             Ray ray = mainCam.ScreenPointToRay(cursorPosition);
@@ -35,35 +62,7 @@ public class PlayerInput : MonoBehaviour {
             }
         }
 
-        if (clickInputArgs.TargetObj == null) return;
-
-        if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.PrimaryDown, clickInputArgs);
-        } else if (ctx.canceled) {
-            Events.Invoke(gameObject, EventID.PrimaryUp, clickInputArgs);
-        }
-    }
-
-    public void OnSecondary(InputAction.CallbackContext ctx) {
-        if (ctx.performed) {
-            Ray ray = mainCam.ScreenPointToRay(cursorPosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
-                if (hit.collider != null) {
-                    Events.Invoke(gameObject, EventID.SecondaryDown, new ClickInputArgs {TargetObj = hit.collider.gameObject});
-                }
-            }
-        } else if (ctx.canceled) {
-            Events.Invoke(gameObject, EventID.SecondaryDown);
-        }
-    }
-
-    public void OnZoom(InputAction.CallbackContext ctx) {
-        float scrollInput = ctx.ReadValue<Vector2>().y;
-        scrollInput /= Math.Abs(scrollInput); // normalize scroll value for easier usage later
-
-        if (ctx.performed) {
-            Events.Invoke(mainCam.gameObject, EventID.Scroll, scrollInput);
-        }
+        return clickInputArgs;
     }
 
     // Sends collision point from cursor raycast
@@ -83,58 +82,82 @@ public class PlayerInput : MonoBehaviour {
                     HitPoint = hit.point,
                     TargetObj = hit.collider.gameObject,
                 };
-                Events.Invoke(gameObject, EventID.Point, clickInputArgs);
+                InputPoint?.Invoke(clickInputArgs);
             }
         }
     }
 
     #endregion
+
+    #region Camera
+
+    public event Action<float> InputScroll;
+    public event Action<float> InputRotateCamera;
+    
+    public void OnZoom(InputAction.CallbackContext ctx) {
+        float scrollInput = ctx.ReadValue<Vector2>().y;
+        scrollInput /= Math.Abs(scrollInput); // normalize scroll value for easier usage later
+
+        if (ctx.performed) {
+            InputScroll?.Invoke(scrollInput);
+        }
+    }
     
     public void OnRotateCamera(InputAction.CallbackContext ctx) {
         float rotateCameraInput = ctx.ReadValue<float>();
         if (ctx.performed) {
-            Events.Invoke(mainCam.gameObject, EventID.RotateCamera, rotateCameraInput);
+            InputRotateCamera?.Invoke(rotateCameraInput);
         }
     }
 
+    #endregion
+
     #region Interact
+    
+    public event Action InputInteract;
+    public event Action InputCancel;
+    public event Action<float> InputRotate;
+    public event Action InputDrop;
     
     public void OnInteract(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.Interact);
+            InputInteract?.Invoke();
         }
     }
     
     public void OnCancel(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.Cancel);
+            InputCancel?.Invoke();
         }
     }
 
     public void OnRotate(InputAction.CallbackContext ctx) {
         float rotateInput = ctx.ReadValue<float>();
         if (ctx.performed || ctx.canceled) { // essentially detecting hold
-            Events.Invoke(gameObject, EventID.Rotate, rotateInput);
+            InputRotate?.Invoke(rotateInput);
         }
     }
 
     public void OnDrop(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.Drop);
+            InputDrop?.Invoke();
         }
     }
     
     #endregion
 
     #region Movement
+    
+    public event Action<MoveInputArgs> InputMove;
+    public event Action InputDash;
 
     public void OnMove(InputAction.CallbackContext ctx) {
-        Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
+        InputMove?.Invoke(new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
     }
     
     public void OnDash(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.Dash);
+            InputDash?.Invoke();
         }
     }
     

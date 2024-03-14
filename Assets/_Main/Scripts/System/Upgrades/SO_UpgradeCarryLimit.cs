@@ -7,7 +7,7 @@ public class SO_UpgradeCarryLimit : SO_Upgrade {
     [SerializeField] int increaseAmt;
     
     public override void Apply() {
-        Player player = Ref.Instance.Player;
+        Player player = Ref.Player;
         PlayerInteract playerInteract = player.GetComponent<PlayerInteract>();
         PlayerDrag playerDrag = player.GetComponent<PlayerDrag>();
         

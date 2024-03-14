@@ -12,7 +12,7 @@ public class CartMovement : MonoBehaviour {
     void Awake() {
         rb = GetComponent<Rigidbody>();
 
-        Events.Sub<MoveInputArgs>(Ref.Instance.Player.gameObject, EventID.Move, SetMoveInput);
+        Ref.Player.PlayerInput.InputMove += SetMoveInput;
     }
 
     void FixedUpdate() {
