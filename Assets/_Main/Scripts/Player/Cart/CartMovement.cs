@@ -1,6 +1,7 @@
 using EventManager;
 using UnityEngine;
 
+[RequireComponent(typeof(Cart))]
 public class CartMovement : MonoBehaviour {
     [Header("Basic Movement")]
     [SerializeField] float speed;
@@ -8,11 +9,24 @@ public class CartMovement : MonoBehaviour {
     Vector2 moveInput;
 
     Rigidbody rb;
+    Cart cart;
 
     void Awake() {
         rb = GetComponent<Rigidbody>();
+        cart = GetComponent<Cart>();
 
+        cart.OnInteract += EnableMovement;
+        cart.OnRelease += DisableMovement;
+    }
+    
+    void EnableMovement() {
+        // Prevent duplicate subs
+        Ref.Player.PlayerInput.InputMove -= SetMoveInput;
+        
         Ref.Player.PlayerInput.InputMove += SetMoveInput;
+    }
+    void DisableMovement() {
+        Ref.Player.PlayerInput.InputMove -= SetMoveInput;
     }
 
     void FixedUpdate() {

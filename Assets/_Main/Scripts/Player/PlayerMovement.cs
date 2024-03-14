@@ -33,22 +33,33 @@ public class PlayerMovement : MonoBehaviour {
         dashCooldownTimer = new CountdownTimer(dashCooldown);
 
         SetMovementAxes();
+        
         EnableMovement();
-
-        Ref.Player.PlayerInput.InputMove += SetMoveInput;
         Ref.Player.PlayerInput.InputRotate += SetRotateInput;
-        Ref.Player.PlayerInput.InputDash += Dash;
-
         mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
     }
 
     public void EnableMovement() {
+        rb.isKinematic = false;
+        
         CanMove = true;
         CanDash = true;
+        
+        // Prevent duplicate subs
+        Ref.Player.PlayerInput.InputMove -= SetMoveInput;
+        Ref.Player.PlayerInput.InputDash -= Dash;
+        
+        Ref.Player.PlayerInput.InputMove += SetMoveInput;
+        Ref.Player.PlayerInput.InputDash += Dash;
     }
     public void DisableMovement() {
+        rb.isKinematic = true;
+        
         CanMove = false;
         CanDash = true;
+        
+        Ref.Player.PlayerInput.InputMove -= SetMoveInput;
+        Ref.Player.PlayerInput.InputDash -= Dash;
     }
 
     void FixedUpdate() {
