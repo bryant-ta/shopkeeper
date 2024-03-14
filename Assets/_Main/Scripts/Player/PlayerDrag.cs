@@ -76,7 +76,7 @@ public class PlayerDrag : MonoBehaviour {
             lastHitPoint = hitPoint;
 
             Vector3 dir = hitPoint - transform.position;
-            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, playerInteract.InteractionRange);
+            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, playerInteract.InteractRange);
 
             // Calculate hoverPoint y from objects underneath held object's footprint + manual offset
             Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point

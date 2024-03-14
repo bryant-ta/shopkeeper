@@ -9,8 +9,10 @@ public class PlayerMovement : MonoBehaviour {
     Vector3 forward;
     Vector3 right;
     Vector2 moveInput;
-    float rotateInput;
+    float rotateInput; // TEMP: unused for now, for rotating products in hand
 
+    public bool CanMove { get; private set; }
+    
     [Header("Dash")]
     [SerializeField] float dashSpeed;
     [SerializeField] float dashDuration;
@@ -18,6 +20,8 @@ public class PlayerMovement : MonoBehaviour {
     CountdownTimer dashCooldownTimer;
 
     [SerializeField] ParticleSystem dashPs;
+    
+    public bool CanDash { get; private set; }
 
     Camera mainCam;
     Rigidbody rb;
@@ -37,6 +41,15 @@ public class PlayerMovement : MonoBehaviour {
         mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
     }
 
+    public void EnableMovement() {
+        CanMove = true;
+        CanDash = true;
+    }
+    public void DisableMovement() {
+        CanMove = false;
+        CanDash = true;
+    }
+
     void FixedUpdate() {
         if (moveInput.sqrMagnitude != 0) {
             // Translation
@@ -51,6 +64,7 @@ public class PlayerMovement : MonoBehaviour {
 
     void Dash() {
         if (!UpgradeManager.Flags.Dash) { return; }
+        if (!CanDash) return;
         
         if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
             float origSpeed = speed;
@@ -69,7 +83,10 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
-    void SetMoveInput(MoveInputArgs moveInputArgs) { moveInput = moveInputArgs.MoveInput; }
+    void SetMoveInput(MoveInputArgs moveInputArgs) {
+        if (!CanMove) return;
+        moveInput = moveInputArgs.MoveInput;
+    }
     void SetRotateInput(float val) { rotateInput = val; }
 
     void SetMovementAxes() {

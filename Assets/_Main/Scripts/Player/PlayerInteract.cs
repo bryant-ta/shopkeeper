@@ -1,18 +1,21 @@
+using System;
 using System.Collections.Generic;
 using EventManager;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class PlayerInteract : MonoBehaviour {
-    [SerializeField] float interactionRange;
-    public float InteractionRange => interactionRange;
-    [SerializeField] float interactionHeight;
+    [FormerlySerializedAs("interactionRange")] [SerializeField]
+    float interactRange;
+    public float InteractRange => interactRange;
+    [FormerlySerializedAs("interactionHeight")] [SerializeField]
+    float interactHeight;
 
     [SerializeField] Grid holdGrid;
 
-    public Transform dropPos;
-
     void Awake() {
-        Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp);
+        Events.Sub(gameObject, EventID.Interact, Interact);
+        Events.Sub<ClickInputArgs>(gameObject, EventID.SecondaryDown, PickUp); 
     }
 
     void Start() {
@@ -20,11 +23,49 @@ public class PlayerInteract : MonoBehaviour {
         GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
     }
 
+    #region Interact
+
+    Action<GameObject> releaseAction = null;
     void Interact() {
-        // find closest interactable
+        // Release interactable if previously interacted with one that requires releasing
+        if (releaseAction != null) {
+            releaseAction(gameObject);
+            releaseAction = null;
+            return;
+        }
         
-        // trigger interact
+        IInteractable closestInteractable = FindClosestInteractable();
+        if (closestInteractable == null) return;
+
+        closestInteractable.Interact(gameObject);
+        
+        if (closestInteractable.RequireRelease) {
+            releaseAction = closestInteractable.Release;
+        }
     }
+
+    Collider[] nearInteractables = new Collider[50];
+    IInteractable FindClosestInteractable() {
+        int nearInteractablesSize = Physics.OverlapSphereNonAlloc(transform.position, interactRange, nearInteractables);
+
+        IInteractable closestInteractable = null;
+        float closestDistance = Mathf.Infinity;
+        for (int i = 0; i < nearInteractablesSize; i++) {
+            if (nearInteractables[i].TryGetComponent(out IInteractable interactable)) {
+                float distance = Vector3.Distance(transform.position, nearInteractables[i].transform.position);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestInteractable = interactable;
+                }
+            }
+        }
+
+        return closestInteractable;
+    }
+    
+    #endregion
+
+    #region PickUp
 
     void PickUp(ClickInputArgs clickInputArgs) {
         if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
@@ -52,11 +93,13 @@ public class PlayerInteract : MonoBehaviour {
             }
         }
     }
+    
+    #endregion
 
     public bool IsInRange(Vector3 targetPos) {
         Vector3 xzDif = targetPos - transform.position;
         xzDif.y = 0;
-        return targetPos.y - transform.position.y < interactionHeight && xzDif.magnitude < interactionRange;
+        return targetPos.y - transform.position.y < interactHeight && xzDif.magnitude < interactRange;
     }
 
     #region Upgrades

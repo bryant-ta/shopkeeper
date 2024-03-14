@@ -24,18 +24,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Zoom",
+                    "name": "Point",
                     "type": "Value",
-                    "id": "4bf03e8d-911a-4748-9975-3662c548c252",
+                    "id": "bff45c35-ca3e-4ab5-a7b7-9af0e9ef5467",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Point",
+                    "name": "Zoom",
                     "type": "Value",
-                    "id": "bff45c35-ca3e-4ab5-a7b7-9af0e9ef5467",
+                    "id": "4bf03e8d-911a-4748-9975-3662c548c252",
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
@@ -51,18 +51,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Move",
-                    "type": "Value",
-                    "id": "67a7ec1d-c84b-4f86-b5ce-c8f771cb712e",
-                    "expectedControlType": "Vector2",
+                    "name": "Interact",
+                    "type": "Button",
+                    "id": "eef73b32-5017-4daf-93d6-855240b80f4f",
+                    "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
                 },
                 {
-                    "name": "Dash",
+                    "name": "Cancel",
                     "type": "Button",
-                    "id": "a8ae2515-0a00-4178-ac9e-2691673c479b",
+                    "id": "40feb516-6a10-4c34-97cd-ab83120c6386",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -87,13 +87,22 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Cancel",
+                    "name": "Dash",
                     "type": "Button",
-                    "id": "40feb516-6a10-4c34-97cd-ab83120c6386",
+                    "id": "a8ae2515-0a00-4178-ac9e-2691673c479b",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Move",
+                    "type": "Value",
+                    "id": "67a7ec1d-c84b-4f86-b5ce-c8f771cb712e",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Pause",
@@ -130,6 +139,105 @@
                 },
                 {
                     "name": "",
+                    "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse;Touch",
+                    "action": "Point",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b9fc9bfc-1484-4fd0-8d16-76f3d2b29887",
+                    "path": "<Keyboard>/z",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Drop",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "[]",
+                    "id": "dc6b2e6c-b94d-44fe-967a-8313712301f3",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "c0df645a-4454-413c-957e-152b0bfe9d6b",
+                    "path": "<Keyboard>/leftBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "ab8c6b9c-11d5-4798-88f9-e853afb7ad62",
+                    "path": "<Keyboard>/rightBracket",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
+                    "id": "1082f4c1-f977-45e0-950f-4967cea79946",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "XC",
+                    "id": "b6f7053a-3fcd-4468-adae-273fd9e7528b",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCamera",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "bc08ee70-c2bd-4603-b990-86476c6b9e75",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RotateCamera",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "9a8e21d2-5668-4436-a368-5edf33ab3517",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RotateCamera",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "",
                     "id": "4e3de042-535a-4c8b-9c79-ffaad550cc92",
                     "path": "<Mouse>/scroll",
                     "interactions": "",
@@ -141,12 +249,12 @@
                 },
                 {
                     "name": "",
-                    "id": "8c8e490b-c610-4785-884f-f04217b23ca4",
-                    "path": "<Mouse>/position",
+                    "id": "9e69cb63-796c-4daf-89a7-70ff387ad650",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;Touch",
-                    "action": "Point",
+                    "groups": "Keyboard&Mouse",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -284,47 +392,14 @@
                 },
                 {
                     "name": "",
-                    "id": "b9fc9bfc-1484-4fd0-8d16-76f3d2b29887",
-                    "path": "<Keyboard>/z",
+                    "id": "faaf1973-bc01-4c0d-a157-eab41fa1af63",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard&Mouse",
-                    "action": "Drop",
+                    "action": "Dash",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "[]",
-                    "id": "dc6b2e6c-b94d-44fe-967a-8313712301f3",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "c0df645a-4454-413c-957e-152b0bfe9d6b",
-                    "path": "<Keyboard>/leftBracket",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "ab8c6b9c-11d5-4798-88f9-e853afb7ad62",
-                    "path": "<Keyboard>/rightBracket",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
@@ -336,61 +411,6 @@
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1082f4c1-f977-45e0-950f-4967cea79946",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Pause",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "faaf1973-bc01-4c0d-a157-eab41fa1af63",
-                    "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "XC",
-                    "id": "b6f7053a-3fcd-4468-adae-273fd9e7528b",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RotateCamera",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "bc08ee70-c2bd-4603-b990-86476c6b9e75",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "RotateCamera",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "9a8e21d2-5668-4436-a368-5edf33ab3517",
-                    "path": "<Keyboard>/x",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "RotateCamera",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 }
             ]
         },

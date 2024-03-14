@@ -97,12 +97,18 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-    public void OnMove(InputAction.CallbackContext ctx) {
-        Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
+    #region Interact
+    
+    public void OnInteract(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            Events.Invoke(gameObject, EventID.Interact);
+        }
     }
     
-    public void OnDash(InputAction.CallbackContext ctx) {
-        Events.Invoke(gameObject, EventID.Dash);
+    public void OnCancel(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            Events.Invoke(gameObject, EventID.Cancel);
+        }
     }
 
     public void OnRotate(InputAction.CallbackContext ctx) {
@@ -117,12 +123,22 @@ public class PlayerInput : MonoBehaviour {
             Events.Invoke(gameObject, EventID.Drop);
         }
     }
+    
+    #endregion
 
-    public void OnCancel(InputAction.CallbackContext ctx) {
+    #region Movement
+
+    public void OnMove(InputAction.CallbackContext ctx) {
+        Events.Invoke(gameObject, EventID.Move, new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
+    }
+    
+    public void OnDash(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            Events.Invoke(gameObject, EventID.Cancel);
+            Events.Invoke(gameObject, EventID.Dash);
         }
     }
+    
+    #endregion
     
     public void OnPause(InputAction.CallbackContext ctx) {
         if (ctx.performed) {

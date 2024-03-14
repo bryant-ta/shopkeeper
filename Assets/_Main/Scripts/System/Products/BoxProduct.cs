@@ -19,8 +19,8 @@ public class BoxProduct : Product, IGridShape {
     public Transform ColliderTransform => transform;
     public Collider Collider => boxCol;
 
-    public ShapeType ShapeType => shapeType;
     [SerializeField] ShapeType shapeType;
+    public ShapeType ShapeType => shapeType;
 
     public ShapeData ShapeData => shapeData;
     ShapeData shapeData;
