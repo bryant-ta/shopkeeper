@@ -38,6 +38,9 @@ public class CartMovement : MonoBehaviour {
         Vector3 turnDir = transform.forward + transform.right * moveInput.x;
         Quaternion targetRotation = Quaternion.LookRotation(turnDir);
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, turnSpeed * Time.fixedDeltaTime));
+    //     float turnAngle = moveInput.x * turnSpeed * Time.fixedDeltaTime;
+    // Quaternion deltaRotation = Quaternion.Euler(0f, turnAngle, 0f);
+    // rb.MoveRotation(rb.rotation * deltaRotation);
     }
     
     void SetMoveInput(MoveInputArgs moveInputArgs) { moveInput = moveInputArgs.MoveInput; }
