@@ -13,7 +13,7 @@ public class UpgradeManagerUI : MonoBehaviour {
     UpgradeManager upgradeMngr;
 
     void Awake() {
-        upgradeMngr = Ref.Instance.UpgradeMngr;
+        upgradeMngr = Ref.UpgradeMngr;
 
         upgradeMngr.OnAvailableUpgradeAdded += AddAvailableUpgradeEntry;
         upgradeMngr.OnUpgradePurchased += RemoveAvailableUpgradeEntry;

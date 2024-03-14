@@ -10,18 +10,36 @@ public class Cart : MonoBehaviour, IInteractable {
     public event Action OnInteract;
     public event Action OnRelease;
 
-    public void Interact(GameObject interactor) {
-        interactor.GetComponent<PlayerMovement>().DisableMovement();
+    public bool Interact(GameObject interactor) {
+        if (interactor.TryGetComponent(out Player player)) {
+            if (!player.PlayerInteract.HoldGrid.IsEmpty() || !player.PlayerDrag.DragGrid.IsEmpty()) {
+                return false;
+            }
+            
+            player.PlayerMovement.DisableMovement();
+            player.PlayerInput.SetActionMap(Constants.ActionMapNameVehicle);
+        }
         
+        // enable cart driver colliders
+        driverPos.gameObject.SetActive(true);
+        
+        // move interactor
         interactor.transform.SetParent(driverPos, true);
         interactor.transform.localPosition = Vector3.zero;
-        interactor.transform.localRotation = driverPos.rotation;
+        interactor.transform.rotation = driverPos.rotation;
         
         OnInteract?.Invoke();
+
+        return true;
     }
 
     public void Release(GameObject interactor) {
-        interactor.GetComponent<PlayerMovement>().EnableMovement();
+        if (interactor.TryGetComponent(out Player player)) {
+            player.PlayerMovement.EnableMovement();
+            player.PlayerInput.SetActionMap(Constants.ActionMapNamePlayer);
+        }
+        
+        driverPos.gameObject.SetActive(false);
         
         interactor.transform.SetParent(null);
         

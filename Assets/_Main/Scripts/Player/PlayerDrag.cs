@@ -5,8 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
 public class PlayerDrag : MonoBehaviour {
-    [SerializeField] float dragHoverHeight;
-    [SerializeField] Grid dragGrid;
+    [field:SerializeField] public Grid DragGrid { get; private set; }
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
@@ -43,9 +42,9 @@ public class PlayerDrag : MonoBehaviour {
         }
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
-        dragGrid.transform.position = clickedShape.ShapeTransform.position;
+        DragGrid.transform.position = clickedShape.ShapeTransform.position;
 
-        if (!targetGrid.MoveShapes(dragGrid, Vector3Int.zero, heldShapes)) {
+        if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, heldShapes)) {
             TweenManager.Shake(heldShapes);
             heldShapes.Clear();
             return;
@@ -89,8 +88,8 @@ public class PlayerDrag : MonoBehaviour {
                 }
             }
 
-            dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(rangeClampedPoint, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
+            DragGrid.transform.DOKill();
+            DragGrid.transform.DOMove(rangeClampedPoint, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
 
             return;
         }
@@ -117,9 +116,9 @@ public class PlayerDrag : MonoBehaviour {
             lastSelectedCellCoord = selectedCellCoord;
             Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
             
-            dragGrid.transform.DOKill();
-            dragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
-            dragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
+            DragGrid.transform.DOKill();
+            DragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
+            DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
         }
     }
 
@@ -136,11 +135,11 @@ public class PlayerDrag : MonoBehaviour {
         }
         
         // Try to place held shapes
-        Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(dragGrid.transform.position));
-        if (!dragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
+        Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
+        if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
-                if (heldShapes[i].RootCoord.y + dragGrid.transform.position.y >= targetGrid.Height) {
+                if (heldShapes[i].RootCoord.y + DragGrid.transform.position.y >= targetGrid.Height) {
                     outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
                 }
@@ -186,7 +185,7 @@ public class PlayerDrag : MonoBehaviour {
 
     #region Upgrades
 
-    public void ModifyMaxDragHeight(int delta) { dragGrid.SetMaxHeight(dragGrid.Height + delta); }
+    public void ModifyMaxDragHeight(int delta) { DragGrid.SetMaxHeight(DragGrid.Height + delta); }
 
     #endregion
 }

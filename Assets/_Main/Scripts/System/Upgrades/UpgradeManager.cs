@@ -13,6 +13,8 @@ public class UpgradeManager : MonoBehaviour {
     public List<Upgrade> AvailableUpgrades = new();
     public List<Upgrade> PurchasedUpgrades = new();
 
+    public UpgradeRefs Refs; // questionable design pattern? needed because need way to ref scene objs from SO_Upgrades
+    
     public static UpgradeFlags Flags;
 
     public event Action<Upgrade> OnAvailableUpgradeAdded;
@@ -78,4 +80,10 @@ public class UpgradeManager : MonoBehaviour {
     public bool HasUpgrade(UpgradeID id) {
         return PurchasedUpgrades.Any(upgrade => upgrade.ID == id);
     }
+}
+
+[Serializable]
+public struct UpgradeRefs {
+    public ShopExpansionManager ShopExpansionMngr;
+    public Cart Cart;
 }

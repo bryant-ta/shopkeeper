@@ -363,7 +363,7 @@ public class Grid : MonoBehaviour {
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return coord.y < height && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
-    public bool GridIsEmpty() { return cells.Count == 0; }
+    public bool IsEmpty() { return cells.Count == 0; }
 
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();

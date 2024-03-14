@@ -7,6 +7,6 @@ public class SO_UpgradeShopExpansion : SO_Upgrade {
     [SerializeField] int expansionIndex;
     
     public override void Apply() {
-        Ref.Instance.UpgradeMngr.GetComponent<ShopExpansionManager>().DoShopExpansion(expansionIndex);
+        Ref.UpgradeMngr.Refs.ShopExpansionMngr.DoShopExpansion(expansionIndex);
     }
 }

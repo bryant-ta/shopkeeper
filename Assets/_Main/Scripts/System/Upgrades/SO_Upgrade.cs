@@ -61,6 +61,7 @@ public enum UpgradeID {
     SortDelivery = 5,
     ShopExpansion1 = 6,
     ShopExpansion2 = 7,
+    Cart = 8,
 }
 
 public class UpgradeFlags {

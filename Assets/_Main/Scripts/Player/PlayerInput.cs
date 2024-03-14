@@ -10,16 +10,18 @@ public class PlayerInput : MonoBehaviour {
 
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
-    
+
     UnityEngine.InputSystem.PlayerInput playerInput; // TEMP: change for local multiplayer
 
     void Awake() {
         mainCam = Camera.main;
         playerInput = GetComponent<UnityEngine.InputSystem.PlayerInput>();
+        
+        SetActionMap(Constants.ActionMapNamePlayer);
     }
 
     #region Mouse
-    
+
     public event Action<ClickInputArgs> InputPrimaryDown;
     public event Action<ClickInputArgs> InputPrimaryUp;
     public event Action<ClickInputArgs> InputSecondaryDown;
@@ -41,7 +43,7 @@ public class PlayerInput : MonoBehaviour {
     public void OnSecondary(InputAction.CallbackContext ctx) {
         ClickInputArgs clickInputArgs = ClickInputArgsRaycast(ctx);
         if (clickInputArgs.TargetObj == null) return;
-        
+
         if (ctx.performed) {
             InputSecondaryDown?.Invoke(clickInputArgs);
         } else if (ctx.canceled) {
@@ -93,7 +95,7 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action<float> InputScroll;
     public event Action<float> InputRotateCamera;
-    
+
     public void OnZoom(InputAction.CallbackContext ctx) {
         float scrollInput = ctx.ReadValue<Vector2>().y;
         scrollInput /= Math.Abs(scrollInput); // normalize scroll value for easier usage later
@@ -102,7 +104,7 @@ public class PlayerInput : MonoBehaviour {
             InputScroll?.Invoke(scrollInput);
         }
     }
-    
+
     public void OnRotateCamera(InputAction.CallbackContext ctx) {
         float rotateCameraInput = ctx.ReadValue<float>();
         if (ctx.performed) {
@@ -113,18 +115,18 @@ public class PlayerInput : MonoBehaviour {
     #endregion
 
     #region Interact
-    
+
     public event Action InputInteract;
     public event Action InputCancel;
     public event Action<float> InputRotate;
     public event Action InputDrop;
-    
+
     public void OnInteract(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputInteract?.Invoke();
         }
     }
-    
+
     public void OnCancel(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputCancel?.Invoke();
@@ -143,30 +145,43 @@ public class PlayerInput : MonoBehaviour {
             InputDrop?.Invoke();
         }
     }
-    
+
     #endregion
 
     #region Movement
-    
+
     public event Action<MoveInputArgs> InputMove;
     public event Action InputDash;
 
-    public void OnMove(InputAction.CallbackContext ctx) {
-        InputMove?.Invoke(new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()});
-    }
-    
+    public void OnMove(InputAction.CallbackContext ctx) { InputMove?.Invoke(new MoveInputArgs() {MoveInput = ctx.ReadValue<Vector2>()}); }
+
     public void OnDash(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputDash?.Invoke();
         }
     }
-    
+
     #endregion
-    
+
     public void OnPause(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             GameManager.Instance.TogglePause();
-            playerInput.SwitchCurrentActionMap(GameManager.Instance.IsPaused ? "UI" : "Player");
+            playerInput.SwitchCurrentActionMap(GameManager.Instance.IsPaused ? Constants.ActionMapNameUI : Constants.ActionMapNameGlobal);
         }
     }
+
+    #region Helper
+
+    // TEMP: make more robust if more than two action maps
+    public void SetActionMap(string actionMapName) {
+        if (actionMapName == Constants.ActionMapNamePlayer) {
+            playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Disable();
+            playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Enable();
+        } else if (actionMapName == Constants.ActionMapNameVehicle) {
+            playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Disable();
+            playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Enable();
+        }
+    }
+    
+    #endregion
 }

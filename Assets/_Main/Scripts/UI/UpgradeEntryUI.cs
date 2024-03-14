@@ -20,7 +20,7 @@ public class UpgradeEntryUI : MonoBehaviour {
     }
 
     public void OnClickUpgradeEntry() {
-        if (!Ref.Instance.UpgradeMngr.PurchaseUpgrade(Upgrade)) {
+        if (!Ref.UpgradeMngr.PurchaseUpgrade(Upgrade)) {
             // TODO: feedback for not enough money to purchase
         }
     }

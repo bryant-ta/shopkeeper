@@ -11,7 +11,7 @@ public class PlayerInteract : MonoBehaviour {
     [FormerlySerializedAs("interactionHeight")] [SerializeField]
     float interactHeight;
 
-    [SerializeField] Grid holdGrid;
+    [field:SerializeField] public Grid HoldGrid { get; private set; }
 
     void Awake() {
         Ref.Player.PlayerInput.InputInteract += Interact;
@@ -33,11 +33,19 @@ public class PlayerInteract : MonoBehaviour {
             releaseAction = null;
             return;
         }
+
+        if (!HoldGrid.IsEmpty() || !Ref.Player.PlayerDrag.DragGrid.IsEmpty()) {
+            TweenManager.Shake(HoldGrid.AllShapes());
+            TweenManager.Shake(Ref.Player.PlayerDrag.DragGrid.AllShapes());
+            return;
+        }
         
         IInteractable closestInteractable = FindClosestInteractable();
         if (closestInteractable == null) return;
 
-        closestInteractable.Interact(gameObject);
+        if (!closestInteractable.Interact(gameObject)) {
+            return;
+        }
         
         if (closestInteractable.RequireRelease) {
             releaseAction = closestInteractable.Release;
@@ -73,7 +81,7 @@ public class PlayerInteract : MonoBehaviour {
 
         if (targetObj.TryGetComponent(out IGridShape clickedShape)) {
             Grid targetGrid = clickedShape.Grid;
-            if (targetGrid == holdGrid) return;
+            if (targetGrid == HoldGrid) return;
 
             List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
             if (heldShapes.Count == 0) {
@@ -82,10 +90,10 @@ public class PlayerInteract : MonoBehaviour {
             }
 
             Vector3Int nextOpenHoldStackCoord = Vector3Int.zero;
-            if (holdGrid.SelectLowestOpen(0, 0, out int lowestOpenY)) {
+            if (HoldGrid.SelectLowestOpen(0, 0, out int lowestOpenY)) {
                 nextOpenHoldStackCoord.y = lowestOpenY;
 
-                if (!targetGrid.MoveShapes(holdGrid, nextOpenHoldStackCoord, heldShapes)) {
+                if (!targetGrid.MoveShapes(HoldGrid, nextOpenHoldStackCoord, heldShapes)) {
                     TweenManager.Shake(heldShapes);
                 }
             } else { // no more space in hold grid
@@ -104,7 +112,7 @@ public class PlayerInteract : MonoBehaviour {
 
     #region Upgrades
 
-    public void ModifyMaxHoldHeight(int delta) { holdGrid.SetMaxHeight(holdGrid.Height + delta); }
+    public void ModifyMaxHoldHeight(int delta) { HoldGrid.SetMaxHeight(HoldGrid.Height + delta); }
 
     #endregion
 }

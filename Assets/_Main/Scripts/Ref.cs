@@ -6,13 +6,16 @@ public class Ref : Singleton<Ref> {
     [SerializeField] Player player;
     public static Player Player => _player;
     static Player _player;
-    
-    public UpgradeManager UpgradeMngr;
+
+    [SerializeField] UpgradeManager upgradeMngr;
+    public static UpgradeManager UpgradeMngr => _upgradeMngr;
+    static UpgradeManager _upgradeMngr;
     
     public DeliveryManager DeliveryMngr;
     public OrderManager OrderMngr;
 
     void Awake() {
         _player = player;
+        _upgradeMngr = upgradeMngr;
     }
 }
