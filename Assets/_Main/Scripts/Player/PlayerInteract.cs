@@ -96,6 +96,8 @@ public class PlayerInteract : MonoBehaviour {
                 if (!targetGrid.MoveShapes(HoldGrid, nextOpenHoldStackCoord, heldShapes)) {
                     TweenManager.Shake(heldShapes);
                 }
+                
+                SoundManager.Instance.PlaySound(SoundID.ProductMove);
             } else { // no more space in hold grid
                 TweenManager.Shake(heldShapes);
             }
