@@ -30,6 +30,11 @@ public abstract class TimerBase {
     public virtual void Stop() {
         IsTicking = false;
         GlobalClock.OnTick -= Tick;
+    }
+
+    public virtual void End() {
+        IsTicking = false;
+        GlobalClock.OnTick -= Tick;
         EndEvent?.Invoke();
     }
 
@@ -46,9 +51,9 @@ public class CountdownTimer : TimerBase {
     public CountdownTimer(float duration) : base(duration) { }
 
     public override void Start() {
+        base.Start();
         timer = Duration;
         TickEvent?.Invoke(RemainingTimePercent);
-        base.Start();
     }
 
     protected override void Tick(float deltaTime) {
@@ -58,9 +63,14 @@ public class CountdownTimer : TimerBase {
         TickEvent?.Invoke(RemainingTimePercent);
 
         if (timer <= 0f) {
-            Stop();
+            End();
             return;
         }
+    }
+
+    public void Reset() {
+        timer = Duration;
+        Stop();
     }
 }
 
@@ -77,9 +87,9 @@ public class StageTimer : TimerBase {
     public StageTimer(float duration, List<float> intervals) : base(duration) { this.intervals = intervals; }
 
     public override void Start() {
+        base.Start();
         timer = 0f;
         TickEvent?.Invoke();
-        base.Start();
     }
 
     protected override void Tick(float deltaTime) {
@@ -91,7 +101,7 @@ public class StageTimer : TimerBase {
         }
 
         if (timer >= Duration) {
-            Stop();
+            End();
             return;
         }
     }
@@ -137,9 +147,9 @@ public class ClockTimer : TimerBase {
     }
 
     public override void Start() {
+        base.Start();
         timer = 0f;
         TickEvent?.Invoke(ClockTime);
-        base.Start();
     }
 
     protected override void Tick(float deltaTime) {
@@ -152,7 +162,7 @@ public class ClockTimer : TimerBase {
         }
 
         if (parsedClockTime == EndClockTime) {
-            Stop();
+            End();
             return;
         }
     }

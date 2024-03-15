@@ -333,7 +333,7 @@ public class Order {
     public void StopOrder() {
         if (Timer.IsTicking) {
             Timer.EndEvent -= Fail;
-            Timer.Stop();
+            Timer.End();
         }
     }
 

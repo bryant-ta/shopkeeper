@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
     [Header("Basic Movement")]
-    [SerializeField] float speed;
+    [SerializeField] float initialMoveSpeed;
     [SerializeField] float rotationSpeed;
+    float moveSpeed;
     Vector3 forward;
     Vector3 right;
     Vector2 moveInput;
@@ -15,9 +16,11 @@ public class PlayerMovement : MonoBehaviour {
 
     [Header("Dash")]
     [SerializeField] float dashSpeed;
-    [SerializeField] float dashDuration;
     [SerializeField] float dashCooldown;
+    [SerializeField] float dashDuration;
     CountdownTimer dashCooldownTimer;
+    CountdownTimer dashDurationTimer;
+    bool hasSecondDash = true;
 
     [SerializeField] ParticleSystem dashPs;
 
@@ -31,9 +34,13 @@ public class PlayerMovement : MonoBehaviour {
         rb = GetComponent<Rigidbody>();
 
         dashCooldownTimer = new CountdownTimer(dashCooldown);
+        dashCooldownTimer.EndEvent += EndDashCooldown;
+        dashDurationTimer = new CountdownTimer(dashDuration);
+        dashDurationTimer.EndEvent += EndDashDuration;
 
+        moveSpeed = initialMoveSpeed;
         SetMovementAxes();
-        
+
         EnableMovement();
         Ref.Player.PlayerInput.InputRotate += SetRotateInput;
         mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
@@ -41,23 +48,23 @@ public class PlayerMovement : MonoBehaviour {
 
     public void EnableMovement() {
         rb.isKinematic = false;
-        
+
         CanMove = true;
         CanDash = true;
-        
+
         // Prevent duplicate subs
         Ref.Player.PlayerInput.InputMove -= SetMoveInput;
         Ref.Player.PlayerInput.InputDash -= Dash;
-        
+
         Ref.Player.PlayerInput.InputMove += SetMoveInput;
         Ref.Player.PlayerInput.InputDash += Dash;
     }
     public void DisableMovement() {
         rb.isKinematic = true;
-        
+
         CanMove = false;
         CanDash = true;
-        
+
         Ref.Player.PlayerInput.InputMove -= SetMoveInput;
         Ref.Player.PlayerInput.InputDash -= Dash;
     }
@@ -67,7 +74,7 @@ public class PlayerMovement : MonoBehaviour {
         if (moveInput.sqrMagnitude != 0) {
             // Translation
             Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
-            rb.AddForce(moveDir * speed * 1000 * Time.fixedDeltaTime);
+            rb.AddForce(moveDir * moveSpeed * 1000 * Time.fixedDeltaTime);
 
             // Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);
@@ -80,21 +87,27 @@ public class PlayerMovement : MonoBehaviour {
 
         if (!CanDash) return;
 
-        if (!dashCooldownTimer.IsTicking && moveInput.sqrMagnitude != 0f) {
-            float origSpeed = speed;
-            speed = dashSpeed;
-
-            CountdownTimer dashDurationTimer = new CountdownTimer(dashDuration);
-            dashDurationTimer.Start();
-            dashDurationTimer.EndEvent += () => {
-                speed = origSpeed;
-                dashPs.Stop();
-            };
-
+        if ((!dashCooldownTimer.IsTicking || (UpgradeManager.Flags.DoubleDash && hasSecondDash)) && moveInput.sqrMagnitude != 0f) {
+            moveSpeed = dashSpeed;
             dashPs.Play();
+            
+            if (dashCooldownTimer.IsTicking && hasSecondDash) { // this time is the second dash
+                hasSecondDash = false;
+                dashDurationTimer.Reset();
+                dashDurationTimer.Start();
+                return;
+            }
 
+            dashDurationTimer.Start();
             dashCooldownTimer.Start();
         }
+    }
+    void EndDashCooldown() {
+        hasSecondDash = true;
+    }
+    void EndDashDuration() {
+        moveSpeed = initialMoveSpeed;
+        dashPs.Stop();
     }
 
     void SetMoveInput(MoveInputArgs moveInputArgs) { moveInput = moveInputArgs.MoveInput; }
