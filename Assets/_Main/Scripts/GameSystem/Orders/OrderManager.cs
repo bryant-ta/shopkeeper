@@ -94,12 +94,13 @@ public class OrderManager : MonoBehaviour {
         }
     }
     void StopOrders() {
-        for (int i = 0; i < activeOrders.Length; i++) {
-            if (activeOrders[i] != null) {
-                activeOrders[i].StopOrder();
-                ResetActiveOrderSlot(i);
-            }
-        }
+        // Commented: letting current active orders finish
+        // for (int i = 0; i < activeOrders.Length; i++) {
+        //     if (activeOrders[i] != null) {
+        //         activeOrders[i].StopOrder();
+        //         ResetActiveOrderSlot(i);
+        //     }
+        // }
 
         backlogOrders.Clear();
     }
@@ -111,7 +112,8 @@ public class OrderManager : MonoBehaviour {
         );
     }
     void ActivateNextOrder(int activeOrderIndex) {
-        if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
+        // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
+        if (GameManager.Instance.CurDayPhase != DayPhase.Open) { 
             return;
         }
 
@@ -121,6 +123,7 @@ public class OrderManager : MonoBehaviour {
         }
 
         Order nextOrder = backlogOrders.Dequeue();
+
         nextOrder.StartOrder();
         nextOrder.OnOrderFulfilled += FulfillOrder;
         nextOrder.OnOrderFailed += FailOrder;
