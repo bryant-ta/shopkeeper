@@ -3,6 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// GlobalClock is the ticker every other Timer type uses to tick. All Timers can be stopped by stopping GlobalClock.
+/// - Script Execution Order: Place above GameManager (and any script which subs to OnTick)
 /// </summary>
 public class GlobalClock : Singleton<GlobalClock> {
 	public static float TimeScale = 1f;

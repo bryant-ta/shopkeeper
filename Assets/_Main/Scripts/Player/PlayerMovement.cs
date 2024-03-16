@@ -1,3 +1,4 @@
+using System;
 using EventManager;
 using Timers;
 using UnityEngine;
@@ -25,9 +26,13 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] ParticleSystem dashPs;
 
     public bool CanDash { get; private set; }
-
+    
+    /***********************************************************/
+    
     Camera mainCam;
     Rigidbody rb;
+
+    public event Action OnMovement;
 
     void Awake() {
         mainCam = Camera.main;
@@ -75,6 +80,8 @@ public class PlayerMovement : MonoBehaviour {
             // Translation
             Vector3 moveDir = forward * moveInput.y + right * moveInput.x;
             rb.AddForce(moveDir * moveSpeed * 1000 * Time.fixedDeltaTime);
+            
+            OnMovement?.Invoke();
 
             // Rotation
             Quaternion targetRotation = Quaternion.LookRotation(moveDir);

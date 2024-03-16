@@ -33,8 +33,7 @@ public abstract class TimerBase {
     }
 
     public virtual void End() {
-        IsTicking = false;
-        GlobalClock.OnTick -= Tick;
+        Stop();
         EndEvent?.Invoke();
     }
 
