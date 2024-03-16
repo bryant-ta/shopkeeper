@@ -46,7 +46,7 @@ public class OrderManager : MonoBehaviour {
         activeOrders = new Order[numActiveOrders];
         isOpenPhase = new Util.ValueRef<bool>(false);
 
-        dropOffZone.OnEnterZone += TryFulfillOrder;
+        dropOffZone.OnEnterZone += TryFillOrder;
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
@@ -236,16 +236,18 @@ public class OrderManager : MonoBehaviour {
 
     #region Order Fulfillment
 
-    public void TryFulfillOrder(Grid fulfillmentGrid) {
+    void TryFillOrder(Grid fulfillmentGrid) {
         // Attempt to fulfill active orders with products in input grid
         List<IGridShape> shapes = fulfillmentGrid.AllShapes();
         for (int i = 0; i < shapes.Count; i++) {
             if (shapes[i].ColliderTransform.TryGetComponent(out Product product)) {
                 if (MatchOrder(product)) {
-                    // Consume product from its grid
+                    // Product fulfilled, consume product from its grid
                     fulfillmentGrid.DestroyShape(shapes[i]);
 
                     GameManager.RemoveStockedProduct(product);
+                    
+                    SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
                 }
             }
         }
@@ -276,10 +278,14 @@ public class OrderManager : MonoBehaviour {
         NumRemainingOrders--;
         GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalReward());
         ActivateNextOrderDelayed(activeOrderIndex);
+        
+        SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
     }
     void FailOrder(int activeOrderIndex) {
         PerfectOrders = false;
         ActivateNextOrderDelayed(activeOrderIndex);
+        
+        SoundManager.Instance.PlaySound(SoundID.OrderFailed);
     }
 
     #endregion
