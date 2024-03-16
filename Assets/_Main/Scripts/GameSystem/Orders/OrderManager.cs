@@ -88,8 +88,9 @@ public class OrderManager : MonoBehaviour {
 
         PerfectOrders = true;
 
-        for (int i = 0; i < numActiveOrders; i++) {
-            ActivateNextOrder(i);
+        ActivateNextOrder(0); // always immediately activate first order
+        for (int i = 1; i < numActiveOrders; i++) {
+            ActivateNextOrderDelayed(i);
         }
     }
     void StopOrders() {
@@ -239,18 +240,20 @@ public class OrderManager : MonoBehaviour {
     void TryFillOrder(Grid fulfillmentGrid) {
         // Attempt to fulfill active orders with products in input grid
         List<IGridShape> shapes = fulfillmentGrid.AllShapes();
+        bool matched = false;
         for (int i = 0; i < shapes.Count; i++) {
             if (shapes[i].ColliderTransform.TryGetComponent(out Product product)) {
                 if (MatchOrder(product)) {
                     // Product fulfilled, consume product from its grid
+                    matched = true;
                     fulfillmentGrid.DestroyShape(shapes[i]);
 
                     GameManager.RemoveStockedProduct(product);
-                    
-                    SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
                 }
             }
         }
+        
+        if (matched) { SoundManager.Instance.PlaySound(SoundID.OrderProductFilled); }
     }
 
     // Returns true if successfully fulfilled an order with product
