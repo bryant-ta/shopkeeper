@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 5
   Name: Sorted Deliveries
-  Cost: 1
+  Cost: 1000
   Description: Deliveries are sorted by product.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 0}

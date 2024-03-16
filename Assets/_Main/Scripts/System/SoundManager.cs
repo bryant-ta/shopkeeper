@@ -17,7 +17,15 @@ public class SoundManager : Singleton<SoundManager> {
         audioSource.PlayOneShot(sound.AudioClip);
     }
 
-    Sound GetSound(SoundID soundID) {
+    public void PlaySound(SoundID soundID, float pitch) {
+        // TODO: play sound with modified pitch from audiosource pool
+    }
+    
+    public void PlaySound(SoundID soundID, float pitchLowLimit, float pitchHighLimit) {
+        // TODO: play sound with modified random pitch in range from audiosource pool
+    }
+
+    public Sound GetSound(SoundID soundID) {
         return sounds.Single(sound => sound.ID == soundID);
     }
 }
@@ -30,5 +38,8 @@ public class Sound {
 
 public enum SoundID {
     Blank = 0,
-    ProductMove
+    ProductHold = 20,
+    ProductPickUp = 21,
+    ProductPlace = 22,
+    ProductInvalidShake = 23,
 }

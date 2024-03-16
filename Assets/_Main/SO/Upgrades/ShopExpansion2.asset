@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 7
   Name: Expand Shop 2
-  Cost: 1
+  Cost: 2000
   Description: Expand the shop more.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 0}

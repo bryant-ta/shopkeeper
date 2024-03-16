@@ -5,17 +5,21 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 public class PlayerInteract : MonoBehaviour {
-    [FormerlySerializedAs("interactionRange")] [SerializeField]
-    float interactRange;
+    [SerializeField] float interactRange;
     public float InteractRange => interactRange;
-    [FormerlySerializedAs("interactionHeight")] [SerializeField]
-    float interactHeight;
+    [SerializeField] float interactHeight;
 
     [field:SerializeField] public Grid HoldGrid { get; private set; }
+    
+    AudioSource holdGridPickUpAs;
 
     void Awake() {
+        holdGridPickUpAs = HoldGrid.GetComponent<AudioSource>();
+        
         Ref.Player.PlayerInput.InputInteract += Interact;
         Ref.Player.PlayerInput.InputSecondaryDown += PickUp;
+
+        holdGridPickUpAs.clip = SoundManager.Instance.GetSound(SoundID.ProductHold).AudioClip;
     }
 
     void Start() {
@@ -37,6 +41,7 @@ public class PlayerInteract : MonoBehaviour {
         if (!HoldGrid.IsEmpty() || !Ref.Player.PlayerDrag.DragGrid.IsEmpty()) {
             TweenManager.Shake(HoldGrid.AllShapes());
             TweenManager.Shake(Ref.Player.PlayerDrag.DragGrid.AllShapes());
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
         
@@ -95,11 +100,16 @@ public class PlayerInteract : MonoBehaviour {
 
                 if (!targetGrid.MoveShapes(HoldGrid, nextOpenHoldStackCoord, heldShapes)) {
                     TweenManager.Shake(heldShapes);
+                    SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
                 }
                 
-                SoundManager.Instance.PlaySound(SoundID.ProductMove);
+                // play sound based on highest product in selected stack
+                // assumes heldShapes is ordered from lowest to highest position
+                holdGridPickUpAs.pitch = 0.7f + 0.05f * heldShapes[heldShapes.Count-1].RootCoord.y;
+                holdGridPickUpAs.Play();
             } else { // no more space in hold grid
                 TweenManager.Shake(heldShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             }
         }
     }

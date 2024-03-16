@@ -14,6 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 2
   Name: Double Dash
-  Cost: 1
+  Cost: 200
   Description: Unlocks the ability to quickly dash twice.
   Icon: {fileID: 0}
+  NextUpgrade: {fileID: 0}
+  IsRepeating: 0
+  RepeatsRemaining: 0

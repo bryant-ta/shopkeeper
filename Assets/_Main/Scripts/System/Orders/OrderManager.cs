@@ -7,12 +7,16 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
+    [Header("Order Queue")]
     [SerializeField] int numTotalOrders;
     [SerializeField] int numActiveOrders;
     [SerializeField] int minNextOrderDelay;
     [SerializeField] int maxNextOrderDelay;
-    [SerializeField] int goldPerProduct;
+    
+    [Header("Order Parameters")]
+    [SerializeField] int minTimePerOrder;
     [SerializeField] int timePerProduct;
+    [SerializeField] int goldPerProduct;
 
     [Header("Quantity Order Type")]
     [SerializeField] int quantityOrderTotalMin;
@@ -179,7 +183,7 @@ public class OrderManager : MonoBehaviour {
 
         int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
 
-        Order order = new Order(goldPerProduct, timePerProduct);
+        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
         ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
 
         int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
@@ -195,7 +199,7 @@ public class OrderManager : MonoBehaviour {
     Order GenerateVarietyOrder(Dictionary<ProductID, List<Product>> availableStock) {
         int orderTotal = Random.Range(varietyOrderTotalMin, varietyOrderTotalMax + 1);
 
-        Order order = new Order(goldPerProduct, timePerProduct);
+        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
         for (int i = 0; i < orderTotal; i++) {
             if (availableStock.Count == 0) {
                 Debug.LogWarning("No available stock to generate orders from!");
@@ -220,7 +224,7 @@ public class OrderManager : MonoBehaviour {
     void ScaleOrderDifficulty(int day) {
         if (day > 10) return;
 
-        // numTotalOrders = day / 2 + 3;
+        numTotalOrders = day / 2 + 3;
         NumRemainingOrders = numTotalOrders;
 
         quantityOrderTotalMin++;
@@ -296,14 +300,16 @@ public class Order {
     public event Action<int> OnOrderFulfilled;
     public event Action<int> OnOrderFailed;
 
-    int valuePerProduct;
     int timePerProduct;
+    int valuePerProduct;
 
-    public Order(int valuePerProduct, int timePerProduct) {
-        this.valuePerProduct = valuePerProduct;
+    public Order(int minTimePerOrder, int timePerProduct, int valuePerProduct) {
         this.timePerProduct = timePerProduct;
+        this.valuePerProduct = valuePerProduct;
 
         products = new();
+
+        TimeToComplete = minTimePerOrder;
     }
 
     ~Order() { StopOrder(); }

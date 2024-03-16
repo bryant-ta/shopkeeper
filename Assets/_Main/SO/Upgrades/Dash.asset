@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 1
   Name: Dash
-  Cost: 1
+  Cost: 100
   Description: Unlocks the ability to dash.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 11400000, guid: 0efc033403af756488de8714f326a612, type: 2}
+  IsRepeating: 0
+  RepeatsRemaining: 0

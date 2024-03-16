@@ -164,9 +164,15 @@ public class GameManager : Singleton<GameManager> {
         GlobalClock.TimeScale = value;
     }
 
-    public void DebugStartNextPhase() {
-        SM_dayPhase.ExecuteNextState();
-        // DayTimer.SetClockTime();
+    public void SkipToPhaseEnd() {
+        SetTimeScale(10);
+
+        void ResetTimeScaleDelegate(IState<DayPhase> state) {
+            SetTimeScale(1);
+            SM_dayPhase.OnStateEnter -= ResetTimeScaleDelegate;
+        }
+
+        SM_dayPhase.OnStateEnter += ResetTimeScaleDelegate;
     }
     
     #endregion

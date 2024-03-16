@@ -46,6 +46,7 @@ public class PlayerDrag : MonoBehaviour {
 
         if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, heldShapes)) {
             TweenManager.Shake(heldShapes);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             heldShapes.Clear();
             return;
         }
@@ -54,6 +55,8 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = false;
         }
+        
+        SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
 
         Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
@@ -127,6 +130,7 @@ public class PlayerDrag : MonoBehaviour {
         // If releasing out of interactable range, fail to place.
         if (!playerInteract.IsInRange(clickInputArgs.HitPoint)) {
             TweenManager.Shake(heldShapes);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
 
@@ -142,14 +146,20 @@ public class PlayerDrag : MonoBehaviour {
                 if (heldShapes[i].RootCoord.y + DragGrid.transform.position.y >= targetGrid.Height) {
                     outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
+                    SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
                 }
             }
 
             if (!outOfHeightBounds) {
                 TweenManager.Shake(heldShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             }
 
             return;
+        }
+
+        foreach (IGridShape shape in heldShapes) {
+            shape.Collider.enabled = true;
         }
 
         // TEMP: play shape placement smoke burst particles
@@ -157,10 +167,8 @@ public class PlayerDrag : MonoBehaviour {
         burst.count = heldShapes.Count * 2 + 3;
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
-
-        foreach (IGridShape shape in heldShapes) {
-            shape.Collider.enabled = true;
-        }
+        
+        SoundManager.Instance.PlaySound(SoundID.ProductPlace);
 
         // Reset PlayerDrag
         heldShapes.Clear();
