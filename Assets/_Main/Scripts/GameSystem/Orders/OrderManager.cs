@@ -231,7 +231,6 @@ public class OrderManager : MonoBehaviour {
         numTotalOrders = day / 2 + 3;
         NumRemainingOrders = numTotalOrders;
 
-        quantityOrderTotalMin++;
         quantityOrderTotalMax++;
         varietyOrderIndividualMax++;
     }

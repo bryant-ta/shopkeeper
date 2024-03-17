@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,9 @@ public class OrderManagerUI : MonoBehaviour {
     // TEMP: until real book ui framework
     [SerializeField] Transform orderDisplayOpenPos;
     [SerializeField] Transform orderDisplayClosePos;
+    
+    // TEMP: debug show remaining orders for playtest
+    [SerializeField] TextMeshProUGUI numRemainingOrderText;
 
     void Awake() {
         orderMngr = GetComponent<OrderManager>();
@@ -24,6 +28,11 @@ public class OrderManagerUI : MonoBehaviour {
     void UpdateActiveOrderChanged(ActiveOrderChangedArgs args) {
         UpdateOrderBubble(args.ActiveOrderIndex, args.NewOrder);
         UpdateOrderDisplay(args.ActiveOrderIndex, args.NewOrder);
+
+        // TEMP: debug show remaining orders for playtest
+        if (GameManager.Instance.DebugMode) {
+            numRemainingOrderText.text = "Remaining: " + args.NumRemainingOrders;
+        }
     }
 
     void UpdateOrderBubble(int activeOrderIndex, Order order) {

@@ -124,6 +124,10 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
+    public List<ProductID> GetDayPossibleProducts(int day) {
+        return possibleProductLists.outerList[day - 1].innerList;
+    }
+
     #region Upgrades
 
     public void SetMaxGroupQuantity(int value) { maxGroupQuantity = value; }

@@ -150,25 +150,21 @@ public class GameManager : Singleton<GameManager> {
         isPaused = !isPaused;
         if (isPaused) {
             Time.timeScale = 0f;
-            GlobalClock.TimeScale = 0f;
+            GlobalClock.SetTimeScale(0f);
             OnPause?.Invoke(true);
         }
         else {
             Time.timeScale = 1f;
-            GlobalClock.TimeScale = 1f;
+            GlobalClock.SetTimeScale(1f);
             OnPause?.Invoke(false);
         }
     }
 
-    public void SetTimeScale(float value) {
-        GlobalClock.TimeScale = value;
-    }
-
     public void SkipToPhaseEnd() {
-        SetTimeScale(10);
+        GlobalClock.SetTimeScale(10f);
 
         void ResetTimeScaleDelegate(IState<DayPhase> state) {
-            SetTimeScale(1);
+            GlobalClock.SetTimeScale(1f);
             SM_dayPhase.OnStateEnter -= ResetTimeScaleDelegate;
         }
 

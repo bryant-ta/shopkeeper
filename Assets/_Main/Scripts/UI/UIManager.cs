@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using TMPro;
+using TriInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,12 +9,13 @@ public class UIManager : MonoBehaviour {
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI phaseText;
 
-    [Header("Next Day")]
+    [Title("Next Day")] // TEMP: until making better next day screen
     [SerializeField] GameObject nextDayPanel;
-    [SerializeField] Button nextDayButton;        // TEMP: until making better next day screen
-    [SerializeField] TextMeshProUGUI perfectOrdersText; // TEMP: until making better next day screen
+    [SerializeField] TextMeshProUGUI perfectOrdersText;
+    [SerializeField] TextMeshProUGUI productsUnlockedText;
+    [SerializeField] Button nextDayButton;
 
-    [Header("Pause Menu")]
+    [Title("Pause Menu")]
     [SerializeField] GameObject pauseMenuPanel;
 
     GameManager gameMngr;
@@ -37,13 +40,24 @@ public class UIManager : MonoBehaviour {
 
     void UpdateNextDayPanel() {
         nextDayPanel.SetActive(true);
-        nextDayButton.gameObject.SetActive(true);
 
+        // Perfect Orders
         if (Ref.Instance.OrderMngr.PerfectOrders) {
             perfectOrdersText.text = "PERFECT!\n+100";
         } else {
             perfectOrdersText.text = "GOOD";
         }
+        
+        // Products Unlocked
+        List<ProductID> nextDayProductsUnlocked = Ref.Instance.DeliveryMngr.GetDayPossibleProducts(gameMngr.Day + 1);
+        string productsUnlockedString = "";
+        for (int i = 0; i < nextDayProductsUnlocked.Count; i++) {
+            productsUnlockedString += $"<sprite name=\"{nextDayProductsUnlocked[i].ToString()}\"> ";
+        }
+        productsUnlockedText.text = productsUnlockedString.TrimEnd();
+        
+        // Next Day Button
+        nextDayButton.gameObject.SetActive(true);
     }
     public void NextDayTransition() {
         nextDayPanel.SetActive(false);

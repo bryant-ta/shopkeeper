@@ -160,21 +160,10 @@ public class ClockTimer : TimerBase {
             TickEvent?.Invoke(AddTickStep());
         }
 
-        if (parsedClockTime == EndClockTime) {
+        if (parsedClockTime >= EndClockTime) {
             End();
             return;
         }
-    }
-
-    public void SetClockTime(string time) {
-        if (!DateTime.TryParse(time, out parsedClockTime)) {
-            Debug.LogError("Unable to parse start time string.");
-            return;
-        }
-
-        timer = 0f;
-        clockTickTimer = 0f;
-        TickEvent?.Invoke(ClockTime);
     }
 
     public void Reset() {
