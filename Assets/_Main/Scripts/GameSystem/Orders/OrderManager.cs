@@ -105,8 +105,8 @@ public class OrderManager : MonoBehaviour {
         backlogOrders.Clear();
     }
 
-    void ActivateNextOrderDelayed(int activeOrderIndex) {
-        ResetActiveOrderSlot(activeOrderIndex);
+    void ActivateNextOrderDelayed(int activeOrderIndex, bool lastOrderFulfilled = false) {
+        ResetActiveOrderSlot(activeOrderIndex, lastOrderFulfilled);
         Util.DoAfterSeconds(
             this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex)
         );
@@ -139,12 +139,13 @@ public class OrderManager : MonoBehaviour {
         );
     }
 
-    void ResetActiveOrderSlot(int activeOrderIndex) {
+    void ResetActiveOrderSlot(int activeOrderIndex, bool lastOrderFulfilled = false) {
         OnActiveOrderChanged?.Invoke(
             new ActiveOrderChangedArgs {
                 ActiveOrderIndex = activeOrderIndex,
                 NewOrder = null,
-                NumRemainingOrders = NumRemainingOrders
+                NumRemainingOrders = NumRemainingOrders,
+                LastOrderFulfilled = lastOrderFulfilled
             }
         );
     }
@@ -282,13 +283,13 @@ public class OrderManager : MonoBehaviour {
     void FulfillOrder(int activeOrderIndex) {
         NumRemainingOrders--;
         GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalReward());
-        ActivateNextOrderDelayed(activeOrderIndex);
+        ActivateNextOrderDelayed(activeOrderIndex, true);
         
         SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
     }
     void FailOrder(int activeOrderIndex) {
         PerfectOrders = false;
-        ActivateNextOrderDelayed(activeOrderIndex);
+        ActivateNextOrderDelayed(activeOrderIndex, false);
         
         SoundManager.Instance.PlaySound(SoundID.OrderFailed);
     }
@@ -392,4 +393,5 @@ public struct ActiveOrderChangedArgs {
     public int ActiveOrderIndex;
     public int NumRemainingOrders;
     public Order NewOrder;
+    public bool LastOrderFulfilled;
 }

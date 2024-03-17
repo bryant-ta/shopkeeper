@@ -27,7 +27,7 @@ public class OrderManagerUI : MonoBehaviour {
 
     void UpdateActiveOrderChanged(ActiveOrderChangedArgs args) {
         UpdateOrderBubble(args.ActiveOrderIndex, args.NewOrder);
-        UpdateOrderDisplay(args.ActiveOrderIndex, args.NewOrder);
+        UpdateOrderDisplay(args.ActiveOrderIndex, args.NewOrder, args.LastOrderFulfilled);
 
         // TEMP: debug show remaining orders for playtest
         if (GameManager.Instance.DebugMode) {
@@ -53,20 +53,28 @@ public class OrderManagerUI : MonoBehaviour {
     }
 
     Vector3 targetPos;
-    void UpdateOrderDisplay(int activeOrderIndex, Order order) {
+    void UpdateOrderDisplay(int activeOrderIndex, Order order, bool lastOrderFulfilled) {
         OrderDisplayUI orderDisplay = orderDisplays[activeOrderIndex];
-        if (order == null) { // no new active order, disable the display at index
-            orderDisplay.DOKill();
+        if (order == null) { // active order was reset, do end tasks for last active orderlfilled);
             targetPos = orderDisplayClosePos.position;
             targetPos.y = orderDisplay.transform.position.y;
-            orderDisplay.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad);
+            
+            orderDisplay.transform.DOKill();
+            Sequence seq = DOTween.Sequence();
+            seq.AppendCallback(() => orderDisplay.DisplayEndStatusStamp(lastOrderFulfilled));
+            seq.AppendInterval(1);
+            seq.Append(orderDisplay.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad));
+            seq.Play();
+            
             return;
         }
         
+        orderDisplay.HideEndStatusStamp();
         orderDisplay.DisplayNewOrder(order);
         
         targetPos = orderDisplayOpenPos.position;
         targetPos.y = orderDisplay.transform.position.y;
+        orderDisplay.transform.DOKill();
         orderDisplay.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad);
     }
 }
