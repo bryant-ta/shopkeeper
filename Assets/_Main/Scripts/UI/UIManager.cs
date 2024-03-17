@@ -36,7 +36,7 @@ public class UIManager : MonoBehaviour {
 
     void UpdateTimeText(string time) { timeText.text = time; }
 
-    void UpdatePhaseText(IState<DayPhase> phase) { phaseText.text = phase.ID.ToString(); }
+    void UpdatePhaseText(IState<DayPhase> phase) { phaseText.text = phase.ID.ToString().ToUpper(); }
 
     void UpdateNextDayPanel() {
         nextDayPanel.SetActive(true);
