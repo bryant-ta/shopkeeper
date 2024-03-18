@@ -373,7 +373,7 @@ public class Order {
 
     // Don't need to explicitly cleanup event listeners, as long as all references of this Order are gone.
 
-    public int TotalReward() { return Value + (int) TimeToComplete; }
+    public int TotalReward() { return Value + (int) Timer.RemainingTimeSeconds; }
     public new string ToString() {
         string t = "";
 
