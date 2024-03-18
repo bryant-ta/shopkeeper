@@ -11,9 +11,17 @@ public class OrderDisplayUI : MonoBehaviour {
     Order displayedOrder;
     
     public void DisplayNewOrder(Order order) {
+        if (displayedOrder != null && displayedOrder != order) {
+            displayedOrder.OnProductFulfilled -= UpdateProducts;
+        }
+
         displayedOrder = order;
-        string t = displayedOrder.ToString().Replace("\n", "   ");
-        orderText.text = t;
+        displayedOrder.OnProductFulfilled += UpdateProducts;
+        UpdateProducts();
+    }
+    
+    void UpdateProducts() {
+        orderText.text = displayedOrder.ToString().Replace("\n", "   ");
     }
 
     public void DisplayEndStatusStamp(bool success) {
