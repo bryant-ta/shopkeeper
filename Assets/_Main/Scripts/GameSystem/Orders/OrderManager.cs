@@ -46,8 +46,6 @@ public class OrderManager : MonoBehaviour {
         activeOrders = new Order[numActiveOrders];
         isOpenPhase = new Util.ValueRef<bool>(false);
 
-        dropOffZone.OnEnterZone += TryFillOrder;
-
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
     }
@@ -240,7 +238,7 @@ public class OrderManager : MonoBehaviour {
 
     #region Order Fulfillment
 
-    void TryFillOrder(Grid fulfillmentGrid) {
+    public void TryFillOrder(Grid fulfillmentGrid) {
         // Attempt to fulfill active orders with products in input grid
         List<IGridShape> shapes = fulfillmentGrid.AllShapes();
         bool matched = false;

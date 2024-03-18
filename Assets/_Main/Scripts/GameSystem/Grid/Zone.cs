@@ -12,8 +12,6 @@ public class Zone : MonoBehaviour {
     
     public HashSet<Vector3Int> AllCoords { get; private set; }
     public HashSet<Vector2Int> XZCoords { get; private set; }
-    
-    public event Action<Grid> OnEnterZone;
 
     public void Setup(Vector3Int rootCoord, Vector3Int dimensions, ZoneProperties zoneProps) {
         UpdateZonePosition(rootCoord, dimensions);
@@ -59,12 +57,6 @@ public class Zone : MonoBehaviour {
         }
 
         XZCoords = xzCoords;
-    }
-    
-    void OnTriggerEnter(Collider col) {
-        if (col.TryGetComponent(out Grid grid)) {
-            OnEnterZone?.Invoke(grid);
-        }
     }
 }
 

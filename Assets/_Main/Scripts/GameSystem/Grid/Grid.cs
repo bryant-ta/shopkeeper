@@ -82,6 +82,8 @@ public class Grid : MonoBehaviour {
             shape.ShapeTransform.localPosition = targetCoord;
             shape.ShapeTransform.localRotation = Quaternion.identity;
         }
+        
+        SoundManager.Instance.PlaySound(SoundID.ProductPlace);
     }
 
     // Returns false if any placement of shape in shapes is invalid.

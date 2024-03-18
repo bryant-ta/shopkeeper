@@ -167,13 +167,13 @@ public class PlayerDrag : MonoBehaviour {
         burst.count = heldShapes.Count * 2 + 3;
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
-        
-        SoundManager.Instance.PlaySound(SoundID.ProductPlace);
 
         // Reset PlayerDrag
         heldShapes.Clear();
         bottomObjCol = null;
     }
+    
+    #region Helper
     
     // Select grid that is currently dragged over, caches last selected
     // Returns false if targetGrid is not set
@@ -190,6 +190,8 @@ public class PlayerDrag : MonoBehaviour {
 
         return targetGrid != null;
     }
+    
+    #endregion
 
     #region Upgrades
 
