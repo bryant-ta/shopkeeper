@@ -125,6 +125,7 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     public List<ProductID> GetDayPossibleProducts(int day) {
+        if (day - 1 >= possibleProductLists.outerList.Count) return null;
         return possibleProductLists.outerList[day - 1].innerList;
     }
 

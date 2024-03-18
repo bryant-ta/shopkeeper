@@ -123,6 +123,7 @@ public class GameManager : Singleton<GameManager> {
                 SM_dayPhase.ExecuteNextState();
                 
                 //TEMP: sound insert for now
+                if (SM_dayPhase.CurState == null) continue;
                 if (CurDayPhase == DayPhase.Open) {
                     SoundManager.Instance.PlaySound(SoundID.EnterOpenPhase);
                 } else if (CurDayPhase == DayPhase.Close) {

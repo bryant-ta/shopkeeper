@@ -30,8 +30,8 @@ public class DayNightLighting : MonoBehaviour {
         sunlight.intensity = lightIntensity;
 
         // Rotate the sun around the Y-axis to simulate its movement
-        float rotationAngleX = lightXRotationCurve.Evaluate(timeOfDay) * 50f;
-        float rotationAngleY = lightYRotationCurve.Evaluate(timeOfDay) * 135f - 45;
+        float rotationAngleX = lightXRotationCurve.Evaluate(timeOfDay) * 35f + 10f;
+        float rotationAngleY = lightYRotationCurve.Evaluate(timeOfDay) * 180f + -45f;
         sunlight.transform.rotation = Quaternion.Euler(rotationAngleX, rotationAngleY, 0f);
     }
 }

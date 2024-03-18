@@ -50,12 +50,17 @@ public class UIManager : MonoBehaviour {
         
         // Products Unlocked
         List<ProductID> nextDayProductsUnlocked = Ref.Instance.DeliveryMngr.GetDayPossibleProducts(gameMngr.Day + 1);
-        string productsUnlockedString = "";
-        for (int i = 0; i < nextDayProductsUnlocked.Count; i++) {
-            productsUnlockedString += $"<sprite name=\"{nextDayProductsUnlocked[i].ToString()}\"> ";
+        if (nextDayProductsUnlocked != null) {
+            string productsUnlockedString = "";
+            for (int i = 0; i < nextDayProductsUnlocked.Count; i++) {
+                productsUnlockedString += $"<sprite name=\"{nextDayProductsUnlocked[i].ToString()}\"> ";
+            }
+
+            productsUnlockedText.text = productsUnlockedString.TrimEnd();
+        } else {
+            productsUnlockedText.enabled = false;
         }
-        productsUnlockedText.text = productsUnlockedString.TrimEnd();
-        
+
         // Next Day Button
         nextDayButton.gameObject.SetActive(true);
     }

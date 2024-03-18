@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 8
   Name: Moving Cart
-  Cost: 500
+  Cost: 2000
   Description: A cart to move your many products at once.
   Icon: {fileID: 0}
   NextUpgrade: {fileID: 0}
