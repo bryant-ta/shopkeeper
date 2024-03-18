@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using EventManager;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class PlayerInteract : MonoBehaviour {
     [SerializeField] float interactRange;

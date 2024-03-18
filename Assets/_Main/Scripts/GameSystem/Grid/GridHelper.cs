@@ -4,11 +4,9 @@ using UnityEngine;
 [RequireComponent(typeof(Grid))]
 public class GridHelper : MonoBehaviour {
     Grid grid;
-    PlayerDrag playerDrag;
 
     void Awake() {
         grid = GetComponent<Grid>();
-        playerDrag = Ref.Player.PlayerDrag;
     }
     
     void OnTriggerEnter(Collider col) {
