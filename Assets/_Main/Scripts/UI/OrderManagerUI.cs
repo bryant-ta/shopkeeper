@@ -60,8 +60,8 @@ public class OrderManagerUI : MonoBehaviour {
             orderDisplay.transform.DOKill();
             Sequence seq = DOTween.Sequence();
             seq.AppendCallback(() => orderDisplay.DisplayEndStatusStamp(lastOrderFulfilled));
-            seq.AppendInterval(1);
-            seq.Append(orderDisplay.transform.DOMove(targetPos, 0.3f).SetEase(Ease.OutQuad));
+            seq.AppendInterval(0.2f);
+            seq.Append(orderDisplay.transform.DOMove(targetPos, 1f).SetEase(Ease.InQuad));
             seq.Play();
             
             return;
