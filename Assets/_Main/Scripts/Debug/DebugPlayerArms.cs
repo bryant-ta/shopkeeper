@@ -7,6 +7,7 @@ public class DebugPlayerArms : MonoBehaviour {
     Grid holdGrid;
 
     void Awake() {
+        if (!GameManager.Instance.DebugMode) this.enabled = false;
         holdGrid = Ref.Player.PlayerInteract.HoldGrid;
     }
 

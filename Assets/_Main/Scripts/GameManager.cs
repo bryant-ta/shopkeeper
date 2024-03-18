@@ -121,6 +121,13 @@ public class GameManager : Singleton<GameManager> {
         for (int i = 0; i < phaseTriggerTimes.Count; i++) {
             if (Util.CompareTime(clockTime, phaseTriggerTimes[i]) == 0) {
                 SM_dayPhase.ExecuteNextState();
+                
+                //TEMP: sound insert for now
+                if (CurDayPhase == DayPhase.Open) {
+                    SoundManager.Instance.PlaySound(SoundID.EnterOpenPhase);
+                } else if (CurDayPhase == DayPhase.Close) {
+                    SoundManager.Instance.PlaySound(SoundID.EnterClosePhase);
+                } 
             }
         }
     }

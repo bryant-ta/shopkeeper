@@ -45,6 +45,8 @@ public enum SoundID {
     OrderFulfilled = 40,
     OrderFailed = 41,
     OrderProductFilled = 42,
+    EnterOpenPhase = 50,
+    EnterClosePhase = 51,
     // Footstep = 200,  // reserved
     CartMove = 210,
 }
