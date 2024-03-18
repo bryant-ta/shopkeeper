@@ -27,7 +27,7 @@ public class DeliveryManager : MonoBehaviour {
         grid = GameManager.WorldGrid;
 
         // Create delivery zone
-        ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
+        ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = true, CanTake = true};
         deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition), deliveryZoneDimensions, deliveryZoneProps);
         grid.AddZone(deliveryZone);
     }
