@@ -10,9 +10,6 @@ public class PlayerDrag : MonoBehaviour {
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
 
-    List<IGridShape> heldShapes = new();
-    Collider bottomObjCol;
-
     PlayerInteract playerInteract;
 
     void Awake() {
@@ -24,7 +21,7 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
-        if (heldShapes.Count > 0) return;
+        if (!DragGrid.IsEmpty()) return;
 
         GameObject clickedObj = clickInputArgs.TargetObj;
         if (!playerInteract.IsInRange(clickedObj.transform.position)) return;
@@ -35,7 +32,7 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to pick up stack of shapes
         Grid targetGrid = clickedShape.Grid;
-        heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
+        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
         if (heldShapes.Count == 0) {
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
@@ -51,7 +48,6 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        bottomObjCol = clickedObj.GetComponent<Collider>();
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = false;
         }
@@ -65,7 +61,9 @@ public class PlayerDrag : MonoBehaviour {
     Vector3Int lastSelectedCellCoord;
     Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
-        if (heldShapes.Count == 0) return;
+        if (DragGrid.IsEmpty()) return;
+
+        Collider bottomObjCol = DragGrid.Cells[new Vector3Int(0, 0, 0)].Shape.Collider;
         if (bottomObjCol == null) {
             Debug.LogError("Held object is missing a collider.");
             return;
@@ -126,7 +124,10 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     void Release(ClickInputArgs clickInputArgs) {
-        if (heldShapes.Count == 0) return;
+        if (DragGrid.IsEmpty()) return;
+
+        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(new Vector3Int(0,0,0));
+        
         // If releasing out of interactable range, fail to place.
         if (!playerInteract.IsInRange(clickInputArgs.HitPoint)) {
             TweenManager.Shake(heldShapes);
@@ -167,10 +168,6 @@ public class PlayerDrag : MonoBehaviour {
         burst.count = heldShapes.Count * 2 + 3;
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
-
-        // Reset PlayerDrag
-        heldShapes.Clear();
-        bottomObjCol = null;
     }
     
     #region Helper
