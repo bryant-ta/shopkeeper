@@ -41,7 +41,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void ScaleDeliveryDifficulty(int day) { // TEMP: pre-crafting difficulty formulas
         // Scale quantity
-        numProductsInDelivery = productsPerDayGrowth * day;
+        numProductsInDelivery = productsPerDayGrowth * day + 5;
         if (numProductsInDelivery > maxProductsInDelivery) {
             numProductsInDelivery = maxProductsInDelivery;
         }
