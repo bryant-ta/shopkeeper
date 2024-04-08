@@ -24,7 +24,6 @@ public class PlayerDrag : MonoBehaviour {
         if (!DragGrid.IsEmpty()) return;
 
         GameObject clickedObj = clickInputArgs.TargetObj;
-        if (!playerInteract.IsInRange(clickedObj.transform.position)) return;
         IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
 
@@ -62,44 +61,20 @@ public class PlayerDrag : MonoBehaviour {
     Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
-
+        if (!SelectGrid(clickInputArgs)) {
+            return;
+        }
+        
         Collider bottomObjCol = DragGrid.Cells[new Vector3Int(0, 0, 0)].Shape.Collider;
         if (bottomObjCol == null) {
             Debug.LogError("Held object is missing a collider.");
             return;
         }
 
-        // If held out of interactable range, use closest point in range with adjusted hover height
-        Vector3 hitPoint = clickInputArgs.HitPoint;
-        if (!playerInteract.IsInRange(hitPoint)) {
-            if (hitPoint == lastHitPoint) return;
-            lastHitPoint = hitPoint;
-
-            Vector3 dir = hitPoint - transform.position;
-            Vector3 rangeClampedPoint = transform.position + Vector3.ClampMagnitude(dir, playerInteract.InteractRange);
-
-            // Calculate hoverPoint y from objects underneath held object's footprint + manual offset
-            Vector3 castCenter = new Vector3(bottomObjCol.transform.position.x, 50f, bottomObjCol.transform.position.z); // some high point
-            if (Physics.BoxCast(
-                    castCenter, bottomObjCol.transform.localScale / 2f, Vector3.down, out RaycastHit hit, Quaternion.identity,
-                    100f, LayerMask.GetMask("Point"), QueryTriggerInteraction.Ignore
-                )) {
-                if (hit.collider) {
-                    rangeClampedPoint.y = hit.point.y;
-                }
-            }
-
-            DragGrid.transform.DOKill();
-            DragGrid.transform.DOMove(rangeClampedPoint, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
-
-            return;
-        }
-
-        if (!SelectGrid(clickInputArgs)) {
-            return;
-        }
+        
 
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        Vector3 hitPoint = clickInputArgs.HitPoint;
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(hitPoint);
         Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
@@ -125,20 +100,12 @@ public class PlayerDrag : MonoBehaviour {
 
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
-
-        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(new Vector3Int(0,0,0));
-        
-        // If releasing out of interactable range, fail to place.
-        if (!playerInteract.IsInRange(clickInputArgs.HitPoint)) {
-            TweenManager.Shake(heldShapes);
-            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            return;
-        }
-
         if (!SelectGrid(clickInputArgs)) {
             return;
         }
         
+        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(new Vector3Int(0,0,0));
+
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {

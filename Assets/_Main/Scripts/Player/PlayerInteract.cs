@@ -4,10 +4,6 @@ using EventManager;
 using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour {
-    [SerializeField] float interactRange;
-    public float InteractRange => interactRange;
-    [SerializeField] float interactHeight;
-
     [field:SerializeField] public Grid HoldGrid { get; private set; }
     
     AudioSource holdGridPickUpAs;
@@ -15,7 +11,7 @@ public class PlayerInteract : MonoBehaviour {
     void Awake() {
         holdGridPickUpAs = HoldGrid.GetComponent<AudioSource>();
         
-        Ref.Player.PlayerInput.InputInteract += Interact;
+        // Ref.Player.PlayerInput.InputInteract += Interact;
         Ref.Player.PlayerInput.InputSecondaryDown += PickUp;
 
         holdGridPickUpAs.clip = SoundManager.Instance.GetSound(SoundID.ProductHold).AudioClip;
@@ -29,58 +25,37 @@ public class PlayerInteract : MonoBehaviour {
     #region Interact
 
     Action<GameObject> releaseAction = null;
-    void Interact() {
-        // Release interactable if previously interacted with one that requires releasing
-        if (releaseAction != null) {
-            releaseAction(gameObject);
-            releaseAction = null;
-            return;
-        }
-
-        if (!HoldGrid.IsEmpty() || !Ref.Player.PlayerDrag.DragGrid.IsEmpty()) {
-            TweenManager.Shake(HoldGrid.AllShapes());
-            TweenManager.Shake(Ref.Player.PlayerDrag.DragGrid.AllShapes());
-            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            return;
-        }
-        
-        IInteractable closestInteractable = FindClosestInteractable();
-        if (closestInteractable == null) return;
-
-        if (!closestInteractable.Interact(gameObject)) {
-            return;
-        }
-        
-        if (closestInteractable.RequireRelease) {
-            releaseAction = closestInteractable.Release;
-        }
-    }
-
-    Collider[] nearInteractables = new Collider[50];
-    IInteractable FindClosestInteractable() {
-        int nearInteractablesSize = Physics.OverlapSphereNonAlloc(transform.position, interactRange, nearInteractables);
-
-        IInteractable closestInteractable = null;
-        float closestDistance = Mathf.Infinity;
-        for (int i = 0; i < nearInteractablesSize; i++) {
-            if (nearInteractables[i].TryGetComponent(out IInteractable interactable)) {
-                float distance = Vector3.Distance(transform.position, nearInteractables[i].transform.position);
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestInteractable = interactable;
-                }
-            }
-        }
-
-        return closestInteractable;
-    }
+    // void Interact() {
+    //     // Release interactable if previously interacted with one that requires releasing
+    //     if (releaseAction != null) {
+    //         releaseAction(gameObject);
+    //         releaseAction = null;
+    //         return;
+    //     }
+    //
+    //     if (!HoldGrid.IsEmpty() || !Ref.Player.PlayerDrag.DragGrid.IsEmpty()) {
+    //         TweenManager.Shake(HoldGrid.AllShapes());
+    //         TweenManager.Shake(Ref.Player.PlayerDrag.DragGrid.AllShapes());
+    //         SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+    //         return;
+    //     }
+    //
+    //     if (closestInteractable == null) return;
+    //
+    //     if (!closestInteractable.Interact(gameObject)) {
+    //         return;
+    //     }
+    //     
+    //     if (closestInteractable.RequireRelease) {
+    //         releaseAction = closestInteractable.Release;
+    //     }
+    // }
     
     #endregion
 
     #region PickUp
 
     void PickUp(ClickInputArgs clickInputArgs) {
-        if (!IsInRange(clickInputArgs.TargetObj.transform.position)) return;
         GameObject targetObj = clickInputArgs.TargetObj;
 
         if (targetObj.TryGetComponent(out IGridShape clickedShape)) {
@@ -114,12 +89,6 @@ public class PlayerInteract : MonoBehaviour {
     }
     
     #endregion
-
-    public bool IsInRange(Vector3 targetPos) {
-        Vector3 xzDif = targetPos - transform.position;
-        xzDif.y = 0;
-        return targetPos.y - transform.position.y < interactHeight && xzDif.magnitude < interactRange;
-    }
 
     #region Upgrades
 
