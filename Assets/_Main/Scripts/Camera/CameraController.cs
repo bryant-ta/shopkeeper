@@ -1,10 +1,7 @@
 using System;
-using System.Numerics;
 using DG.Tweening;
-using EventManager;
 using TriInspector;
 using UnityEngine;
-using Vector3 = UnityEngine.Vector3;
 
 [RequireComponent(typeof(Camera))]
 public class CameraController : MonoBehaviour {
@@ -19,7 +16,7 @@ public class CameraController : MonoBehaviour {
     [SerializeField] float zoomStep;
     [SerializeField] float zoomMin;
     [SerializeField] float zoomMax;
-    
+
     float targetZoom;
 
     [Title("Rotation")]
@@ -35,13 +32,14 @@ public class CameraController : MonoBehaviour {
             Debug.LogError("CameraController requires a parent object to be the base of the camera.");
             return;
         }
-        
+
         if (Target == null) {
             Debug.LogWarning("Camera target is not set!");
             return;
         }
-        
+
         cam = GetComponent<Camera>();
+
         targetZoom = cam.orthographicSize;
         targetRotation = transform.rotation.eulerAngles;
 
@@ -62,7 +60,7 @@ public class CameraController : MonoBehaviour {
 
     void ZoomView(float scrollInput) {
         if (!UpgradeManager.Flags.Zoom) return;
-        
+
         targetZoom = cam.orthographicSize - scrollInput * zoomStep;
         targetZoom = Mathf.Clamp(targetZoom, zoomMin, zoomMax);
     }
@@ -71,7 +69,7 @@ public class CameraController : MonoBehaviour {
 
     void RotateCamera(float rotateCameraInput) {
         targetRotation = transform.parent.rotation.eulerAngles + new Vector3(0f, 90f * Mathf.Sign(rotateCameraInput), 0f);
-        
+
         transform.parent.DOKill();
         transform.parent.DORotate(targetRotation, rotationDuration, RotateMode.Fast).OnUpdate(() => OnCameraRotate?.Invoke());
     }
