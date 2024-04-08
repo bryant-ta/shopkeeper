@@ -85,5 +85,4 @@ public class UpgradeManager : MonoBehaviour {
 [Serializable]
 public struct UpgradeRefs {
     public ShopExpansionManager ShopExpansionMngr;
-    public Cart Cart;
 }

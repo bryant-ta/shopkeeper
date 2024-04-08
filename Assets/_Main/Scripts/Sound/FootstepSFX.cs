@@ -16,7 +16,7 @@ public class FootstepSFX : MonoBehaviour {
         footstepTimer = new CountdownTimer(stepRate);
         footstepTimer.Start();
 
-        Ref.Player.PlayerMovement.OnMovement += Footstep;
+        // Ref.Player.PlayerMovement.OnMovement += Footstep;
     }
 
     void Footstep() {
