@@ -30,14 +30,14 @@ public class Util : MonoBehaviour {
     /// <param name="seconds">Action execution delay.</param>
     /// <param name="interrupt">Condition for canceling action. MUST be passed by ref using a value reference wrapper.</param>
     /// <param name="action">Function to execute.</param>
-    public static void DoAfterSeconds(MonoBehaviour obj, float seconds, ValueRef<bool> interrupt, Action action) {
-        obj.StartCoroutine(DoAfterSecondsCoroutine(seconds, interrupt, action));
+    public static void DoAfterSeconds(MonoBehaviour obj, float seconds, Action action, ValueRef<bool> interrupt = null) {
+        obj.StartCoroutine(DoAfterSecondsCoroutine(seconds, action, interrupt));
     }
-    static IEnumerator DoAfterSecondsCoroutine(float seconds, ValueRef<bool> interrupt, Action onComplete) {
+    static IEnumerator DoAfterSecondsCoroutine(float seconds, Action onComplete, ValueRef<bool> interrupt = null) {
         float t = 0f;
         while (t < seconds) {
             t += Time.deltaTime * GlobalClock.TimeScale;
-            if (!interrupt.Value) {
+            if (interrupt is {Value: false}) {
                 yield break;
             }
             

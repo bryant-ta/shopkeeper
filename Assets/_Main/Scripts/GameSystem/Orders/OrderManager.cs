@@ -106,7 +106,7 @@ public class OrderManager : MonoBehaviour {
     void ActivateNextOrderDelayed(int activeOrderIndex, bool lastOrderFulfilled = false) {
         ResetActiveOrderSlot(activeOrderIndex, lastOrderFulfilled);
         Util.DoAfterSeconds(
-            this, Random.Range(minNextOrderDelay, maxNextOrderDelay), isOpenPhase, () => ActivateNextOrder(activeOrderIndex)
+            this, Random.Range(minNextOrderDelay, maxNextOrderDelay), () => ActivateNextOrder(activeOrderIndex), isOpenPhase
         );
     }
     void ActivateNextOrder(int activeOrderIndex) {

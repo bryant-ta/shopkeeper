@@ -100,6 +100,10 @@ public class GameManager : Singleton<GameManager> {
             openPhaseClockTime = debugDayClockTimes.OpenPhaseClockTime;
             closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
         }
+        
+        Util.DoAfterSeconds(this, 5, () => {
+            GlobalClock.SetTimeScale(0f);
+        });
     }
     void StartDebugTasks() {
     }

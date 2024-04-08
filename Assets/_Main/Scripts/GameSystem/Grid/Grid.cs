@@ -15,21 +15,17 @@ public class Grid : MonoBehaviour {
 
     [SerializeField] bool smoothPlaceMovement = true;
 
-    public Dictionary<Vector3Int, Cell> Cells => cells;
     [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
+    public Dictionary<Vector3Int, Cell> Cells => cells;
 
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
 
     // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
     // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
-    void Start() { Init(length, height, width); }
+    void Start() { Init(length, width); }
 
-    void Init(int maxLength, int maxHeight, int maxWidth) {
-        this.length = maxLength;
-        this.height = maxHeight;
-        this.width = maxWidth;
-
+    void Init(int maxLength, int maxWidth) {
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
         for (int x = -maxLength / 2; x <= maxLength / 2; x++) {
@@ -42,7 +38,7 @@ public class Grid : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++) {
             if (transform.GetChild(i).childCount == 0) continue;
             if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape shape)) {
-                if (!PlaceShape(shape.RootCoord, shape, true)) {
+                if (!PlaceShape(Vector3Int.FloorToInt(shape.ShapeTransform.position), shape, true)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
                 }
             }
