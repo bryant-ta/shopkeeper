@@ -41,7 +41,7 @@ public class CameraController : MonoBehaviour {
         cam = GetComponent<Camera>();
 
         targetZoom = cam.orthographicSize;
-        targetRotation = transform.rotation.eulerAngles;
+        targetRotation = transform.parent.rotation.eulerAngles;
 
         Ref.Player.PlayerInput.InputScroll += ZoomView;
         Ref.Player.PlayerInput.InputRotateCamera += RotateCamera;
@@ -68,9 +68,11 @@ public class CameraController : MonoBehaviour {
     void UpdateZoom() { cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomSpeed * Time.deltaTime); }
 
     void RotateCamera(float rotateCameraInput) {
+        transform.parent.rotation = Quaternion.Euler(targetRotation);
+        
         targetRotation = transform.parent.rotation.eulerAngles + new Vector3(0f, 90f * Mathf.Sign(rotateCameraInput), 0f);
 
         transform.parent.DOKill();
-        transform.parent.DORotate(targetRotation, rotationDuration, RotateMode.Fast).OnUpdate(() => OnCameraRotate?.Invoke());
+        transform.parent.DORotate(targetRotation, rotationDuration).SetEase(Ease.OutQuad).OnUpdate(() => OnCameraRotate?.Invoke());
     }
 }
