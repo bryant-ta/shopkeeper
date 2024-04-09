@@ -37,6 +37,13 @@ public class PlayerDrag : MonoBehaviour {
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
         }
+        
+        // formula for selecting cell adjacent to clicked face anti-normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
+        Vector3 localHitAntiNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
+        Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
+
+        selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.RootCoord;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
         DragGrid.transform.position = clickedShape.ShapeTransform.position;
@@ -53,28 +60,21 @@ public class PlayerDrag : MonoBehaviour {
         }
         
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
-
         Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
 
     Vector3 lastHitPoint;
     Vector3Int lastSelectedCellCoord;
+    Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
     Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
         if (!SelectGrid(clickInputArgs)) {
             return;
         }
-        
-        Collider bottomObjCol = DragGrid.Cells[new Vector3Int(0, 0, 0)].Shape.Collider;
-        if (bottomObjCol == null) {
-            Debug.LogError("Held object is missing a collider.");
-            return;
-        }
 
-        // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored) (relative to local grid transform)
-        Vector3 hitPoint = clickInputArgs.HitPoint;
-        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(hitPoint);
+        // formula for selecting cell adjacent to clicked face normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
         Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
 
@@ -96,6 +96,7 @@ public class PlayerDrag : MonoBehaviour {
 
             // Do drag movement
             Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
+            worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
             DragGrid.transform.DOKill();
             DragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
             DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
@@ -108,7 +109,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
         
-        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(new Vector3Int(0,0,0));
+        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero);
 
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
