@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using EventManager;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
@@ -71,8 +72,6 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        
-
         // formula for selecting cell adjacent to clicked face (when pivot is bottom center) (y ignored) (relative to local grid transform)
         Vector3 hitPoint = clickInputArgs.HitPoint;
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(hitPoint);
@@ -87,11 +86,16 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        // Do drag movement
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
-            Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
             
+            // No drag movement if selected cell would make drag shapes overlap with existing shapes
+            if (!targetGrid.ValidateShapesPlacement(selectedCellCoord, DragGrid.AllShapes())) {
+                return;
+            } 
+
+            // Do drag movement
+            Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
             DragGrid.transform.DOKill();
             DragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
             DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);

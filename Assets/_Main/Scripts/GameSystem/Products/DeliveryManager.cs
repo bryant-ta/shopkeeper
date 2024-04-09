@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
+    [SerializeField] int numInitialProductsInDelivery;
     [SerializeField] int productsPerDayGrowth;
     [SerializeField] int maxProductsInDelivery;
     [SerializeField, Min(1)] int minGroupQuantity = 1;
@@ -41,7 +42,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void ScaleDeliveryDifficulty(int day) { // TEMP: pre-crafting difficulty formulas
         // Scale quantity
-        numProductsInDelivery = productsPerDayGrowth * day + 5;
+        numProductsInDelivery = productsPerDayGrowth * (day-1) + numInitialProductsInDelivery;
         if (numProductsInDelivery > maxProductsInDelivery) {
             numProductsInDelivery = maxProductsInDelivery;
         }

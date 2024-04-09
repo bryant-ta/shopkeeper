@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public enum ShapeType {
-    _1x1x1,
-    _1x2x1,
-    _2x2x2,
+    _1x1x1 = 0,
+    _1x2x1 = 1,
+    _3x2x1 = 2,
+    _2x2x2 = 3,
 }
 
 [Serializable]
@@ -27,6 +28,18 @@ public static class ShapeDataLookUp {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0,0,0),
                     new(1,0,0),
+                }
+            }
+        },
+        {
+            ShapeType._3x2x1, new ShapeData() {
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0,0,0),
+                    new(1,0,0),
+                    new(2,0,0),
+                    new(0,0,1),
+                    new(1,0,1),
+                    new(2,0,1),
                 }
             }
         },

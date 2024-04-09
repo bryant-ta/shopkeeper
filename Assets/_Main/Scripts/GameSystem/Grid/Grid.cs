@@ -78,7 +78,7 @@ public class Grid : MonoBehaviour {
             shape.ShapeTransform.localPosition = targetCoord;
             shape.ShapeTransform.localRotation = Quaternion.identity;
         }
-        
+
         SoundManager.Instance.PlaySound(SoundID.ProductPlace);
     }
 
@@ -366,6 +366,8 @@ public class Grid : MonoBehaviour {
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();
         foreach (Cell cell in cells.Values) {
+            if (shapes.Contains(cell.Shape)) continue;
+
             shapes.Add(cell.Shape);
         }
 
@@ -373,4 +375,17 @@ public class Grid : MonoBehaviour {
     }
 
     #endregion
+
+    // TEMP: prob, until think of better way with shaders to do invalid/overlap feedbakc
+    public void ChangeColorAllShapes(Color color) {
+        List<IGridShape> shapes = AllShapes();
+        for (int i = 0; i < shapes.Count; i++) {
+            // Ensure the object has a renderer
+            if (shapes[i].ColliderTransform.TryGetComponent<Renderer>(out Renderer rd)) {
+                rd.material.SetColor("_BaseColor", color);
+            } else {
+                Debug.LogError("Shape is missing a renderer.");
+            }
+        }
+    }
 }
