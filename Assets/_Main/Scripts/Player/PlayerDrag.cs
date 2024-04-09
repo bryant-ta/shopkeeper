@@ -90,7 +90,7 @@ public class PlayerDrag : MonoBehaviour {
             lastSelectedCellCoord = selectedCellCoord;
             
             // No drag movement if selected cell would make drag shapes overlap with existing shapes
-            if (!targetGrid.ValidateShapesPlacement(selectedCellCoord, DragGrid.AllShapes())) {
+            if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
                 return;
             } 
 
