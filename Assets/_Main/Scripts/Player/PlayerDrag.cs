@@ -32,10 +32,9 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to pick up stack of shapes
         Grid targetGrid = clickedShape.Grid;
-        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
+        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord, out IGridShape outOfFootprintShape);
         if (heldShapes == null) {
-            // TweenManager.Shake(heldShapes);
-            // TODO: shake out of footprint shapes
+            TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
@@ -115,7 +114,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
         
-        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero);
+        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero, out IGridShape outOfFootprintShape);
 
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
