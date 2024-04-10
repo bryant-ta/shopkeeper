@@ -33,7 +33,13 @@ public class PlayerDrag : MonoBehaviour {
         // Try to pick up stack of shapes
         Grid targetGrid = clickedShape.Grid;
         List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord);
-        if (heldShapes.Count == 0) {
+        if (heldShapes == null) {
+            // TweenManager.Shake(heldShapes);
+            // TODO: shake out of footprint shapes
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            return;
+        }
+        if (heldShapes.Count == 0) { // keep separate from null check for debugging
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
         }

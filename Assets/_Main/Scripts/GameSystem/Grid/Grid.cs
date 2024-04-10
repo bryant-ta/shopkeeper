@@ -166,7 +166,7 @@ public class Grid : MonoBehaviour {
                 IGridShape aboveShape = cells[aboveCoord].Shape;
                 bool canFall = false;
                 foreach (var offset in aboveShape.ShapeData.ShapeOffsets) {
-                    if (!triggerAllFall && offset == Vector3Int.zero) continue; // no fall for cells directly above input coord
+                    if (!triggerAllFall) continue;
 
                     if (IsOpen(aboveCoord + offset + Vector3Int.down)) {
                         canFall = true;
@@ -189,47 +189,50 @@ public class Grid : MonoBehaviour {
 
     #region Selection
 
-    // Simple form of SelectStackedShapes. Assumes all shapes are 1x1x1
-    // TODO: Modify for multi-space shapes
+    /// <summary>
+    /// Selects stack of shapes.
+    /// </summary>
+    /// <param name="coord">Coord of shape at base of stack. This shape is used for stack's footprint.</param>\
+    /// <returns>List of shape stack. Null if a shape above base is outside stack footprint or if coord does not contain a shape.</returns>
     public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
-        List<IGridShape> stackedShapes = new();
-        while (coord.y < height && !IsOpen(coord)) {
-            IGridShape shape = cells[coord].Shape;
-
-            if (!stackedShapes.Contains(shape)) {
-                stackedShapes.Add(shape);
-            }
-
-            coord.y++;
+        if (!IsInBounds(coord) || IsOpen(coord)) return null;
+        IGridShape shape = cells[coord].Shape;
+        
+        List<IGridShape> stackedShapes = new();  // Return list of shape stack
+        Queue<Vector3Int> cellsToCheck = new();  // Work queue for cells to recursively check shapes stack on top of cell
+        List<Vector2Int> stackFootprint = new(); // Tracks cells of bottom shape of stack, the "footprint"
+        
+        // Determine footprint, enqueue every cell above footprint for checking for stacked shapes
+        foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
+            cellsToCheck.Enqueue(shape.RootCoord + offset);
+            stackFootprint.Add(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z));
         }
-
+        stackedShapes.Add(shape);
+        
+        while (cellsToCheck.Count > 0) {
+            Vector3Int checkCoord = cellsToCheck.Dequeue();
+            checkCoord += Vector3Int.up; // Search above check cell
+            
+            if (IsInBounds(checkCoord) && !IsOpen(checkCoord)) {
+                shape = cells[checkCoord].Shape;
+                
+                if (!stackedShapes.Contains(shape)) { // Add shape if new
+                    foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
+                        // Current shape falls outside stack footprint
+                        if (!stackFootprint.Contains(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z))) { 
+                            return null;
+                        }
+                        
+                        cellsToCheck.Enqueue(checkCoord + offset); // Add cells of current shape to the check queue
+                    }
+                    
+                    stackedShapes.Add(shape);
+                }
+            }
+        }
+    
         return stackedShapes;
     }
-
-    // TODO: untested. Possible infinite loop with enqueuing cells that have already been checked?
-    // public List<IGridShape> SelectStackedShapes(Vector3Int coord) {
-    //     List<IGridShape> stackedShapes = new();
-    //     Queue<Vector3Int> cellsToCheck = new Queue<Vector3Int>();
-    //
-    //     cellsToCheck.Enqueue(coord);
-    //     while (cellsToCheck.Count > 0) {
-    //         Vector3Int checkCoord = cellsToCheck.Dequeue();
-    //         checkCoord += Vector3Int.up; // Search above check cell
-    //         if (checkCoord.y < maxHeight !IsOpen(checkCoord)) {
-    //             IGridShape shape = cells[checkCoord];
-    //             
-    //             if (!stackedShapes.Contains(shape)) { // Add shape if new
-    //                 stackedShapes.Add(shape);
-    //                 
-    //                 foreach (Vector3Int offset in shape.ShapeData.Shape) { // Add cells of this shape to the check queue
-    //                     cellsToCheck.Enqueue(checkCoord + offset);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     return stackedShapes;
-    // }
 
     public IGridShape SelectPosition(Vector3Int coord) {
         if (!IsInBounds(coord)) return null;
