@@ -88,6 +88,10 @@ public class Grid : MonoBehaviour {
         if (shapes.Count == 0) return false;
         if (!ValidateShapesPlacement(targetCoord, shapes, ignoreZone)) return false;
 
+        // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
+        // TODO: move if actually has performance impact
+        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
+        
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.RootCoord - lastShapeRootCoord;
@@ -277,7 +281,7 @@ public class Grid : MonoBehaviour {
             Debug.LogError("Cannot validate shape placement: shape is null");
             return false;
         }
-
+        
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos, ignoreZone)) {
@@ -292,14 +296,18 @@ public class Grid : MonoBehaviour {
     // Placement is relative to first shape's root coord placed at targetCoord;
     public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
         if (shapes.Count == 0) return true;
-
+    
+        // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
+        // TODO: move if actually has performance impact
+        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
+        
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.RootCoord - lastShapeRootCoord;
             lastShapeRootCoord = shape.RootCoord;
             if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
         }
-
+    
         return true;
     }
 
@@ -378,6 +386,8 @@ public class Grid : MonoBehaviour {
 
             shapes.Add(cell.Shape);
         }
+        
+        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
 
         return shapes;
     }

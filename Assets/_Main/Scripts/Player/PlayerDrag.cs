@@ -65,7 +65,6 @@ public class PlayerDrag : MonoBehaviour {
         }
         
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
-        Drag(clickInputArgs); // One Drag to update held obj position on initial click
     }
 
     Vector3 lastHitPoint;
@@ -94,7 +93,7 @@ public class PlayerDrag : MonoBehaviour {
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
             
-            // No drag movement if selected cell would make drag shapes overlap with existing shapes
+            // No drag movement if selected cell would make drag shapes overlap with existing
             if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
                 return;
             } 
