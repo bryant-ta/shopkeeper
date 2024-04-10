@@ -83,7 +83,7 @@ public class PlayerDrag : MonoBehaviour {
         Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
 
         // Get lowest open grid cell
-        if (targetGrid.SelectLowestOpen(selectedCellCoord.x, selectedCellCoord.z, out int lowestOpenY)) {
+        if (targetGrid.SelectLowestOpenFromCell(selectedCellCoord, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
         } else {
             // TODO: some feedback that this point is occupied/out of bounds

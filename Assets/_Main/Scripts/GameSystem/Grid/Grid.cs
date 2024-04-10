@@ -261,7 +261,34 @@ public class Grid : MonoBehaviour {
     public bool SelectLowestOpen(int x, int z, out int lowestOpenY) {
         for (int y = 0; y < height; y++) {
             Vector3Int coord = new Vector3Int(x, y, z);
-            if (!cells.ContainsKey(coord)) {
+            if (IsOpen(coord)) {
+                lowestOpenY = coord.y;
+                return true;
+            }
+        }
+
+        lowestOpenY = -1;
+        return false;
+    }
+    
+    /// <summary>
+    /// Returns true if valid highest open cell exists in column at (x, z). Starts searching from input cell downwards until hitting
+    /// any occupied cell or the floor
+    /// </summary>
+    public bool SelectLowestOpenFromCell(Vector3Int startCell, out int lowestOpenY) {
+        for (int y = startCell.y; y >= -1; y--) {
+            Vector3Int coord = new Vector3Int(startCell.x, y, startCell.z);
+            // if (y == -1) {
+            //     if (!IsOpen(coord)) break;
+            //     
+            //     lowestOpenY = coord.y;
+            //     return true;
+            // }
+            
+            if (!IsOpen(coord) || y == -1) {
+                coord.y++;
+                if (!IsOpen(coord)) break;
+                
                 lowestOpenY = coord.y;
                 return true;
             }

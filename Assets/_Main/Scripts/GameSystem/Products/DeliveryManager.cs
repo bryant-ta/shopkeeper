@@ -76,7 +76,8 @@ public class DeliveryManager : MonoBehaviour {
 
                 for (int z = startZ; z != endZ; z += stepZ) {
                     Vector3Int deliveryCoord;
-                    if (grid.SelectLowestOpen(deliveryZone.RootCoord.x + x, deliveryZone.RootCoord.z + z, out int y)) {
+                    Vector3Int selectedCell = new Vector3Int(deliveryZone.RootCoord.x + x, grid.Height, deliveryZone.RootCoord.z + z);
+                    if (grid.SelectLowestOpenFromCell(selectedCell, out int y)) {
                         deliveryCoord = deliveryZone.RootCoord + new Vector3Int(x, y, z);
                     } else { // this xz coord has no free cells
                         continue;
