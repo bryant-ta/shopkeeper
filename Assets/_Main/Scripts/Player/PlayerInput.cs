@@ -16,7 +16,7 @@ public class PlayerInput : MonoBehaviour {
     void Awake() {
         mainCam = Camera.main;
         playerInput = GetComponent<UnityEngine.InputSystem.PlayerInput>();
-        
+
         SetActionMap(Constants.ActionMapNamePlayer);
     }
 
@@ -118,7 +118,7 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action InputInteract;
     public event Action InputCancel;
-    public event Action<float> InputRotate;
+    public event Action<bool> InputRotate;
     public event Action InputDrop;
 
     public void OnInteract(InputAction.CallbackContext ctx) {
@@ -133,10 +133,16 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-    public void OnRotate(InputAction.CallbackContext ctx) {
-        float rotateInput = ctx.ReadValue<float>();
-        if (ctx.performed || ctx.canceled) { // essentially detecting hold
-            InputRotate?.Invoke(rotateInput);
+    public void OnRotateCW(InputAction.CallbackContext ctx) {
+        // if (ctx.performed || ctx.canceled) { // essentially detecting hold
+        if (ctx.performed) {
+            InputRotate?.Invoke(true);
+        }
+    }
+
+    public void OnRotateCCW(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            InputRotate?.Invoke(false);
         }
     }
 
@@ -182,6 +188,6 @@ public class PlayerInput : MonoBehaviour {
             playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Enable();
         }
     }
-    
+
     #endregion
 }

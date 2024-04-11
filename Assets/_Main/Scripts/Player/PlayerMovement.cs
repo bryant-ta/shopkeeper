@@ -47,7 +47,6 @@ public class PlayerMovement : MonoBehaviour {
         SetMovementAxes();
 
         EnableMovement();
-        Ref.Player.PlayerInput.InputRotate += SetRotateInput;
         mainCam.GetComponent<CameraController>().OnCameraRotate += SetMovementAxes;
     }
 
@@ -118,7 +117,6 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void SetMoveInput(MoveInputArgs moveInputArgs) { moveInput = moveInputArgs.MoveInput; }
-    void SetRotateInput(float val) { rotateInput = val; }
 
     void SetMovementAxes() {
         forward = mainCam.transform.forward;

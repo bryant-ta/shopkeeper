@@ -141,9 +141,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Rotate",
+                    "name": "RotateCW",
                     "type": "Value",
-                    "id": "b6bbc8d5-5146-4cfa-9e36-6128075aa8de",
+                    "id": "b5c43485-3592-4692-9244-2929749b84c9",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "RotateCCW",
+                    "type": "Value",
+                    "id": "24d0e4ab-c69f-4142-9019-89fe6a00371b",
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
@@ -221,39 +230,6 @@
                     "action": "Drop",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "[]",
-                    "id": "dc6b2e6c-b94d-44fe-967a-8313712301f3",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "negative",
-                    "id": "c0df645a-4454-413c-957e-152b0bfe9d6b",
-                    "path": "<Keyboard>/leftBracket",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "positive",
-                    "id": "ab8c6b9c-11d5-4798-88f9-e853afb7ad62",
-                    "path": "<Keyboard>/rightBracket",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard&Mouse",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "",
@@ -419,6 +395,50 @@
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3143d162-c8e2-4a0c-9a21-b757c640226b",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCW",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "Shift R",
+                    "id": "2816749c-67ba-4cf7-980c-6a299901c036",
+                    "path": "OneModifier",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCCW",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "modifier",
+                    "id": "84d3c4c7-588c-4cfb-9a20-caa95de9055f",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCCW",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "binding",
+                    "id": "28cbcee1-8bbb-4723-8b89-7d583c66ad50",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateCCW",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         },

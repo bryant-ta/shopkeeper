@@ -19,6 +19,13 @@ public class PlayerDrag : MonoBehaviour {
         Ref.Player.PlayerInput.InputPrimaryDown += Grab;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputPoint += Drag;
+        Ref.Player.PlayerInput.InputRotate += Rotate;
+    }
+
+    void Rotate(bool clockwise) {
+        if (!DragGrid.IsEmpty()) return;
+        
+        DragGrid.RotateShape()
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -73,7 +80,7 @@ public class PlayerDrag : MonoBehaviour {
     Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
-        if (!SelectGrid(clickInputArgs)) {
+        if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
 
@@ -109,7 +116,7 @@ public class PlayerDrag : MonoBehaviour {
 
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
-        if (!SelectGrid(clickInputArgs)) {
+        if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
         
@@ -151,7 +158,7 @@ public class PlayerDrag : MonoBehaviour {
     // Select grid that is currently dragged over, caches last selected
     // Returns false if targetGrid is not set
     GameObject lastHitObj;
-    bool SelectGrid(ClickInputArgs clickInputArgs) {
+    bool SelectTargetGrid(ClickInputArgs clickInputArgs) {
         if (clickInputArgs.TargetObj != lastHitObj) {
             lastHitObj = clickInputArgs.TargetObj;
             if (clickInputArgs.TargetObj.TryGetComponent(out GridFloorHelper gridFloor)) {

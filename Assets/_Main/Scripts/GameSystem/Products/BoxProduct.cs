@@ -1,15 +1,17 @@
+using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
 public class BoxProduct : Product, IGridShape {
-    [field:SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; }
+    [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; }
+
     public Grid Grid {
         get {
             if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {
                 return grid;
             }
-            
+
             Debug.LogError("IGridShape is not in a grid.");
             return null;
         }
@@ -22,15 +24,14 @@ public class BoxProduct : Product, IGridShape {
     [SerializeField] ShapeType shapeType;
     public ShapeType ShapeType => shapeType;
 
-    public ShapeData ShapeData => shapeData;
-    ShapeData shapeData;
-    
+    public ShapeData ShapeData { get; set; }
+
     BoxCollider boxCol;
 
     void Awake() {
         boxCol = GetComponent<BoxCollider>();
         ShapeTransform = transform.parent;
-        shapeData = ShapeDataLookUp.LookUp[shapeType];
+        ShapeData = ShapeDataLookUp.LookUp[shapeType];
     }
 
     public Vector3 CalculateStackPosition(float stackHeight) {

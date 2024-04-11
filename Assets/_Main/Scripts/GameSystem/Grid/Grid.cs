@@ -91,7 +91,7 @@ public class Grid : MonoBehaviour {
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
         // TODO: move if actually has performance impact
         shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
-        
+
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.RootCoord - lastShapeRootCoord;
@@ -111,23 +111,27 @@ public class Grid : MonoBehaviour {
             }
         }
 
-        // Save original shape coords in original grid for removal
+        // Save original shape coords in original grid, remove from original grid
         List<Vector3Int> origRootCoords = new();
         for (int i = 0; i < shapes.Count; i++) {
             origRootCoords.Add(shapes[i].RootCoord);
+            RemoveShapeCells(shapes[i], false);
         }
 
-        if (!targetGrid.PlaceShapes(targetCoord, shapes, ignoreZone)) return false;
+        if (!targetGrid.PlaceShapes(targetCoord, shapes, ignoreZone)) {
+            // Replace shapes in orig position if new placement failed
+            for (int i = 0; i < shapes.Count; i++) {
+                PlaceShape(origRootCoords[i], shapes[i], true);
+            }
 
-        for (int i = 0; i < shapes.Count; i++) {
-            RemoveShapeCells(origRootCoords[i], shapes[i], false);
+            return false;
         }
 
         return true;
     }
 
     public void DestroyShape(IGridShape shape) {
-        RemoveShapeCells(shape.RootCoord, shape, true);
+        RemoveShapeCells(shape, true);
 
         // TODO: prob call IGridShape cleanup tasks on its destruction
         shape.DestroyShape();
@@ -155,23 +159,21 @@ public class Grid : MonoBehaviour {
     /// <param name="shape">Shape of cells to remove</param>
     /// <param name="triggerAllFall">If false, shapes directly above coord will ignore falling. Set false to correctly move
     /// a stack of shapes.</param>
-    void RemoveShapeCells(Vector3Int coord, IGridShape shape, bool triggerAllFall) {
+    void RemoveShapeCells(IGridShape shape, bool triggerAllFall) {
         Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
-            cells.Remove(coord + offset);
-            gapCoords.Enqueue(coord + offset);
+            cells.Remove(shape.RootCoord + offset);
+            gapCoords.Enqueue(shape.RootCoord + offset);
         }
 
         // Trigger falling for any shapes above removed shape cells
-        while (gapCoords.Count > 0) {
+        while (triggerAllFall && gapCoords.Count > 0) {
             Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
             if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord)) {
                 // Check every cell beneath the above shape is open
                 IGridShape aboveShape = cells[aboveCoord].Shape;
                 bool canFall = false;
                 foreach (var offset in aboveShape.ShapeData.ShapeOffsets) {
-                    if (!triggerAllFall) continue;
-
                     if (IsOpen(aboveCoord + offset + Vector3Int.down)) {
                         canFall = true;
                     } else {
@@ -189,6 +191,35 @@ public class Grid : MonoBehaviour {
         }
     }
 
+    public bool RotateShapes(Vector3Int pivot, List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
+        //              move to drag grid -> rotate everything in drag grid together 
+        // - no need validate, drag grid is empty
+
+        // two problems
+        // + when validating rotate, unrotated shape is still there, so always fail
+        // - how to get rotated root coord when root coord is not (0,0,0)
+
+        // if (!ValidateShapeRotate(shape, clockwise, ignoreZone)) return false;
+        //
+
+        // could just clear whole drag grid?
+        for (int i = 0; i < shapes.Count; i++) {
+            RemoveShapeCells(shapes[i], false);
+        }
+        
+        for (int i = 0; i < shapes.Count; i++) {
+            shapes[i].RotateShape(pivot, clockwise);
+            
+            
+            PlaceShapeNoValidate(shapes[i].RootCoord, shapes[i]);
+        }
+       
+        
+        
+
+        return true;
+    }
+
     #endregion
 
     #region Selection
@@ -204,26 +235,28 @@ public class Grid : MonoBehaviour {
         if (!IsInBounds(coord) || IsOpen(coord)) {
             return null;
         }
+
         IGridShape shape = cells[coord].Shape;
-        
+
         List<IGridShape> stackedShapes = new();  // Return list of shape stack
         Queue<Vector3Int> cellsToCheck = new();  // Work queue for cells to recursively check shapes stack on top of cell
         List<Vector2Int> stackFootprint = new(); // Tracks cells of bottom shape of stack, the "footprint"
-        
+
         // Determine footprint, enqueue every cell above footprint for checking for stacked shapes
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cellsToCheck.Enqueue(shape.RootCoord + offset);
             stackFootprint.Add(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z));
         }
+
         stackedShapes.Add(shape);
-        
+
         while (cellsToCheck.Count > 0) {
             Vector3Int checkCoord = cellsToCheck.Dequeue();
             checkCoord += Vector3Int.up; // Search above check cell
-            
+
             if (IsInBounds(checkCoord) && !IsOpen(checkCoord)) {
                 shape = cells[checkCoord].Shape;
-                
+
                 if (!stackedShapes.Contains(shape)) { // Add shape if new
                     foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
                         // Current shape falls outside stack footprint
@@ -231,15 +264,15 @@ public class Grid : MonoBehaviour {
                             outOfFootprintShape = shape;
                             return null;
                         }
-                        
+
                         cellsToCheck.Enqueue(checkCoord + offset); // Add cells of current shape to the check queue
                     }
-                    
+
                     stackedShapes.Add(shape);
                 }
             }
         }
-    
+
         return stackedShapes;
     }
 
@@ -270,7 +303,7 @@ public class Grid : MonoBehaviour {
         lowestOpenY = -1;
         return false;
     }
-    
+
     /// <summary>
     /// Returns true if valid highest open cell exists in column at (x, z). Starts searching from input cell downwards until hitting
     /// any occupied cell or the floor
@@ -284,11 +317,11 @@ public class Grid : MonoBehaviour {
             //     lowestOpenY = coord.y;
             //     return true;
             // }
-            
+
             if (!IsOpen(coord) || y == -1) {
                 coord.y++;
                 if (!IsOpen(coord)) break;
-                
+
                 lowestOpenY = coord.y;
                 return true;
             }
@@ -308,7 +341,7 @@ public class Grid : MonoBehaviour {
             Debug.LogError("Cannot validate shape placement: shape is null");
             return false;
         }
-        
+
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos, ignoreZone)) {
@@ -323,18 +356,59 @@ public class Grid : MonoBehaviour {
     // Placement is relative to first shape's root coord placed at targetCoord;
     public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
         if (shapes.Count == 0) return true;
-    
+
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
         // TODO: move if actually has performance impact
         shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
-        
+
         Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.RootCoord - lastShapeRootCoord;
             lastShapeRootCoord = shape.RootCoord;
             if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
         }
-    
+
+        return true;
+    }
+
+    bool ValidateShapeRotate(IGridShape shape, bool clockwise, bool ignoreZone = false) {
+        if (shape == null) {
+            Debug.LogError("Cannot validate shape placement: shape is null");
+            return false;
+        }
+        
+        ShapeData rotatedShapeData = shape.GetShapeDataRotated(clockwise);
+        
+        foreach (Vector3Int offset in rotatedShapeData.ShapeOffsets) {
+            Vector3Int checkPos = new Vector3Int(shape.RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
+            if (!IsValidPlacement(checkPos, ignoreZone)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    bool ValidateShapesRotate(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
+        if (shapes == null || shapes.Count == 0) {
+            Debug.LogError("Cannot validate shapes rotated placement: shapes is null/empty");
+            return false;
+        }
+
+        List<ShapeData> rotatedShapesData = new();
+        for (int i = 0; i < shapes.Count; i++) {
+            rotatedShapesData.Add(shapes[i].GetShapeDataRotated(clockwise));
+        }
+
+        for (int i = 0; i < rotatedShapesData.Count; i++) {
+            foreach (Vector3Int offset in rotatedShapesData[i].ShapeOffsets) {
+                Vector3Int checkPos = new Vector3Int(shapes[i].RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
+                if (!IsValidPlacement(checkPos, ignoreZone)) {
+                    return false;
+                }
+            }
+            
+        }
+
         return true;
     }
 
@@ -413,7 +487,7 @@ public class Grid : MonoBehaviour {
 
             shapes.Add(cell.Shape);
         }
-        
+
         shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
 
         return shapes;
