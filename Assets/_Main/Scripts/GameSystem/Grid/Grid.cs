@@ -68,7 +68,6 @@ public class Grid : MonoBehaviour {
 
             Sequence seq = DOTween.Sequence().SetId(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
             seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
-            seq.Join(shape.ShapeTransform.DOLocalRotateQuaternion(Quaternion.identity, TweenManager.PlaceShapeDur));
             seq.Play().OnComplete(
                 () => {
                     shape.Collider.enabled = true;
@@ -76,7 +75,6 @@ public class Grid : MonoBehaviour {
             );
         } else {
             shape.ShapeTransform.localPosition = targetCoord;
-            shape.ShapeTransform.localRotation = Quaternion.identity;
         }
 
         SoundManager.Instance.PlaySound(SoundID.ProductPlace);
@@ -191,32 +189,16 @@ public class Grid : MonoBehaviour {
         }
     }
 
-    public bool RotateShapes(Vector3Int pivot, List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
-        //              move to drag grid -> rotate everything in drag grid together 
-        // - no need validate, drag grid is empty
-
-        // two problems
-        // + when validating rotate, unrotated shape is still there, so always fail
-        // - how to get rotated root coord when root coord is not (0,0,0)
-
-        // if (!ValidateShapeRotate(shape, clockwise, ignoreZone)) return false;
-        //
-
-        // could just clear whole drag grid?
+    public bool RotateShapes(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
         for (int i = 0; i < shapes.Count; i++) {
             RemoveShapeCells(shapes[i], false);
         }
         
         for (int i = 0; i < shapes.Count; i++) {
-            shapes[i].RotateShape(pivot, clockwise);
-            
-            
+            shapes[i].RotateShape(clockwise);
             PlaceShapeNoValidate(shapes[i].RootCoord, shapes[i]);
         }
-       
         
-        
-
         return true;
     }
 
@@ -371,46 +353,46 @@ public class Grid : MonoBehaviour {
         return true;
     }
 
-    bool ValidateShapeRotate(IGridShape shape, bool clockwise, bool ignoreZone = false) {
-        if (shape == null) {
-            Debug.LogError("Cannot validate shape placement: shape is null");
-            return false;
-        }
-        
-        ShapeData rotatedShapeData = shape.GetShapeDataRotated(clockwise);
-        
-        foreach (Vector3Int offset in rotatedShapeData.ShapeOffsets) {
-            Vector3Int checkPos = new Vector3Int(shape.RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
-            if (!IsValidPlacement(checkPos, ignoreZone)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    bool ValidateShapesRotate(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
-        if (shapes == null || shapes.Count == 0) {
-            Debug.LogError("Cannot validate shapes rotated placement: shapes is null/empty");
-            return false;
-        }
-
-        List<ShapeData> rotatedShapesData = new();
-        for (int i = 0; i < shapes.Count; i++) {
-            rotatedShapesData.Add(shapes[i].GetShapeDataRotated(clockwise));
-        }
-
-        for (int i = 0; i < rotatedShapesData.Count; i++) {
-            foreach (Vector3Int offset in rotatedShapesData[i].ShapeOffsets) {
-                Vector3Int checkPos = new Vector3Int(shapes[i].RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
-                if (!IsValidPlacement(checkPos, ignoreZone)) {
-                    return false;
-                }
-            }
-            
-        }
-
-        return true;
-    }
+    // bool ValidateShapeRotate(IGridShape shape, bool clockwise, bool ignoreZone = false) {
+    //     if (shape == null) {
+    //         Debug.LogError("Cannot validate shape placement: shape is null");
+    //         return false;
+    //     }
+    //     
+    //     ShapeData rotatedShapeData = shape.GetShapeDataRotated(clockwise);
+    //     
+    //     foreach (Vector3Int offset in rotatedShapeData.ShapeOffsets) {
+    //         Vector3Int checkPos = new Vector3Int(shape.RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
+    //         if (!IsValidPlacement(checkPos, ignoreZone)) {
+    //             return false;
+    //         }
+    //     }
+    //
+    //     return true;
+    // }
+    // bool ValidateShapesRotate(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
+    //     if (shapes == null || shapes.Count == 0) {
+    //         Debug.LogError("Cannot validate shapes rotated placement: shapes is null/empty");
+    //         return false;
+    //     }
+    //
+    //     List<ShapeData> rotatedShapesData = new();
+    //     for (int i = 0; i < shapes.Count; i++) {
+    //         rotatedShapesData.Add(shapes[i].GetShapeDataRotated(clockwise));
+    //     }
+    //
+    //     for (int i = 0; i < rotatedShapesData.Count; i++) {
+    //         foreach (Vector3Int offset in rotatedShapesData[i].ShapeOffsets) {
+    //             Vector3Int checkPos = new Vector3Int(shapes[i].RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
+    //             if (!IsValidPlacement(checkPos, ignoreZone)) {
+    //                 return false;
+    //             }
+    //         }
+    //         
+    //     }
+    //
+    //     return true;
+    // }
 
     #endregion
 

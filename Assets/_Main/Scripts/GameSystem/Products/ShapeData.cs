@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TriInspector;
 using UnityEngine;
 
 public enum ShapeType {
@@ -32,7 +33,7 @@ public enum ShapeType {
 
 [Serializable]
 public struct ShapeData {
-    [NonSerialized] public List<Vector3Int> ShapeOffsets;
+    [ReadOnly] public List<Vector3Int> ShapeOffsets;
 }
 
 public static class ShapeDataLookUp {

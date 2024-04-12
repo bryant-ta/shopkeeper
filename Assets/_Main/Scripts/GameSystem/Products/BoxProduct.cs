@@ -24,7 +24,7 @@ public class BoxProduct : Product, IGridShape {
     [SerializeField] ShapeType shapeType;
     public ShapeType ShapeType => shapeType;
 
-    public ShapeData ShapeData { get; set; }
+    [field:SerializeField] public ShapeData ShapeData { get; set; }
 
     BoxCollider boxCol;
 

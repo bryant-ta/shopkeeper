@@ -13,38 +13,17 @@ public interface IGridShape {
 
     public ShapeData ShapeData { get; set; }
     
-    public void RotateShape(Vector3Int pivot, bool clockwise) {
+    // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
+    public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
         
-        // Rotate gameObject around y-axis
-        ShapeData = GetShapeDataRotated(pivot, clockwise, out Vector3Int rotatedRootCoord);
-        RootCoord = rotatedRootCoord;
-        ShapeTransform.Rotate(Vector3.up, 90f * cw);
-    }
-
-    public ShapeData GetShapeDataRotated(Vector3Int pivot, bool clockwise, out Vector3Int rotatedRootCoord) {
-        int cw = clockwise ? 1 : -1;
         ShapeData rotatedShapeData = new ShapeData { ShapeOffsets = new List<Vector3Int>() };
-        
-        Vector3Int pivotOffset = pivot - RootCoord;
-        
-        // Output new root coord
-        Vector3Int relativePosition = RootCoord - pivotOffset;
-        Vector3Int rotatedRelativePosition = new Vector3Int(relativePosition.z * cw, relativePosition.y, -relativePosition.x * cw);
-        Vector3Int rotatedPosition = rotatedRelativePosition + pivotOffset;
-        rotatedRootCoord = rotatedPosition;
-        
-        // Rotate shape data
         foreach (Vector3Int offset in ShapeData.ShapeOffsets) {
-            // formula for rotating around a pivot on y-axis
-            relativePosition = offset - pivotOffset;
-            rotatedRelativePosition = new Vector3Int(relativePosition.z * cw, relativePosition.y, -relativePosition.x * cw);
-            rotatedPosition = rotatedRelativePosition + pivotOffset;
-            
-            rotatedShapeData.ShapeOffsets.Add(rotatedPosition);
+            Vector3Int rotatedOffset = new Vector3Int(offset.z * cw, offset.y, -offset.x * cw);
+            rotatedShapeData.ShapeOffsets.Add(rotatedOffset);
         }
-        
-        return rotatedShapeData;
+
+        ShapeData = rotatedShapeData;
     }
     
     public void DestroyShape() {

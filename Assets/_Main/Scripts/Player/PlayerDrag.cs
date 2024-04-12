@@ -11,21 +11,11 @@ public class PlayerDrag : MonoBehaviour {
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
 
-    PlayerInteract playerInteract;
-
     void Awake() {
-        playerInteract = GetComponent<PlayerInteract>();
-
         Ref.Player.PlayerInput.InputPrimaryDown += Grab;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputPoint += Drag;
         Ref.Player.PlayerInput.InputRotate += Rotate;
-    }
-
-    void Rotate(bool clockwise) {
-        if (!DragGrid.IsEmpty()) return;
-        
-        DragGrid.RotateShape()
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -72,9 +62,50 @@ public class PlayerDrag : MonoBehaviour {
         }
         
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
+        
+        
+        
     }
 
+    void Rotate(bool clockwise) {
+        if (DragGrid.IsEmpty()) return;
+        
+        List<IGridShape> dragShapes = DragGrid.AllShapes();
+        
+        // Update offset of drag grid so that selected shape cell stays under cursor
+        selectedShapeCellOffset = new Vector3Int(selectedShapeCellOffset.z, selectedShapeCellOffset.y, -selectedShapeCellOffset.x);
+
+        /*
+         * Order of Operations for the *Illusion* of physical rotation while doing logical rotation a different way:
+         *   parent shapes to rotation pivot → shift drag grid → do physical rotation around pivot → parent to drag grid →
+         *   do logical rotation around root coord + new placement
+         *   (which will do a physical move with no effect bc shape will already be in correct position)
+         *
+         * The simple non-illusion way (no tweening) just requires logical rotation + instant physical rotation -> instant physical shift
+         */
+        foreach (IGridShape shape in dragShapes) {
+            shape.ShapeTransform.SetParent(dragGridRotationPivot);
+        }
+        
+        // Do instant drag grid shift
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
+        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
+        DragGrid.transform.position = worldPos;
+        
+        Vector3 newRotation = dragGridRotationPivot.rotation.eulerAngles;
+        newRotation.y += 90f;
+        dragGridRotationPivot.transform.DORotate(newRotation, 0.15f).SetEase(Ease.OutQuad).OnComplete(() => {
+            foreach (IGridShape shape in dragShapes) {
+                shape.ShapeTransform.SetParent(DragGrid.transform);
+            }
+            DragGrid.RotateShapes(dragShapes, clockwise);
+        });
+    }
+
+    [SerializeField] Transform dragGridRotationPivot;
+
     Vector3 lastHitPoint;
+    Vector3Int selectedCellCoord;
     Vector3Int lastSelectedCellCoord;
     Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
     Grid targetGrid;
@@ -87,7 +118,7 @@ public class PlayerDrag : MonoBehaviour {
         // formula for selecting cell adjacent to clicked face normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
         Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
+        selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
 
         // Get lowest open grid cell
         if (targetGrid.SelectLowestOpenFromCell(selectedCellCoord, out int lowestOpenY)) {
@@ -96,9 +127,10 @@ public class PlayerDrag : MonoBehaviour {
             // TODO: some feedback that this point is occupied/out of bounds
             return;
         }
-
+        
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
+            dragGridRotationPivot.transform.position = selectedCellCoord;
             
             // No drag movement if selected cell would make drag shapes overlap with existing
             if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
