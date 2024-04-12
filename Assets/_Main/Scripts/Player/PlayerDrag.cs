@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using EventManager;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
@@ -22,10 +20,19 @@ public class PlayerDrag : MonoBehaviour {
     void Awake() {
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
         
-        Ref.Player.PlayerInput.InputPrimaryDown += Grab;
+        Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputPoint += Drag;
         Ref.Player.PlayerInput.InputRotate += Rotate;
+    }
+
+    bool isHolding = false;
+    void GrabRelease(ClickInputArgs clickInputArgs) {
+        if (isHolding) {
+            Release(clickInputArgs);
+        } else {
+            Grab(clickInputArgs);
+        }
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
@@ -72,6 +79,8 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = false;
         }
+
+        isHolding = true;
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
     }
@@ -199,6 +208,8 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = true;
         }
+
+        isHolding = false;
 
         // TEMP: play shape placement smoke burst particles
         ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
