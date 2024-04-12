@@ -17,6 +17,10 @@ public interface IGridShape {
     public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
         
+        // Rotate root coord
+        RootCoord = new Vector3Int(RootCoord.z * cw, RootCoord.y, -RootCoord.x * cw);
+        
+        // Rotate shape data
         ShapeData rotatedShapeData = new ShapeData { ShapeOffsets = new List<Vector3Int>() };
         foreach (Vector3Int offset in ShapeData.ShapeOffsets) {
             Vector3Int rotatedOffset = new Vector3Int(offset.z * cw, offset.y, -offset.x * cw);

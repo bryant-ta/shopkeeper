@@ -76,6 +76,10 @@ public class PlayerDrag : MonoBehaviour {
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
     }
 
+    void Update() {
+        rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
+    }
+
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
@@ -114,10 +118,6 @@ public class PlayerDrag : MonoBehaviour {
         }
     }
 
-    void Update() {
-        rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
-    }
-
     bool isRotating = false;
     void Rotate(bool clockwise) {
         if (DragGrid.IsEmpty()) return;
@@ -140,20 +140,24 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in dragShapes) {
             shape.ShapeTransform.SetParent(rotationPivot);
         }
-
+        
+        // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
+        string tweenIDd = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+        DOTween.Kill(tweenIDd);
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
+        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
+        DragGrid.transform.position = worldPos;
+        
         rotationPivot.rotation = Quaternion.Euler(pivotTargetRotation);
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
         pivotTargetRotation.y += 90f;
-
+        
         string tweenID = rotationPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
         DOTween.Kill(tweenID);
         rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(tweenID).SetEase(Ease.OutQuad)
             .OnComplete(
                 () => {
-                    // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
-                    Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
-                    worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
-                    DragGrid.transform.position = worldPos;
+                    
                     foreach (IGridShape shape in dragShapes) {
                         shape.ShapeTransform.SetParent(DragGrid.transform);
                     }
