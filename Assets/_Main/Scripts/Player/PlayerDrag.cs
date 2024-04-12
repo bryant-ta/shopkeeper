@@ -6,12 +6,21 @@ using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
 public class PlayerDrag : MonoBehaviour {
-    [field:SerializeField] public Grid DragGrid { get; private set; }
+    [field: SerializeField] public Grid DragGrid { get; private set; }
+
+    [SerializeField] Transform rotationPivot;
+    Vector3 pivotTargetRotation;
+
+    Vector3Int selectedCellCoord;
+    Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
+    Grid targetGrid;
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
 
     void Awake() {
+        pivotTargetRotation = rotationPivot.rotation.eulerAngles;
+        
         Ref.Player.PlayerInput.InputPrimaryDown += Grab;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputPoint += Drag;
@@ -35,14 +44,16 @@ public class PlayerDrag : MonoBehaviour {
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
+
         if (heldShapes.Count == 0) { // keep separate from null check for debugging
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
         }
-        
+
         // formula for selecting cell adjacent to clicked face anti-normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
-        Vector3 localHitAntiNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
+        Vector3 localHitAntiNormal =
+            targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.RootCoord;
@@ -60,55 +71,11 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in heldShapes) {
             shape.Collider.enabled = false;
         }
-        
+
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
-        
-        
-        
     }
 
-    void Rotate(bool clockwise) {
-        if (DragGrid.IsEmpty()) return;
-        
-        List<IGridShape> dragShapes = DragGrid.AllShapes();
-        
-        // Update offset of drag grid so that selected shape cell stays under cursor
-        selectedShapeCellOffset = new Vector3Int(selectedShapeCellOffset.z, selectedShapeCellOffset.y, -selectedShapeCellOffset.x);
-
-        /*
-         * Order of Operations for the *Illusion* of physical rotation while doing logical rotation a different way:
-         *   parent shapes to rotation pivot → shift drag grid → do physical rotation around pivot → parent to drag grid →
-         *   do logical rotation around root coord + new placement
-         *   (which will do a physical move with no effect bc shape will already be in correct position)
-         *
-         * The simple non-illusion way (no tweening) just requires logical rotation + instant physical rotation -> instant physical shift
-         */
-        foreach (IGridShape shape in dragShapes) {
-            shape.ShapeTransform.SetParent(dragGridRotationPivot);
-        }
-        
-        // Do instant drag grid shift
-        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
-        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
-        DragGrid.transform.position = worldPos;
-        
-        Vector3 newRotation = dragGridRotationPivot.rotation.eulerAngles;
-        newRotation.y += 90f;
-        dragGridRotationPivot.transform.DORotate(newRotation, 0.15f).SetEase(Ease.OutQuad).OnComplete(() => {
-            foreach (IGridShape shape in dragShapes) {
-                shape.ShapeTransform.SetParent(DragGrid.transform);
-            }
-            DragGrid.RotateShapes(dragShapes, clockwise);
-        });
-    }
-
-    [SerializeField] Transform dragGridRotationPivot;
-
-    Vector3 lastHitPoint;
-    Vector3Int selectedCellCoord;
     Vector3Int lastSelectedCellCoord;
-    Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
-    Grid targetGrid;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
         if (!SelectTargetGrid(clickInputArgs)) {
@@ -127,23 +94,67 @@ public class PlayerDrag : MonoBehaviour {
             // TODO: some feedback that this point is occupied/out of bounds
             return;
         }
-        
+
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
-            dragGridRotationPivot.transform.position = selectedCellCoord;
-            
+            rotationPivot.transform.position = selectedCellCoord;
+
             // No drag movement if selected cell would make drag shapes overlap with existing
             if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
                 return;
-            } 
+            }
 
             // Do drag movement
             Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
             worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
-            DragGrid.transform.DOKill();
-            DragGrid.transform.DOMove(worldPos, TweenManager.DragSnapDur).SetEase(Ease.OutQuad);
-            DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
+            string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+            DOTween.Kill(tweenID);
+            DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
+            // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
         }
+    }
+
+    void Rotate(bool clockwise) {
+        if (DragGrid.IsEmpty()) return;
+
+        List<IGridShape> dragShapes = DragGrid.AllShapes();
+
+        // Update offset of drag grid so that selected shape cell stays under cursor
+        selectedShapeCellOffset = new Vector3Int(selectedShapeCellOffset.z, selectedShapeCellOffset.y, -selectedShapeCellOffset.x);
+
+        /*
+         * Order of Operations for the *Illusion* of physical rotation while doing logical rotation a different way:
+         *   parent shapes to rotation pivot → shift drag grid → do physical rotation around pivot → parent to drag grid →
+         *   do logical rotation around root coord + new placement
+         *   (which will do a physical move with no effect bc shape will already be in correct position)
+         *
+         * The simple non-illusion way (no tweening) just requires logical rotation + instant physical rotation -> instant physical shift
+         */
+        foreach (IGridShape shape in dragShapes) {
+            shape.ShapeTransform.SetParent(rotationPivot);
+        }
+
+        // Do instant drag grid shift
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
+        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
+        DragGrid.transform.position = worldPos;
+
+        rotationPivot.transform.rotation = Quaternion.Euler(pivotTargetRotation);
+        pivotTargetRotation = rotationPivot.rotation.eulerAngles;
+        pivotTargetRotation.y += 90f;
+
+        string tweenID = rotationPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
+        DOTween.Kill(tweenID);
+        rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(tweenID).SetEase(Ease.OutQuad)
+            .OnComplete(
+                () => {
+                    foreach (IGridShape shape in dragShapes) {
+                        shape.ShapeTransform.SetParent(DragGrid.transform);
+                    }
+
+                    DragGrid.RotateShapes(dragShapes, clockwise);
+                }
+            );
     }
 
     void Release(ClickInputArgs clickInputArgs) {
@@ -151,7 +162,7 @@ public class PlayerDrag : MonoBehaviour {
         if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
-        
+
         List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero, out IGridShape outOfFootprintShape);
 
         // Try to place held shapes
@@ -184,9 +195,9 @@ public class PlayerDrag : MonoBehaviour {
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
     }
-    
+
     #region Helper
-    
+
     // Select grid that is currently dragged over, caches last selected
     // Returns false if targetGrid is not set
     GameObject lastHitObj;
@@ -202,7 +213,7 @@ public class PlayerDrag : MonoBehaviour {
 
         return targetGrid != null;
     }
-    
+
     #endregion
 
     #region Upgrades

@@ -3,12 +3,13 @@ using DG.Tweening;
 using UnityEngine;
 
 public static class TweenManager {
-    public const float PlaceShapeDur = 0.2f;           // duration of shape placement to grids
-    public const float DestroyShapeDur = 0.2f;         // duration of shape destroy
-    public const float IndividualDeliveryDelay = 0.1f; // delay between delivery of individual products
-    public const float OrderBubbleFadeDur = 0.75f;     // duration of order bubble fade in/out
-    public const float DragSnapDur = 0.15f;            // duration of moving dragged shapes on grid
-    public static readonly DOTweenShakeArgs InvalidShake = new() { // shake params for invalid product placement
+    public const float PlaceShapeDur = 0.2f;                        // duration of shape placement to grids
+    public const float DestroyShapeDur = 0.2f;                      // duration of shape destroy
+    public const float IndividualDeliveryDelay = 0.1f;              // delay between delivery of individual products
+    public const float OrderBubbleFadeDur = 0.75f;                  // duration of order bubble fade in/out
+    public const float DragMoveDur = 0.15f;                         // duration of moving dragged shapes on grid
+    public const float DragRotateDur = 0.15f;                       // duration of rotating dragged shapes
+    public static readonly DOTweenShakeArgs InvalidShake = new() {  // shake params for invalid product placement
         Duration = 0.2f,
         Strength = 0.1f,
         Vibrato = 30,
@@ -16,6 +17,8 @@ public static class TweenManager {
     };
 
     public const string PlaceShapeID = "_placeShape";
+    public const string DragMoveID = "_dragMove";
+    public const string DragRotateID = "_dragRotate";
     const string InvalidShakeID = "_invalidShake";
     
     public static void Shake(IGridShape shape) {

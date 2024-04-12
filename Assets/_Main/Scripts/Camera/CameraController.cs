@@ -68,6 +68,7 @@ public class CameraController : MonoBehaviour {
     void UpdateZoom() { cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomSpeed * Time.deltaTime); }
 
     void RotateCamera(float rotateCameraInput) {
+        // prevents rotation out of sync when attempting to rotate again during an active rotation
         transform.parent.rotation = Quaternion.Euler(targetRotation);
         
         targetRotation = transform.parent.rotation.eulerAngles + new Vector3(0f, 90f * Mathf.Sign(rotateCameraInput), 0f);
