@@ -141,12 +141,7 @@ public class PlayerDrag : MonoBehaviour {
             shape.ShapeTransform.SetParent(rotationPivot);
         }
 
-        // Do instant drag grid shift
-        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
-        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
-        DragGrid.transform.position = worldPos;
-
-        rotationPivot.transform.rotation = Quaternion.Euler(pivotTargetRotation);
+        rotationPivot.rotation = Quaternion.Euler(pivotTargetRotation);
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
         pivotTargetRotation.y += 90f;
 
@@ -155,6 +150,10 @@ public class PlayerDrag : MonoBehaviour {
         rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(tweenID).SetEase(Ease.OutQuad)
             .OnComplete(
                 () => {
+                    // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
+                    Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
+                    worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
+                    DragGrid.transform.position = worldPos;
                     foreach (IGridShape shape in dragShapes) {
                         shape.ShapeTransform.SetParent(DragGrid.transform);
                     }
@@ -171,7 +170,7 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero, out IGridShape outOfFootprintShape);
+        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero, out IGridShape shapeOutOfFootprint);
 
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));

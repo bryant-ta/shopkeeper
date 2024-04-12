@@ -193,7 +193,8 @@ public class Grid : MonoBehaviour {
         }
     }
 
-    public bool RotateShapes(List<IGridShape> shapes, bool clockwise) {
+    // no validation
+    public void RotateShapes(List<IGridShape> shapes, bool clockwise) {
         for (int i = 0; i < shapes.Count; i++) {
             RemoveShapeCells(shapes[i], false);
         }
@@ -202,8 +203,6 @@ public class Grid : MonoBehaviour {
             shapes[i].RotateShape(clockwise);
             PlaceShapeNoValidate(shapes[i].RootCoord, shapes[i]);
         }
-        
-        return true;
     }
 
     #endregion
@@ -214,10 +213,10 @@ public class Grid : MonoBehaviour {
     /// Selects stack of shapes.
     /// </summary>
     /// <param name="coord">Coord of shape at base of stack. This shape is used for stack's footprint.</param>
-    /// <param name="outOfFootprintShape">Set if shape is outside of footprint.</param>
+    /// <param name="shapeOutOfFootprint">Set if shape is outside of footprint.</param>
     /// <returns>List of shape stack. Null if a shape above base is outside stack footprint or if coord does not contain a shape.</returns>
-    public List<IGridShape> SelectStackedShapes(Vector3Int coord, out IGridShape outOfFootprintShape) {
-        outOfFootprintShape = null;
+    public List<IGridShape> SelectStackedShapes(Vector3Int coord, out IGridShape shapeOutOfFootprint) {
+        shapeOutOfFootprint = null;
         if (!IsInBounds(coord) || IsOpen(coord)) {
             return null;
         }
@@ -247,7 +246,7 @@ public class Grid : MonoBehaviour {
                     foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
                         // Current shape falls outside stack footprint
                         if (!stackFootprint.Contains(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z))) {
-                            outOfFootprintShape = shape;
+                            shapeOutOfFootprint = shape;
                             return null;
                         }
 

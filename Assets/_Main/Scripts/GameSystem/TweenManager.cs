@@ -8,7 +8,7 @@ public static class TweenManager {
     public const float IndividualDeliveryDelay = 0.1f;              // delay between delivery of individual products
     public const float OrderBubbleFadeDur = 0.75f;                  // duration of order bubble fade in/out
     public const float DragMoveDur = 0.15f;                         // duration of moving dragged shapes on grid
-    public const float DragRotateDur = 0.15f;                       // duration of rotating dragged shapes
+    public const float DragRotateDur = 0.13f;                       // duration of rotating dragged shapes
     public static readonly DOTweenShakeArgs InvalidShake = new() {  // shake params for invalid product placement
         Duration = 0.2f,
         Strength = 0.1f,
