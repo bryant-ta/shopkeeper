@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using EventManager;
@@ -97,7 +98,6 @@ public class PlayerDrag : MonoBehaviour {
 
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
-            rotationPivot.transform.position = selectedCellCoord;
 
             // No drag movement if selected cell would make drag shapes overlap with existing
             if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
@@ -112,6 +112,10 @@ public class PlayerDrag : MonoBehaviour {
             DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
             // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
         }
+    }
+
+    void Update() {
+        rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
     }
 
     void Rotate(bool clockwise) {

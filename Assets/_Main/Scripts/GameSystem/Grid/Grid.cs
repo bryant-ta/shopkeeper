@@ -101,6 +101,10 @@ public class Grid : MonoBehaviour {
     }
 
     public bool MoveShapes(Grid targetGrid, Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
+        if (shapes == null || shapes.Count == 0) {
+            Debug.LogWarning("MoveShapes was called with empty/null shapes list.");
+            return false;
+        }
         if (!ignoreZone) {
             for (int i = 0; i < shapes.Count; i++) {
                 if (!CheckZones(shapes[i].RootCoord, prop => prop.CanTake)) {
