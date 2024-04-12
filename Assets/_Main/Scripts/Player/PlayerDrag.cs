@@ -118,9 +118,12 @@ public class PlayerDrag : MonoBehaviour {
         rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
     }
 
+    bool isRotating = false;
     void Rotate(bool clockwise) {
         if (DragGrid.IsEmpty()) return;
+        if (isRotating) return;
 
+        isRotating = true;
         List<IGridShape> dragShapes = DragGrid.AllShapes();
 
         // Update offset of drag grid so that selected shape cell stays under cursor
@@ -157,6 +160,7 @@ public class PlayerDrag : MonoBehaviour {
                     }
 
                     DragGrid.RotateShapes(dragShapes, clockwise);
+                    isRotating = false;
                 }
             );
     }

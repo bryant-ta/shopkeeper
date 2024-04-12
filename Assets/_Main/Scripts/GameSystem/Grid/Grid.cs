@@ -193,7 +193,7 @@ public class Grid : MonoBehaviour {
         }
     }
 
-    public bool RotateShapes(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
+    public bool RotateShapes(List<IGridShape> shapes, bool clockwise) {
         for (int i = 0; i < shapes.Count; i++) {
             RemoveShapeCells(shapes[i], false);
         }
