@@ -8,7 +8,7 @@ public class Grid : MonoBehaviour {
     [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
     [SerializeField] int length;
     public int Length => length;
-    [SerializeField] int height;
+    int height; // controlled thru GameManager config
     public int Height => height;
     [SerializeField] int width;
     public int Width => width;
@@ -33,6 +33,8 @@ public class Grid : MonoBehaviour {
                 validCells.Add(new Vector2Int(x, z));
             }
         }
+
+        height = GameManager.Instance.GlobalGridHeight;
 
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {

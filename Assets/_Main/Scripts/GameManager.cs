@@ -20,6 +20,8 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
     static Grid _worldGrid;
+    public int GlobalGridHeight => globalGridHeight;
+    [SerializeField] int globalGridHeight;
 
     [Header("Time")]
     [SerializeField] [Tooltip("Time on clock that day starts")]
