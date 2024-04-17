@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Tags;
 using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
@@ -90,7 +91,7 @@ public class DeliveryManager : MonoBehaviour {
 
                     groupQuantity--;
 
-                    Product product = ProductFactory.Instance.CreateRandomProduct();
+                    Product product = ProductFactory.Instance.CreateProduct(productData, new ProductTags(), new ShapeTags());
 
                     if (product.TryGetComponent(out IGridShape shape)) {
                         shape.ShapeTransform.position = productSpawnPosition.position;

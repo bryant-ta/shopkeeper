@@ -107,12 +107,17 @@ public class Grid : MonoBehaviour {
             Debug.LogWarning("MoveShapes was called with empty/null shapes list.");
             return false;
         }
+        
+        // Check shape move rules
         if (!ignoreZone) {
             for (int i = 0; i < shapes.Count; i++) {
                 if (!CheckZones(shapes[i].RootCoord, prop => prop.CanTake)) {
                     return false;
                 }
             }
+        }
+        for (int i = 0; i < shapes.Count; i++) {
+            if (!shapes[i].ShapeTags.CheckMoveTags()) return false;
         }
 
         // Save original shape coords in original grid, remove from original grid
@@ -329,7 +334,7 @@ public class Grid : MonoBehaviour {
             return false;
         }
 
-        if (!shape.ShapeTags.CheckAllTags(targetCoord)) return false;
+        if (!shape.ShapeTags.CheckPlaceTags(targetCoord)) return false;
 
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
