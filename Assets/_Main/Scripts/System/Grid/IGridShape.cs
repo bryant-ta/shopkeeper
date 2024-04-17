@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using Tags;
 using UnityEngine;
 
 public interface IGridShape {
@@ -12,6 +13,8 @@ public interface IGridShape {
     public Collider Collider { get; }
 
     public ShapeData ShapeData { get; set; }
+    
+    public ShapeTags ShapeTags { get; }
     
     // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
     public void RotateShape(bool clockwise) {

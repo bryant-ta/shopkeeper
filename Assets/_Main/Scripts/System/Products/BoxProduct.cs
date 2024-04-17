@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Tags;
 using TriInspector;
 using UnityEngine;
 
@@ -24,7 +25,9 @@ public class BoxProduct : Product, IGridShape {
     [SerializeField] ShapeType shapeType;
     public ShapeType ShapeType => shapeType;
 
-    [field:SerializeField] public ShapeData ShapeData { get; set; }
+    [field:SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
+    
+    public ShapeTags ShapeTags { get; }
 
     BoxCollider boxCol;
 

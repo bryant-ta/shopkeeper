@@ -1,21 +1,17 @@
 using System.Collections.Generic;
 
-namespace ProductTag {
+namespace Tags {
 public class ProductTags {
-    public List<BasicTagID> BasicTags;
-    public List<ScoreTag> ScoreTags;
-    public List<ConstraintTag> ConstraintTags;
+    public List<BasicTagID> BasicTags = new();
+    public List<ScoreTag> ScoreTags = new();
 
-    public void ScoreTags() {
-        
-    }
-
-    public bool CheckTags() {
-        for (int i = 0; i < ConstraintTags.Count; i++) {
-            if (!ConstraintTags[i].Check()) return false;
+    public int ScoreAllTags(int baseScore) {
+        int score = 0;
+        for (int i = 0; i < ScoreTags.Count; i++) {
+            score += ScoreTags[i].CalculateScore(baseScore);
         }
 
-        return true;
+        return score;
     }
 }
 

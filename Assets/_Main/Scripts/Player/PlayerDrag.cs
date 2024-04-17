@@ -187,6 +187,9 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
+        
+        // if ()
+        
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {

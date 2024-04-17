@@ -90,7 +90,7 @@ public class DeliveryManager : MonoBehaviour {
 
                     groupQuantity--;
 
-                    Product product = ProductFactory.Instance.CreateProduct(productData);
+                    Product product = ProductFactory.Instance.CreateRandomProduct();
 
                     if (product.TryGetComponent(out IGridShape shape)) {
                         shape.ShapeTransform.position = productSpawnPosition.position;

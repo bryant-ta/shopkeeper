@@ -329,6 +329,8 @@ public class Grid : MonoBehaviour {
             return false;
         }
 
+        if (!shape.ShapeTags.CheckAllTags(targetCoord)) return false;
+
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
             if (!IsValidPlacement(checkPos, ignoreZone)) {

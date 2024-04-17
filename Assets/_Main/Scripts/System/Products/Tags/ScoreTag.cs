@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ProductTag {
+namespace Tags {
 public abstract class ScoreTag {
     public int ScoreMult { get; set; }
 
@@ -8,8 +8,8 @@ public abstract class ScoreTag {
         ScoreMult = scoreMult;
     }
 
-    public int ModifyScore(int score) {
-        return score * ScoreMult;
+    public int CalculateScore(int baseScore) {
+        return baseScore * ScoreMult;
     }
 }
 
