@@ -113,9 +113,9 @@ public class PlayerDrag : MonoBehaviour {
             lastSelectedCellCoord = selectedCellCoord;
 
             // No drag movement if selected cell would make drag shapes overlap with existing
-            if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
-                return;
-            }
+            // if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
+            //     return;
+            // }
 
             // Do drag movement
             Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
@@ -166,7 +166,6 @@ public class PlayerDrag : MonoBehaviour {
         rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(tweenID).SetEase(Ease.OutQuad)
             .OnComplete(
                 () => {
-                    
                     foreach (IGridShape shape in dragShapes) {
                         shape.ShapeTransform.SetParent(DragGrid.transform);
                     }
@@ -187,9 +186,7 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
-        
-        // if ()
-        
+
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {

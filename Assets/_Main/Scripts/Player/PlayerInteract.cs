@@ -9,11 +9,6 @@ public class PlayerInteract : MonoBehaviour {
         Ref.Player.PlayerInput.InputSecondaryDown += PickUp;
     }
 
-    void Start() {
-        GetComponent<Rigidbody>().centerOfMass = transform.position;           // required for correct rotation when holding box
-        GetComponent<Rigidbody>().inertiaTensorRotation = Quaternion.identity; // required for not rotating on locked axes on collisions
-    }
-
     #region Interact
 
     Action<GameObject> releaseAction = null;
