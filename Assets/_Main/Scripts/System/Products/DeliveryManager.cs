@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using Tags;
 using UnityEngine;
 
 public class DeliveryManager : MonoBehaviour {
@@ -15,7 +14,6 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Transform productSpawnPosition; // TEMP: until delivery animation/theme chosen
 
     [Header("Zone")]
-    [SerializeField] Vector3Int deliveryZoneDimensions;
     [SerializeField] Zone deliveryZone;
     Grid grid;
 
@@ -29,8 +27,8 @@ public class DeliveryManager : MonoBehaviour {
         grid = GameManager.WorldGrid;
 
         // Create delivery zone
-        ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = true, CanTake = true};
-        deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition), deliveryZoneDimensions, deliveryZoneProps);
+        ZoneProperties deliveryZoneProps = new ZoneProperties() {CanPlace = false, CanTake = true};
+        deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition), deliveryZoneProps);
         grid.AddZone(deliveryZone);
     }
 
