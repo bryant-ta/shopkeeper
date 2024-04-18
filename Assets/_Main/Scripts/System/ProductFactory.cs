@@ -13,25 +13,18 @@ public class ProductFactory : Singleton<ProductFactory> {
         LoadProducts();
     }
 
-    public Product CreateProduct(SO_Product productData, ProductTags productTags, ShapeTags shapeTags) {
+    public Product CreateProduct(SO_Product productData) {
         GameObject productObj = Instantiate(productBase, Vector3.zero, Quaternion.identity).transform.GetChild(0).gameObject;
         Product product = productObj.GetComponent<Product>();
-        product.Init(productData, productTags);
-        IGridShape shape = productObj.GetComponent<IGridShape>();
-        shape.Init(shapeTags);
+        product.Init(productData);
 
         return product;
     }
 
-    public BoxProduct CreateRandomProduct() {
+    public Product CreateRandomProduct() {
         
         
         return null;
-    }
-
-    public Stack CreateStack() {
-        GameObject newStackObj = Instantiate(stackBase, Vector3.zero, Quaternion.identity);
-        return newStackObj.GetComponent<Stack>();
     }
 
     void LoadProducts() {

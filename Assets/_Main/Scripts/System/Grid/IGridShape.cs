@@ -14,11 +14,7 @@ public interface IGridShape {
 
     public ShapeData ShapeData { get; set; }
     
-    public ShapeTags ShapeTags { get; set; }
-
-    public void Init(ShapeTags shapeTags) {
-        ShapeTags = shapeTags;
-    }
+    public ShapeTags ShapeTags { get; }
     
     // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
     public void RotateShape(bool clockwise) {

@@ -1,9 +1,22 @@
+using System;
 using System.Collections.Generic;
+using TriInspector;
+using UnityEngine;
 
 namespace Tags {
+[Serializable]
 public class ProductTags {
     public List<BasicTagID> BasicTags = new();
-    public List<ScoreTag> ScoreTags = new();
+    [ReadOnly] public List<ScoreTag> ScoreTags = new();
+
+    public ProductTags(List<BasicTagID> basicTagIDs, List<ScoreTagID> scoreTagIDs) {
+        BasicTags = basicTagIDs;
+
+        foreach (ScoreTagID id in scoreTagIDs) {
+            // TEMP: 0 is placeholder value until working on scoring values
+            ScoreTags.Add(LookUpScoreTag.LookUp(id, 0)); 
+        }
+    }
 
     public int ScoreAllTags(int baseScore) {
         int score = 0;

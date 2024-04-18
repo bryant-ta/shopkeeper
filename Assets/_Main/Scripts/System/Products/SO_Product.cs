@@ -1,9 +1,19 @@
+using System;
+using System.Collections.Generic;
+using Tags;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
     public ProductID ID;
     public Texture2D Texture;
+    
+    public List<BasicTagID> BasicTagIDs;
+    public List<ScoreTagID> ScoreTagIDs;
+    public List<MoveTagID> MoveTagIDs;
+    public List<PlaceTagID> PlaceTagIDs;
+    
+    // TODO: a way to specify score mult
 }
 
 public enum ProductID {

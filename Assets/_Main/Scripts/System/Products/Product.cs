@@ -1,19 +1,70 @@
+using System;
+using System.Collections.Generic;
 using Tags;
 using TriInspector;
 using UnityEngine;
 
-public class Product : MonoBehaviour {
-    [field: SerializeField, ReadOnly] public ProductID ID { get; private set; }
+public class Product : MonoBehaviour, IGridShape {
+    [SerializeField] SO_Product productData;
+
+    #region Product
+    
+    [field: SerializeField, Title("Product"), ReadOnly] public ProductID ID { get; private set; }
     public string Name { get; private set; }
+    
+    [field: SerializeField, HideInEditMode] public ProductTags ProductTags { get; private set; }
 
-    public ProductTags Tags;
+    #endregion
+    
+    #region IGridShape
+    
+    [field: SerializeField, Space, ReadOnly] public Vector3Int RootCoord { get; set; }
 
-    public void Init(SO_Product productData, ProductTags tags) {
+    public Grid Grid {
+        get {
+            if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {
+                return grid;
+            }
+
+            Debug.LogError("IGridShape is not in a grid.");
+            return null;
+        }
+    }
+
+    public Transform ShapeTransform { get; private set; }
+    public Transform ColliderTransform => transform;
+    public Collider Collider => boxCol;
+
+    [SerializeField] ShapeType shapeType;
+    public ShapeType ShapeType => shapeType;
+
+    [field:SerializeField] public ShapeData ShapeData { get; set; }
+    
+    [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
+
+    BoxCollider boxCol;
+    
+    #endregion
+
+    void Awake() {
+        boxCol = GetComponent<BoxCollider>();
+        ShapeTransform = transform.parent;
+        ShapeData = ShapeDataLookUp.LookUp[shapeType];
+        
+        if (productData == null) return;
+        Init(productData);
+    }
+
+    public void Init(SO_Product _productData) {
+        if (productData == null) productData = _productData;
+        
         ID = productData.ID;
         Name = productData.ID.ToString();
         gameObject.name = Name;
-        Tags = tags;
-        
-        GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", productData.Texture);
+
+        GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", _productData.Texture);
+
+        ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);
+        ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
     }
 }

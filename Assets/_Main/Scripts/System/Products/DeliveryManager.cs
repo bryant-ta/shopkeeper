@@ -91,7 +91,7 @@ public class DeliveryManager : MonoBehaviour {
 
                     groupQuantity--;
 
-                    Product product = ProductFactory.Instance.CreateProduct(productData, new ProductTags(), new ShapeTags());
+                    Product product = ProductFactory.Instance.CreateProduct(productData);
 
                     if (product.TryGetComponent(out IGridShape shape)) {
                         shape.ShapeTransform.position = productSpawnPosition.position;

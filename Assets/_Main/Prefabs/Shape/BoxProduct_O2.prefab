@@ -27,6 +27,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 1072055498041493684, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
+      propertyPath: shapeType
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7749960157126138598, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_Name
       value: BoxProduct_O2
