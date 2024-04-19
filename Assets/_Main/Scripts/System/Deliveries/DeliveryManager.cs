@@ -30,17 +30,16 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver(Deliverer deliverer) {
+        // TODO: basic delivery every day
         
+        // TODO: special delivery every 3 days
     }
 
     void GenerateSpecialDelivery() {
-        
-    }
-    
-    void GenerateSpecialDeliverySlot() {
+        // TODO: gen 3 separate delivery grids sliced according to special product shapes
         Product specialProduct = ProductFactory.Instance.CreateProduct(specialProductObjsRollTable.GetRandom());
     }
-
+    
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone
     //     // Order of placement is alternating forward/backwards every other row, one product on next open y of (x, z).
