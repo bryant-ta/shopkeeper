@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
 
-public enum ShapeType {
+public enum ShapeDataID {
     O1 = 0, // length of one side of square shape
     O2 = 1,
     O3 = 2,
@@ -37,15 +37,15 @@ public struct ShapeData {
 }
 
 public static class ShapeDataLookUp {
-    public static Dictionary<ShapeType, ShapeData> LookUp = new Dictionary<ShapeType, ShapeData>() {
+    public static Dictionary<ShapeDataID, ShapeData> LookUp = new Dictionary<ShapeDataID, ShapeData>() {
         {
-            ShapeType.O1, new ShapeData() {
+            ShapeDataID.O1, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0)
                 }
             }
         }, {
-            ShapeType.O2, new ShapeData() {
+            ShapeDataID.O2, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -54,14 +54,14 @@ public static class ShapeDataLookUp {
                 }
             }
         }, {
-            ShapeType.I2, new ShapeData() {
+            ShapeDataID.I2, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
                 }
             }
         }, {
-            ShapeType.Rect2x3, new ShapeData() {
+            ShapeDataID.Rect2x3, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -72,7 +72,7 @@ public static class ShapeDataLookUp {
                 }
             }
         }, {
-            ShapeType.L1x1, new ShapeData() {
+            ShapeDataID.L1x1, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -80,7 +80,7 @@ public static class ShapeDataLookUp {
                 }
             }
         },  {
-            ShapeType.L1x3, new ShapeData() {
+            ShapeDataID.L1x3, new ShapeData() {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -91,7 +91,7 @@ public static class ShapeDataLookUp {
             }
         }, 
         // {
-        //     ShapeType.Cube2, new ShapeData() {
+        //     ShapeDataID.Cube2, new ShapeData() {
         //         ShapeOffsets = new List<Vector3Int>() {
         //             new(0, 0, 0),
         //             new(1, 0, 0),

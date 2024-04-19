@@ -16,12 +16,10 @@ public class Zone : MonoBehaviour {
     public HashSet<Vector3Int> AllCoords { get; private set; }
     public HashSet<Vector2Int> XZCoords { get; private set; }
 
-    public void Setup(Vector3Int rootCoord, ZoneProperties zoneProps) {
+    public void Setup(Vector3Int rootCoord) {
         UpdateZonePosition(rootCoord);
 
         height = GameManager.Instance.GlobalGridHeight;
-
-        ZoneProps = zoneProps;
     }
 
     public void UpdateZonePosition(Vector3Int rootCoord) {
@@ -60,6 +58,7 @@ public class Zone : MonoBehaviour {
     }
 }
 
+[Serializable]
 public struct ZoneProperties {
     public bool CanPlace;
     public bool CanTake;

@@ -12,6 +12,7 @@ public interface IGridShape {
     public Transform ColliderTransform { get; }
     public Collider Collider { get; }
 
+    public ShapeDataID ShapeDataID { get; }
     public ShapeData ShapeData { get; set; }
     
     public ShapeTags ShapeTags { get; }

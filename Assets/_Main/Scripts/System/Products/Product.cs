@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Tags;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Product : MonoBehaviour, IGridShape {
     [SerializeField] SO_Product productData;
@@ -35,8 +36,8 @@ public class Product : MonoBehaviour, IGridShape {
     public Transform ColliderTransform => transform;
     public Collider Collider => boxCol;
 
-    [SerializeField] ShapeType shapeType;
-    public ShapeType ShapeType => shapeType;
+    [SerializeField] ShapeDataID shapeDataID;
+    public ShapeDataID ShapeDataID => shapeDataID;
 
     [field:SerializeField] public ShapeData ShapeData { get; set; }
     
@@ -49,7 +50,7 @@ public class Product : MonoBehaviour, IGridShape {
     void Awake() {
         boxCol = GetComponent<BoxCollider>();
         ShapeTransform = transform.parent;
-        ShapeData = ShapeDataLookUp.LookUp[shapeType];
+        ShapeData = ShapeDataLookUp.LookUp[shapeDataID];
         
         if (productData == null) return;
         Init(productData);

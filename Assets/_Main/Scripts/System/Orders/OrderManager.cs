@@ -53,7 +53,7 @@ public class OrderManager : MonoBehaviour {
     void Start() {
         // Create drop off zone
         ZoneProperties dropOffZoneProps = new ZoneProperties() {CanPlace = false};
-        dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
+        // dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
         GameManager.WorldGrid.AddZone(dropOffZone);
     }
 

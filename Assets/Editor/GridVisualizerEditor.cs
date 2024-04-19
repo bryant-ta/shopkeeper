@@ -16,7 +16,7 @@ public class GridVisualizerEditor : Editor
         Matrix4x4 rotationMatrix = Matrix4x4.TRS(gridVisualizer.transform.position, gridVisualizer.transform.rotation, Vector3.one);
 
         // Calculate centered offset based on the grid object's position
-        Vector3 centerOffset = gridVisualizer.transform.position - Vector3.Scale((gridVisualizer.maxBounds + gridVisualizer.minBounds) * 0.5f, gridVisualizer.transform.lossyScale);
+        Vector3 centerOffset = gridVisualizer.transform.localPosition - Vector3.Scale((gridVisualizer.maxBounds + gridVisualizer.minBounds) * 0.5f, gridVisualizer.transform.lossyScale);
 
         // Apply offset and rotation to the grid visualization
         Handles.matrix = rotationMatrix;
