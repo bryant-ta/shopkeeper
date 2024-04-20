@@ -34,6 +34,18 @@ public enum ShapeDataID {
 [Serializable]
 public struct ShapeData {
     [ReadOnly] public List<Vector3Int> ShapeOffsets;
+
+    public bool NeighborExists(Vector3Int coord, Direction dir) {
+        return dir switch {
+            Direction.North => ShapeOffsets.Contains(coord + Vector3Int.forward),
+            Direction.East => ShapeOffsets.Contains(coord + Vector3Int.right),
+            Direction.South => ShapeOffsets.Contains(coord + Vector3Int.back),
+            Direction.West => ShapeOffsets.Contains(coord + Vector3Int.left),
+            Direction.Up => ShapeOffsets.Contains(coord + Vector3Int.up),
+            Direction.Down => ShapeOffsets.Contains(coord + Vector3Int.down),
+            _ => false
+        };
+    }
 }
 
 public static class ShapeDataLookUp {
