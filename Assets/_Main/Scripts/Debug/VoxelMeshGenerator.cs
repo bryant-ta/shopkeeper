@@ -33,6 +33,16 @@ public class VoxelMeshGenerator : MonoBehaviour {
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.RecalculateNormals();
+
+        MakeVoxelCollider(shapeData);
+    }
+
+    void MakeVoxelCollider(ShapeData shapeData) {
+        foreach (Vector3Int offset in shapeData.ShapeOffsets) {
+            BoxCollider bc = gameObject.AddComponent<BoxCollider>();
+            bc.center = offset;
+            bc.size = Vector3.one * scale * 2;
+        }
     }
 
     void MakeCube(ShapeData shapeData, Vector3Int coord) {
