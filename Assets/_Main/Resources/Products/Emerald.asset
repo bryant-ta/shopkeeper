@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: Emerald
   m_EditorClassIdentifier: 
-  ID: 6
+  ProductID: 6
   Texture: {fileID: 2800000, guid: 38d14226707c5354b8d3aa0cd0b1dddb, type: 3}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

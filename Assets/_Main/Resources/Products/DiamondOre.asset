@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: DiamondOre
   m_EditorClassIdentifier: 
-  ID: 4
+  ProductID: 4
   Texture: {fileID: 2800000, guid: 3f479ce33ed0063458c9202a536991a3, type: 3}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

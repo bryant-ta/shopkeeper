@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: Blank
   m_EditorClassIdentifier: 
-  ID: 0
+  ProductID: 0
   Texture: {fileID: 0}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

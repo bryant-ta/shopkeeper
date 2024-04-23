@@ -5,8 +5,10 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
-    public ProductID ID;
+    public ProductID ProductID;
     public Texture2D Texture;
+    public ShapeDataID ShapeDataID;
+    public ShapeData ShapeData;
     
     public List<BasicTagID> BasicTagIDs;
     public List<ScoreTagID> ScoreTagIDs;

@@ -1,30 +1,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-public class VoxelMeshGenerator : MonoBehaviour {
-    public float scale;
+public static class VoxelMeshGenerator {
+    static float scale = 0.5f;
     
-    Mesh mesh;
+    static List<Vector3> vertices = new();
+    static List<int> triangles = new();
 
-    List<Vector3> vertices = new();
-    List<int> triangles = new();
-
-    void Awake() {
-        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
+    /// <summary>
+    /// Generates and sets mesh/colliders for voxel objects described by ShapeData. 
+    /// </summary>
+    public static void Generate(GameObject targetObj, ShapeData shapeData) {
+        vertices.Clear();
+        triangles.Clear();
+        
+        Mesh mesh = targetObj.GetComponent<MeshFilter>().mesh;
+        mesh.Clear();
         mesh.name = "Voxel";
-    }
-
-    void Start() {
-        ShapeData shapeData = new ShapeData() {
-            ShapeOffsets = new List<Vector3Int>() {
-                new(0, 0, 0),
-                new(1, 0, 0),
-                new(0, 0, 1),
-                new(0, 0, 2),
-                new(0, 0, 3),
-            }
-        };
         
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
             MakeCube(shapeData, offset);
@@ -34,18 +26,10 @@ public class VoxelMeshGenerator : MonoBehaviour {
         mesh.triangles = triangles.ToArray();
         mesh.RecalculateNormals();
 
-        MakeVoxelCollider(shapeData);
+        MakeVoxelCollider(targetObj, shapeData);
     }
 
-    void MakeVoxelCollider(ShapeData shapeData) {
-        foreach (Vector3Int offset in shapeData.ShapeOffsets) {
-            BoxCollider bc = gameObject.AddComponent<BoxCollider>();
-            bc.center = offset;
-            bc.size = Vector3.one * scale * 2;
-        }
-    }
-
-    void MakeCube(ShapeData shapeData, Vector3Int coord) {
+    static void MakeCube(ShapeData shapeData, Vector3Int coord) {
         for (int i = 0; i < 6; i++) { // must match Direction enum
             if (!shapeData.NeighborExists(coord, (Direction) i)) {
                 MakeFace((Direction) i, coord);
@@ -53,7 +37,7 @@ public class VoxelMeshGenerator : MonoBehaviour {
         }
     }
 
-    void MakeFace(Direction dir, Vector3 facePos) {
+    static void MakeFace(Direction dir, Vector3 facePos) {
         vertices.AddRange(CubeMeshData.CreateCubeFaceVertices(dir, facePos, scale));
         int vCount = vertices.Count;
 
@@ -63,5 +47,13 @@ public class VoxelMeshGenerator : MonoBehaviour {
         triangles.Add(vCount - 4);
         triangles.Add(vCount - 4 + 2);
         triangles.Add(vCount - 4 + 3);
+    }
+
+    static void MakeVoxelCollider(GameObject targetObj, ShapeData shapeData) {
+        foreach (Vector3Int offset in shapeData.ShapeOffsets) {
+            BoxCollider bc = targetObj.AddComponent<BoxCollider>();
+            bc.center = offset;
+            bc.size = Vector3.one * scale * 2;
+        }
     }
 }

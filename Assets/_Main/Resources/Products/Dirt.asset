@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: Dirt
   m_EditorClassIdentifier: 
-  ID: 5
+  ProductID: 5
   Texture: {fileID: 2800000, guid: 9c811ebbcffa9d4468a7ff1b42f7718e, type: 3}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

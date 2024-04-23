@@ -1,6 +1,22 @@
 using System;
 using System.Collections.Generic;
 
+public enum Direction {
+    North = 0,
+    East = 1,
+    South = 2,
+    West = 3,
+    Up = 4,
+    Down = 5
+}
+
+public enum Direction2D {
+    North = 0,
+    East = 1,
+    South = 2,
+    West = 3
+}
+
 public struct DeltaArgs {
     public int NewValue;
     public int DeltaValue;

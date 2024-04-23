@@ -76,8 +76,10 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        foreach (IGridShape shape in heldShapes) {
-            shape.Collider.enabled = false;
+        for (int i = 0; i < heldShapes.Count; i++) {
+            foreach (Collider col in heldShapes[i].Colliders) {
+                col.enabled = false;
+            }
         }
 
         isHolding = true;
@@ -205,8 +207,10 @@ public class PlayerDrag : MonoBehaviour {
             return;
         }
 
-        foreach (IGridShape shape in heldShapes) {
-            shape.Collider.enabled = true;
+        for (int i = 0; i < heldShapes.Count; i++) {
+            foreach (Collider col in heldShapes[i].Colliders) {
+                col.enabled = true;
+            }
         }
 
         isHolding = false;

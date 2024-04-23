@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using Tags;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class Product : MonoBehaviour, IGridShape {
     [SerializeField] SO_Product productData;
@@ -34,33 +33,48 @@ public class Product : MonoBehaviour, IGridShape {
 
     public Transform ShapeTransform { get; private set; }
     public Transform ColliderTransform => transform;
-    public Collider Collider => boxCol;
+    public List<Collider> Colliders { get; private set; }
 
-    [SerializeField] ShapeDataID shapeDataID;
+    [SerializeField, ReadOnly] ShapeDataID shapeDataID;
     public ShapeDataID ShapeDataID => shapeDataID;
 
-    [field:SerializeField] public ShapeData ShapeData { get; set; }
+    [field:SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
     
     [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
-
-    BoxCollider boxCol;
     
     #endregion
 
     void Awake() {
-        boxCol = GetComponent<BoxCollider>();
-        ShapeTransform = transform.parent;
-        ShapeData = ShapeDataLookUp.LookUp[shapeDataID];
+        Colliders = new();
         
-        if (productData == null) return;
+        if (productData == null) {
+            Debug.Log($"Product {gameObject.name} did not self-init.");
+            return;
+        }
         Init(productData);
     }
 
     public void Init(SO_Product _productData) {
         if (productData == null) productData = _productData;
+
+        if (productData.ShapeDataID == ShapeDataID.None) {
+            if (productData.ShapeData.ShapeOffsets == null || productData.ShapeData.ShapeOffsets.Count == 0) {
+                Debug.LogError($"Product {gameObject.name} has SO_ProductData without valid ShapeData.");
+                return;
+            }
+
+            ShapeData = productData.ShapeData;
+        } else {
+            shapeDataID = _productData.ShapeDataID;
+            ShapeData = ShapeDataLookUp.LookUp[shapeDataID];
+        }
+        VoxelMeshGenerator.Generate(gameObject, ShapeData);
         
-        ID = productData.ID;
-        Name = productData.ID.ToString();
+        ShapeTransform = transform.parent;
+        Colliders = GetComponents<Collider>().ToList();
+        
+        ID = productData.ProductID;
+        Name = productData.ProductID.ToString();
         gameObject.name = Name;
 
         GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", _productData.Texture);

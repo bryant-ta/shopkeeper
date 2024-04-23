@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: GlazedTerracotta
   m_EditorClassIdentifier: 
-  ID: 8
+  ProductID: 8
   Texture: {fileID: 2800000, guid: 4f083b281864ce141ac1db041b8424ba, type: 3}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

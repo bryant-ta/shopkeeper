@@ -5,9 +5,9 @@ public class Deliverer : MonoBehaviour {
     public Grid Grid => grid;
     Grid grid;
 
-    void Start() {
-        grid = GetComponentInParent<Grid>();
+    void Awake() { grid = GetComponentInParent<Grid>(); }
 
+    void Start() {
         // Create delivery zone
         deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition));
         grid.AddZone(deliveryZone);

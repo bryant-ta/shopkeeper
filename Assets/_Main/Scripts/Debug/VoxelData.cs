@@ -1,15 +1,5 @@
 using UnityEngine;
 
-
-public enum Direction {
-    North = 0,
-    East = 1,
-    South = 2,
-    West = 3,
-    Up = 4,
-    Down = 5
-}
-
 public static class CubeMeshData {
     static Vector3[] vertices = {
         new Vector3(1, 1, 1),
@@ -34,7 +24,7 @@ public static class CubeMeshData {
     public static Vector3[] CreateCubeFaceVertices(int dir, Vector3 pos, float scale) {
         Vector3[] fv = new Vector3[4];
         for (int i = 0; i < fv.Length; i++) {
-            fv[i] = (vertices[faceTriangles[dir][i]]* scale) + pos;
+            fv[i] = (vertices[faceTriangles[dir][i]] * scale) + pos;
         }
 
         return fv;

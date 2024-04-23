@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 457391773419511172}
   - component: {fileID: 457391773419511171}
   - component: {fileID: 457391773419511170}
-  - component: {fileID: 457391773419511169}
   - component: {fileID: 1072055498041493684}
   m_Layer: 6
   m_Name: BoxProductCollider
@@ -85,19 +84,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &457391773419511169
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 457391773419511168}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1072055498041493684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,7 +101,7 @@ MonoBehaviour:
   <ProductTags>k__BackingField:
     BasicTags: 
   <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
-  shapeType: 0
+  shapeDataID: 0
   <ShapeData>k__BackingField:
     ShapeOffsets: []
 --- !u!1 &7749960157126138598

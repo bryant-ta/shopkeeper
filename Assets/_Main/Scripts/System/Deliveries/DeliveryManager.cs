@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using TriInspector;
 using UnityEngine;
 
+[RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numInitialProductsInDelivery;
     [SerializeField] int productsPerDayGrowth;
@@ -13,26 +16,58 @@ public class DeliveryManager : MonoBehaviour {
 
     [SerializeField] Transform productSpawnPosition; // TEMP: until delivery animation/theme chosen
 
-    RollTable<ProductID> productRollTable = new();
-    RollTable<GameObject> specialProductObjsRollTable = new();
+    [SerializeField, HideInEditMode] RollTable<ProductID> basicProductRollTable = new();
+    [SerializeField, HideInEditMode] RollTable<GameObject> specialProductObjsRollTable = new();
+
+    [SerializeField] List<Deliverer> deliverers = new();
+    
+    VolumeSlicer vs;
 
     int numProductsInDelivery;
-    
-    Grid grid;
 
-    void Awake() { GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger; }
+    void Awake() {
+        vs = GetComponent<VolumeSlicer>();
+        GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
+    }
 
     void StateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
             ScaleDeliveryDifficulty(GameManager.Instance.Day);
             // StartCoroutine(DoDelivery());
+            
+            
+            
+            // DEBUG
+            Deliver(deliverers[0]);
         }
     }
 
     void Deliver(Deliverer deliverer) {
         // TODO: basic delivery every day
+        GenerateBasicDelivery(deliverer);
         
         // TODO: special delivery every 3 days
+    }
+    
+    void GenerateBasicDelivery(Deliverer deliverer) {
+        Grid grid = deliverer.Grid;
+        Dictionary<Vector3Int, ShapeData> volumeData = vs.Slice(
+            new Vector3Int(grid.MinX, 0, grid.MinZ),
+            new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
+        );
+
+        foreach (KeyValuePair<Vector3Int,ShapeData> kv in volumeData) {
+            // TODO:match shapedata to possible SO_Product that have that shape data
+            
+            // TODO:Choose an SO_Product -> create a Product
+
+            // SO_Product productData = ProductFactory.Instance.ProductLookUp[basicProductRollTable.GetRandom()];
+            // Product product = ProductFactory.Instance.CreateProduct(productData);
+            
+            
+            // Place product at position
+            grid.PlaceShapeNoValidate(kv.Key, product);
+        }
     }
 
     void GenerateSpecialDelivery() {
@@ -69,7 +104,7 @@ public class DeliveryManager : MonoBehaviour {
     //                 }
     //
     //                 if (groupQuantity == 0) { // finished a group, generate new group with random product
-    //                     productData = ProductFactory.Instance.ProductLookUp[productRollTable.GetRandom()];
+    //                     productData = ProductFactory.Instance.ProductLookUp[basicProductRollTable.GetRandom()];
     //                     groupQuantity = Random.Range(minGroupQuantity, maxGroupQuantity + 1);
     //                 }
     //
@@ -107,8 +142,8 @@ public class DeliveryManager : MonoBehaviour {
     // }
 
     void AddPossibleProduct(ProductID productID) {
-        if (!productRollTable.Contains(productID)) {
-            productRollTable.Add(productID, 1);
+        if (!basicProductRollTable.Contains(productID)) {
+            basicProductRollTable.Add(productID, 1);
         }
     }
 

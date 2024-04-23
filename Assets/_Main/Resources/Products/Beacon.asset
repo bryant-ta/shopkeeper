@@ -12,5 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: Beacon
   m_EditorClassIdentifier: 
-  ID: 1
+  ProductID: 1
   Texture: {fileID: 2800000, guid: c37b1133490d7c1468486c82eae0c9a2, type: 3}
+  ShapeDataID: 0
+  ShapeData:
+    ShapeOffsets: []
+  BasicTagIDs: 
+  ScoreTagIDs: 
+  MoveTagIDs: 
+  PlaceTagIDs: 

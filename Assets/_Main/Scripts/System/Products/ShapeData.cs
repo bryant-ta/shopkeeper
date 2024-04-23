@@ -4,15 +4,16 @@ using TriInspector;
 using UnityEngine;
 
 public enum ShapeDataID {
-    O1 = 0, // length of one side of square shape
-    O2 = 1,
-    O3 = 2,
-    O4 = 3,
-    O5 = 4,
-    I2 = 5, // length of I shape (straight)
-    I3 = 6,
-    I4 = 7,
-    I5 = 8,
+    None = 0,
+    O1 = 1, // length of one side of square shape
+    O2 = 2,
+    O3 = 3,
+    O4 = 4,
+    O5 = 5,
+    I2 = 6, // length of I shape (straight)
+    I3 = 7,
+    I4 = 8,
+    I5 = 9,
     Rect2x2 = 10, // length x width of rectangle shape
     Rect2x3 = 11,
     Rect2x4 = 12,

@@ -31,6 +31,10 @@ PrefabInstance:
       propertyPath: shapeType
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1072055498041493684, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
+      propertyPath: productData
+      value: 
+      objectReference: {fileID: 11400000, guid: 781f543f0dedc19458b7cb6fbc81d2ab, type: 2}
     - target: {fileID: 7749960157126138598, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_Name
       value: BoxProduct_O2

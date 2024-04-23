@@ -1,14 +1,17 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 // Supports weights of any sum (not just 100). Order does NOT matter.
+[Serializable]
 public class RollTable<T> {
+    [Serializable]
     struct Entry {
         public T item;
         public double weight;
     }
     
-    List<Entry> _entries = new();
+    [SerializeField] List<Entry> _entries = new();
     double _accumulatedWeight;
 
     public void Add(T item, double weight) {

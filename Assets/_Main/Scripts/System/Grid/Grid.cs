@@ -12,6 +12,10 @@ public class Grid : MonoBehaviour {
     public int Height => height;
     [SerializeField] int width;
     public int Width => width;
+    public int MinX => -length / 2;
+    public int MinZ => -width / 2;
+    public int MaxX => length / 2;
+    public int MaxZ => width / 2;
 
     [SerializeField] bool smoothPlaceMovement = true;
 
@@ -23,13 +27,13 @@ public class Grid : MonoBehaviour {
 
     // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
     // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
-    void Start() { Init(length, width); }
+    void Start() { Init(); }
 
-    void Init(int maxLength, int maxWidth) {
+    void Init() {
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
-        for (int x = -maxLength / 2; x <= maxLength / 2; x++) {
-            for (int z = -maxWidth / 2; z <= maxWidth / 2; z++) {
+        for (int x = MinX; x <= MaxX; x++) {
+            for (int z = MinZ; z <= MaxZ; z++) {
                 validCells.Add(new Vector2Int(x, z));
             }
         }
@@ -55,7 +59,7 @@ public class Grid : MonoBehaviour {
 
         return true;
     }
-    void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape shape) {
+    public void PlaceShapeNoValidate(Vector3Int targetCoord, IGridShape shape) {
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
@@ -66,13 +70,17 @@ public class Grid : MonoBehaviour {
         shape.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
-            shape.Collider.enabled = false;
+            for (var i = 0; i < shape.Colliders.Count; i++) {
+                shape.Colliders[i].enabled = false;
+            }
 
             Sequence seq = DOTween.Sequence().SetId(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
             seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
             seq.Play().OnComplete(
                 () => {
-                    shape.Collider.enabled = true;
+                    for (var i = 0; i < shape.Colliders.Count; i++) {
+                        shape.Colliders[i].enabled = true;
+                    }
                 }
             );
         } else {
