@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class ProductFactory : Singleton<ProductFactory> {
@@ -15,8 +14,8 @@ public class ProductFactory : Singleton<ProductFactory> {
         LoadShapeDataToProducts();
     }
 
-    public Product CreateProduct(SO_Product productData) {
-        GameObject productObj = Instantiate(productBase, Vector3.zero, Quaternion.identity);
+    public Product CreateProduct(SO_Product productData, Vector3 position) {
+        GameObject productObj = Instantiate(productBase, position, Quaternion.identity);
         Product product = productObj.GetComponentInChildren<Product>();
         if (product == null) {
             Debug.LogError("Unable to find Product component in shape base object.");

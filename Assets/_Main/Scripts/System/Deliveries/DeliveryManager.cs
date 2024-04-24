@@ -60,26 +60,11 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and placement
         foreach (KeyValuePair<Vector3Int, ShapeData> kv in volumeData) {
             ShapeDataID curShapeDataID = kv.Value.ID;
-            if (curShapeDataID == ShapeDataID.None) {
-                continue;
-            }
-
             List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[curShapeDataID];
-            SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
-
-            SO_Product pproductData = Instantiate(productData);
-            pproductData.ShapeData = kv.Value;
             
-            // ProductInitData pInitData = new ProductInitData(
-            //     productData.ProductID,
-            //     productData.Texture,
-            //     kv.Value,
-            //     productData.BasicTagIDs,
-            //     productData.ScoreTagIDs,
-            //     productData.MoveTagIDs,
-            //     productData.PlaceTagIDs
-            // );
-            Product product = ProductFactory.Instance.CreateProduct(pproductData);
+            SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
+            productData.ShapeData = kv.Value;
+            Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
             grid.PlaceShapeNoValidate(kv.Key, product);
         }
