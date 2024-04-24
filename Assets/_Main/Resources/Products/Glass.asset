@@ -16,8 +16,9 @@ MonoBehaviour:
   Texture: {fileID: 2800000, guid: 998e3a94c8380734bba8c9f0c0ea37ba, type: 3}
   ShapeData:
     ID: 8
+    <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
-  BasicTagIDs: 
+  BasicTagIDs: 01000000
   ScoreTagIDs: 
   MoveTagIDs: 
   PlaceTagIDs: 

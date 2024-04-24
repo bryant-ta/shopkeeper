@@ -10,9 +10,12 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int maxProductsInDelivery;
     [SerializeField, Min(1)] int minGroupQuantity = 1;
     [SerializeField, Min(1)] int maxGroupQuantity = 1;
+    [SerializeField, Space] bool useWholeGridAsBounds;
     [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
+    [ShowIf(nameof(useWholeGridAsBounds), false)]
     [SerializeField] Vector3Int minBoundProductSpawn;
     [Tooltip("The highest coord of the volume in a Deliverer grid to spawn products in. The opposite corner of a cube.")]
+    [ShowIf(nameof(useWholeGridAsBounds), false)]
     [SerializeField] Vector3Int maxBoundProductSpawn;
 
     int numProductsInDelivery;
@@ -53,13 +56,20 @@ public class DeliveryManager : MonoBehaviour {
 
     void GenerateBasicDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
-        Dictionary<Vector3Int, ShapeData> volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
+        Dictionary<Vector3Int, ShapeData> volumeData;
+        if (useWholeGridAsBounds) {
+            volumeData = vs.Slice(
+                new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
+            );
+        } else {
+            volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
+        }
 
         // Convert generated shape datas to product game objects and placement
         foreach (KeyValuePair<Vector3Int, ShapeData> kv in volumeData) {
             ShapeDataID curShapeDataID = kv.Value.ID;
             List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[curShapeDataID];
-            
+
             SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
             productData.ShapeData = kv.Value;
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
