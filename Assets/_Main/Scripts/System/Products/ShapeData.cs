@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using TriInspector;
 using UnityEngine;
 
@@ -34,7 +35,21 @@ public enum ShapeDataID {
 
 [Serializable]
 public struct ShapeData {
+    public ShapeDataID ID;
     [ReadOnly] public List<Vector3Int> ShapeOffsets;
+    
+    // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
+    public void RotateShape(bool clockwise) {
+        int cw = clockwise ? 1 : -1;
+        
+        List<Vector3Int> rotatedShapeOffsets = new();
+        foreach (Vector3Int offset in ShapeOffsets) {
+            Vector3Int rotatedOffset = new Vector3Int(offset.z * cw, offset.y, -offset.x * cw);
+            rotatedShapeOffsets.Add(rotatedOffset);
+        }
+
+        ShapeOffsets = rotatedShapeOffsets;
+    }
 
     public bool NeighborExists(Vector3Int coord, Direction dir) {
         return dir switch {
@@ -47,18 +62,48 @@ public struct ShapeData {
             _ => false
         };
     }
+
+    /// <summary>
+    /// Get ShapeDataID from ShapeOffsets, including if ShapeOffsets is rotated
+    /// </summary>
+    public static ShapeDataID DetermineID(List<Vector3Int> shapeOffsets) {
+        if (shapeOffsets == null || shapeOffsets.Count == 0) {
+            Debug.LogError("Unable to match shape data ID: ShapeOffset is not set.");
+            return ShapeDataID.None;
+        }
+
+        foreach (KeyValuePair<ShapeDataID, ShapeData> kv in ShapeDataLookUp.LookUp) {
+            // First match offsets length
+            if (shapeOffsets.Count != kv.Value.ShapeOffsets.Count) continue;
+            
+            // match offsets considering rotation
+            ShapeData sd = new ShapeData {ShapeOffsets = new List<Vector3Int>(shapeOffsets)};
+            for (int i = 0; i < 4; i++) {
+                if (shapeOffsets.All(sd.ShapeOffsets.Contains)) {
+                    return kv.Key;
+                }
+                
+                sd.RotateShape(true);
+            }
+        }
+        
+        Debug.LogError("Unable to match shape data ID: Did not match any shape.");
+        return ShapeDataID.None;
+    }
 }
 
 public static class ShapeDataLookUp {
     public static Dictionary<ShapeDataID, ShapeData> LookUp = new Dictionary<ShapeDataID, ShapeData>() {
         {
             ShapeDataID.O1, new ShapeData() {
+                ID = ShapeDataID.O1,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0)
                 }
             }
         }, {
             ShapeDataID.O2, new ShapeData() {
+                ID = ShapeDataID.O2,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -68,6 +113,7 @@ public static class ShapeDataLookUp {
             }
         }, {
             ShapeDataID.I2, new ShapeData() {
+                ID = ShapeDataID.I2,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -75,6 +121,7 @@ public static class ShapeDataLookUp {
             }
         }, {
             ShapeDataID.Rect2x3, new ShapeData() {
+                ID = ShapeDataID.Rect2x3,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -86,14 +133,16 @@ public static class ShapeDataLookUp {
             }
         }, {
             ShapeDataID.L1x1, new ShapeData() {
+                ID = ShapeDataID.L1x1,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
                     new(0, 0, 1),
                 }
             }
-        },  {
+        }, {
             ShapeDataID.L1x3, new ShapeData() {
+                ID = ShapeDataID.L1x3,
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
@@ -102,9 +151,10 @@ public static class ShapeDataLookUp {
                     new(0, 0, 3),
                 }
             }
-        }, 
+        },
         // {
         //     ShapeDataID.Cube2, new ShapeData() {
+        //         ID = ShapeDataID.Cube2,
         //         ShapeOffsets = new List<Vector3Int>() {
         //             new(0, 0, 0),
         //             new(1, 0, 0),

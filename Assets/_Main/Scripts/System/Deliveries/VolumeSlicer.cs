@@ -44,6 +44,7 @@ public class VolumeSlicer : MonoBehaviour {
                 // 2
                 List<Direction2D> validDirs = ValidDirections(curValidLayerCells, baseCoord);
                 if (validDirs.Count == 0) { // is 1x1x1
+                    shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
                     volumeData[baseCoord3D] = shapeData;
                     continue;
                 }
@@ -55,7 +56,7 @@ public class VolumeSlicer : MonoBehaviour {
                 Vector2Int curOffset = Vector2Int.zero;
                 int curShapeLength = 1;
                 while (Random.Range(0, 1f) > chanceOfShapeExtension && NeighborExists(curValidLayerCells, curCoord, shapeLengthDir)) {
-                    if (curShapeLength > maxShapeLength) break;
+                    if (curShapeLength >= maxShapeLength) break;
 
                     Vector2Int n = GetNeighbor(curOffset, shapeLengthDir);
                     Vector3Int newOffset = new Vector3Int(n.x, 0, n.y);
@@ -69,21 +70,20 @@ public class VolumeSlicer : MonoBehaviour {
 
                 //TODO: randomly roll rectangle
                 
-                
+                shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
                 volumeData[baseCoord3D] = shapeData;
             }
-            print(iterations);
         }
         
         // Check
         HashSet<Vector3Int> claimedCells = new();
         foreach (KeyValuePair<Vector3Int,ShapeData> kv in volumeData) {
             foreach (Vector3Int offset in kv.Value.ShapeOffsets) {
-                if (claimedCells.Contains(offset)) {
+                if (claimedCells.Contains(kv.Key + offset)) {
                     Debug.LogWarning($"shapes overlapping in VolumeSlicer at {offset}");
                 }
 
-                claimedCells.Add(offset);
+                claimedCells.Add(kv.Key + offset);
             }
         }
 

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ProductID: 10
   Texture: {fileID: 2800000, guid: 7b9d147bf89ecdc4abd23807b2002343, type: 3}
-  ShapeDataID: 0
   ShapeData:
+    ID: 1
     ShapeOffsets: []
   BasicTagIDs: 
   ScoreTagIDs: 

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ProductID: 0
   Texture: {fileID: 0}
-  ShapeDataID: 0
   ShapeData:
+    ID: 1
     ShapeOffsets: []
   BasicTagIDs: 
   ScoreTagIDs: 

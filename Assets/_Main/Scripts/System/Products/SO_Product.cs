@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Tags;
 using UnityEngine;
@@ -7,7 +6,6 @@ using UnityEngine;
 public class SO_Product : ScriptableObject {
     public ProductID ProductID;
     public Texture2D Texture;
-    public ShapeDataID ShapeDataID;
     public ShapeData ShapeData;
     
     public List<BasicTagID> BasicTagIDs;
@@ -17,6 +15,38 @@ public class SO_Product : ScriptableObject {
     
     // TODO: a way to specify score mult
 }
+
+// public struct ProductInitData {
+//     public ProductInitData(ProductID productID, Texture2D texture, ShapeData shapeData, List<BasicTagID> basicTagIDs, List<ScoreTagID> scoreTagIDs, List<MoveTagID> moveTagIDs, List<PlaceTagID> placeTagIDs) {
+//         ProductID = productID;
+//         Texture = texture;
+//         ShapeData = shapeData;
+//         BasicTagIDs = basicTagIDs;
+//         ScoreTagIDs = scoreTagIDs;
+//         MoveTagIDs = moveTagIDs;
+//         PlaceTagIDs = placeTagIDs;
+//     }
+//     
+//     public ProductID ProductID { get; }
+//     public Texture2D Texture { get; }
+//     public ShapeData ShapeData { get; }
+//     
+//     public List<BasicTagID> BasicTagIDs { get; }
+//     public List<ScoreTagID> ScoreTagIDs { get; }
+//     public List<MoveTagID> MoveTagIDs { get; }
+//     public List<PlaceTagID> PlaceTagIDs { get; }
+//     
+//     // TODO: a way to specify score mult
+// }
+// ProductInitData productInitData = new ProductInitData {
+//     ProductID = productData.ProductID,
+//     Texture = productData.Texture,
+//     ShapeData = productData.ShapeData,
+//     BasicTagIDs = productData.BasicTagIDs,
+//     ScoreTagIDs = productData.ScoreTagIDs,
+//     MoveTagIDs = productData.MoveTagIDs,
+//     PlaceTagIDs = productData.PlaceTagIDs,
+// }
 
 public enum ProductID {
     Blank = 0,

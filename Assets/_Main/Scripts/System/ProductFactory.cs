@@ -1,14 +1,18 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ProductFactory : Singleton<ProductFactory> {
     [SerializeField] GameObject productBase;
 
-    public Dictionary<ProductID, SO_Product> ProductLookUp { get; private set; }
+    public Dictionary<ProductID, SO_Product> ProductDataLookUp { get; private set; }
+    public Dictionary<ShapeDataID, List<SO_Product>> ShapeDataIDToProductDataLookUp { get; private set; }
 
     void Awake() {
-        ProductLookUp = new();
+        ProductDataLookUp = new();
+        ShapeDataIDToProductDataLookUp = new();
         LoadProducts();
+        LoadShapeDataToProducts();
     }
 
     public Product CreateProduct(SO_Product productData) {
@@ -49,7 +53,23 @@ public class ProductFactory : Singleton<ProductFactory> {
         // Load recipes from Resources
         SO_Product[] productDatas = Resources.LoadAll<SO_Product>("Products");
         foreach (SO_Product productData in productDatas) {
-            ProductLookUp[productData.ProductID] = productData;
+            ProductDataLookUp[productData.ProductID] = productData;
+        }
+    }
+    
+    void LoadShapeDataToProducts() {
+        if (ProductDataLookUp == null || ProductDataLookUp.Count == 0) {
+            Debug.LogError("Must load products to ProductDataLookUp before using this function.");
+            return;
+        }
+
+        foreach (KeyValuePair<ProductID,SO_Product> kv in ProductDataLookUp) {
+            ShapeDataID id = kv.Value.ShapeData.ID;
+            if (!ShapeDataIDToProductDataLookUp.ContainsKey(id)) {
+                ShapeDataIDToProductDataLookUp[id] = new List<SO_Product> {kv.Value};
+            } else {
+                ShapeDataIDToProductDataLookUp[id].Add(kv.Value);
+            }
         }
     }
 }

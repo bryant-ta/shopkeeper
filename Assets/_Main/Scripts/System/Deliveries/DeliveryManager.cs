@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
@@ -20,7 +18,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField, HideInEditMode] RollTable<GameObject> specialProductObjsRollTable = new();
 
     [SerializeField] List<Deliverer> deliverers = new();
-    
+
     VolumeSlicer vs;
 
     int numProductsInDelivery;
@@ -34,9 +32,8 @@ public class DeliveryManager : MonoBehaviour {
         if (state.ID == DayPhase.Delivery) {
             ScaleDeliveryDifficulty(GameManager.Instance.Day);
             // StartCoroutine(DoDelivery());
-            
-            
-            
+
+
             // DEBUG
             Deliver(deliverers[0]);
         }
@@ -45,27 +42,45 @@ public class DeliveryManager : MonoBehaviour {
     void Deliver(Deliverer deliverer) {
         // TODO: basic delivery every day
         GenerateBasicDelivery(deliverer);
-        
+
         // TODO: special delivery every 3 days
     }
-    
+
     void GenerateBasicDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
         Dictionary<Vector3Int, ShapeData> volumeData = vs.Slice(
-            new Vector3Int(grid.MinX, 0, grid.MinZ),
-            new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
+            // new Vector3Int(grid.MinX, 0, grid.MinZ),
+            // new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
+
+            // TEMP
+            new Vector3Int(-1, 0, -1),
+            new Vector3Int(1, 2, 1)
         );
 
-        foreach (KeyValuePair<Vector3Int,ShapeData> kv in volumeData) {
-            // TODO:match shapedata to possible SO_Product that have that shape data
-            
-            // TODO:Choose an SO_Product -> create a Product
+        // Convert generated shape datas to product game objects and placement
+        foreach (KeyValuePair<Vector3Int, ShapeData> kv in volumeData) {
+            ShapeDataID curShapeDataID = kv.Value.ID;
+            if (curShapeDataID == ShapeDataID.None) {
+                continue;
+            }
 
-            // SO_Product productData = ProductFactory.Instance.ProductLookUp[basicProductRollTable.GetRandom()];
-            // Product product = ProductFactory.Instance.CreateProduct(productData);
+            List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[curShapeDataID];
+            SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
+
+            SO_Product pproductData = Instantiate(productData);
+            pproductData.ShapeData = kv.Value;
             
-            
-            // Place product at position
+            // ProductInitData pInitData = new ProductInitData(
+            //     productData.ProductID,
+            //     productData.Texture,
+            //     kv.Value,
+            //     productData.BasicTagIDs,
+            //     productData.ScoreTagIDs,
+            //     productData.MoveTagIDs,
+            //     productData.PlaceTagIDs
+            // );
+            Product product = ProductFactory.Instance.CreateProduct(pproductData);
+
             grid.PlaceShapeNoValidate(kv.Key, product);
         }
     }
@@ -74,7 +89,7 @@ public class DeliveryManager : MonoBehaviour {
         // TODO: gen 3 separate delivery grids sliced according to special product shapes
         Product specialProduct = ProductFactory.Instance.CreateProduct(specialProductObjsRollTable.GetRandom());
     }
-    
+
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone
     //     // Order of placement is alternating forward/backwards every other row, one product on next open y of (x, z).
@@ -104,7 +119,7 @@ public class DeliveryManager : MonoBehaviour {
     //                 }
     //
     //                 if (groupQuantity == 0) { // finished a group, generate new group with random product
-    //                     productData = ProductFactory.Instance.ProductLookUp[basicProductRollTable.GetRandom()];
+    //                     productData = ProductFactory.Instance.ProductDataLookUp[basicProductRollTable.GetRandom()];
     //                     groupQuantity = Random.Range(minGroupQuantity, maxGroupQuantity + 1);
     //                 }
     //
@@ -151,11 +166,11 @@ public class DeliveryManager : MonoBehaviour {
         if (day - 1 >= possibleProductLists.outerList.Count) return null;
         return possibleProductLists.outerList[day - 1].innerList;
     }
-    
+
     // TEMP: pre-crafting difficulty formulas
-    void ScaleDeliveryDifficulty(int day) { 
+    void ScaleDeliveryDifficulty(int day) {
         // Scale quantity
-        numProductsInDelivery = productsPerDayGrowth * (day-1) + numInitialProductsInDelivery;
+        numProductsInDelivery = productsPerDayGrowth * (day - 1) + numInitialProductsInDelivery;
         if (numProductsInDelivery > maxProductsInDelivery) {
             numProductsInDelivery = maxProductsInDelivery;
         }

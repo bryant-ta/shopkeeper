@@ -12,28 +12,22 @@ public interface IGridShape {
     public Transform ColliderTransform { get; }
     public List<Collider> Colliders { get; }
 
-    public ShapeDataID ShapeDataID { get; }
+    public ShapeDataID ShapeDataID { get; } // TODO: consider removing
     public ShapeData ShapeData { get; set; }
     
     public ShapeTags ShapeTags { get; }
     
     // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
+    // TODO: consider moving RootCoord to ShapeData too
     public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
         
         // Rotate root coord
         RootCoord = new Vector3Int(RootCoord.z * cw, RootCoord.y, -RootCoord.x * cw);
         
-        // Rotate shape data
-        ShapeData rotatedShapeData = new ShapeData { ShapeOffsets = new List<Vector3Int>() };
-        foreach (Vector3Int offset in ShapeData.ShapeOffsets) {
-            Vector3Int rotatedOffset = new Vector3Int(offset.z * cw, offset.y, -offset.x * cw);
-            rotatedShapeData.ShapeOffsets.Add(rotatedOffset);
-        }
-
-        ShapeData = rotatedShapeData;
+        ShapeData.RotateShape(clockwise);
     }
-    
+
     public void DestroyShape() {
         ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(() => {
             ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object

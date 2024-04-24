@@ -48,7 +48,7 @@ public class Product : MonoBehaviour, IGridShape {
         Colliders = new();
         
         if (productData == null) {
-            Debug.Log($"Product {gameObject.name} did not self-init.");
+            // Debug.Log($"Product {gameObject.name} did not self-init.");
             return;
         }
         Init(productData);
@@ -57,15 +57,9 @@ public class Product : MonoBehaviour, IGridShape {
     public void Init(SO_Product _productData) {
         if (productData == null) productData = _productData;
 
-        if (productData.ShapeDataID == ShapeDataID.None) {
-            if (productData.ShapeData.ShapeOffsets == null || productData.ShapeData.ShapeOffsets.Count == 0) {
-                Debug.LogError($"Product {gameObject.name} has SO_ProductData without valid ShapeData.");
-                return;
-            }
-
-            ShapeData = productData.ShapeData;
-        } else {
-            shapeDataID = _productData.ShapeDataID;
+        shapeDataID = _productData.ShapeData.ID;
+        ShapeData = productData.ShapeData;
+        if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
             ShapeData = ShapeDataLookUp.LookUp[shapeDataID];
         }
         VoxelMeshGenerator.Generate(gameObject, ShapeData);
