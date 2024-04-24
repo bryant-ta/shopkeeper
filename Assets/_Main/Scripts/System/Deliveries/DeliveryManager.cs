@@ -4,24 +4,29 @@ using UnityEngine;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
+    [Title("Delivery Size")]
     [SerializeField] int numInitialProductsInDelivery;
     [SerializeField] int productsPerDayGrowth;
     [SerializeField] int maxProductsInDelivery;
     [SerializeField, Min(1)] int minGroupQuantity = 1;
     [SerializeField, Min(1)] int maxGroupQuantity = 1;
+    [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
+    [SerializeField] Vector3Int minBoundProductSpawn;
+    [Tooltip("The highest coord of the volume in a Deliverer grid to spawn products in. The opposite corner of a cube.")]
+    [SerializeField] Vector3Int maxBoundProductSpawn;
 
+    int numProductsInDelivery;
+
+    [Title("Delivery Contents")]
     [SerializeField] ListList<ProductID> possibleProductLists;
-
-    [SerializeField] Transform productSpawnPosition; // TEMP: until delivery animation/theme chosen
 
     [SerializeField, HideInEditMode] RollTable<ProductID> basicProductRollTable = new();
     [SerializeField, HideInEditMode] RollTable<GameObject> specialProductObjsRollTable = new();
 
+    [Title("Other")]
     [SerializeField] List<Deliverer> deliverers = new();
 
     VolumeSlicer vs;
-
-    int numProductsInDelivery;
 
     void Awake() {
         vs = GetComponent<VolumeSlicer>();
@@ -48,14 +53,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void GenerateBasicDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
-        Dictionary<Vector3Int, ShapeData> volumeData = vs.Slice(
-            // new Vector3Int(grid.MinX, 0, grid.MinZ),
-            // new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
-
-            // TEMP
-            new Vector3Int(-1, 0, -1),
-            new Vector3Int(1, 2, 1)
-        );
+        Dictionary<Vector3Int, ShapeData> volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
 
         // Convert generated shape datas to product game objects and placement
         foreach (KeyValuePair<Vector3Int, ShapeData> kv in volumeData) {

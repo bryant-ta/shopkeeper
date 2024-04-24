@@ -8,18 +8,20 @@ public class Product : MonoBehaviour, IGridShape {
     [SerializeField] SO_Product productData;
 
     #region Product
-    
-    [field: SerializeField, Title("Product"), ReadOnly] public ProductID ID { get; private set; }
+
+    [field: SerializeField, Title("Product"), ReadOnly]
+    public ProductID ID { get; private set; }
+
     public string Name { get; private set; }
-    
-    [field: SerializeField, HideInEditMode] public ProductTags ProductTags { get; private set; }
+
+    [field: SerializeField, HideInEditMode]
+    public ProductTags ProductTags { get; private set; }
 
     #endregion
-    
-    #region IGridShape
-    
-    [field: SerializeField, Space, ReadOnly] public Vector3Int RootCoord { get; set; }
 
+    #region IGridShape
+
+    [Title("Shape")]
     public Grid Grid {
         get {
             if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {
@@ -35,19 +37,21 @@ public class Product : MonoBehaviour, IGridShape {
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
-    [field:SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
-    
-    [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
-    
+    [field: SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
+
+    [field: SerializeField, HideInEditMode]
+    public ShapeTags ShapeTags { get; private set; }
+
     #endregion
 
     void Awake() {
         Colliders = new();
-        
+
         if (productData == null) {
             // Debug.Log($"Product {gameObject.name} did not self-init.");
             return;
         }
+
         Init(productData);
     }
 
@@ -58,11 +62,12 @@ public class Product : MonoBehaviour, IGridShape {
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
             ShapeData = ShapeDataLookUp.LookUp[ShapeData.ID];
         }
+
         VoxelMeshGenerator.Generate(gameObject, ShapeData);
-        
+
         ShapeTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
-        
+
         ID = productData.ProductID;
         Name = productData.ProductID.ToString();
         gameObject.name = Name;

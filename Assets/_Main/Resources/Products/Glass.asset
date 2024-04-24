@@ -15,7 +15,7 @@ MonoBehaviour:
   ProductID: 7
   Texture: {fileID: 2800000, guid: 998e3a94c8380734bba8c9f0c0ea37ba, type: 3}
   ShapeData:
-    ID: 1
+    ID: 8
     ShapeOffsets: []
   BasicTagIDs: 
   ScoreTagIDs: 

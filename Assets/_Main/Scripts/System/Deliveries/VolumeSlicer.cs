@@ -21,6 +21,12 @@ public class VolumeSlicer : MonoBehaviour {
     (to form a rectangle) (can fail if not all cells are open)
     */
     public Dictionary<Vector3Int, ShapeData> Slice(Vector3Int minBounds, Vector3Int maxBounds) {
+        int globalMaxY = GameManager.Instance.GlobalGridHeight;
+        if (minBounds.y < 0 || maxBounds.y < 0 || minBounds.y >= globalMaxY || maxBounds.y >= globalMaxY) {
+            Debug.LogError("VolumeSlicer bounds do not fit in grid.");
+            return null;
+        }
+        
         HashSet<Vector2Int> validLayerCells = new();
         for (int x = minBounds.x; x <= maxBounds.x; x++) {
             for (int z = minBounds.z; z <= maxBounds.z; z++) {
