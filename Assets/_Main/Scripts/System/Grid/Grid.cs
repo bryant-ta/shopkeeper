@@ -67,7 +67,7 @@ public class Grid : MonoBehaviour {
         DOTween.Kill(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
 
         shape.ShapeTransform.SetParent(transform, true);
-        shape.RootCoord = targetCoord;
+        shape.ShapeData.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
             for (var i = 0; i < shape.Colliders.Count; i++) {
@@ -98,12 +98,12 @@ public class Grid : MonoBehaviour {
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
         // TODO: move if actually has performance impact
-        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
+        shapes.Sort((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y));
 
-        Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
+        Vector3Int lastShapeRootCoord = shapes[0].ShapeData.RootCoord;
         foreach (IGridShape shape in shapes) {
-            targetCoord += shape.RootCoord - lastShapeRootCoord;
-            lastShapeRootCoord = shape.RootCoord;
+            targetCoord += shape.ShapeData.RootCoord - lastShapeRootCoord;
+            lastShapeRootCoord = shape.ShapeData.RootCoord;
             PlaceShapeNoValidate(targetCoord, shape);
         }
 
@@ -119,7 +119,7 @@ public class Grid : MonoBehaviour {
         // Check shape move rules
         if (!ignoreZone) {
             for (int i = 0; i < shapes.Count; i++) {
-                if (!CheckZones(shapes[i].RootCoord, prop => prop.CanTake)) {
+                if (!CheckZones(shapes[i].ShapeData.RootCoord, prop => prop.CanTake)) {
                     return false;
                 }
             }
@@ -131,7 +131,7 @@ public class Grid : MonoBehaviour {
         // Save original shape coords in original grid, remove from original grid
         List<Vector3Int> origRootCoords = new();
         for (int i = 0; i < shapes.Count; i++) {
-            origRootCoords.Add(shapes[i].RootCoord);
+            origRootCoords.Add(shapes[i].ShapeData.RootCoord);
             RemoveShapeCells(shapes[i], false);
         }
 
@@ -179,8 +179,8 @@ public class Grid : MonoBehaviour {
     void RemoveShapeCells(IGridShape shape, bool triggerAllFall) {
         Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
-            cells.Remove(shape.RootCoord + offset);
-            gapCoords.Enqueue(shape.RootCoord + offset);
+            cells.Remove(shape.ShapeData.RootCoord + offset);
+            gapCoords.Enqueue(shape.ShapeData.RootCoord + offset);
         }
 
         // Trigger falling for any shapes above removed shape cells
@@ -201,7 +201,7 @@ public class Grid : MonoBehaviour {
 
                 if (canFall) {
                     // Will recursively cause all shapes above to fall as well
-                    MoveShapes(this, aboveShape.RootCoord + Vector3Int.down, new List<IGridShape> {aboveShape}, true);
+                    MoveShapes(this, aboveShape.ShapeData.RootCoord + Vector3Int.down, new List<IGridShape> {aboveShape}, true);
                     gapCoords.Enqueue(aboveCoord);
                 }
             }
@@ -215,8 +215,8 @@ public class Grid : MonoBehaviour {
         }
         
         for (int i = 0; i < shapes.Count; i++) {
-            shapes[i].RotateShape(clockwise);
-            PlaceShapeNoValidate(shapes[i].RootCoord, shapes[i]);
+            shapes[i].ShapeData.RotateShape(clockwise);
+            PlaceShapeNoValidate(shapes[i].ShapeData.RootCoord, shapes[i]);
         }
     }
 
@@ -244,8 +244,8 @@ public class Grid : MonoBehaviour {
 
         // Determine footprint, enqueue every cell above footprint for checking for stacked shapes
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
-            cellsToCheck.Enqueue(shape.RootCoord + offset);
-            stackFootprint.Add(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z));
+            cellsToCheck.Enqueue(shape.ShapeData.RootCoord + offset);
+            stackFootprint.Add(new Vector2Int(shape.ShapeData.RootCoord.x + offset.x, shape.ShapeData.RootCoord.z + offset.z));
         }
 
         stackedShapes.Add(shape);
@@ -260,7 +260,7 @@ public class Grid : MonoBehaviour {
                 if (!stackedShapes.Contains(shape)) { // Add shape if new
                     foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
                         // Current shape falls outside stack footprint
-                        if (!stackFootprint.Contains(new Vector2Int(shape.RootCoord.x + offset.x, shape.RootCoord.z + offset.z))) {
+                        if (!stackFootprint.Contains(new Vector2Int(shape.ShapeData.RootCoord.x + offset.x, shape.ShapeData.RootCoord.z + offset.z))) {
                             shapeOutOfFootprint = shape;
                             return null;
                         }
@@ -361,12 +361,12 @@ public class Grid : MonoBehaviour {
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
         // TODO: move if actually has performance impact
-        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
+        shapes.Sort((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y));
 
-        Vector3Int lastShapeRootCoord = shapes[0].RootCoord;
+        Vector3Int lastShapeRootCoord = shapes[0].ShapeData.RootCoord;
         foreach (IGridShape shape in shapes) {
-            targetCoord += shape.RootCoord - lastShapeRootCoord;
-            lastShapeRootCoord = shape.RootCoord;
+            targetCoord += shape.ShapeData.RootCoord - lastShapeRootCoord;
+            lastShapeRootCoord = shape.ShapeData.RootCoord;
             if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
         }
 
@@ -490,7 +490,7 @@ public class Grid : MonoBehaviour {
             shapes.Add(cell.Shape);
         }
 
-        shapes.Sort((a, b) => a.RootCoord.y.CompareTo(b.RootCoord.y));
+        shapes.Sort((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y));
 
         return shapes;
     }

@@ -46,7 +46,7 @@ public class PlayerDrag : MonoBehaviour {
 
         // Try to pick up stack of shapes
         Grid targetGrid = clickedShape.Grid;
-        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.RootCoord, out IGridShape outOfFootprintShape);
+        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape);
         if (heldShapes == null) {
             TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
@@ -64,7 +64,7 @@ public class PlayerDrag : MonoBehaviour {
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
-        selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.RootCoord;
+        selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
         DragGrid.transform.position = clickedShape.ShapeTransform.position;
@@ -192,7 +192,7 @@ public class PlayerDrag : MonoBehaviour {
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
-                if (heldShapes[i].RootCoord.y + DragGrid.transform.position.y >= targetGrid.Height) {
+                if (heldShapes[i].ShapeData.RootCoord.y + DragGrid.transform.position.y >= targetGrid.Height) {
                     outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
                     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);

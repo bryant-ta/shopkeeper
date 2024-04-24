@@ -25,7 +25,7 @@ public static class TweenManager {
         string tweenID = shape.ShapeTransform.GetInstanceID() + InvalidShakeID;
         
         DOTween.Kill(tweenID); // Note: more efficient to replace with hash?
-        shape.ShapeTransform.localPosition = shape.RootCoord;
+        shape.ShapeTransform.localPosition = shape.ShapeData.RootCoord;
         
         shape.ShapeTransform.DOShakePosition(
             InvalidShake.Duration,

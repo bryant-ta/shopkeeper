@@ -34,14 +34,18 @@ public enum ShapeDataID {
 }
 
 [Serializable]
-public struct ShapeData {
+public class ShapeData {
     public ShapeDataID ID;
-    [ReadOnly] public List<Vector3Int> ShapeOffsets;
+    public Vector3Int RootCoord { get; set; }
+    [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
     
     // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
     public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
         
+        // Rotate root coord
+        RootCoord = new Vector3Int(RootCoord.z * cw, RootCoord.y, -RootCoord.x * cw);
+
         List<Vector3Int> rotatedShapeOffsets = new();
         foreach (Vector3Int offset in ShapeOffsets) {
             Vector3Int rotatedOffset = new Vector3Int(offset.z * cw, offset.y, -offset.x * cw);
@@ -93,7 +97,7 @@ public struct ShapeData {
 }
 
 public static class ShapeDataLookUp {
-    public static Dictionary<ShapeDataID, ShapeData> LookUp = new Dictionary<ShapeDataID, ShapeData>() {
+    public static Dictionary<ShapeDataID, ShapeData> LookUp = new() {
         {
             ShapeDataID.O1, new ShapeData() {
                 ID = ShapeDataID.O1,

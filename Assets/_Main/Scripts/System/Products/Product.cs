@@ -35,9 +35,6 @@ public class Product : MonoBehaviour, IGridShape {
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
-    [SerializeField, ReadOnly] ShapeDataID shapeDataID;
-    public ShapeDataID ShapeDataID => shapeDataID;
-
     [field:SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
     
     [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
@@ -57,10 +54,9 @@ public class Product : MonoBehaviour, IGridShape {
     public void Init(SO_Product _productData) {
         if (productData == null) productData = _productData;
 
-        shapeDataID = _productData.ShapeData.ID;
         ShapeData = productData.ShapeData;
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
-            ShapeData = ShapeDataLookUp.LookUp[shapeDataID];
+            ShapeData = ShapeDataLookUp.LookUp[ShapeData.ID];
         }
         VoxelMeshGenerator.Generate(gameObject, ShapeData);
         
