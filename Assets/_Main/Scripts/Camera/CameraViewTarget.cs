@@ -12,12 +12,16 @@ public class CameraViewTarget : MonoBehaviour {
     public bool CanMove { get; private set; }
 
     Camera mainCam;
+    CameraController camCtrl;
 
     void Awake() {
         mainCam = Camera.main;
-
+        camCtrl = mainCam.GetComponent<CameraController>();
+        
         SetMovementAxes();
         EnableMovement();
+        
+        camCtrl.OnCameraRotate += SetMovementAxes;
     }
 
     void Update() { MoveView(); }
