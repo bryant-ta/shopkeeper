@@ -4,12 +4,8 @@ using UnityEngine;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
+    // TODO: reorgnize these params
     [Title("Delivery Size")]
-    [SerializeField] int numInitialProductsInDelivery;
-    [SerializeField] int productsPerDayGrowth;
-    [SerializeField] int maxProductsInDelivery;
-    [SerializeField, Min(1)] int minGroupQuantity = 1;
-    [SerializeField, Min(1)] int maxGroupQuantity = 1;
     [SerializeField, Space] bool useWholeGridAsBounds;
     [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
     [ShowIf(nameof(useWholeGridAsBounds), false)]
@@ -23,8 +19,18 @@ public class DeliveryManager : MonoBehaviour {
     [Title("Delivery Contents")]
     [SerializeField] ListList<ProductID> possibleProductLists;
 
-    [SerializeField, HideInEditMode] RollTable<ProductID> basicProductRollTable = new();
-    [SerializeField, HideInEditMode] RollTable<GameObject> specialProductObjsRollTable = new();
+    [SerializeField] RollTable<ProductID> basicProductRollTable = new();
+    [SerializeField] RollTable<GameObject> specialProductRollTable = new();
+    [SerializeField] RollTable<ShapeDataID> basicShapeRollTable = new();
+
+    [Title("Special Delivery")]
+    [SerializeField] int bulkQuantityMin;
+    [SerializeField] int bulkQuantityMax;
+
+    // [Title("Delivery Scaling")]
+    // [SerializeField] int numInitialProductsInDelivery;
+    // [SerializeField] int productsPerDayGrowth;
+    // [SerializeField] int productsInDeliveryMax;
 
     [Title("Other")]
     [SerializeField] List<Deliverer> deliverers = new();
@@ -43,24 +49,23 @@ public class DeliveryManager : MonoBehaviour {
 
 
             // DEBUG
-            Deliver(deliverers[0]);
+            Deliver();
         }
     }
 
-    void Deliver(Deliverer deliverer) {
+    void Deliver() {
         // TODO: basic delivery every day
-        GenerateBasicDelivery(deliverer);
+        // GenerateBasicDelivery(deliverers[0]);
 
         // TODO: special delivery every 3 days
+        GenerateSpecialDelivery(deliverers[1]);
     }
 
     void GenerateBasicDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
         Dictionary<Vector3Int, ShapeData> volumeData;
         if (useWholeGridAsBounds) {
-            volumeData = vs.Slice(
-                new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, GameManager.Instance.GlobalGridHeight - 1, grid.MaxZ)
-            );
+            volumeData = vs.Slice(new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, grid.Height - 1, grid.MaxZ));
         } else {
             volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
         }
@@ -75,13 +80,50 @@ public class DeliveryManager : MonoBehaviour {
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
             grid.PlaceShapeNoValidate(kv.Key, product);
+
+            GameManager.AddStockedProduct(product);
         }
     }
 
-    void GenerateSpecialDelivery() {
-        // TODO: gen 3 separate delivery grids sliced according to special product shapes
-        Product specialProduct = ProductFactory.Instance.CreateProduct(specialProductObjsRollTable.GetRandom());
+    void GenerateSpecialDelivery(Deliverer deliverer) { BulkDelivery(deliverer); }
+
+    void BulkDelivery(Deliverer deliverer) {
+        Grid grid = deliverer.Grid;
+        ShapeDataID id = basicShapeRollTable.GetRandom();
+        print(id);
+        List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
+        SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
+
+        int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
+        for (int x = grid.MinX; x < grid.MaxX; x++) {
+            for (int z = grid.MinZ; z < grid.MaxZ; z++) {
+                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
+
+                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
+                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
+                    Product product = ProductFactory.Instance.CreateProduct(productData, selectedXZ);
+                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
+                        Debug.LogErrorFormat("Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord);
+                        break;
+                    }
+                    
+                    GameManager.AddStockedProduct(product);
+
+                    quantity--;
+
+                    if (quantity == 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (quantity > 0) {
+            Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
+        }
     }
+
+    void IrregularDelivery() { }
 
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone
@@ -163,10 +205,10 @@ public class DeliveryManager : MonoBehaviour {
     // TEMP: pre-crafting difficulty formulas
     void ScaleDeliveryDifficulty(int day) {
         // Scale quantity
-        numProductsInDelivery = productsPerDayGrowth * (day - 1) + numInitialProductsInDelivery;
-        if (numProductsInDelivery > maxProductsInDelivery) {
-            numProductsInDelivery = maxProductsInDelivery;
-        }
+        // numProductsInDelivery = productsPerDayGrowth * (day - 1) + numInitialProductsInDelivery;
+        // if (numProductsInDelivery > maxProductsInDelivery) {
+        //     numProductsInDelivery = maxProductsInDelivery;
+        // }
 
         // Scale variety
         if (day - 1 < possibleProductLists.outerList.Count) {
@@ -178,7 +220,9 @@ public class DeliveryManager : MonoBehaviour {
 
     #region Upgrades
 
-    public void SetMaxGroupQuantity(int value) { maxGroupQuantity = value; }
+    public void SetMaxGroupQuantity(int value) {
+        // maxGroupQuantity = value;
+    }
 
     #endregion
 }

@@ -1,5 +1,5 @@
 using System;
-using Unity.Collections;
+using TriInspector;
 using UnityEngine;
 
 public class GridVisualizer : MonoBehaviour {

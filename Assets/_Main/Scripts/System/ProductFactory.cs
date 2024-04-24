@@ -29,16 +29,16 @@ public class ProductFactory : Singleton<ProductFactory> {
     /// <summary>
     /// Instantiates an instance of a product prefab object. The prefab should have a Product component with ShapeData and SO_ProductData set.
     /// </summary>
-    public Product CreateProduct(GameObject productObj) {
-        Product product = productObj.GetComponentInChildren<Product>();
-        if (product == null) {
-            Debug.LogError("Unable to find Product component in product prefab.");
-            return null;
-        }
-        // product will self init since productData will be set already.
-
-        return product;
-    }
+    // public Product CreateProduct(GameObject productObj) {
+    //     Product product = productObj.GetComponentInChildren<Product>();
+    //     if (product == null) {
+    //         Debug.LogError("Unable to find Product component in product prefab.");
+    //         return null;
+    //     }
+    //     // product will self init since productData will be set already.
+    //
+    //     return product;
+    // }
 
     public Product CreateRandomProduct() {
         

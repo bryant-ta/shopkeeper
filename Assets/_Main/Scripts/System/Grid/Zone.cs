@@ -17,9 +17,8 @@ public class Zone : MonoBehaviour {
     public HashSet<Vector2Int> XZCoords { get; private set; }
 
     public void Setup(Vector3Int rootCoord) {
-        UpdateZonePosition(rootCoord);
-
         height = GameManager.Instance.GlobalGridHeight;
+        UpdateZonePosition(rootCoord);
     }
 
     public void UpdateZonePosition(Vector3Int rootCoord) {
