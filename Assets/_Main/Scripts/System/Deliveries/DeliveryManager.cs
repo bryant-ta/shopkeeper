@@ -5,8 +5,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
-    // TODO: reorgnize these params
-    [Title("Delivery Size")]
+    [Title("Basic Delivery")]
     [SerializeField, Space] bool useWholeGridAsBounds;
     [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
     [ShowIf(nameof(useWholeGridAsBounds), false)]
@@ -14,29 +13,25 @@ public class DeliveryManager : MonoBehaviour {
     [Tooltip("The highest coord of the volume in a Deliverer grid to spawn products in. The opposite corner of a cube.")]
     [ShowIf(nameof(useWholeGridAsBounds), false)]
     [SerializeField] Vector3Int maxBoundProductSpawn;
-
-    int numProductsInDelivery;
-
-    [Title("Delivery Contents")]
-    [SerializeField] ListList<ProductID> possibleProductLists;
-
-    [SerializeField] RollTable<ProductID> basicProductRollTable = new();
-    [SerializeField] RollTable<GameObject> specialProductRollTable = new();
-    [SerializeField] RollTable<ShapeDataID> basicShapeRollTable = new();
+    [SerializeField] List<Deliverer> basicDeliverers = new();
 
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
     [SerializeField] int bulkQuantityMax;
     [SerializeField] int irregularQuantityMin;
     [SerializeField] int irregularQuantityMax;
+    [SerializeField] List<Deliverer> specialDeliverers = new();
+
+    [Title("Other")]
+    [SerializeField] ListList<ProductID> possibleProductLists;
+    [SerializeField] RollTable<ProductID> basicProductRollTable = new();
+    [SerializeField] RollTable<ShapeDataID> basicShapeRollTable = new();
+    int numProductsInDelivery;
 
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
     // [SerializeField] int productsPerDayGrowth;
     // [SerializeField] int productsInDeliveryMax;
-
-    [Title("Other")]
-    [SerializeField] List<Deliverer> deliverers = new();
 
     VolumeSlicer vs;
 
@@ -57,11 +52,13 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
-        // TODO: basic delivery every day
-        // GenerateBasicDelivery(deliverers[0]);
+        // for (int i = 0; i < basicDeliverers.Count; i++) {
+        //     GenerateBasicDelivery(basicDeliverers[i]);
+        // }
 
-        // TODO: special delivery every 3 days
-        GenerateSpecialDelivery(deliverers[1]);
+        for (int i = 0; i < specialDeliverers.Count; i++) {
+            GenerateSpecialDelivery(specialDeliverers[i]);
+        }
     }
 
     void GenerateBasicDelivery(Deliverer deliverer) {
