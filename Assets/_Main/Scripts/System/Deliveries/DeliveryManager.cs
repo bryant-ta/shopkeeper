@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TriInspector;
 using UnityEngine;
 
@@ -26,6 +27,8 @@ public class DeliveryManager : MonoBehaviour {
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
     [SerializeField] int bulkQuantityMax;
+    [SerializeField] int irregularQuantityMin;
+    [SerializeField] int irregularQuantityMax;
 
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
@@ -85,12 +88,14 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    void GenerateSpecialDelivery(Deliverer deliverer) { BulkDelivery(deliverer); }
+    void GenerateSpecialDelivery(Deliverer deliverer) {
+        // BulkDelivery(deliverer);
+        IrregularDelivery(deliverer);
+    }
 
     void BulkDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
         ShapeDataID id = basicShapeRollTable.GetRandom();
-        print(id);
         List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
         SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
 
@@ -101,7 +106,7 @@ public class DeliveryManager : MonoBehaviour {
 
                 while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
                     Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-                    Product product = ProductFactory.Instance.CreateProduct(productData, selectedXZ);
+                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
                     if (!grid.PlaceShape(deliveryCoord, product, true)) {
                         Debug.LogErrorFormat("Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord);
                         break;
@@ -123,7 +128,41 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    void IrregularDelivery() { }
+    // TEMP: selects one from all products
+    void IrregularDelivery(Deliverer deliverer) {
+        Grid grid = deliverer.Grid;
+        List<ProductID> possibleProductIDs = ProductFactory.Instance.ProductDataLookUp.Keys.ToList();
+        ProductID id = possibleProductIDs[Random.Range(0, possibleProductIDs.Count)];
+        SO_Product productData = ProductFactory.Instance.ProductDataLookUp[id];
+
+        int quantity = Random.Range(irregularQuantityMin, irregularQuantityMax);
+        for (int x = grid.MinX; x < grid.MaxX; x++) {
+            for (int z = grid.MinZ; z < grid.MaxZ; z++) {
+                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
+
+                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
+                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
+                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
+                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
+                        Debug.LogErrorFormat("Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord);
+                        break;
+                    }
+                    
+                    GameManager.AddStockedProduct(product);
+
+                    quantity--;
+
+                    if (quantity == 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (quantity > 0) {
+            Debug.LogWarning($"Unable to place all products in irregular delivery: {quantity} remaining.");
+        }
+    }
 
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone

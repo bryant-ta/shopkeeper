@@ -159,10 +159,40 @@ public static class ShapeDataLookUp {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
-                    new(2, 0, 0),
                     new(0, 0, 1),
                     new(1, 0, 1),
-                    new(2, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                }
+            }
+        }, {
+            ShapeDataID.Rect2x4, new ShapeData() {
+                ID = ShapeDataID.Rect2x4,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                }
+            }
+        }, {
+            ShapeDataID.Rect2x5, new ShapeData() {
+                ID = ShapeDataID.Rect2x5,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                    new(0, 0, 4),
+                    new(1, 0, 4),
                 }
             }
         }, {
@@ -171,13 +201,105 @@ public static class ShapeDataLookUp {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0),
                     new(1, 0, 0),
-                    new(-1, 0, 0),
+                    new(2, 0, 0),
                     new(0, 0, 1),
                     new(1, 0, 1),
-                    new(-1, 0, 1),
-                    new(0, 0, -1),
-                    new(1, 0, -1),
-                    new(-1, 0, -1),
+                    new(2, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(2, 0, 2),
+                }
+            }
+        }, {
+            ShapeDataID.Rect3x4, new ShapeData() {
+                ID = ShapeDataID.Rect3x4,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(2, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(2, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                    new(2, 0, 3),
+                }
+            }
+        }, {
+            ShapeDataID.Rect3x5, new ShapeData() {
+                ID = ShapeDataID.Rect3x5,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(2, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(2, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                    new(2, 0, 3),
+                    new(0, 0, 4),
+                    new(1, 0, 4),
+                    new(2, 0, 4),
+                }
+            }
+        }, {
+            ShapeDataID.Rect4x4, new ShapeData() {
+                ID = ShapeDataID.Rect4x4,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(3, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(2, 0, 1),
+                    new(3, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(2, 0, 2),
+                    new(3, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                    new(2, 0, 3),
+                    new(3, 0, 3),
+                }
+            }
+        }, {
+            ShapeDataID.Rect5x5, new ShapeData() {
+                ID = ShapeDataID.Rect5x5,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(3, 0, 0),
+                    new(4, 0, 0),
+                    new(0, 0, 1),
+                    new(1, 0, 1),
+                    new(2, 0, 1),
+                    new(3, 0, 1),
+                    new(4, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
+                    new(2, 0, 2),
+                    new(3, 0, 2),
+                    new(4, 0, 2),
+                    new(0, 0, 3),
+                    new(1, 0, 3),
+                    new(2, 0, 3),
+                    new(3, 0, 3),
+                    new(4, 0, 3),
+                    new(0, 0, 4),
+                    new(1, 0, 4),
+                    new(2, 0, 4),
+                    new(3, 0, 4),
+                    new(4, 0, 4),
                 }
             }
         }, {
@@ -187,6 +309,16 @@ public static class ShapeDataLookUp {
                     new(0, 0, 0),
                     new(1, 0, 0),
                     new(0, 0, 1),
+                }
+            }
+        }, {
+            ShapeDataID.L1x2, new ShapeData() {
+                ID = ShapeDataID.L1x2,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(0, 0, 1),
+                    new(0, 0, 2),
                 }
             }
         }, {
@@ -200,21 +332,51 @@ public static class ShapeDataLookUp {
                     new(0, 0, 3),
                 }
             }
+        }, {
+            ShapeDataID.L2x1, new ShapeData() {
+                ID = ShapeDataID.L2x1,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(0, 0, 1),
+                }
+            }
+        }, {
+            ShapeDataID.L3x1, new ShapeData() {
+                ID = ShapeDataID.L3x1,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(3, 0, 0),
+                    new(0, 0, 1),
+                }
+            }
+        }, {
+            ShapeDataID.L2x2, new ShapeData() {
+                ID = ShapeDataID.L2x2,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(0, 0, 1),
+                    new(0, 0, 2),
+                }
+            }
+        }, {
+            ShapeDataID.L3x3, new ShapeData() {
+                ID = ShapeDataID.L3x3,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(2, 0, 0),
+                    new(3, 0, 0),
+                    new(0, 0, 1),
+                    new(0, 0, 2),
+                    new(0, 0, 3),
+                }
+            }
         },
-        // {
-        //     ShapeDataID.Cube2, new ShapeData() {
-        //         ID = ShapeDataID.Cube2,
-        //         ShapeOffsets = new List<Vector3Int>() {
-        //             new(0, 0, 0),
-        //             new(1, 0, 0),
-        //             new(0, 0, 1),
-        //             new(1, 0, 1),
-        //             new(0, 1, 0),
-        //             new(1, 1, 0),
-        //             new(0, 1, 1),
-        //             new(1, 1, 1),
-        //         }
-        //     }
-        // },
     };
 }

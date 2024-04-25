@@ -15,7 +15,7 @@ MonoBehaviour:
   ProductID: 5
   Texture: {fileID: 2800000, guid: 9c811ebbcffa9d4468a7ff1b42f7718e, type: 3}
   ShapeData:
-    ID: 1
+    ID: 14
     <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
   BasicTagIDs: 01000000
