@@ -142,6 +142,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b762fbdd690018d46b4e332807bcd1fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  delivererObj: {fileID: 6107107185768956133}
+  <Grid>k__BackingField: {fileID: 6107107185606520952}
   deliveryZone: {fileID: 6480388484821304643}
 --- !u!1 &6107107184956984813
 GameObject:

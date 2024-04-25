@@ -1,15 +1,21 @@
 using UnityEngine;
 
 public class Deliverer : MonoBehaviour {
+    [SerializeField] GameObject delivererObj;
+    [field:SerializeField] public Grid Grid { get; private set; }
     [SerializeField] Zone deliveryZone;
-    public Grid Grid => grid;
-    Grid grid;
-
-    void Awake() { grid = GetComponentInParent<Grid>(); }
 
     void Start() {
         // Create delivery zone
         deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition));
-        grid.AddZone(deliveryZone);
+        Grid.AddZone(deliveryZone);
+    }
+
+    public void Enable() {
+        delivererObj.SetActive(true);
+        
+    }
+    public void Disable() {
+        delivererObj.SetActive(false);
     }
 }

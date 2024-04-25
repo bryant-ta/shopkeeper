@@ -5,7 +5,8 @@ using TriInspector;
 using UnityEngine;
 
 public class Grid : MonoBehaviour {
-    [InfoBox("Min LHW defined as -max LHW.\nCenter defined as (0,0,0).")]
+    [Title("Dimensions")]
+    [InfoBox("Center defined as (0,0,0).")]
     [SerializeField] int length;
     public int Length => length;
     int height; // controlled thru GameManager config
@@ -17,6 +18,7 @@ public class Grid : MonoBehaviour {
     public int MaxX => length / 2;
     public int MaxZ => width / 2;
 
+    [Title("Other")]
     [SerializeField] bool smoothPlaceMovement = true;
 
     [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
@@ -24,6 +26,8 @@ public class Grid : MonoBehaviour {
 
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
+    
+    public event Action<Grid> OnShapeMove; // Grid: the Grid instance a shape moved on
 
     // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
     // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
@@ -143,6 +147,9 @@ public class Grid : MonoBehaviour {
 
             return false;
         }
+        
+        OnShapeMove?.Invoke(this);
+        targetGrid.OnShapeMove?.Invoke(targetGrid);
 
         return true;
     }

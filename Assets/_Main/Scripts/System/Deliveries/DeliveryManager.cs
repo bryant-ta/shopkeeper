@@ -37,7 +37,31 @@ public class DeliveryManager : MonoBehaviour {
 
     void Awake() {
         vs = GetComponent<VolumeSlicer>();
+
         GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
+        foreach (Deliverer deliverer in basicDeliverers) {
+            deliverer.Grid.OnShapeMove += OnSelectBasicDelivery;
+        }
+        foreach (Deliverer deliverer in specialDeliverers) {
+            deliverer.Grid.OnShapeMove += OnSelectSpecialDelivery;
+        }
+    }
+
+    // TEMP: placeholder until doing anims/theme for basic delivery
+    void OnSelectBasicDelivery(Grid grid) {
+        if (!grid.IsEmpty()) return;
+        foreach (Deliverer deliverer in basicDeliverers) {
+            deliverer.Disable();
+        }
+    }
+
+    
+    // TEMP: placeholder until doing anims/theme for special delivery
+    void OnSelectSpecialDelivery(Grid grid) {
+        if (!grid.IsEmpty()) return;
+        foreach (Deliverer deliverer in specialDeliverers) {
+            deliverer.Disable();
+        }
     }
 
     void StateTrigger(IState<DayPhase> state) {
@@ -105,10 +129,12 @@ public class DeliveryManager : MonoBehaviour {
                     Vector3Int deliveryCoord = new Vector3Int(x, y, z);
                     Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
                     if (!grid.PlaceShape(deliveryCoord, product, true)) {
-                        Debug.LogErrorFormat("Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord);
+                        Debug.LogErrorFormat(
+                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
+                        );
                         break;
                     }
-                    
+
                     GameManager.AddStockedProduct(product);
 
                     quantity--;
@@ -141,10 +167,12 @@ public class DeliveryManager : MonoBehaviour {
                     Vector3Int deliveryCoord = new Vector3Int(x, y, z);
                     Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
                     if (!grid.PlaceShape(deliveryCoord, product, true)) {
-                        Debug.LogErrorFormat("Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord);
+                        Debug.LogErrorFormat(
+                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
+                        );
                         break;
                     }
-                    
+
                     GameManager.AddStockedProduct(product);
 
                     quantity--;
