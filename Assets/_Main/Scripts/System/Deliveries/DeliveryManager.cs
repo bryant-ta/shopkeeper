@@ -24,8 +24,7 @@ public class DeliveryManager : MonoBehaviour {
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists;
-    [SerializeField] RollTable<ProductID> basicProductRollTable = new();
-    [SerializeField] RollTable<ShapeDataID> basicShapeRollTable = new();
+    [SerializeField] RollTable<ShapeDataID> bulkDeliveryRollTable = new();
     int numProductsInDelivery;
 
     // [Title("Delivery Scaling")]
@@ -76,18 +75,18 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
-        // for (int i = 0; i < basicDeliverers.Count; i++) {
-        //     GenerateBasicDelivery(basicDeliverers[i]);
-        // }
-
-        for (int i = 0; i < specialDeliverers.Count; i++) {
-            GenerateSpecialDelivery(specialDeliverers[i]);
+        for (int i = 0; i < basicDeliverers.Count; i++) {
+            GenerateBasicDelivery(basicDeliverers[i]);
         }
+
+        // for (int i = 0; i < specialDeliverers.Count; i++) {
+        //     GenerateSpecialDelivery(specialDeliverers[i]);
+        // }
     }
 
     void GenerateBasicDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
-        Dictionary<Vector3Int, ShapeData> volumeData;
+        List<ShapeData> volumeData;
         if (useWholeGridAsBounds) {
             volumeData = vs.Slice(new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, grid.Height - 1, grid.MaxZ));
         } else {
@@ -95,15 +94,15 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         // Convert generated shape datas to product game objects and placement
-        foreach (KeyValuePair<Vector3Int, ShapeData> kv in volumeData) {
-            ShapeDataID curShapeDataID = kv.Value.ID;
+        foreach (ShapeData shapeData in volumeData) {
+            ShapeDataID curShapeDataID = shapeData.ID;
             List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[curShapeDataID];
 
             SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
-            productData.ShapeData = kv.Value;
+            productData.ShapeData = shapeData;
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
-            grid.PlaceShapeNoValidate(kv.Key, product);
+            grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
 
             GameManager.AddStockedProduct(product);
         }
@@ -116,7 +115,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void BulkDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
-        ShapeDataID id = basicShapeRollTable.GetRandom();
+        ShapeDataID id = bulkDeliveryRollTable.GetRandom();
         List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
         SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
 
@@ -132,7 +131,7 @@ public class DeliveryManager : MonoBehaviour {
                         Debug.LogErrorFormat(
                             "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
                         );
-                        break;
+                        return;
                     }
 
                     GameManager.AddStockedProduct(product);
@@ -170,7 +169,7 @@ public class DeliveryManager : MonoBehaviour {
                         Debug.LogErrorFormat(
                             "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
                         );
-                        break;
+                        return;
                     }
 
                     GameManager.AddStockedProduct(product);
@@ -256,9 +255,9 @@ public class DeliveryManager : MonoBehaviour {
     // }
 
     void AddPossibleProduct(ProductID productID) {
-        if (!basicProductRollTable.Contains(productID)) {
-            basicProductRollTable.Add(productID, 1);
-        }
+        // if (!basicProductRollTable.Contains(productID)) {
+        //     basicProductRollTable.Add(productID, 1);
+        // }
     }
 
     public List<ProductID> GetDayPossibleProducts(int day) {

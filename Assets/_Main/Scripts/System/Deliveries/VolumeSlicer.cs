@@ -20,7 +20,7 @@ public class VolumeSlicer : MonoBehaviour {
          fail → random roll orthogonal direction, random roll try add all adjacent cells to group in that direction 
     (to form a rectangle) (can fail if not all cells are open)
     */
-    public Dictionary<Vector3Int, ShapeData> Slice(Vector3Int minBounds, Vector3Int maxBounds) {
+    public List<ShapeData> Slice(Vector3Int minBounds, Vector3Int maxBounds) {
         int globalMaxY = GameManager.Instance.GlobalGridHeight;
         if (minBounds.y < 0 || maxBounds.y < 0 || minBounds.y >= globalMaxY || maxBounds.y >= globalMaxY) {
             Debug.LogError("VolumeSlicer bounds do not fit in grid.");
@@ -34,7 +34,7 @@ public class VolumeSlicer : MonoBehaviour {
             }
         }
         
-        Dictionary<Vector3Int, ShapeData> volumeData = new(); // shape data and their root coords
+        List<ShapeData> volumeData = new(); // shape data with their root coords set
         for (int y = minBounds.y; y <= maxBounds.y; y++) {
             HashSet<Vector2Int> curValidLayerCells = new HashSet<Vector2Int>(validLayerCells);
             int iterations = 0;
@@ -51,7 +51,8 @@ public class VolumeSlicer : MonoBehaviour {
                 List<Direction2D> validDirs = ValidDirections(curValidLayerCells, baseCoord);
                 if (validDirs.Count == 0) { // is 1x1x1
                     shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
-                    volumeData[baseCoord3D] = shapeData;
+                    shapeData.RootCoord = baseCoord3D;
+                    volumeData.Add(shapeData);
                     continue;
                 }
 
@@ -61,7 +62,7 @@ public class VolumeSlicer : MonoBehaviour {
                 Vector2Int curCoord = baseCoord;
                 Vector2Int curOffset = Vector2Int.zero;
                 int curShapeLength = 1;
-                while (Random.Range(0, 1f) > chanceOfShapeExtension && NeighborExists(curValidLayerCells, curCoord, shapeLengthDir)) {
+                while (Random.Range(0, 1f) < chanceOfShapeExtension && NeighborExists(curValidLayerCells, curCoord, shapeLengthDir)) {
                     if (curShapeLength >= maxShapeLength) break;
 
                     Vector2Int n = GetNeighbor(curOffset, shapeLengthDir);
@@ -77,19 +78,20 @@ public class VolumeSlicer : MonoBehaviour {
                 //TODO: randomly roll rectangle
                 
                 shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
-                volumeData[baseCoord3D] = shapeData;
+                shapeData.RootCoord = baseCoord3D;
+                volumeData.Add(shapeData);
             }
         }
         
         // Check
         HashSet<Vector3Int> claimedCells = new();
-        foreach (KeyValuePair<Vector3Int,ShapeData> kv in volumeData) {
-            foreach (Vector3Int offset in kv.Value.ShapeOffsets) {
-                if (claimedCells.Contains(kv.Key + offset)) {
+        foreach (ShapeData shapeData in volumeData) {
+            foreach (Vector3Int offset in shapeData.ShapeOffsets) {
+                if (claimedCells.Contains(shapeData.RootCoord + offset)) {
                     Debug.LogWarning($"shapes overlapping in VolumeSlicer at {offset}");
                 }
 
-                claimedCells.Add(kv.Key + offset);
+                claimedCells.Add(shapeData.RootCoord + offset);
             }
         }
 
