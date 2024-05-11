@@ -1,6 +1,6 @@
-using System;
 using UnityEngine;
 
+// DON'T CHANGE ORDER!
 public enum Direction {
     North = 0,
     East = 1,
@@ -10,6 +10,7 @@ public enum Direction {
     Down = 5
 }
 
+// DON'T YOU DARE!
 public enum Direction2D {
     North = 0,
     East = 1,
@@ -31,30 +32,6 @@ public static class CubeMeshData {
         new Vector3(-1, -1, -1)
     };
 
-    static readonly int[][] faceTriangles = {
-        new int[] {0, 1, 2, 3}, // N
-        new int[] {5, 0, 3, 6}, // E
-        new int[] {4, 5, 6, 7}, // S
-        new int[] {1, 4, 7, 2}, // W
-        new int[] {5, 4, 1, 0}, // U
-        new int[] {3, 2, 7, 6}, // D
-    };
-
-    static readonly int[][] bevelEdges = {
-        new int[] {1, 2}, // NW
-        new int[] {0, 3}, // EN
-        new int[] {5, 6}, // SE
-        new int[] {4, 7}, // WS
-        new int[] {1, 0}, // UN
-        new int[] {0, 5}, // UE
-        new int[] {5, 4}, // US
-        new int[] {4, 1}, // UW
-        new int[] {3, 2}, // DN
-        new int[] {6, 3}, // DE
-        new int[] {7, 6}, // DS
-        new int[] {2, 7}, // DW
-    };
-
     static readonly Vector3[] DirectionVectors = {
         Vector3.forward,
         Vector3.right,
@@ -73,7 +50,18 @@ public static class CubeMeshData {
         Vector3Int.down,
     };
 
-    public static Vector3[] CubeFaceVertices(int dir, Vector3 pos, float scale, float bevel) {
+    #region Faces
+
+    static readonly int[][] faceTriangles = {
+        new int[] {0, 1, 2, 3}, // N
+        new int[] {5, 0, 3, 6}, // E
+        new int[] {4, 5, 6, 7}, // S
+        new int[] {1, 4, 7, 2}, // W
+        new int[] {5, 4, 1, 0}, // U
+        new int[] {3, 2, 7, 6}, // D
+    };
+
+    static Vector3[] CubeFaceVertices(int dir, Vector3 pos, float scale, float bevel) {
         Vector3[] fv = new Vector3[4];
         for (int i = 0; i < fv.Length; i++) {
             fv[i] = pos + (vertices[faceTriangles[dir][i]] * scale * (1 - bevel)) + (DirectionVectors[dir] * scale * bevel);
@@ -85,9 +73,27 @@ public static class CubeMeshData {
         return CubeFaceVertices((int) dir, pos, scale, bevel);
     }
 
+    #endregion
+
     // dir1,dir2 defines corner that bevel exists, going right to left as viewed from inside the mesh
     // (i.e. NW, EN, SE, WS)
+
     #region Bevel Edges
+
+    static readonly int[][] bevelEdges = {
+        new int[] {1, 2}, // NW
+        new int[] {0, 3}, // EN
+        new int[] {5, 6}, // SE
+        new int[] {4, 7}, // WS
+        new int[] {1, 0}, // UN
+        new int[] {0, 5}, // UE
+        new int[] {5, 4}, // US
+        new int[] {4, 1}, // UW
+        new int[] {3, 2}, // DN
+        new int[] {6, 3}, // DE
+        new int[] {7, 6}, // DS
+        new int[] {2, 7}, // DW
+    };
 
     public static Vector3[] CornerBevelFaceVertices(Direction dir1, Direction dir2, Vector3 pos, float scale, float bevel) {
         int d1 = (int) dir1;
@@ -193,7 +199,7 @@ public static class CubeMeshData {
 
         return fv;
     }
-    
+
     public static Vector3[] ElbowCapBevelFaceVertices(int vertice, Vector3 pos, float scale, float bevel) {
         int d1 = (int) CapVerticeDirectionVectors[vertice][0];
         int d2 = (int) CapVerticeDirectionVectors[vertice][1];
@@ -207,36 +213,36 @@ public static class CubeMeshData {
 
         Vector3[] fv = new Vector3[7];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
-        fv[1] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector2 + bevelVector1;
-        fv[2] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector3 + bevelVector1;
-        fv[3] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector3 + bevelVector1;
-        fv[4] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector2 + bevelVector1;
-        fv[5] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector2 + bevelVector3;
-        fv[6] = pos + (vertices[vertice] * innerCubeScale) + 2*bevelVector3 + bevelVector2;
+        fv[1] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector1;
+        fv[2] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector3 + bevelVector1;
+        fv[3] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector3 + bevelVector1;
+        fv[4] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector1;
+        fv[5] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector3;
+        fv[6] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector3 + bevelVector2;
 
         return fv;
     }
-    
+
     public static Vector3[] FlatCapBevelFaceVertices(int vertice, Vector3 pos, float scale, float bevel) {
         int d1 = (int) CapVerticeDirectionVectors[vertice][0];
         int d2 = (int) CapVerticeDirectionVectors[vertice][1];
         int d3 = (int) CapVerticeDirectionVectors[vertice][2];
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
-    
+
         Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
         Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
         Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
-        
+
         Vector3[] fv = new Vector3[4];
-        fv[0] = pos + (vertices[vertice] * innerCubeScale) + 2* bevelVector2 + bevelVector1;
-        fv[1] = pos + (vertices[vertice] * innerCubeScale) + 2* bevelVector2 + bevelVector3;
+        fv[0] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector1;
+        fv[1] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector3;
         fv[2] = pos + (vertices[vertice] * innerCubeScale) + bevelVector3;
         fv[3] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
-    
+
         return fv;
     }
-    
+
     // the little flat square corner pieces on top/bottom faces
     public static Vector3[] FlatCapTopFaceVertices(int vertice, Vector3 pos, float scale, float bevel) {
         int d1 = (int) CapVerticeDirectionVectors[vertice][0];
@@ -244,17 +250,17 @@ public static class CubeMeshData {
         int d3 = (int) CapVerticeDirectionVectors[vertice][2];
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
-    
+
         Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
         Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
         Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
-        
+
         Vector3[] fv = new Vector3[4];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1 + bevelVector2;
         fv[1] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1 + bevelVector2 + bevelVector3;
         fv[2] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1 + bevelVector3;
         fv[3] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
-    
+
         return fv;
     }
 
