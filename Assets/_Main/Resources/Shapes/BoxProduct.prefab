@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bfb5a391c04124f46b352500e4a34dab, type: 2}
+  - {fileID: 2100000, guid: 87e5a80b870e7e44499f00ce0318fc9f, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -100,9 +100,9 @@ MonoBehaviour:
   <ID>k__BackingField: 0
   <ProductTags>k__BackingField:
     BasicTags: 
-  <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
-  shapeDataID: 0
   <ShapeData>k__BackingField:
+    ID: 0
+    <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
 --- !u!1 &7749960157126138598
 GameObject:
