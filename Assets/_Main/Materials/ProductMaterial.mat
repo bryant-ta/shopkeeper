@@ -278,7 +278,7 @@ Material:
     - _SpecularSmoothness: 1
     - _SpecularThresholdOffset: 0.25
     - _SrcBlend: 1
-    - _Stencil: 2
+    - _Stencil: 1
     - _StencilComp: 8
     - _StencilFail: 0
     - _StencilPass: 0
