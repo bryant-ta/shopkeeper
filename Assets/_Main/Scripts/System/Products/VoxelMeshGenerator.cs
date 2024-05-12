@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public static class VoxelMeshGenerator {
@@ -32,7 +34,72 @@ public static class VoxelMeshGenerator {
         mesh.triangles = triangles.ToArray();
         mesh.RecalculateNormals();
 
+        mesh.tangents = CalculateTangentsFromNormals(mesh.normals);
+        
+        mesh.SetUVs(7, SmoothNormals(mesh.normals));
+
+
+        // Vector2[] uv = new Vector2[vertices.Count];
+        // uv = Unwrapping.GeneratePerTriangleUV(mesh);
+        // mesh.uv = uv;
+        // mesh.RecalculateTangents();
+
         MakeVoxelCollider(targetObj, shapeData);
+    }
+
+    static Vector3[] SmoothNormals(Vector3[] normals) {
+        Vector3[] smoothedNormals = new Vector3[normals.Length];
+        Dictionary<Vector3, Vector3> _smoothedNormals = new Dictionary<Vector3, Vector3>();
+        
+        for (int i = 0; i < vertices.Count; i++) {
+            if (!_smoothedNormals.ContainsKey(vertices[i]))
+                _smoothedNormals.Add(vertices[i], normals[i]);
+            else {
+                Vector3 value = Vector3.zero;
+                _smoothedNormals.TryGetValue(vertices[i], out value);
+                value += normals[i];
+                _smoothedNormals.Remove(vertices[i]);
+                _smoothedNormals.Add(vertices[i], value);
+            }
+        }
+
+        for (int i = 0; i < vertices.Count; i++) {
+            Vector3 n = Vector3.zero;
+            _smoothedNormals.TryGetValue(vertices[i], out n);
+            n.Normalize();
+
+            smoothedNormals[i] = n;
+        }
+
+        return smoothedNormals;
+    }
+
+    static Vector4[] CalculateTangentsFromNormals(Vector3[] normals) {
+        Vector4[] tangents = new Vector4[vertices.Count];
+        for (int i = 0; i < triangles.Count; i += 3) {
+            for (int j = 0; j < 3; j++) {
+                int index = triangles[i + j];
+                Vector3 normal = normals[index];
+                Vector3 tangent = TranslateNormalToTangent(normal);
+                tangents[index] += new Vector4(tangent.x, tangent.y, tangent.z, 1).normalized;
+            }
+        }
+
+        return tangents;
+    }
+    static Vector3 TranslateNormalToTangent(Vector3 normal) {
+        Vector3 n = normal.normalized;
+
+        if (n.y == 0) {
+            return Quaternion.Euler(0f, 90f, 0f) * n;
+        } else if (n.y < 1 && n.y > -1) {
+            // if (n.x > 0 && n.z > 0) {
+            //     return Quaternion.Euler(0f, 90f, 0f) * n;
+            // }
+            return Quaternion.Euler(0f, 90f, 0f) * n;
+        } else {
+            return Quaternion.Euler(90f, 0f, 0f) * n;
+        }
     }
 
     static void MakeCube(ShapeData shapeData, Vector3Int cubeCoord) {
