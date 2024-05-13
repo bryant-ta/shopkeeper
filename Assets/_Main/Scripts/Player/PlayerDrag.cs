@@ -121,9 +121,6 @@ public class PlayerDrag : MonoBehaviour {
         // Get lowest open grid cell
         if (targetGrid.SelectLowestOpenFromCell(selectedCellCoord, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
-        } else {
-            // TODO: some feedback that this point is occupied/out of bounds
-            return;
         }
 
         if (selectedCellCoord != lastSelectedCellCoord) {
@@ -134,9 +131,13 @@ public class PlayerDrag : MonoBehaviour {
         OnDrag?.Invoke(clickInputArgs.HitPoint);
     }
     void MoveDragGrid() {
-        // Keep position if shapes would not fit
-        if (TryFitShapesByRaising(selectedCellCoord, selectedShapeCellOffset, out Vector3Int newSelectedCellCoord)) {
-            selectedCellCoord = newSelectedCellCoord;
+        // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid
+        while (selectedCellCoord.y <= targetGrid.MaxY) {
+            if (targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
+                break;
+            }
+
+            selectedCellCoord.y++;
         }
 
         // Do drag movement
@@ -250,23 +251,6 @@ public class PlayerDrag : MonoBehaviour {
     }
 
     #region Helper
-
-    // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid.
-    bool TryFitShapesByRaising(Vector3Int baseSelectedCellCoord, Vector3Int shapeCellOffset, out Vector3Int newSelectedCellCoord) {
-        bool foundValidCoord = false;
-        newSelectedCellCoord = new Vector3Int(0, -1, 0);
-        while (baseSelectedCellCoord.y <= targetGrid.MaxY) {
-            if (targetGrid.ValidateShapesPlacement(baseSelectedCellCoord - shapeCellOffset, DragGrid.AllShapes())) {
-                newSelectedCellCoord = baseSelectedCellCoord;
-                foundValidCoord = true;
-                break;
-            }
-
-            baseSelectedCellCoord.y++;
-        }
-
-        return foundValidCoord;
-    }
 
     // Select grid that is currently dragged over, caches last selected
     // Returns false if targetGrid is not set
