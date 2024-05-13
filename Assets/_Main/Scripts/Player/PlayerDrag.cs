@@ -23,8 +23,8 @@ public class PlayerDrag : MonoBehaviour {
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
 
-    public event Action OnGrab;
-    public event Action OnDrag;
+    public event Action<Vector3> OnGrab;
+    public event Action<Vector3> OnDrag;
     public event Action OnRelease;
 
     void Awake() {
@@ -100,9 +100,10 @@ public class PlayerDrag : MonoBehaviour {
         Cursor.visible = false;
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
+        
+        OnGrab?.Invoke(clickInputArgs.HitPoint);
     }
 
-    [SerializeField] MeshRenderer gridOutlineMesh;
     void Update() {
         rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
     }
@@ -126,10 +127,6 @@ public class PlayerDrag : MonoBehaviour {
             // TODO: some feedback that this point is occupied/out of bounds
             return;
         }
-        
-        
-            // TODO: convert to use function in GridFloorHelper?
-        //gridOutlineMesh.materials[1].SetVector("_CursorHitPosition", clickInputArgs.HitPoint);
 
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
@@ -147,6 +144,8 @@ public class PlayerDrag : MonoBehaviour {
             DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
             // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
         }
+        
+        OnDrag?.Invoke(clickInputArgs.HitPoint);
     }
 
     bool isRotating = false;
@@ -244,6 +243,8 @@ public class PlayerDrag : MonoBehaviour {
         burst.count = heldShapes.Count * 2 + 3;
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
+        
+        OnRelease?.Invoke();
     }
 
     #region Helper
