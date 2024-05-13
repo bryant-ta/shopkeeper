@@ -11,14 +11,19 @@ public interface IGridShape {
     public Transform ColliderTransform { get; }
     public List<Collider> Colliders { get; }
 
-    public ShapeData ShapeData { get; set; }
-    
+    public ShapeData ShapeData { get; }
+
     public ShapeTags ShapeTags { get; }
 
+    public void SetOutline(Color color, float weight);
+    public void ResetOutline();
+
     public void DestroyShape() {
-        ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(() => {
-            ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object
-            Object.Destroy(ShapeTransform.gameObject);
-        });
+        ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(
+            () => {
+                ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object
+                Object.Destroy(ShapeTransform.gameObject);
+            }
+        );
     }
 }

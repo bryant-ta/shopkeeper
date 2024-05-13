@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using EventManager;
+using TriInspector;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
@@ -10,12 +12,20 @@ public class PlayerDrag : MonoBehaviour {
     [SerializeField] Transform rotationPivot;
     Vector3 pivotTargetRotation;
 
+    [Title("Selected Shape Outline")]
+    [SerializeField] Color selectedOutlineColor;
+    [SerializeField] float selectedOutlineWidth;
+
     Vector3Int selectedCellCoord;
     Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
     Grid targetGrid;
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
+
+    public event Action OnGrab;
+    public event Action OnDrag;
+    public event Action OnRelease;
 
     void Awake() {
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
@@ -80,13 +90,19 @@ public class PlayerDrag : MonoBehaviour {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = false;
             }
+            
+            // Outline selected effect
+            heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth);
         }
 
         isHolding = true;
 
+        Cursor.visible = false;
+
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
     }
 
+    [SerializeField] MeshRenderer gridOutlineMesh;
     void Update() {
         rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
     }
@@ -110,6 +126,10 @@ public class PlayerDrag : MonoBehaviour {
             // TODO: some feedback that this point is occupied/out of bounds
             return;
         }
+        
+        
+            // TODO: convert to use function in GridFloorHelper?
+        //gridOutlineMesh.materials[1].SetVector("_CursorHitPosition", clickInputArgs.HitPoint);
 
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
@@ -211,9 +231,13 @@ public class PlayerDrag : MonoBehaviour {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = true;
             }
+            
+            heldShapes[i].ResetOutline();
         }
 
         isHolding = false;
+        
+        Cursor.visible = true;
 
         // TEMP: play shape placement smoke burst particles
         ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);

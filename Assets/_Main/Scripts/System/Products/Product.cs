@@ -41,6 +41,10 @@ public class Product : MonoBehaviour, IGridShape {
 
     [field: SerializeField, HideInEditMode]
     public ShapeTags ShapeTags { get; private set; }
+    
+    public Material Mat { get; private set; }
+    Color matOutlineOriginalColor;
+    float matOutlineOriginalWeight;
 
     #endregion
 
@@ -71,10 +75,20 @@ public class Product : MonoBehaviour, IGridShape {
         ID = productData.ProductID;
         Name = productData.ProductID.ToString();
         gameObject.name = Name;
-
-        GetComponent<MeshRenderer>().material.SetTexture("_BaseMap", _productData.Texture);
+        
+        Mat = GetComponent<MeshRenderer>().material;
+        matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(Mat);
+        matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(Mat);
+        Mat.SetTexture("_BaseMap", _productData.Texture);
 
         ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);
         ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
+    }
+    public void SetOutline(Color color, float weight) {
+        MK.Toon.Properties.outlineColor.SetValue(Mat, color);
+        MK.Toon.Properties.outlineSize.SetValue(Mat, weight);
+    }
+    public void ResetOutline() {
+        SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight);
     }
 }
