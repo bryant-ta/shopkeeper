@@ -14,8 +14,10 @@ public class Grid : MonoBehaviour {
     [SerializeField] int width;
     public int Width => width;
     public int MinX => -length / 2;
+    public int MinY => 0;
     public int MinZ => -width / 2;
     public int MaxX => length / 2;
+    public int MaxY => height - 1;
     public int MaxZ => width / 2;
 
     [Title("Other")]

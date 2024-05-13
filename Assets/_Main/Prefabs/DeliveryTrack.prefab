@@ -173,7 +173,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6107107184956984813}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.03, z: 0}
   m_LocalScale: {x: 0.95, y: 1, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -373,6 +373,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 949761848737662265, guid: 673b74200c97a5242bbc7e169df86768, type: 3}
       propertyPath: ZoneProps.CanTake
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 949761848737662265, guid: 673b74200c97a5242bbc7e169df86768, type: 3}
+      propertyPath: ZoneProps.CanPlace
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5990571090175173001, guid: 673b74200c97a5242bbc7e169df86768, type: 3}

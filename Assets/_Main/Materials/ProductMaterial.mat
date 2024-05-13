@@ -189,7 +189,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _AdvancedTab: 0
+    - _AdvancedTab: 1
     - _AlbedoMapIntensity: 1
     - _AlembicMotionVectors: 0
     - _AlphaClipping: 0
@@ -254,8 +254,8 @@ Material:
     - _OptionsTab: 1
     - _Outline: 1
     - _OutlineData: 1
-    - _OutlineFadeMax: 2
-    - _OutlineFadeMin: 0.25
+    - _OutlineFadeMax: 1.71
+    - _OutlineFadeMin: 1
     - _OutlineNoise: 0
     - _OutlineSize: 50
     - _OutlineTab: 1
@@ -291,7 +291,7 @@ Material:
     - _ThresholdMapScale: 1
     - _UVSec: 0
     - _VertexAnimation: 0
-    - _VertexAnimationIntensity: 0.05
+    - _VertexAnimationIntensity: 0.03
     - _VertexAnimationStutter: 0
     - _Workflow: 0
     - _WrappedLighting: 1
@@ -312,5 +312,5 @@ Material:
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimDarkColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 0, g: 0, b: 0, a: 1}
-    - _VertexAnimationFrequency: {r: 2.5, g: 2.5, b: 2.5, a: 1}
+    - _VertexAnimationFrequency: {r: 5, g: 5, b: 5, a: 0}
   m_BuildTextureStacks: []

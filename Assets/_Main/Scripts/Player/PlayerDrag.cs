@@ -29,7 +29,7 @@ public class PlayerDrag : MonoBehaviour {
 
     void Awake() {
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
-        
+
         Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputPoint += Drag;
@@ -90,7 +90,7 @@ public class PlayerDrag : MonoBehaviour {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = false;
             }
-            
+
             // Outline selected effect
             heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth);
         }
@@ -100,13 +100,11 @@ public class PlayerDrag : MonoBehaviour {
         Cursor.visible = false;
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
-        
+
         OnGrab?.Invoke(clickInputArgs.HitPoint);
     }
 
-    void Update() {
-        rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset;
-    }
+    void Update() { rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
@@ -130,22 +128,24 @@ public class PlayerDrag : MonoBehaviour {
 
         if (selectedCellCoord != lastSelectedCellCoord) {
             lastSelectedCellCoord = selectedCellCoord;
-
-            // No drag movement if selected cell would make drag shapes overlap with existing
-            // if (!targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
-            //     return;
-            // }
-
-            // Do drag movement
-            Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
-            worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
-            string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
-            DOTween.Kill(tweenID);
-            DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
-            // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
+            MoveDragGrid();
         }
-        
+
         OnDrag?.Invoke(clickInputArgs.HitPoint);
+    }
+    void MoveDragGrid() {
+        // Keep position if shapes would not fit
+        if (TryFitShapesByRaising(selectedCellCoord, selectedShapeCellOffset, out Vector3Int newSelectedCellCoord)) {
+            selectedCellCoord = newSelectedCellCoord;
+        }
+
+        // Do drag movement
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
+        worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
+        string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+        DOTween.Kill(tweenID);
+        DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
+        // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
     }
 
     bool isRotating = false;
@@ -170,21 +170,21 @@ public class PlayerDrag : MonoBehaviour {
         foreach (IGridShape shape in dragShapes) {
             shape.ShapeTransform.SetParent(rotationPivot);
         }
-        
+
         // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
-        string tweenIDd = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
-        DOTween.Kill(tweenIDd);
+        string moveTweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+        DOTween.Kill(moveTweenID);
         Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
         worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
         DragGrid.transform.position = worldPos;
-        
+
         rotationPivot.rotation = Quaternion.Euler(pivotTargetRotation);
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
         pivotTargetRotation.y += 90f;
-        
-        string tweenID = rotationPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
-        DOTween.Kill(tweenID);
-        rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(tweenID).SetEase(Ease.OutQuad)
+
+        string rotateTweenID = rotationPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
+        DOTween.Kill(rotateTweenID);
+        rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.OutQuad)
             .OnComplete(
                 () => {
                     foreach (IGridShape shape in dragShapes) {
@@ -192,6 +192,8 @@ public class PlayerDrag : MonoBehaviour {
                     }
 
                     DragGrid.RotateShapes(dragShapes, clockwise);
+                    MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
+
                     isRotating = false;
                 }
             );
@@ -230,12 +232,12 @@ public class PlayerDrag : MonoBehaviour {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = true;
             }
-            
+
             heldShapes[i].ResetOutline();
         }
 
         isHolding = false;
-        
+
         Cursor.visible = true;
 
         // TEMP: play shape placement smoke burst particles
@@ -243,11 +245,28 @@ public class PlayerDrag : MonoBehaviour {
         burst.count = heldShapes.Count * 2 + 3;
         releaseDraggedPs.emission.SetBurst(0, burst);
         releaseDraggedPs.Play();
-        
+
         OnRelease?.Invoke();
     }
 
     #region Helper
+
+    // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid.
+    bool TryFitShapesByRaising(Vector3Int baseSelectedCellCoord, Vector3Int shapeCellOffset, out Vector3Int newSelectedCellCoord) {
+        bool foundValidCoord = false;
+        newSelectedCellCoord = new Vector3Int(0, -1, 0);
+        while (baseSelectedCellCoord.y <= targetGrid.MaxY) {
+            if (targetGrid.ValidateShapesPlacement(baseSelectedCellCoord - shapeCellOffset, DragGrid.AllShapes())) {
+                newSelectedCellCoord = baseSelectedCellCoord;
+                foundValidCoord = true;
+                break;
+            }
+
+            baseSelectedCellCoord.y++;
+        }
+
+        return foundValidCoord;
+    }
 
     // Select grid that is currently dragged over, caches last selected
     // Returns false if targetGrid is not set
