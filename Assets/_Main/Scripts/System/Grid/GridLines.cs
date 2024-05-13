@@ -8,7 +8,12 @@ public class GridLines : MonoBehaviour {
     float gridLinesMatOriginalFadeDistance;
 
     void Awake() {
-        gridLinesMat = GetComponent<MeshRenderer>().materials[1];
+        MeshRenderer mr = GetComponent<MeshRenderer>();
+        if (mr.materials.Length < 1) {
+            Debug.LogError("Grid lines requires Grid Lines shader in index 1 of attached mesh renderer.");
+            return;
+        }
+        gridLinesMat = mr.materials[1];
 
         Ref.Player.PlayerDrag.OnGrab += SetGridLinesFade;
         Ref.Player.PlayerDrag.OnDrag += SetGridLinesCursorPosition;
