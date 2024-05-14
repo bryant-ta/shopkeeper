@@ -14,6 +14,7 @@ public class PlayerDrag : MonoBehaviour {
 
     [Title("Selected Shape Outline")]
     [SerializeField] Color selectedOutlineColor;
+    [SerializeField] Color selectedInvalidOutlineColor;
     [SerializeField] float selectedOutlineWidth;
 
     Vector3Int selectedCellCoord;
@@ -132,12 +133,29 @@ public class PlayerDrag : MonoBehaviour {
     }
     void MoveDragGrid() {
         // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid
-        while (selectedCellCoord.y <= targetGrid.MaxY) {
-            if (targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes(), false, true)) {
-                break;
+        List<IGridShape> heldShapes = DragGrid.AllShapes();
+        Grid.PlacementValidations validations = targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, heldShapes);
+        
+        // Raise selected cell coord until held shapes do not overlap anything
+        bool hasOverlap = true;
+        while (hasOverlap && selectedCellCoord.y <= targetGrid.MaxY) {
+            hasOverlap = false;
+            for (int i = 0; i < validations.ValidationList.Count; i++) {
+                if (validations.ValidationList[i].HasFlag(Grid.PlacementInvalidFlag.Overlap)) {
+                    selectedCellCoord.y++;
+                    validations = targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, heldShapes);
+                    hasOverlap = true;
+                    break;
+                }
             }
+        }
 
-            selectedCellCoord.y++;
+        // Change outline for shapes that would have invalid placement
+        for (int i = 0; i < validations.ValidationList.Count; i++) {
+            heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth); // Reset selected shape outline
+            if (!validations.ValidationList[i].IsValid) {
+                heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+            }
         }
 
         // Do drag movement
