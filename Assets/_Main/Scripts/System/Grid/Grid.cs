@@ -340,7 +340,7 @@ public class Grid : MonoBehaviour {
     #region Validation
 
     // Validates placement of shape when shape's root coord is placed at targetCoord
-    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape shape, bool ignoreZone = false) {
+    public bool ValidateShapePlacement(Vector3Int targetCoord, IGridShape shape, bool ignoreZone = false, bool ignoreY = false) {
         if (shape == null) {
             Debug.LogError("Cannot validate shape placement: shape is null");
             return false;
@@ -350,7 +350,7 @@ public class Grid : MonoBehaviour {
 
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
-            if (!IsValidPlacement(checkPos, ignoreZone)) {
+            if (!IsValidPlacement(checkPos, ignoreZone, ignoreY)) {
                 return false;
             }
         }
@@ -360,7 +360,7 @@ public class Grid : MonoBehaviour {
 
     // Validates placement of shapes in input list using current positioning in their current grid.
     // Placement is relative to first shape's root coord placed at targetCoord;
-    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
+    public bool ValidateShapesPlacement(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false, bool ignoreY = false) {
         if (shapes.Count == 0) return true;
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
@@ -371,7 +371,7 @@ public class Grid : MonoBehaviour {
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.ShapeData.RootCoord - lastShapeRootCoord;
             lastShapeRootCoord = shape.ShapeData.RootCoord;
-            if (!ValidateShapePlacement(targetCoord, shape, ignoreZone)) return false;
+            if (!ValidateShapePlacement(targetCoord, shape, ignoreZone, ignoreY)) return false;
         }
 
         return true;
@@ -478,11 +478,11 @@ public class Grid : MonoBehaviour {
 
     #region Helper
 
-    public bool IsValidPlacement(Vector3Int coord, bool ignoreZone = false) {
-        return IsOpen(coord) && IsInBounds(coord) && (ignoreZone || CheckZones(coord, prop => prop.CanPlace));
+    public bool IsValidPlacement(Vector3Int coord, bool ignoreZone = false, bool ignoreY = false) {
+        return IsOpen(coord) && IsInBounds(coord, ignoreY) && (ignoreZone || CheckZones(coord, prop => prop.CanPlace));
     }
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
-    public bool IsInBounds(Vector3Int coord) { return coord.y < height && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
+    public bool IsInBounds(Vector3Int coord, bool ignoreY = false) { return (ignoreY || coord.y < height) && validCells.Contains(new Vector2Int(coord.x, coord.z)); }
 
     public bool IsEmpty() { return cells.Count == 0; }
 

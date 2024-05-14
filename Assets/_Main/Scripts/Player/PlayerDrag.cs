@@ -133,7 +133,7 @@ public class PlayerDrag : MonoBehaviour {
     void MoveDragGrid() {
         // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid
         while (selectedCellCoord.y <= targetGrid.MaxY) {
-            if (targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes())) {
+            if (targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, DragGrid.AllShapes(), false, true)) {
                 break;
             }
 

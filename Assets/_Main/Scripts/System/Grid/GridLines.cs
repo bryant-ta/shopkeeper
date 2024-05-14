@@ -13,7 +13,7 @@ public class GridLines : MonoBehaviour {
             Debug.LogError("Grid lines requires Grid Lines shader in index 1 of attached mesh renderer.");
             return;
         }
-        gridLinesMat = mr.materials[1];
+        gridLinesMat = mr.materials[mr.materials.Length - 1];
 
         Ref.Player.PlayerDrag.OnGrab += SetGridLinesFade;
         Ref.Player.PlayerDrag.OnDrag += SetGridLinesCursorPosition;
