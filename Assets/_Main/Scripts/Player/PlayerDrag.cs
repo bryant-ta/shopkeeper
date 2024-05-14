@@ -98,7 +98,7 @@ public class PlayerDrag : MonoBehaviour {
 
         isHolding = true;
 
-        Cursor.visible = false;
+        // Cursor.visible = false;
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
 
@@ -111,10 +111,22 @@ public class PlayerDrag : MonoBehaviour {
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
         if (!SelectTargetGrid(clickInputArgs)) {
+            // Set invalid outline
+            List<IGridShape> heldShapes = DragGrid.AllShapes();
+            for (int i = 0; i < heldShapes.Count; i++) {
+                heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+            }
+            
+            // Drag grid follows cursor directly
+            string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+            DOTween.Kill(tweenID);
+            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, -clickInputArgs.HitPoint.y, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
+            
+            OnDrag?.Invoke(clickInputArgs.HitPoint);
             return;
         }
 
-        // formula for selecting cell adjacent to clicked face normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        // Formula for selecting cell adjacent to clicked face normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
         Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
         selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
@@ -150,7 +162,7 @@ public class PlayerDrag : MonoBehaviour {
             }
         }
 
-        // Change outline for shapes that would have invalid placement
+        // Set outline for shapes that would have invalid placement
         for (int i = 0; i < validations.ValidationList.Count; i++) {
             heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth); // Reset selected shape outline
             if (!validations.ValidationList[i].IsValid) {
@@ -169,7 +181,7 @@ public class PlayerDrag : MonoBehaviour {
 
     bool isRotating = false;
     void Rotate(bool clockwise) {
-        if (DragGrid.IsEmpty()) return;
+        if (DragGrid.IsEmpty() || targetGrid == null) return;
         if (isRotating) return;
 
         isRotating = true;
@@ -280,6 +292,8 @@ public class PlayerDrag : MonoBehaviour {
                 targetGrid = gridFloor.Grid;
             } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
                 targetGrid = shape.Grid;
+            } else {
+                targetGrid = null;
             }
         }
 
