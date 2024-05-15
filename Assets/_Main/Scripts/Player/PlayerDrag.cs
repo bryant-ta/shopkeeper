@@ -232,15 +232,20 @@ public class PlayerDrag : MonoBehaviour {
 
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
+        List<IGridShape> heldShapes = DragGrid.AllShapes();
+        
+        if (clickInputArgs.TargetObj.CompareTag("Trash")) { ;
+            Trash trash = clickInputArgs.TargetObj.GetComponent<Trash>();
+            trash.TrashProducts(heldShapes, DragGrid);
+            isHolding = false;
+            return;
+        }
         if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
-
-        List<IGridShape> heldShapes = DragGrid.SelectStackedShapes(Vector3Int.zero, out IGridShape shapeOutOfFootprint);
-
+        
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
-
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
@@ -269,7 +274,7 @@ public class PlayerDrag : MonoBehaviour {
 
         isHolding = false;
 
-        Cursor.visible = true;
+        // Cursor.visible = true;
 
         // TEMP: play shape placement smoke burst particles
         ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
