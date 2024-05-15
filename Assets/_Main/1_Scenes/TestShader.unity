@@ -739,7 +739,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: 09a23928d6841e7438de3f279667ec64, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: e098e27e3735f9b4b91eb98782167211, type: 2}
+      objectReference: {fileID: 2100000, guid: 4ff8f3f1ddd78664081bf362f938d978, type: 2}
     - target: {fileID: 919132149155446097, guid: 09a23928d6841e7438de3f279667ec64, type: 3}
       propertyPath: m_Name
       value: bevel_cube_3

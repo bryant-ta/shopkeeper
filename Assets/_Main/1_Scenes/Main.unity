@@ -754,6 +754,8 @@ MonoBehaviour:
   bulkDeliveryRollTable:
     initEntries: []
     entries: []
+  colorPaletteData: {fileID: 11400000, guid: 3ecd5bdff42001d49b2b87246b8707dc, type: 2}
+  patternPaletteData: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
 --- !u!4 &235971277
 Transform:
   m_ObjectHideFlags: 0
@@ -6159,12 +6161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ded15fab794140049a36b8312ed107a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onHoverEnter:
-    m_PersistentCalls:
-      m_Calls: []
-  onHoverExit:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1552752943
 GameObject:
   m_ObjectHideFlags: 0

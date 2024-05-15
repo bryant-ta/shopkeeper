@@ -11,11 +11,12 @@ public class Product : MonoBehaviour, IGridShape {
 
     [field: SerializeField, Title("Product"), ReadOnly]
     public ProductID ID { get; private set; }
-
     public string Name { get; private set; }
 
-    [field: SerializeField, HideInEditMode]
-    public ProductTags ProductTags { get; private set; }
+    public Color Color { get; private set; }
+    public Pattern Pattern { get; private set; }
+
+    [field: SerializeField, HideInEditMode] public ProductTags ProductTags { get; private set; }
 
     #endregion
 
@@ -39,10 +40,9 @@ public class Product : MonoBehaviour, IGridShape {
 
     [field: SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
 
-    [field: SerializeField, HideInEditMode]
-    public ShapeTags ShapeTags { get; private set; }
-    
-    public Material Mat { get; private set; }
+    [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
+
+    Material mat;
     Color matOutlineOriginalColor;
     float matOutlineOriginalWeight;
 
@@ -75,18 +75,21 @@ public class Product : MonoBehaviour, IGridShape {
         ID = productData.ProductID;
         Name = productData.ProductID.ToString();
         gameObject.name = Name;
+        Color = productData.Color;
+        // Pattern = 
         
-        Mat = GetComponent<MeshRenderer>().material;
-        matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(Mat);
-        matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(Mat);
-        Mat.SetTexture("_BaseMap", _productData.Texture);
+        mat = GetComponent<MeshRenderer>().material;
+        matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(mat);
+        matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(mat);
+        MK.Toon.Properties.albedoColor.SetValue(mat, _productData.Color);
+        MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern);
 
         ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);
         ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
     }
     public void SetOutline(Color color, float weight) {
-        MK.Toon.Properties.outlineColor.SetValue(Mat, color);
-        MK.Toon.Properties.outlineSize.SetValue(Mat, weight);
+        MK.Toon.Properties.outlineColor.SetValue(mat, color);
+        MK.Toon.Properties.outlineSize.SetValue(mat, weight);
     }
     public void ResetOutline() {
         SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight);

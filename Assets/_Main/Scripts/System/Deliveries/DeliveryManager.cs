@@ -26,6 +26,10 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] ListList<ProductID> possibleProductLists;
     [SerializeField] RollTable<ShapeDataID> bulkDeliveryRollTable = new();
     int numProductsInDelivery;
+    
+    [Title("Palette")]
+    [SerializeField] SO_ColorPalette colorPaletteData;
+    [SerializeField] SO_PatternPalette patternPaletteData;
 
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
@@ -54,7 +58,6 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    
     // TEMP: placeholder until doing anims/theme for special delivery
     void OnSelectSpecialDelivery(Grid grid) {
         if (!grid.IsEmpty()) return;
@@ -100,6 +103,8 @@ public class DeliveryManager : MonoBehaviour {
 
             SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
             productData.ShapeData = shapeData;
+            productData.Color = colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)];
+            productData.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)];
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
             grid.PlaceShapeNoValidate(shapeData.RootCoord, product);

@@ -7,13 +7,21 @@ public class SO_Product : ScriptableObject {
     public ProductID ProductID;
     public Texture2D Texture;
     public ShapeData ShapeData;
+    public Color Color;
+    public Texture2D Pattern;
     
     public List<BasicTagID> BasicTagIDs;
     public List<ScoreTagID> ScoreTagIDs;
     public List<MoveTagID> MoveTagIDs;
     public List<PlaceTagID> PlaceTagIDs;
-    
-    // TODO: a way to specify score mult
+}
+
+public enum Pattern {
+    None = 0,
+    StripeHor = 1,
+    StripeVert = 2,
+    StripeDiag = 3,
+    Scratch = 10,
 }
 
 public enum ProductID {
