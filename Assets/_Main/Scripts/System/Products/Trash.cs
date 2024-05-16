@@ -13,7 +13,7 @@ public class Trash : MonoBehaviour {
     public void TrashProduct(IGridShape shape, Grid originGrid) {
         originGrid.DestroyShape(shape);
         if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-            GameManager.RemoveStockedProduct(product);
+            Ledger.RemoveStockedProduct(product);
         }
     }
 

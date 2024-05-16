@@ -8,7 +8,7 @@ public class SO_Product : ScriptableObject {
     public Texture2D Texture;
     public ShapeData ShapeData;
     public Color Color;
-    public Texture2D Pattern;
+    public Pattern Pattern;
     
     public List<BasicTagID> BasicTagIDs;
     public List<ScoreTagID> ScoreTagIDs;

@@ -155,7 +155,7 @@ public class OrderManager : MonoBehaviour {
     // Populates backlog of orders
     bool GenerateOrders(int numOrders) {
         // Stock is taken out from availableStock as they are added to generated orders, avoids repeats with non-existent stock.
-        Dictionary<ProductID, List<Product>> availableStock = GameManager.GetStockedProductsCopy();
+        Dictionary<ProductID, List<Product>> availableStock = Ledger.GetStockedProductsCopy();
 
         for (int i = 0; i < numOrders; i++) {
             int orderType = Random.Range(0, 2);
@@ -249,7 +249,7 @@ public class OrderManager : MonoBehaviour {
                     matched = true;
                     fulfillmentGrid.DestroyShape(shapes[i]);
 
-                    GameManager.RemoveStockedProduct(product);
+                    Ledger.RemoveStockedProduct(product);
                 }
             }
         }

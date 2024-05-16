@@ -18,13 +18,13 @@ public class DeliveryManager : MonoBehaviour {
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
     [SerializeField] int bulkQuantityMax;
+    [SerializeField] RollTable<ShapeDataID> bulkDeliveryRollTable = new();
     [SerializeField] int irregularQuantityMin;
     [SerializeField] int irregularQuantityMax;
     [SerializeField] List<Deliverer> specialDeliverers = new();
 
     [Title("Other")]
-    [SerializeField] ListList<ProductID> possibleProductLists;
-    [SerializeField] RollTable<ShapeDataID> bulkDeliveryRollTable = new();
+    [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
     int numProductsInDelivery;
     
     [Title("Palette")]
@@ -104,12 +104,12 @@ public class DeliveryManager : MonoBehaviour {
             SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
             productData.ShapeData = shapeData;
             productData.Color = colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)];
-            productData.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)];
+            // productData.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
             grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
 
-            GameManager.AddStockedProduct(product);
+            Ledger.AddStockedProduct(product);
         }
     }
 
@@ -139,7 +139,7 @@ public class DeliveryManager : MonoBehaviour {
                         return;
                     }
 
-                    GameManager.AddStockedProduct(product);
+                    Ledger.AddStockedProduct(product);
 
                     quantity--;
 
@@ -177,7 +177,7 @@ public class DeliveryManager : MonoBehaviour {
                         return;
                     }
 
-                    GameManager.AddStockedProduct(product);
+                    Ledger.AddStockedProduct(product);
 
                     quantity--;
 

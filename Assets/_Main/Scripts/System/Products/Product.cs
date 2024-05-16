@@ -76,13 +76,13 @@ public class Product : MonoBehaviour, IGridShape {
         Name = productData.ProductID.ToString();
         gameObject.name = Name;
         Color = productData.Color;
-        // Pattern = 
+        Pattern = productData.Pattern;
         
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(mat);
         matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(mat);
-        MK.Toon.Properties.albedoColor.SetValue(mat, _productData.Color);
-        MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern);
+        MK.Toon.Properties.albedoColor.SetValue(mat, Color);
+        // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
         ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);
         ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
