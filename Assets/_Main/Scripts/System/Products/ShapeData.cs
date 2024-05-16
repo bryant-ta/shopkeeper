@@ -9,6 +9,7 @@ public class ShapeData {
     public ShapeDataID ID;
     [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; }
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
+    public int Size => ShapeOffsets?.Count ?? 0;
 
     // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
     public void RotateShape(bool clockwise) {

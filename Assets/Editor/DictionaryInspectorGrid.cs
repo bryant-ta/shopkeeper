@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 
 [CustomEditor(typeof(Grid))]
-public class DictionaryInspector : Editor {
+public class DictionaryInspectorGrid : Editor {
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 

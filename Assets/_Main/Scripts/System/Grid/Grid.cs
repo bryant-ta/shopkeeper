@@ -23,7 +23,7 @@ public class Grid : MonoBehaviour {
     [Title("Other")]
     [SerializeField] bool smoothPlaceMovement = true;
 
-    [SerializeField] Dictionary<Vector3Int, Cell> cells = new();
+    Dictionary<Vector3Int, Cell> cells = new();
     public Dictionary<Vector3Int, Cell> Cells => cells;
 
     List<Zone> zones = new();
