@@ -7,28 +7,27 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
-    [Header("Order Queue")]
+    [Title("Order Queue")]
     [SerializeField] int numTotalOrders;
     [SerializeField] int numActiveOrders;
     [SerializeField] int minNextOrderDelay;
     [SerializeField] int maxNextOrderDelay;
-    
-    [Header("Order Parameters")]
+
+    [Title("Order Parameters")]
     [SerializeField] int minTimePerOrder;
     [SerializeField] int timePerProduct;
     [SerializeField] int goldPerProduct;
 
-    [Header("Quantity Order Type")]
+    [Title("Quantity Order Type")]
     [SerializeField] int quantityOrderTotalMin;
     [SerializeField] int quantityOrderTotalMax;
 
-    [Header("Variety Order Type")]
+    [Title("Variety Order Type")]
     [SerializeField] int varietyOrderTotalMin;
     [SerializeField] int varietyOrderTotalMax;
     [SerializeField] int varietyOrderIndividualMax;
 
-    [Header("Zone")]
-    [SerializeField] Vector3Int dropOffZoneDimensions;
+    [Title("Zone")]
     [SerializeField] Zone dropOffZone;
 
     // true if all orders for the day are fulfilled
@@ -88,7 +87,7 @@ public class OrderManager : MonoBehaviour {
 
         ActivateNextOrder(0); // always immediately activate first order
         for (int i = 1; i < numActiveOrders; i++) {
-            ActivateNextOrderDelayed(i);
+            ActivateNextOrderDelayed(i, Random.Range(minNextOrderDelay, maxNextOrderDelay));
         }
     }
     void StopOrders() {
@@ -103,15 +102,13 @@ public class OrderManager : MonoBehaviour {
         backlogOrders.Clear();
     }
 
-    void ActivateNextOrderDelayed(int activeOrderIndex, bool lastOrderFulfilled = false) {
+    void ActivateNextOrderDelayed(int activeOrderIndex, float delay, bool lastOrderFulfilled = false) {
         ResetActiveOrderSlot(activeOrderIndex, lastOrderFulfilled);
-        Util.DoAfterSeconds(
-            this, Random.Range(minNextOrderDelay, maxNextOrderDelay), () => ActivateNextOrder(activeOrderIndex), isOpenPhase
-        );
+        Util.DoAfterSeconds(this, delay, () => ActivateNextOrder(activeOrderIndex), isOpenPhase);
     }
     void ActivateNextOrder(int activeOrderIndex) {
         // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
-        if (GameManager.Instance.CurDayPhase != DayPhase.Open) { 
+        if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
             return;
         }
 
@@ -253,7 +250,7 @@ public class OrderManager : MonoBehaviour {
                 }
             }
         }
-        
+
         if (matched) { SoundManager.Instance.PlaySound(SoundID.OrderProductFilled); }
     }
 
@@ -281,14 +278,14 @@ public class OrderManager : MonoBehaviour {
     void FulfillOrder(int activeOrderIndex) {
         NumRemainingOrders--;
         GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalReward());
-        ActivateNextOrderDelayed(activeOrderIndex, true);
-        
+        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(minNextOrderDelay, maxNextOrderDelay), true);
+
         SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
     }
     void FailOrder(int activeOrderIndex) {
         PerfectOrders = false;
-        ActivateNextOrderDelayed(activeOrderIndex, false);
-        
+        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(minNextOrderDelay, maxNextOrderDelay), false);
+
         SoundManager.Instance.PlaySound(SoundID.OrderFailed);
     }
 
@@ -296,15 +293,14 @@ public class OrderManager : MonoBehaviour {
 }
 
 public class Order {
-    public int Value { get; private set; }
+    int Value;
 
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
     public int ActiveOrderIndex;
 
-    public Dictionary<ProductID, int> Products => products;
-    Dictionary<ProductID, int> products;
+    public Dictionary<ProductID, int> Products { get; private set; }
 
     public event Action OnProductFulfilled;
     public event Action<int> OnOrderFulfilled;
@@ -317,7 +313,7 @@ public class Order {
         this.timePerProduct = timePerProduct;
         this.valuePerProduct = valuePerProduct;
 
-        products = new();
+        Products = new();
 
         TimeToComplete = minTimePerOrder;
     }
@@ -331,13 +327,13 @@ public class Order {
     }
 
     public bool TryFulfill(ProductID productID) {
-        if (products.ContainsKey(productID)) { products[productID]--; } else { return false; }
+        if (Products.ContainsKey(productID)) { Products[productID]--; } else { return false; }
 
-        if (products[productID] == 0) { products.Remove(productID); }
+        if (Products[productID] == 0) { Products.Remove(productID); }
 
         OnProductFulfilled?.Invoke();
 
-        if (products.Count == 0) {
+        if (Products.Count == 0) {
             StopOrder();
             OnOrderFulfilled?.Invoke(ActiveOrderIndex);
         }
@@ -354,20 +350,20 @@ public class Order {
     }
 
     public void Add(ProductID productID) {
-        if (products.ContainsKey(productID)) { products[productID]++; } else { products[productID] = 1; }
+        if (Products.ContainsKey(productID)) { Products[productID]++; } else { Products[productID] = 1; }
 
         TimeToComplete += timePerProduct;
         Value += valuePerProduct;
     }
     public void Remove(ProductID productID) {
-        if (products.ContainsKey(productID)) {
-            products[productID]--;
+        if (Products.ContainsKey(productID)) {
+            Products[productID]--;
             TimeToComplete -= timePerProduct;
             Value -= valuePerProduct;
         }
 
-        if (products[productID] == 0) {
-            products.Remove(productID);
+        if (Products[productID] == 0) {
+            Products.Remove(productID);
         }
     }
 
@@ -377,7 +373,7 @@ public class Order {
     public new string ToString() {
         string t = "";
 
-        foreach (KeyValuePair<ProductID, int> order in products) {
+        foreach (KeyValuePair<ProductID, int> order in Products) {
             t += $"<sprite name={order.Key}> {order.Value}\n"; // TEMP: -1 from how productID is setup currently
         }
 
