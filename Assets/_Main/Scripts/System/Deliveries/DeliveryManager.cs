@@ -156,6 +156,7 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     // TEMP: selects one from all products
+    // TODO: fix for new ProductID
     void IrregularDelivery(Deliverer deliverer) {
         Grid grid = deliverer.Grid;
         List<ProductID> possibleProductIDs = ProductFactory.Instance.ProductDataLookUp.Keys.ToList();

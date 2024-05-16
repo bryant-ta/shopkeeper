@@ -48,7 +48,7 @@ public class ProductFactory : Singleton<ProductFactory> {
         // Load recipes from Resources
         SO_Product[] productDatas = Resources.LoadAll<SO_Product>("Products");
         foreach (SO_Product productData in productDatas) {
-            ProductDataLookUp[productData.ProductID] = productData;
+            ProductDataLookUp[productData.productID] = productData;
         }
     }
     

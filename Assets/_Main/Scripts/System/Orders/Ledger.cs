@@ -4,41 +4,36 @@ using System.Text;
 using UnityEngine;
 
 public class Ledger : Singleton<Ledger> {
-    public static Dictionary<ProductID, List<Product>> StockedProducts => stockedProducts;
-    static Dictionary<ProductID, List<Product>> stockedProducts;
-
-    public static Dictionary<Color, int> CellCountByColor => cellCountByColor;
-    static Dictionary<Color, int> cellCountByColor;
-
-    // TODO: make these auto properties
+    public static Dictionary<ProductID, List<Product>> StockedProducts { get; private set; }
+    public static Dictionary<Color, int> CellCountByColor { get; private set; }
 
     public Ledger() {
-        stockedProducts = new();
-        cellCountByColor = new();
+        StockedProducts = new();
+        CellCountByColor = new();
     }
 
     public static void AddStockedProduct(Product product) {
-        if (stockedProducts.ContainsKey(product.ID)) {
-            stockedProducts[product.ID].Add(product);
+        if (StockedProducts.ContainsKey(product.ID)) {
+            StockedProducts[product.ID].Add(product);
         } else {
-            stockedProducts[product.ID] = new List<Product> {product};
+            StockedProducts[product.ID] = new List<Product> {product};
         }
 
         AddColorCellCount(product.Color, product.ShapeData.Size);
     }
     public static void RemoveStockedProduct(Product product) {
-        if (stockedProducts.ContainsKey(product.ID)) {
-            stockedProducts[product.ID].Remove(product);
+        if (StockedProducts.ContainsKey(product.ID)) {
+            StockedProducts[product.ID].Remove(product);
         }
 
         RemoveColorCellCount(product.Color, product.ShapeData.Size);
     }
-    public static List<ProductID> GetStockedProductIDs() { return stockedProducts.Keys.ToList(); }
+    public static List<ProductID> GetStockedProductIDs() { return StockedProducts.Keys.ToList(); }
     public static Dictionary<ProductID, List<Product>> GetStockedProductsCopy() {
         Dictionary<ProductID, List<Product>> copy = new();
 
         // Deep copy
-        foreach (KeyValuePair<ProductID, List<Product>> kvp in stockedProducts) {
+        foreach (KeyValuePair<ProductID, List<Product>> kvp in StockedProducts) {
             List<Product> newList = new List<Product>(kvp.Value);
             copy.Add(kvp.Key, newList);
         }
@@ -47,16 +42,16 @@ public class Ledger : Singleton<Ledger> {
     }
 
     static void AddColorCellCount(Color color, int n) {
-        if (cellCountByColor.ContainsKey(color)) {
-            cellCountByColor[color] += n;
+        if (CellCountByColor.ContainsKey(color)) {
+            CellCountByColor[color] += n;
         } else {
-            cellCountByColor[color] = n;
+            CellCountByColor[color] = n;
         }
     }
     static void RemoveColorCellCount(Color color, int n) {
-        if (cellCountByColor.ContainsKey(color)) {
-            cellCountByColor[color] -= n;
-            if (cellCountByColor[color] < 0) { Debug.LogWarning("Attempted to decrease cell count of color below 0."); }
+        if (CellCountByColor.ContainsKey(color)) {
+            CellCountByColor[color] -= n;
+            if (CellCountByColor[color] < 0) { Debug.LogWarning("Attempted to decrease cell count of color below 0."); }
         } else {
             Debug.LogWarning("Attempted to decrease cell count of color that does not exist in ledger.");
         }
@@ -66,7 +61,7 @@ public class Ledger : Singleton<Ledger> {
 
     public void PrintDictionary() {
         string s = "Cell Count by Color:\n\n";
-        foreach (var pair in cellCountByColor) {
+        foreach (var pair in CellCountByColor) {
             s += $"{pair.Key}: {pair.Value}\n";
         }
 

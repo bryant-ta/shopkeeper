@@ -4,11 +4,12 @@ using Tags;
 using TriInspector;
 using UnityEngine;
 
+
 public class Product : MonoBehaviour, IGridShape {
     [SerializeField] SO_Product productData;
 
     #region Product
-
+    
     [field: SerializeField, Title("Product"), ReadOnly]
     public ProductID ID { get; private set; }
     public string Name { get; private set; }
@@ -72,8 +73,8 @@ public class Product : MonoBehaviour, IGridShape {
         ShapeTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
-        ID = productData.ProductID;
-        Name = productData.ProductID.ToString();
+        ID = productData.productID;
+        Name = productData.productID.ToString();
         gameObject.name = Name;
         Color = productData.Color;
         Pattern = productData.Pattern;

@@ -1,19 +1,50 @@
+using System;
 using System.Collections.Generic;
 using Tags;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
-    public ProductID ProductID;
-    public Texture2D Texture;
+    public ProductID productID;
     public ShapeData ShapeData;
-    public Color Color;
-    public Pattern Pattern;
-    
+    public Color Color;     // temp
+    public Pattern Pattern; // temp
+
     public List<BasicTagID> BasicTagIDs;
     public List<ScoreTagID> ScoreTagIDs;
     public List<MoveTagID> MoveTagIDs;
     public List<PlaceTagID> PlaceTagIDs;
+}
+
+[Serializable]
+public struct ProductID {
+    public Color Color;
+    public Pattern Pattern;
+    public ShapeDataID ShapeDataID => ShapeData.ID;
+
+    ShapeData ShapeData;
+
+    public ProductID(Color color, Pattern pattern, ShapeData shapeData) {
+        Color = default;
+        Pattern = Pattern.None;
+        ShapeData = shapeData;
+    }
+
+    public override int GetHashCode() {
+        unchecked {
+            int hash = 17;
+            hash = hash * 23 + Color.GetHashCode();
+            hash = hash * 23 + Pattern.GetHashCode();
+            hash = hash * 23 + ShapeDataID.GetHashCode();
+            return hash;
+        }
+    }
+
+    public override bool Equals(object obj) {
+        if (!(obj is ProductID other)) return false;
+
+        return Color == other.Color && Pattern == other.Pattern && ShapeDataID == other.ShapeDataID;
+    }
 }
 
 public enum Pattern {
@@ -22,24 +53,4 @@ public enum Pattern {
     StripeVert = 2,
     StripeDiag = 3,
     Scratch = 10,
-}
-
-public enum ProductID {
-    Blank = 0,
-    Beacon = 1,
-    Bedrock = 2,
-    Cobblestone = 3,
-    DiamondOre = 4,
-    Dirt = 5,
-    Emerald = 6,
-    Glass = 7,
-    GlazedTerracotta = 8,
-    Gold = 9,
-    Iron = 10,
-    Mushroom = 11,
-    Planks = 12,
-    RedstoneLamp = 13,
-    Sand = 14,
-    StoneGranite = 15,
-    WoolPurple = 16,
 }
