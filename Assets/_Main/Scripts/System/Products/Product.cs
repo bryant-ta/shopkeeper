@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
+using MK.Toon;
 using Tags;
 using TriInspector;
 using UnityEngine;
-
 
 public class Product : MonoBehaviour, IGridShape {
     [SerializeField] SO_Product productData;
 
     #region Product
-    
+
     [field: SerializeField, Title("Product"), ReadOnly]
     public ProductID ID { get; private set; }
-    public string Name { get; private set; }
 
-    [field: SerializeField, HideInEditMode] public ProductTags ProductTags { get; private set; }
+    public string Name { get; private set; }
 
     #endregion
 
@@ -38,7 +37,8 @@ public class Product : MonoBehaviour, IGridShape {
 
     [field: SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
 
-    [field: SerializeField, HideInEditMode] public ShapeTags ShapeTags { get; private set; }
+    [field: SerializeField, HideInEditMode]
+    public ShapeTags ShapeTags { get; private set; }
 
     Material mat;
     Color matOutlineOriginalColor;
@@ -72,20 +72,19 @@ public class Product : MonoBehaviour, IGridShape {
 
         ID = productData.ID;
         gameObject.name = Name = productData.ID.ToString();
-        
+
         mat = GetComponent<MeshRenderer>().material;
-        matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(mat);
-        matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(mat);
-        MK.Toon.Properties.albedoColor.SetValue(mat, ID.Color);
+        matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
+        matOutlineOriginalWeight = Properties.outlineSize.GetValue(mat);
+        Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
         ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
     }
+    
     public void SetOutline(Color color, float weight) {
-        MK.Toon.Properties.outlineColor.SetValue(mat, color);
-        MK.Toon.Properties.outlineSize.SetValue(mat, weight);
+        Properties.outlineColor.SetValue(mat, color);
+        Properties.outlineSize.SetValue(mat, weight);
     }
-    public void ResetOutline() {
-        SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight);
-    }
+    public void ResetOutline() { SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight); }
 }
