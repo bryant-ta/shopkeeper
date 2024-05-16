@@ -95,6 +95,7 @@ public enum ShapeDataID {
     L3x1 = 24,
     L2x2 = 25,
     L3x3 = 26,
+    Custom = 100,
 }
 
 public static class ShapeDataLookUp {
