@@ -10,6 +10,7 @@ public class ProductFactory : Singleton<ProductFactory> {
             Debug.LogError("Unable to find Product component in shape base object.");
             return null;
         }
+
         product.Init(productData);
 
         return product;
@@ -28,4 +29,15 @@ public class ProductFactory : Singleton<ProductFactory> {
     //
     //     return product;
     // }
+
+    public SO_Product CreateSOProduct(Color color, Pattern pattern, ShapeData shapeData) {
+        SO_Product productData = ScriptableObject.CreateInstance<SO_Product>();
+
+        productData.ID = new ProductID(color, pattern, shapeData);
+        productData.ShapeData = shapeData;
+        productData.MoveTagIDs = new();
+        productData.PlaceTagIDs = new();
+
+        return productData;
+    }
 }

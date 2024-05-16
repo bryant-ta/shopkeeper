@@ -98,11 +98,11 @@ public class DeliveryManager : MonoBehaviour {
 
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
-            ShapeDataID curShapeDataID = shapeData.ID;
-
-            SO_Product productData = ScriptableObject.CreateInstance<SO_Product>();
-            productData.ID.Color = colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)];
-            productData.ShapeData = shapeData;
+            SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+                colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)],
+                Pattern.None, // TEMP: until implementing pattern
+                shapeData
+            );
             // productData.ID.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 

@@ -8,8 +8,6 @@ public class SO_Product : ScriptableObject {
     public ProductID ID;
     public ShapeData ShapeData;
 
-    public List<BasicTagID> BasicTagIDs;
-    public List<ScoreTagID> ScoreTagIDs;
     public List<MoveTagID> MoveTagIDs;
     public List<PlaceTagID> PlaceTagIDs;
 }
@@ -23,8 +21,8 @@ public struct ProductID {
     ShapeData ShapeData;
 
     public ProductID(Color color, Pattern pattern, ShapeData shapeData) {
-        Color = default;
-        Pattern = Pattern.None;
+        Color = color;
+        Pattern = pattern;
         ShapeData = shapeData;
     }
 

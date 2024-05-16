@@ -71,8 +71,7 @@ public class Product : MonoBehaviour, IGridShape {
         Colliders = GetComponents<Collider>().ToList();
 
         ID = productData.ID;
-        Name = productData.ID.ToString();
-        gameObject.name = Name;
+        gameObject.name = Name = productData.ID.ToString();
         
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(mat);
@@ -80,7 +79,6 @@ public class Product : MonoBehaviour, IGridShape {
         MK.Toon.Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
-        ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);
         ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
     }
     public void SetOutline(Color color, float weight) {
