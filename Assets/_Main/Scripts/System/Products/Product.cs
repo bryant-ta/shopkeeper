@@ -14,9 +14,6 @@ public class Product : MonoBehaviour, IGridShape {
     public ProductID ID { get; private set; }
     public string Name { get; private set; }
 
-    public Color Color { get; private set; }
-    public Pattern Pattern { get; private set; }
-
     [field: SerializeField, HideInEditMode] public ProductTags ProductTags { get; private set; }
 
     #endregion
@@ -73,16 +70,14 @@ public class Product : MonoBehaviour, IGridShape {
         ShapeTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
-        ID = productData.productID;
-        Name = productData.productID.ToString();
+        ID = productData.ID;
+        Name = productData.ID.ToString();
         gameObject.name = Name;
-        Color = productData.Color;
-        Pattern = productData.Pattern;
         
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = MK.Toon.Properties.outlineColor.GetValue(mat);
         matOutlineOriginalWeight = MK.Toon.Properties.outlineSize.GetValue(mat);
-        MK.Toon.Properties.albedoColor.SetValue(mat, Color);
+        MK.Toon.Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
         ProductTags = new ProductTags(productData.BasicTagIDs, productData.ScoreTagIDs);

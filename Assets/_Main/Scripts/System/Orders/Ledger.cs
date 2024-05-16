@@ -14,9 +14,7 @@ public class Ledger : Singleton<Ledger> {
 
     public static void AddStockedProduct(Product product) {
         // Don't record custom shapes
-        if (product.ID.ShapeDataID == ShapeDataID.Custom) {
-            return;
-        }
+        if (product.ID.ShapeDataID == ShapeDataID.Custom) { return; }
         
         if (StockedProducts.ContainsKey(product.ID)) {
             StockedProducts[product.ID].Add(product);
@@ -24,12 +22,12 @@ public class Ledger : Singleton<Ledger> {
             StockedProducts[product.ID] = new List<Product> {product};
         }
 
-        AddColorCellCount(product.Color, product.ShapeData.Size);
+        AddColorCellCount(product.ID.Color, product.ShapeData.Size);
     }
     public static void RemoveStockedProduct(Product product) {
         if (StockedProducts.ContainsKey(product.ID)) {
             StockedProducts[product.ID].Remove(product);
-            RemoveColorCellCount(product.Color, product.ShapeData.Size);
+            RemoveColorCellCount(product.ID.Color, product.ShapeData.Size);
         }
     }
     public static List<ProductID> GetStockedProductIDs() { return StockedProducts.Keys.ToList(); }

@@ -96,15 +96,14 @@ public class DeliveryManager : MonoBehaviour {
             volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
         }
 
-        // Convert generated shape datas to product game objects and placement
+        // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             ShapeDataID curShapeDataID = shapeData.ID;
-            List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[curShapeDataID];
 
-            SO_Product productData = Instantiate(possibleProductDatas[Random.Range(0, possibleProductDatas.Count)]);
+            SO_Product productData = ScriptableObject.CreateInstance<SO_Product>();
+            productData.ID.Color = colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)];
             productData.ShapeData = shapeData;
-            productData.Color = colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)];
-            // productData.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
+            // productData.ID.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
             Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
 
             grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
@@ -113,86 +112,86 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    void GenerateSpecialDelivery(Deliverer deliverer) {
-        // BulkDelivery(deliverer);
-        IrregularDelivery(deliverer);
-    }
-
-    void BulkDelivery(Deliverer deliverer) {
-        Grid grid = deliverer.Grid;
-        ShapeDataID id = bulkDeliveryRollTable.GetRandom();
-        List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
-        SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
-
-        int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
-        for (int x = grid.MinX; x < grid.MaxX; x++) {
-            for (int z = grid.MinZ; z < grid.MaxZ; z++) {
-                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
-
-                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
-                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
-                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
-                        Debug.LogErrorFormat(
-                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
-                        );
-                        return;
-                    }
-
-                    Ledger.AddStockedProduct(product);
-
-                    quantity--;
-
-                    if (quantity == 0) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        if (quantity > 0) {
-            Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
-        }
-    }
-
-    // TEMP: selects one from all products
-    // TODO: fix for new ProductID
-    void IrregularDelivery(Deliverer deliverer) {
-        Grid grid = deliverer.Grid;
-        List<ProductID> possibleProductIDs = ProductFactory.Instance.ProductDataLookUp.Keys.ToList();
-        ProductID id = possibleProductIDs[Random.Range(0, possibleProductIDs.Count)];
-        SO_Product productData = ProductFactory.Instance.ProductDataLookUp[id];
-
-        int quantity = Random.Range(irregularQuantityMin, irregularQuantityMax);
-        for (int x = grid.MinX; x < grid.MaxX; x++) {
-            for (int z = grid.MinZ; z < grid.MaxZ; z++) {
-                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
-
-                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
-                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
-                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
-                        Debug.LogErrorFormat(
-                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
-                        );
-                        return;
-                    }
-
-                    Ledger.AddStockedProduct(product);
-
-                    quantity--;
-
-                    if (quantity == 0) {
-                        return;
-                    }
-                }
-            }
-        }
-
-        if (quantity > 0) {
-            Debug.LogWarning($"Unable to place all products in irregular delivery: {quantity} remaining.");
-        }
-    }
+    // void GenerateSpecialDelivery(Deliverer deliverer) {
+    //     // BulkDelivery(deliverer);
+    //     IrregularDelivery(deliverer);
+    // }
+    //
+    // void BulkDelivery(Deliverer deliverer) {
+    //     Grid grid = deliverer.Grid;
+    //     ShapeDataID id = bulkDeliveryRollTable.GetRandom();
+    //     List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
+    //     SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
+    //
+    //     int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
+    //     for (int x = grid.MinX; x < grid.MaxX; x++) {
+    //         for (int z = grid.MinZ; z < grid.MaxZ; z++) {
+    //             Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
+    //
+    //             while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
+    //                 Vector3Int deliveryCoord = new Vector3Int(x, y, z);
+    //                 Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
+    //                 if (!grid.PlaceShape(deliveryCoord, product, true)) {
+    //                     Debug.LogErrorFormat(
+    //                         "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
+    //                     );
+    //                     return;
+    //                 }
+    //
+    //                 Ledger.AddStockedProduct(product);
+    //
+    //                 quantity--;
+    //
+    //                 if (quantity == 0) {
+    //                     return;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     if (quantity > 0) {
+    //         Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
+    //     }
+    // }
+    //
+    // // TEMP: selects one from all products
+    // // TODO: fix for new ProductID
+    // void IrregularDelivery(Deliverer deliverer) {
+    //     Grid grid = deliverer.Grid;
+    //     List<ProductID> possibleProductIDs = ProductFactory.Instance.ProductDataLookUp.Keys.ToList();
+    //     ProductID id = possibleProductIDs[Random.Range(0, possibleProductIDs.Count)];
+    //     SO_Product productData = ProductFactory.Instance.ProductDataLookUp[id];
+    //
+    //     int quantity = Random.Range(irregularQuantityMin, irregularQuantityMax);
+    //     for (int x = grid.MinX; x < grid.MaxX; x++) {
+    //         for (int z = grid.MinZ; z < grid.MaxZ; z++) {
+    //             Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
+    //
+    //             while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
+    //                 Vector3Int deliveryCoord = new Vector3Int(x, y, z);
+    //                 Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
+    //                 if (!grid.PlaceShape(deliveryCoord, product, true)) {
+    //                     Debug.LogErrorFormat(
+    //                         "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
+    //                     );
+    //                     return;
+    //                 }
+    //
+    //                 Ledger.AddStockedProduct(product);
+    //
+    //                 quantity--;
+    //
+    //                 if (quantity == 0) {
+    //                     return;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //
+    //     if (quantity > 0) {
+    //         Debug.LogWarning($"Unable to place all products in irregular delivery: {quantity} remaining.");
+    //     }
+    // }
 
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone

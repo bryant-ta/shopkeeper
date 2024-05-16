@@ -5,10 +5,8 @@ using UnityEngine;
 
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
-    public ProductID productID;
+    public ProductID ID;
     public ShapeData ShapeData;
-    public Color Color;     // temp
-    public Pattern Pattern; // temp
 
     public List<BasicTagID> BasicTagIDs;
     public List<ScoreTagID> ScoreTagIDs;
