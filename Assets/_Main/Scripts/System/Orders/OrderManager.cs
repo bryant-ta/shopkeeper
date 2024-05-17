@@ -175,6 +175,11 @@ public class OrderManager : MonoBehaviour {
         return true;
     }
 
+    // Order GenerateOrder(Dictionary<ProductID, List<Product>> availableStock) {
+    //     
+    // }
+    
+
     Order GenerateQuantityOrder(Dictionary<ProductID, List<Product>> availableStock) {
         if (availableStock.Count == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
@@ -267,7 +272,7 @@ public class OrderManager : MonoBehaviour {
         activeOrdersList.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
 
         for (int i = 0; i < activeOrdersList.Count; i++) {
-            if (activeOrdersList[i].TryFulfill(product.ID)) {
+            if (activeOrdersList[i].Submit(product.ID)) {
                 return true;
             }
         }
@@ -292,100 +297,15 @@ public class OrderManager : MonoBehaviour {
     #endregion
 }
 
-public class Order {
-    int Value;
-
-    public float TimeToComplete { get; private set; }
-    public CountdownTimer Timer { get; private set; }
-
-    public int ActiveOrderIndex;
-
-    public Dictionary<ProductID, int> Products { get; private set; }
-
-    public event Action OnProductFulfilled;
-    public event Action<int> OnOrderFulfilled;
-    public event Action<int> OnOrderFailed;
-
-    int timePerProduct;
-    int valuePerProduct;
-
-    public Order(int minTimePerOrder, int timePerProduct, int valuePerProduct) {
-        this.timePerProduct = timePerProduct;
-        this.valuePerProduct = valuePerProduct;
-
-        Products = new();
-
-        TimeToComplete = minTimePerOrder;
-    }
-
-    ~Order() { StopOrder(); }
-
-    public void StartOrder() {
-        Timer = new CountdownTimer(TimeToComplete);
-        Timer.EndEvent += Fail;
-        Timer.Start();
-    }
-
-    public bool TryFulfill(ProductID productID) {
-        if (Products.ContainsKey(productID)) { Products[productID]--; } else { return false; }
-
-        if (Products[productID] == 0) { Products.Remove(productID); }
-
-        OnProductFulfilled?.Invoke();
-
-        if (Products.Count == 0) {
-            StopOrder();
-            OnOrderFulfilled?.Invoke(ActiveOrderIndex);
-        }
-
-        return true;
-    }
-    void Fail() { OnOrderFailed?.Invoke(ActiveOrderIndex); }
-
-    public void StopOrder() {
-        if (Timer.IsTicking) {
-            Timer.EndEvent -= Fail;
-            Timer.End();
-        }
-    }
-
-    public void Add(ProductID productID) {
-        if (Products.ContainsKey(productID)) { Products[productID]++; } else { Products[productID] = 1; }
-
-        TimeToComplete += timePerProduct;
-        Value += valuePerProduct;
-    }
-    public void Remove(ProductID productID) {
-        if (Products.ContainsKey(productID)) {
-            Products[productID]--;
-            TimeToComplete -= timePerProduct;
-            Value -= valuePerProduct;
-        }
-
-        if (Products[productID] == 0) {
-            Products.Remove(productID);
-        }
-    }
-
-    // Don't need to explicitly cleanup event listeners, as long as all references of this Order are gone.
-
-    public int TotalReward() { return Value + (int) Timer.RemainingTimeSeconds; }
-    public new string ToString() {
-        string t = "";
-
-        foreach (KeyValuePair<ProductID, int> order in Products) {
-            t += $"<sprite name={order.Key}> {order.Value}\n"; // TEMP: -1 from how productID is setup currently
-        }
-
-        if (t.Length > 0) t = t.Remove(t.Length - 1, 1);
-
-        return t;
-    }
-}
-
 public struct ActiveOrderChangedArgs {
     public int ActiveOrderIndex;
     public int NumRemainingOrders;
     public Order NewOrder;
     public bool LastOrderFulfilled;
+}
+
+public struct ProdudctID {
+    public Color? Color;             // Nullable Color
+    public Pattern? Pattern;         // Nullable Pattern
+    public ShapeDataID? ShapeDataID; // Nullable ShapeDataID
 }

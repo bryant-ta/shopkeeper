@@ -748,12 +748,7 @@ MonoBehaviour:
   - {fileID: 129228321}
   - {fileID: 1243052975}
   possibleProductLists:
-    outerList:
-    - innerList: 050000000b0000000e0000000c000000
-    - innerList: 030000000f0000000a000000
-    - innerList: 070000000800000010000000
-    - innerList: 040000000900000006000000
-    - innerList: 020000000d00000001000000
+    outerList: []
   colorPaletteData: {fileID: 11400000, guid: 3ecd5bdff42001d49b2b87246b8707dc, type: 2}
   patternPaletteData: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
 --- !u!4 &235971277
@@ -4645,7 +4640,6 @@ MonoBehaviour:
   varietyOrderTotalMin: 1
   varietyOrderTotalMax: 3
   varietyOrderIndividualMax: 2
-  dropOffZoneDimensions: {x: 10, y: 5, z: 4}
   dropOffZone: {fileID: 1744382406}
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
