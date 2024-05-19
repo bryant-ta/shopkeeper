@@ -99,7 +99,7 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                colorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );

@@ -8,10 +8,16 @@ public struct DeltaArgs {
 
 [Serializable]
 public struct DOTweenShakeArgs {
-    public float Duration; // .2
-    public float Strength; // .1
-    public int Vibrato;    // 20
-    public float Randomness; //20
+    public float Duration;
+    public float Strength;
+    public int Vibrato;
+    public float Randomness;
+}
+
+[Serializable]
+public struct MinMax {
+    public int Min;
+    public int Max;
 }
 
 // Inspector serializable list of lists

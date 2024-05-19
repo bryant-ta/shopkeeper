@@ -95,11 +95,16 @@ public class Order {
         Requirements.Add(requirement);
 
         TimeToComplete += timePerProduct;
-        Value += valuePerProduct;
     }
 
     // TODO: possibly just calculate directly from requirements
-    public int TotalReward() { return Value + (int) Timer.RemainingTimeSeconds; }
+    public int TotalValue() {
+        int total = 0;
+        foreach (Requirement req in Requirements) {
+            total += req.TargetQuantity * valuePerProduct;
+        }
+        return Value + (int) Timer.RemainingTimeSeconds;
+    }
 
     public new string ToString() {
         string t = "";

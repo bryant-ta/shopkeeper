@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orders;
-using Timers;
 using TriInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -15,20 +14,19 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int maxNextOrderDelay;
 
     [Title("Order Parameters")]
+    [SerializeField] MinMax numReqsPerOrder;
     [SerializeField] int minTimePerOrder;
     [SerializeField] int timePerProduct;
     [SerializeField] int goldPerProduct;
 
-    [Title("Quantity Order Type")]
-    [SerializeField] int quantityOrderTotalMin;
-    [SerializeField] int quantityOrderTotalMax;
+    [Title("Requirement Paramenters")]
+    [SerializeField] MinMax ReqQuantity;
+    [Tooltip("Starting chance generate a Requirement that pulls from available stock. Decreases as difficulty increases.")]
+    [SerializeField, Range(0.5f, 1f)] float chanceReqFromExisting = 0.5f;
+    [SerializeField, Range(0f, 1f)] float chanceReqNeedsColor;
+    [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
 
-    [Title("Variety Order Type")]
-    [SerializeField] int varietyOrderTotalMin;
-    [SerializeField] int varietyOrderTotalMax;
-    [SerializeField] int varietyOrderIndividualMax;
-
-    [Title("Zone")]
+    [Title("Other")]
     [SerializeField] Zone dropOffZone;
 
     // true if all orders for the day are fulfilled
@@ -79,10 +77,7 @@ public class OrderManager : MonoBehaviour {
             return;
         }
 
-        if (!GenerateOrders(numTotalOrders)) {
-            Debug.LogError("Unable to generate orders.");
-            return;
-        }
+        GenerateOrders(numTotalOrders);
 
         PerfectOrders = true;
 
@@ -151,55 +146,68 @@ public class OrderManager : MonoBehaviour {
     #region Order Generation
 
     // Populates backlog of orders
-    bool GenerateOrders(int numOrders) {
+    void GenerateOrders(int numOrders) {
         // Stock is taken out from availableStock as they are added to generated orders, avoids repeats with non-existent stock.
-        Dictionary<ProductID, List<Product>> availableStockCopy = Ledger.GetStockedProductsCopy();
         Dictionary<ProductID, int> availableStock = new();
-        foreach (KeyValuePair<ProductID,List<Product>> kv in availableStockCopy) {
+        foreach (KeyValuePair<ProductID, List<Product>> kv in Ledger.StockedProducts) {
             availableStock[kv.Key] = kv.Value.Count;
         }
 
         for (int i = 0; i < numOrders; i++) {
-            int orderType = Random.Range(0, 1);
-            Order order;
-            switch (orderType) {
-                case 0: // Quantity
-                    order = GenerateQuantityOrder(availableStock);
-                    break;
-                default:
-                    Debug.LogError("Unexpected orderType.");
-                    return false;
+            Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
+            int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
+
+            for (int j = 0; j < numReqs; j++) {
+                Requirement req = Random.Range(0f, 1f) < chanceReqFromExisting ? CreateOrderFromExisting(availableStock) : CreateOrder();
+                order.Add(req);
             }
 
-            if (order != null) backlogOrders.Enqueue(order);
+            backlogOrders.Enqueue(order);
         }
-
-        return true;
     }
 
-    // Order GenerateOrder(Dictionary<ProductID, List<Product>> availableStock) {
-    //     
-    // }
-    
+    Requirement CreateOrder() {
+        int quantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
+        Requirement req = new Requirement(null, null, null, quantity);
 
-    Order GenerateQuantityOrder(Dictionary<ProductID, int> availableStockCount) {
-        if (availableStockCount.Count == 0) {
+        if (Random.Range(0f, 1f) <= chanceReqNeedsColor) {
+            List<Color> c = Ledger.Instance.ColorPaletteData.Colors;
+            req.Color = c[Random.Range(0, c.Count)];
+        }
+
+        // if (Random.Range(0, 2) < 1) {
+        //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
+        // }
+        if (Random.Range(0f, 1f) <= chanceReqNeedsShape) {
+            Array s = Enum.GetValues(typeof(ShapeDataID));
+            req.ShapeDataID = (ShapeDataID) s.GetValue(Random.Range(0, s.Length));
+        }
+
+        return req;
+    }
+
+    Requirement CreateOrderFromExisting(Dictionary<ProductID, int> availableStock) {
+        if (availableStock.Count == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
             return null;
         }
-        
-        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
-        ProductID productID = availableStockCount.Keys.ToArray()[Random.Range(0, availableStockCount.Count)];
-        int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
-        int quantity = Math.Min(randomQuantity, availableStockCount[productID]);
-        
-        Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
-        order.Add(req);
-        
-        availableStockCount[productID] -= quantity;
-        if (availableStockCount[productID] == 0) availableStockCount.Remove(productID);
 
-        return order;
+        ProductID productID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
+        int randomQuantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
+        int quantity = Math.Min(randomQuantity, availableStock[productID]);
+        Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
+
+        if (Random.Range(0f, 1f) > chanceReqNeedsColor) { req.Color = null; }
+
+        // if (Random.Range(0f, 1f) < 1) {
+        //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
+        // }
+        if (Random.Range(0f, 1f) > chanceReqNeedsShape) { req.ShapeDataID = null; }
+
+        availableStock[productID] -= quantity;
+        if (availableStock[productID] == 0) availableStock.Remove(productID);
+
+        return req;
     }
 
     void ScaleOrderDifficulty(int day) {
@@ -208,8 +216,7 @@ public class OrderManager : MonoBehaviour {
         numTotalOrders = day / 2 + 3;
         NumRemainingOrders = numTotalOrders;
 
-        quantityOrderTotalMax++;
-        varietyOrderIndividualMax++;
+        ReqQuantity.Max++;
     }
 
     #endregion
@@ -258,7 +265,7 @@ public class OrderManager : MonoBehaviour {
 
     void FulfillOrder(int activeOrderIndex) {
         NumRemainingOrders--;
-        GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalReward());
+        GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalValue());
         ActivateNextOrderDelayed(activeOrderIndex, Random.Range(minNextOrderDelay, maxNextOrderDelay), true);
 
         SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
@@ -278,10 +285,4 @@ public struct ActiveOrderChangedArgs {
     public int NumRemainingOrders;
     public Order NewOrder;
     public bool LastOrderFulfilled;
-}
-
-public struct ProdudctID {
-    public Color? Color;             // Nullable Color
-    public Pattern? Pattern;         // Nullable Pattern
-    public ShapeDataID? ShapeDataID; // Nullable ShapeDataID
 }

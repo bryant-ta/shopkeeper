@@ -4632,14 +4632,17 @@ MonoBehaviour:
   numActiveOrders: 3
   minNextOrderDelay: 2
   maxNextOrderDelay: 8
+  numReqsPerOrder:
+    Min: 0
+    Max: 0
   minTimePerOrder: 5
   timePerProduct: 6
   goldPerProduct: 5
-  quantityOrderTotalMin: 1
-  quantityOrderTotalMax: 2
-  varietyOrderTotalMin: 1
-  varietyOrderTotalMax: 3
-  varietyOrderIndividualMax: 2
+  chanceReqFromExisting: 1
+  chanceReqNeedsColor: 1
+  chanceReqNeedsShape: 1
+  requirementQuantityMin: 0
+  requirementQuantityMax: 0
   dropOffZone: {fileID: 1744382406}
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
@@ -7214,7 +7217,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 251656165}
   m_HandleRect: {fileID: 251656164}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -8568,6 +8571,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d9367d9a3e214b43ac8d74953fcaa5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <ColorPaletteData>k__BackingField: {fileID: 0}
+  <PatternPaletteData>k__BackingField: {fileID: 0}
 --- !u!1 &2076107486
 GameObject:
   m_ObjectHideFlags: 0
