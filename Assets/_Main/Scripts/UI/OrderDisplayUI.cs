@@ -1,7 +1,9 @@
+using Orders;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO: update UI to display new order
 public class OrderDisplayUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI orderText;
     [SerializeField] GameObject EndStatusStampPanel;
@@ -12,11 +14,11 @@ public class OrderDisplayUI : MonoBehaviour {
     
     public void DisplayNewOrder(Order order) {
         if (displayedOrder != null && displayedOrder != order) {
-            displayedOrder.OnProductFulfilled -= UpdateProducts;
+            // displayedOrder.OnProductFulfilled -= UpdateProducts;
         }
 
         displayedOrder = order;
-        displayedOrder.OnProductFulfilled += UpdateProducts;
+        // displayedOrder.OnProductFulfilled += UpdateProducts;
         UpdateProducts();
     }
     

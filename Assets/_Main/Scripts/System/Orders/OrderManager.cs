@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Orders;
 using Timers;
 using TriInspector;
 using UnityEngine;
@@ -152,17 +153,18 @@ public class OrderManager : MonoBehaviour {
     // Populates backlog of orders
     bool GenerateOrders(int numOrders) {
         // Stock is taken out from availableStock as they are added to generated orders, avoids repeats with non-existent stock.
-        Dictionary<ProductID, List<Product>> availableStock = Ledger.GetStockedProductsCopy();
+        Dictionary<ProductID, List<Product>> availableStockCopy = Ledger.GetStockedProductsCopy();
+        Dictionary<ProductID, int> availableStock = new();
+        foreach (KeyValuePair<ProductID,List<Product>> kv in availableStockCopy) {
+            availableStock[kv.Key] = kv.Value.Count;
+        }
 
         for (int i = 0; i < numOrders; i++) {
-            int orderType = Random.Range(0, 2);
+            int orderType = Random.Range(0, 1);
             Order order;
             switch (orderType) {
                 case 0: // Quantity
                     order = GenerateQuantityOrder(availableStock);
-                    break;
-                case 1: // Variety
-                    order = GenerateVarietyOrder(availableStock);
                     break;
                 default:
                     Debug.LogError("Unexpected orderType.");
@@ -180,48 +182,22 @@ public class OrderManager : MonoBehaviour {
     // }
     
 
-    Order GenerateQuantityOrder(Dictionary<ProductID, List<Product>> availableStock) {
-        if (availableStock.Count == 0) {
+    Order GenerateQuantityOrder(Dictionary<ProductID, int> availableStockCount) {
+        if (availableStockCount.Count == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
             return null;
         }
-
+        
+        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
+        ProductID productID = availableStockCount.Keys.ToArray()[Random.Range(0, availableStockCount.Count)];
         int randomQuantity = Random.Range(quantityOrderTotalMin, quantityOrderTotalMax + 1);
-
-        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
-        ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
-
-        int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
-        for (int i = 0; i < quantity; i++) {
-            order.Add(requestedProductID);
-            availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
-            if (availableStock[requestedProductID].Count == 0) availableStock.Remove(requestedProductID);
-        }
-
-        return order;
-    }
-
-    Order GenerateVarietyOrder(Dictionary<ProductID, List<Product>> availableStock) {
-        int orderTotal = Random.Range(varietyOrderTotalMin, varietyOrderTotalMax + 1);
-
-        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
-        for (int i = 0; i < orderTotal; i++) {
-            if (availableStock.Count == 0) {
-                Debug.LogWarning("No available stock to generate orders from!");
-                return null;
-            }
-
-            ProductID requestedProductID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
-
-            int randomQuantity = Random.Range(1, varietyOrderIndividualMax + 1);
-            int quantity = Math.Min(randomQuantity, availableStock[requestedProductID].Count);
-
-            for (int j = 0; j < quantity; j++) {
-                order.Add(requestedProductID);
-                availableStock[requestedProductID].Remove(availableStock[requestedProductID].Last());
-                if (availableStock[requestedProductID].Count == 0) availableStock.Remove(requestedProductID);
-            }
-        }
+        int quantity = Math.Min(randomQuantity, availableStockCount[productID]);
+        
+        Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
+        order.Add(req);
+        
+        availableStockCount[productID] -= quantity;
+        if (availableStockCount[productID] == 0) availableStockCount.Remove(productID);
 
         return order;
     }

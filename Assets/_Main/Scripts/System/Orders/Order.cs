@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Timers;
 using UnityEngine;
 
+namespace Orders {
 public class Order {
+    // TEMP: timer is unused until implementing time mode
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
@@ -17,15 +18,14 @@ public class Order {
     int timePerProduct;
     int valuePerProduct;
 
-    public event Action OnProductFulfilled;
+    public event Action<int> OnProductFulfilled; // passes quantity remaining until target
     public event Action<int> OnOrderFulfilled;
     public event Action<int> OnOrderFailed;
 
     public Order(int minTimePerOrder, int timePerProduct, int valuePerProduct) {
+        Requirements = new();
         this.timePerProduct = timePerProduct;
         this.valuePerProduct = valuePerProduct;
-
-        Requirements = new();
 
         TimeToComplete = minTimePerOrder;
     }
@@ -38,45 +38,44 @@ public class Order {
         Timer.EndEvent += Fail;
         Timer.Start();
     }
-    
-    // should trigger ui counter + keep logic in sync
-    public void Submit(ProductID productID) {
-        foreach (Requirement requirement in Requirements) {
-            if (requirement.Match(productID)) {
-                requirement.CurQuantity++;
+
+    public bool Submit(ProductID productID) {
+        bool acceptedSubmit = false;
+        foreach (Requirement req in Requirements) {
+            if (req.Match(productID)) {
+                req.CurQuantity++;
+                OnProductFulfilled?.Invoke(req.QuantityUntilTarget());
+                acceptedSubmit = true;
                 break;
             }
         }
 
-        
-        
-        
-        
+        bool orderIsFulfilled = true;
+        foreach (Requirement req in Requirements) {
+            if (!req.IsFulfilled) {
+                orderIsFulfilled = false;
+                break;
+            }
+        }
 
-        if (Requirements.ContainsKey(productID)) { Requirements[productID]--; } else { return; }
-
-        if (Requirements[productID] == 0) { Requirements.Remove(productID); }
-
-        OnProductFulfilled?.Invoke();
-
-        if (Requirements.Count == 0) {
+        if (orderIsFulfilled) {
             StopOrder();
             OnOrderFulfilled?.Invoke(ActiveOrderIndex);
         }
 
-        return;
+        return acceptedSubmit;
     }
 
-    // Call when product is removed from order grid (only when order has mold)
-    public void Remove() {
-        
+    public void Remove(ProductID productID) {
+        foreach (Requirement req in Requirements) {
+            if (req.Match(productID)) {
+                req.CurQuantity--;
+                OnProductFulfilled?.Invoke(req.QuantityUntilTarget());
+                break;
+            }
+        }
     }
-    
-    
-    
-    
-    
-    
+
     void Fail() { OnOrderFailed?.Invoke(ActiveOrderIndex); }
 
     public void StopOrder() {
@@ -86,26 +85,27 @@ public class Order {
         }
     }
 
-    // requirement should come in with everything set exactly, including targetquantity
+    // requirement input should have everything set, including target quantity
     public void Add(Requirement requirement) {
         if (Requirements.Contains(requirement)) {
             Debug.LogError("Unable to add requirement: Requirement already exists.");
             return;
         }
-        
+
         Requirements.Add(requirement);
 
         TimeToComplete += timePerProduct;
         Value += valuePerProduct;
     }
 
-    public int TotalReward() { return Value + (int) Timer.RemainingTimeSeconds; } // TODO: possibly just calculate directly from requirements
+    // TODO: possibly just calculate directly from requirements
+    public int TotalReward() { return Value + (int) Timer.RemainingTimeSeconds; }
 
     public new string ToString() {
         string t = "";
 
-        foreach (KeyValuePair<ProductID, int> order in Requirements) {
-            t += $"<sprite name={order.Key}> {order.Value}\n"; // TEMP: -1 from how productID is setup currently
+        foreach (Requirement req in Requirements) {
+            t += $"{req.Color}_{req.Pattern}_{req.ShapeDataID}x{req.QuantityUntilTarget()}\n";
         }
 
         if (t.Length > 0) t = t.Remove(t.Length - 1, 1);
@@ -121,6 +121,7 @@ public class Requirement {
     public ShapeDataID? ShapeDataID;
     public int TargetQuantity;
     public int CurQuantity;
+    public bool IsFulfilled => QuantityUntilTarget() == 0;
 
     public Requirement(Color? color, Pattern? pattern, ShapeDataID? shapeDataID, int targetQuantity) {
         Color = color;
@@ -140,8 +141,9 @@ public class Requirement {
                (Pattern == null || Pattern == productID.Pattern) &&
                (ShapeDataID == null || ShapeDataID == productID.ShapeDataID);
     }
-    
+
     public bool Match(Requirement requirement) {
         return Color == requirement.Color && Pattern == requirement.Pattern && ShapeDataID == requirement.ShapeDataID;
     }
+}
 }

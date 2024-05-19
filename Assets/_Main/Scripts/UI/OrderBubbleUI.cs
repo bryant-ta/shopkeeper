@@ -1,8 +1,10 @@
 using System;
+using Orders;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+// TODO: update UI to match new order
 public class OrderBubbleUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI orderText;
     [SerializeField] Image orderTimerBar;
@@ -26,13 +28,11 @@ public class OrderBubbleUI : MonoBehaviour {
 
         displayedOrder = order;
 
-        UpdateProducts();
-        
-        displayedOrder.OnProductFulfilled += UpdateProducts;
+        // UpdateProducts(.OnProductFulfilled += UpdateProducts;
         displayedOrder.Timer.TickEvent += UpdateTimer;
     }
 
-    void UpdateProducts() {
+    void UpdateProducts(int quantityRemaining) {
         orderText.text = displayedOrder.ToString();
     }
 
