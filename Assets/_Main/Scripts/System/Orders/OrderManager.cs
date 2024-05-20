@@ -7,27 +7,27 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
-    [Title("Order Queue")]
+    [Header("Order Queue")]
     [SerializeField] int numTotalOrders;
     [SerializeField] int numActiveOrders;
-    [SerializeField] int minNextOrderDelay;
-    [SerializeField] int maxNextOrderDelay;
+    [SerializeField] MinMax NextOrderDelay;
 
-    [Title("Order Parameters")]
+    [Header("Order Parameters")]
     [SerializeField] MinMax numReqsPerOrder;
     [SerializeField] int minTimePerOrder;
     [SerializeField] int timePerProduct;
     [SerializeField] int goldPerProduct;
 
-    [Title("Requirement Paramenters")]
+    [Header("Requirement Paramenters")]
     [SerializeField] MinMax ReqQuantity;
     [Tooltip("Starting chance generate a Requirement that pulls from available stock. Decreases as difficulty increases.")]
     [SerializeField, Range(0.5f, 1f)] float chanceReqFromExisting = 0.5f;
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsColor;
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
 
-    [Title("Other")]
-    [SerializeField] Zone dropOffZone;
+    [Header("Other")]
+    [SerializeField] ListList<ShapeDataID> shapeDifficultyPool;
+    [SerializeField] List<Orderer> orderers;
 
     // true if all orders for the day are fulfilled
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; }
@@ -46,13 +46,6 @@ public class OrderManager : MonoBehaviour {
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
-    }
-
-    void Start() {
-        // Create drop off zone
-        ZoneProperties dropOffZoneProps = new ZoneProperties() {CanPlace = false};
-        // dropOffZone.Setup(Vector3Int.RoundToInt(transform.localPosition), dropOffZoneDimensions, dropOffZoneProps);
-        GameManager.WorldGrid.AddZone(dropOffZone);
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
@@ -83,7 +76,7 @@ public class OrderManager : MonoBehaviour {
 
         ActivateNextOrder(0); // always immediately activate first order
         for (int i = 1; i < numActiveOrders; i++) {
-            ActivateNextOrderDelayed(i, Random.Range(minNextOrderDelay, maxNextOrderDelay));
+            ActivateNextOrderDelayed(i, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
     }
     void StopOrders() {
@@ -179,8 +172,8 @@ public class OrderManager : MonoBehaviour {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
         if (Random.Range(0f, 1f) <= chanceReqNeedsShape) {
-            Array s = Enum.GetValues(typeof(ShapeDataID));
-            req.ShapeDataID = (ShapeDataID) s.GetValue(Random.Range(0, s.Length));
+            List<ShapeDataID> s = shapeDifficultyPool.outerList[0].innerList;
+            req.ShapeDataID = s[Random.Range(0, s.Count)];
         }
 
         return req;
@@ -266,13 +259,13 @@ public class OrderManager : MonoBehaviour {
     void FulfillOrder(int activeOrderIndex) {
         NumRemainingOrders--;
         GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalValue());
-        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(minNextOrderDelay, maxNextOrderDelay), true);
+        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max), true);
 
         SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
     }
     void FailOrder(int activeOrderIndex) {
         PerfectOrders = false;
-        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(minNextOrderDelay, maxNextOrderDelay), false);
+        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max), false);
 
         SoundManager.Instance.PlaySound(SoundID.OrderFailed);
     }

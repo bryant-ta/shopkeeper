@@ -1,21 +1,10 @@
 using UnityEngine;
 
 public class Orderer : MonoBehaviour {
-    [SerializeField] GameObject delivererObj;
-    [field:SerializeField] public Grid Grid { get; private set; }
-    [SerializeField] Zone deliveryZone;
+    public Grid Grid { get; private set; }
 
-    void Start() {
-        // Create delivery zone
-        deliveryZone.Setup(Vector3Int.RoundToInt(transform.localPosition));
-        Grid.AddZone(deliveryZone);
-    }
+    void Awake() { Grid = gameObject.GetComponentInChildren<Grid>(); }
 
-    public void Enable() {
-        delivererObj.SetActive(true);
-        
-    }
-    public void Disable() {
-        delivererObj.SetActive(false);
-    }
+    public void Enable() { gameObject.SetActive(true); }
+    public void Disable() { gameObject.SetActive(false); }
 }

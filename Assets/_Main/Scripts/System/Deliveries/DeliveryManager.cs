@@ -26,10 +26,6 @@ public class DeliveryManager : MonoBehaviour {
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
     int numProductsInDelivery;
-    
-    [Title("Palette")]
-    [SerializeField] SO_ColorPalette colorPaletteData;
-    [SerializeField] SO_PatternPalette patternPaletteData;
 
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
@@ -42,28 +38,6 @@ public class DeliveryManager : MonoBehaviour {
         vs = GetComponent<VolumeSlicer>();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
-        foreach (Deliverer deliverer in basicDeliverers) {
-            deliverer.Grid.OnShapeMove += OnSelectBasicDelivery;
-        }
-        foreach (Deliverer deliverer in specialDeliverers) {
-            deliverer.Grid.OnShapeMove += OnSelectSpecialDelivery;
-        }
-    }
-
-    // TEMP: placeholder until doing anims/theme for basic delivery
-    void OnSelectBasicDelivery(Grid grid) {
-        if (!grid.IsEmpty()) return;
-        foreach (Deliverer deliverer in basicDeliverers) {
-            deliverer.Disable();
-        }
-    }
-
-    // TEMP: placeholder until doing anims/theme for special delivery
-    void OnSelectSpecialDelivery(Grid grid) {
-        if (!grid.IsEmpty()) return;
-        foreach (Deliverer deliverer in specialDeliverers) {
-            deliverer.Disable();
-        }
     }
 
     void StateTrigger(IState<DayPhase> state) {
@@ -99,7 +73,7 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, colorPaletteData.Colors.Count)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, Ledger.Instance.ColorPaletteData.Colors.Count)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );
