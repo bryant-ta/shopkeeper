@@ -16,7 +16,7 @@ public class Orderer : MonoBehaviour {
     #region Order
 
     public void StartOrder() {
-        Order.StartOrder();
+        // Order.StartOrder(); // TEMP: currently no timer
         Order.OnOrderFulfilled += OrderFulfilled;
         Order.OnOrderFailed += OrderFailed;
     }
@@ -56,6 +56,7 @@ public class Orderer : MonoBehaviour {
         AssignedDock = dock; // do not unset, OrderManager uses ref
         AssignedDock.SetOrderer(this);
         transform.position = dock.GetDockingPoint(); // TEMP: until anim
+        StartOrder();
     }
     void LeaveDock() {
         AssignedDock.RemoveOrderer();
