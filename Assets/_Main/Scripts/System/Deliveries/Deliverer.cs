@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Deliverer : MonoBehaviour {
@@ -8,17 +8,17 @@ public class Deliverer : MonoBehaviour {
 
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
-        
-        Grid.OnShapeStackMove += OnShapeStackMove;
+
+        Grid.OnStackMove += DisableOnEmpty;
     }
 
     void Start() {
         deliveryZone.Setup(Vector3Int.RoundToInt(deliveryZoneRootCoord));
         Grid.AddZone(deliveryZone);
     }
-    
+
     // TEMP: placeholder until doing anims/theme for basic delivery
-    void OnShapeStackMove() {
+    void DisableOnEmpty(List<IGridShape> shapes) {
         if (!Grid.IsEmpty()) return;
         Disable();
     }

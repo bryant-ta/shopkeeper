@@ -29,7 +29,7 @@ public class Grid : MonoBehaviour {
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
 
-    public event Action OnShapeStackMove; // triggered once per move of a STACK of shape on both origin and target grid
+    public event Action<List<IGridShape>> OnStackMove; // triggered once per move of a STACK of shape on both origin and target grid
 
     // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
     // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
@@ -113,7 +113,7 @@ public class Grid : MonoBehaviour {
             PlaceShapeNoValidate(targetCoord, shape);
         }
         
-        OnShapeStackMove?.Invoke();
+        OnStackMove?.Invoke(shapes);
 
         return true;
     }
@@ -153,7 +153,7 @@ public class Grid : MonoBehaviour {
             return false;
         }
 
-        OnShapeStackMove?.Invoke();
+        OnStackMove?.Invoke(shapes);
 
         return true;
     }

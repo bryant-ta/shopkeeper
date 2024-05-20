@@ -9,18 +9,18 @@ public class Order {
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
-    public int ActiveOrderIndex;
-
     // some fields of productID may not be set
     public List<Requirement> Requirements { get; private set; }
 
     int Value;
     int timePerProduct;
     int valuePerProduct;
+    
+    public bool IsFulfilled { get; private set; }
 
     public event Action<int> OnProductFulfilled; // passes quantity remaining until target
-    public event Action<int> OnOrderFulfilled;
-    public event Action<int> OnOrderFailed;
+    public event Action OnOrderFulfilled;
+    public event Action OnOrderFailed;
 
     public Order(int minTimePerOrder, int timePerProduct, int valuePerProduct) {
         Requirements = new();
@@ -60,12 +60,12 @@ public class Order {
 
         if (orderIsFulfilled) {
             StopOrder();
-            OnOrderFulfilled?.Invoke(ActiveOrderIndex);
+            IsFulfilled = true;
+            OnOrderFulfilled?.Invoke();
         }
 
         return acceptedSubmit;
     }
-
     public void Remove(ProductID productID) {
         foreach (Requirement req in Requirements) {
             if (req.Match(productID)) {
@@ -76,7 +76,7 @@ public class Order {
         }
     }
 
-    void Fail() { OnOrderFailed?.Invoke(ActiveOrderIndex); }
+    void Fail() { OnOrderFailed?.Invoke(); }
 
     public void StopOrder() {
         if (Timer.IsTicking) {

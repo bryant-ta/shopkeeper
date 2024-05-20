@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orders;
-using TriInspector;
+using Unity.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -25,23 +25,24 @@ public class OrderManager : MonoBehaviour {
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsColor;
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
 
+    [Header("Orderers")]
+    [SerializeField] List<Dock> docks; // TEMP: using just as spawn points until orderer anims
+    [SerializeField] GameObject ordererObj;
+    [SerializeField] Transform ordererSpawnPoint;
+
     [Header("Other")]
     [SerializeField] ListList<ShapeDataID> shapeDifficultyPool;
-    [SerializeField] List<Orderer> orderers;
 
     // true if all orders for the day are fulfilled
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; }
     [field: SerializeField, ReadOnly] public int NumRemainingOrders { get; private set; }
 
-    Queue<Order> backlogOrders = new();
-    Order[] activeOrders;
+    Queue<Order> orderBacklog = new();
+    // Order[] activeOrders;
 
     Util.ValueRef<bool> isOpenPhase;
 
-    public event Action<ActiveOrderChangedArgs> OnActiveOrderChanged;
-
     void Awake() {
-        activeOrders = new Order[numActiveOrders];
         isOpenPhase = new Util.ValueRef<bool>(false);
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
@@ -62,10 +63,8 @@ public class OrderManager : MonoBehaviour {
         }
     }
 
-    #region Active Orders
-
     void StartOrders() {
-        if (backlogOrders.Count > 0) {
+        if (orderBacklog.Count > 0) {
             Debug.LogError("Unable to start new orders: orders remain in backlog orders.");
             return;
         }
@@ -74,66 +73,55 @@ public class OrderManager : MonoBehaviour {
 
         PerfectOrders = true;
 
-        ActivateNextOrder(0); // always immediately activate first order
-        for (int i = 1; i < numActiveOrders; i++) {
-            ActivateNextOrderDelayed(i, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
+        AssignNextOrderer(docks[0]); // always immediately activate first order
+        int activeOrders = Math.Min(numActiveOrders, docks.Count);
+        for (var i = 0; i < activeOrders; i++) {
+            AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
     }
-    void StopOrders() {
-        // Commented: letting current active orders finish
-        // for (int i = 0; i < activeOrders.Length; i++) {
-        //     if (activeOrders[i] != null) {
-        //         activeOrders[i].StopOrder();
-        //         ResetActiveOrderSlot(i);
-        //     }
-        // }
+    void StopOrders() { orderBacklog.Clear(); }
 
-        backlogOrders.Clear();
-    }
+    #region Orderer Management
 
-    void ActivateNextOrderDelayed(int activeOrderIndex, float delay, bool lastOrderFulfilled = false) {
-        ResetActiveOrderSlot(activeOrderIndex, lastOrderFulfilled);
-        Util.DoAfterSeconds(this, delay, () => ActivateNextOrder(activeOrderIndex), isOpenPhase);
+    public void AssignNextOrdererDelayed(Dock openDock, float delay) {
+        Util.DoAfterSeconds(this, delay, () => AssignNextOrderer(openDock), isOpenPhase);
     }
-    void ActivateNextOrder(int activeOrderIndex) {
+    public void AssignNextOrderer(Dock openDock) {
         // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
+        // TODO: fix so this isnt needed
         if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
             return;
         }
 
-        if (backlogOrders.Count == 0) {
-            ResetActiveOrderSlot(activeOrderIndex);
+        if (orderBacklog.Count == 0) {
             return;
         }
 
-        Order nextOrder = backlogOrders.Dequeue();
+        if (openDock.IsOccupied) {
+            Debug.LogError("Unable to assign next orderer: Dock is occupied.");
+            return;
+        }
 
-        nextOrder.StartOrder();
-        nextOrder.OnOrderFulfilled += FulfillOrder;
-        nextOrder.OnOrderFailed += FailOrder;
-
-        activeOrders[activeOrderIndex] = nextOrder;
-        nextOrder.ActiveOrderIndex = activeOrderIndex;
-        OnActiveOrderChanged?.Invoke(
-            new ActiveOrderChangedArgs {
-                ActiveOrderIndex = activeOrderIndex,
-                NewOrder = nextOrder,
-                NumRemainingOrders = NumRemainingOrders
-            }
-        );
+        Orderer orderer = Instantiate(ordererObj, ordererSpawnPoint).GetComponent<Orderer>();
+        orderer.SetOrder(orderBacklog.Dequeue());
+        orderer.OccupyDock(openDock);
     }
 
-    void ResetActiveOrderSlot(int activeOrderIndex, bool lastOrderFulfilled = false) {
-        OnActiveOrderChanged?.Invoke(
-            new ActiveOrderChangedArgs {
-                ActiveOrderIndex = activeOrderIndex,
-                NewOrder = null,
-                NumRemainingOrders = NumRemainingOrders,
-                LastOrderFulfilled = lastOrderFulfilled
-            }
-        );
-    }
+    public void HandleFinishedOrderer(Orderer orderer) {
+        AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
+        NumRemainingOrders--;
 
+        if (orderer.Order.IsFulfilled) {
+            GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
+            SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
+        } else {
+            PerfectOrders = false;
+            SoundManager.Instance.PlaySound(SoundID.OrderFailed);
+        }
+
+        Destroy(orderer.gameObject); // TEMP: until anim
+    }
+    
     #endregion
 
     #region Order Generation
@@ -151,15 +139,17 @@ public class OrderManager : MonoBehaviour {
             int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
             for (int j = 0; j < numReqs; j++) {
-                Requirement req = Random.Range(0f, 1f) < chanceReqFromExisting ? CreateOrderFromExisting(availableStock) : CreateOrder();
+                Requirement req = Random.Range(0f, 1f) < chanceReqFromExisting ?
+                    MakeRequirementFromExisting(availableStock) :
+                    MakeRequirement();
                 order.Add(req);
             }
 
-            backlogOrders.Enqueue(order);
+            orderBacklog.Enqueue(order);
         }
     }
 
-    Requirement CreateOrder() {
+    Requirement MakeRequirement() {
         int quantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
         Requirement req = new Requirement(null, null, null, quantity);
 
@@ -179,7 +169,7 @@ public class OrderManager : MonoBehaviour {
         return req;
     }
 
-    Requirement CreateOrderFromExisting(Dictionary<ProductID, int> availableStock) {
+    Requirement MakeRequirementFromExisting(Dictionary<ProductID, int> availableStock) {
         if (availableStock.Count == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
             return null;
@@ -210,64 +200,6 @@ public class OrderManager : MonoBehaviour {
         NumRemainingOrders = numTotalOrders;
 
         ReqQuantity.Max++;
-    }
-
-    #endregion
-
-    #region Order Fulfillment
-
-    public void TryFillOrder(Grid fulfillmentGrid) {
-        // Attempt to fulfill active orders with products in input grid
-        List<IGridShape> shapes = fulfillmentGrid.AllShapes();
-        bool matched = false;
-        for (int i = 0; i < shapes.Count; i++) {
-            if (shapes[i].ColliderTransform.TryGetComponent(out Product product)) {
-                if (MatchOrder(product)) {
-                    // Product fulfilled, consume product from its grid
-                    matched = true;
-                    fulfillmentGrid.DestroyShape(shapes[i]);
-
-                    Ledger.RemoveStockedProduct(product);
-                }
-            }
-        }
-
-        if (matched) { SoundManager.Instance.PlaySound(SoundID.OrderProductFilled); }
-    }
-
-    // Returns true if successfully fulfilled an order with product
-    bool MatchOrder(Product product) {
-        // Prioritize order with least time left
-        List<Order> activeOrdersList = activeOrders.ToList();
-        for (int i = activeOrdersList.Count - 1; i >= 0; i--) {
-            if (activeOrdersList[i] == null || !activeOrdersList[i].Timer.IsTicking) {
-                activeOrdersList.Remove(activeOrdersList[i]);
-            }
-        }
-
-        activeOrdersList.Sort((a, b) => a.Timer.RemainingTimePercent.CompareTo(b.Timer.RemainingTimePercent));
-
-        for (int i = 0; i < activeOrdersList.Count; i++) {
-            if (activeOrdersList[i].Submit(product.ID)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    void FulfillOrder(int activeOrderIndex) {
-        NumRemainingOrders--;
-        GameManager.Instance.ModifyGold(activeOrders[activeOrderIndex].TotalValue());
-        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max), true);
-
-        SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
-    }
-    void FailOrder(int activeOrderIndex) {
-        PerfectOrders = false;
-        ActivateNextOrderDelayed(activeOrderIndex, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max), false);
-
-        SoundManager.Instance.PlaySound(SoundID.OrderFailed);
     }
 
     #endregion
