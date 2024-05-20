@@ -97,7 +97,6 @@ public class Order {
         TimeToComplete += timePerProduct;
     }
 
-    // TODO: possibly just calculate directly from requirements
     public int TotalValue() {
         int total = 0;
         foreach (Requirement req in Requirements) {
@@ -119,7 +118,6 @@ public class Order {
     }
 }
 
-// TODO: namespace this?
 public class Requirement {
     public Color? Color;
     public Pattern? Pattern;

@@ -4633,16 +4633,17 @@ MonoBehaviour:
   minNextOrderDelay: 2
   maxNextOrderDelay: 8
   numReqsPerOrder:
-    Min: 0
-    Max: 0
+    Min: 1
+    Max: 3
   minTimePerOrder: 5
   timePerProduct: 6
   goldPerProduct: 5
+  ReqQuantity:
+    Min: 1
+    Max: 3
   chanceReqFromExisting: 1
   chanceReqNeedsColor: 1
   chanceReqNeedsShape: 1
-  requirementQuantityMin: 0
-  requirementQuantityMax: 0
   dropOffZone: {fileID: 1744382406}
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
