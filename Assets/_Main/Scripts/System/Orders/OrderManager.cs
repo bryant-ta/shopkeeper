@@ -75,7 +75,7 @@ public class OrderManager : MonoBehaviour {
 
         AssignNextOrderer(docks[0]); // always immediately activate first order
         int activeOrders = Math.Min(numActiveOrders, docks.Count);
-        for (var i = 0; i < activeOrders; i++) {
+        for (var i = 1; i < activeOrders; i++) {
             AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
     }

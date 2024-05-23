@@ -18,7 +18,7 @@ public class Order {
     
     public bool IsFulfilled { get; private set; }
 
-    public event Action<int> OnProductFulfilled; // passes quantity remaining until target
+    public event Action<int, int> OnProductFulfilled; // requirement index, quantity remaining until target
     public event Action OnOrderFulfilled;
     public event Action OnOrderFailed;
 
@@ -41,10 +41,11 @@ public class Order {
 
     public bool Submit(ProductID productID) {
         bool acceptedSubmit = false;
-        foreach (Requirement req in Requirements) {
+        for (int i = 0; i < Requirements.Count; i++) {
+            Requirement req = Requirements[i];
             if (req.Match(productID)) {
                 req.CurQuantity++;
-                OnProductFulfilled?.Invoke(req.QuantityUntilTarget());
+                OnProductFulfilled?.Invoke(i, req.QuantityUntilTarget());
                 acceptedSubmit = true;
                 break;
             }
@@ -67,10 +68,11 @@ public class Order {
         return acceptedSubmit;
     }
     public void Remove(ProductID productID) {
-        foreach (Requirement req in Requirements) {
+        for (int i = 0; i < Requirements.Count; i++) {
+            Requirement req = Requirements[i];
             if (req.Match(productID)) {
                 req.CurQuantity--;
-                OnProductFulfilled?.Invoke(req.QuantityUntilTarget());
+                OnProductFulfilled?.Invoke(i, req.QuantityUntilTarget());
                 break;
             }
         }
@@ -79,7 +81,7 @@ public class Order {
     void Fail() { OnOrderFailed?.Invoke(); }
 
     public void StopOrder() {
-        if (Timer.IsTicking) {
+        if (Timer != null && Timer.IsTicking) {
             Timer.EndEvent -= Fail;
             Timer.End();
         }
@@ -102,7 +104,7 @@ public class Order {
         foreach (Requirement req in Requirements) {
             total += req.TargetQuantity * valuePerProduct;
         }
-        return Value + (int) Timer.RemainingTimeSeconds;
+        return Value;
     }
 
     public new string ToString() {

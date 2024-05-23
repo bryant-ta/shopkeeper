@@ -3,7 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// TODO: update UI to display new order
 public class OrderDisplayUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI orderText;
     [SerializeField] GameObject EndStatusStampPanel;

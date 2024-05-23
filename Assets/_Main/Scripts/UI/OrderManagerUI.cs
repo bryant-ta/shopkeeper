@@ -9,20 +9,12 @@ public class OrderManagerUI : MonoBehaviour {
     [SerializeField] List<OrderBubbleUI> orderBubbles;
     [SerializeField] List<OrderDisplayUI> orderDisplays;
 
-    OrderManager orderMngr;
-
     // TEMP: until real book ui framework
     [SerializeField] Transform orderDisplayOpenPos;
     [SerializeField] Transform orderDisplayClosePos;
     
     // TEMP: debug show remaining orders for playtest
     [SerializeField] TextMeshProUGUI numRemainingOrderText;
-
-    void Awake() {
-        orderMngr = GetComponent<OrderManager>();
-
-        orderMngr.OnActiveOrderChanged += UpdateActiveOrderChanged;
-    }
 
     void UpdateActiveOrderChanged(ActiveOrderChangedArgs args) {
         UpdateOrderBubble(args.ActiveOrderIndex, args.NewOrder);
@@ -48,7 +40,7 @@ public class OrderManagerUI : MonoBehaviour {
             orderBubble.Alpha, 1f, TweenManager.OrderBubbleFadeDur, 
             alpha => orderBubbles[activeOrderIndex].Alpha = alpha
         );
-        orderBubble.DisplayNewOrder(order);
+        orderBubble.DisplayOrder(order);
     }
 
     Vector3 targetPos;

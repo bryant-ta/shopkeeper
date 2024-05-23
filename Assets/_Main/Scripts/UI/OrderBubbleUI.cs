@@ -1,13 +1,14 @@
 using System;
+using System.Collections.Generic;
 using Orders;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// TODO: update UI to match new order
 public class OrderBubbleUI : MonoBehaviour {
-    [SerializeField] TextMeshProUGUI orderText;
-    [SerializeField] Image orderTimerBar;
+    [SerializeField] Transform shapeDisplay;
+    [SerializeField] TextMeshProUGUI remainingQuantity;
+    Dictionary<Requirement, TextMeshProUGUI> quantityTextByRequirement;
 
     public float Alpha {
         get => canvasGroup.alpha;
@@ -20,23 +21,13 @@ public class OrderBubbleUI : MonoBehaviour {
 
     void Awake() { canvasGroup = GetComponent<CanvasGroup>(); }
 
-    public void DisplayNewOrder(Order order) {
-        if (displayedOrder != null && displayedOrder != order) {
-            displayedOrder.Timer.TickEvent -= UpdateTimer;
-            displayedOrder.OnProductFulfilled -= UpdateProducts;
-        }
-
+    public void DisplayOrder(Order order) {
         displayedOrder = order;
 
-        // UpdateProducts(.OnProductFulfilled += UpdateProducts;
-        displayedOrder.Timer.TickEvent += UpdateTimer;
+        // order.OnProductFulfilled += UpdateRequirement;
     }
 
-    void UpdateProducts(int quantityRemaining) {
-        orderText.text = displayedOrder.ToString();
-    }
-
-    void UpdateTimer(float percent) {
-        orderTimerBar.fillAmount = percent;
+    void UpdateRequirement(int quantityRemaining) {
+        // orderText.text = displayedOrder.ToString();
     }
 }

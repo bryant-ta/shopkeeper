@@ -9,7 +9,7 @@ public class Deliverer : MonoBehaviour {
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
 
-        Grid.OnStackMove += DisableOnEmpty;
+        Grid.OnRemoveShapes += DisableOnEmpty;
     }
 
     void Start() {
