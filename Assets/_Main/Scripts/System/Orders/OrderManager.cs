@@ -26,7 +26,8 @@ public class OrderManager : MonoBehaviour {
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
 
     [Header("Orderers")]
-    [SerializeField] List<Dock> docks; // TEMP: using just as spawn points until orderer anims
+    [SerializeField] Transform docksContainer; // TEMP: using just as spawn points until orderer anims
+    List<Dock> docks;
     [SerializeField] GameObject ordererObj;
     [SerializeField] Transform ordererSpawnPoint;
 
@@ -44,6 +45,8 @@ public class OrderManager : MonoBehaviour {
 
     void Awake() {
         isOpenPhase = new Util.ValueRef<bool>(false);
+
+        docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
@@ -83,10 +86,10 @@ public class OrderManager : MonoBehaviour {
 
     #region Orderer Management
 
-    public void AssignNextOrdererDelayed(Dock openDock, float delay) {
+    void AssignNextOrdererDelayed(Dock openDock, float delay) {
         Util.DoAfterSeconds(this, delay, () => AssignNextOrderer(openDock), isOpenPhase);
     }
-    public void AssignNextOrderer(Dock openDock) {
+    void AssignNextOrderer(Dock openDock) {
         // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
         // TODO: fix so this isnt needed
         if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
@@ -121,7 +124,7 @@ public class OrderManager : MonoBehaviour {
 
         Destroy(orderer.gameObject); // TEMP: until anim
     }
-    
+
     #endregion
 
     #region Order Generation
