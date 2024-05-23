@@ -11,7 +11,7 @@ public class PlayerInteract : MonoBehaviour {
 
     #region Interact
 
-    Action<GameObject> releaseAction = null;
+    // Action<GameObject> releaseAction = null;
     void Interact() {
         // // Release interactable if previously interacted with one that requires releasing
         // if (releaseAction != null) {

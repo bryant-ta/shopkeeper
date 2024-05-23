@@ -754,7 +754,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useWholeGridAsBounds: 0
   minBoundProductSpawn: {x: -1, y: 0, z: -1}
-  maxBoundProductSpawn: {x: 1, y: 0, z: 1}
+  maxBoundProductSpawn: {x: 0, y: 0, z: 0}
   basicDeliverers:
   - {fileID: 2016905535}
   bulkQuantityMin: 10
@@ -5592,11 +5592,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numTotalOrders: 2
-  numActiveOrders: 1
+  numTotalOrders: 4
+  numActiveOrders: 3
   NextOrderDelay:
-    Min: 2
-    Max: 4
+    Min: 0
+    Max: 0
   numReqsPerOrder:
     Min: 1
     Max: 1
@@ -5609,14 +5609,13 @@ MonoBehaviour:
   chanceReqFromExisting: 1
   chanceReqNeedsColor: 1
   chanceReqNeedsShape: 1
-  docks:
-  - {fileID: 237343045}
+  docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
   ordererSpawnPoint: {fileID: 237343046}
   shapeDifficultyPool:
     outerList:
     - innerList: 01000000
-  <PerfectOrders>k__BackingField: 0
+  perfectOrders: 0
   <NumRemainingOrders>k__BackingField: 0
 --- !u!4 &1273376992
 Transform:

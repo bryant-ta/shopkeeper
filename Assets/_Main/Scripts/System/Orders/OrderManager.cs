@@ -34,12 +34,11 @@ public class OrderManager : MonoBehaviour {
     [Header("Other")]
     [SerializeField] ListList<ShapeDataID> shapeDifficultyPool;
 
-    // true if all orders for the day are fulfilled
-    [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; }
+    [field: Header("ReadOnly")] // ReadOnly unity tag not working
+    [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
     [field: SerializeField, ReadOnly] public int NumRemainingOrders { get; private set; }
 
     Queue<Order> orderBacklog = new();
-    // Order[] activeOrders;
 
     Util.ValueRef<bool> isOpenPhase;
 
@@ -105,9 +104,12 @@ public class OrderManager : MonoBehaviour {
             return;
         }
 
-        Orderer orderer = Instantiate(ordererObj, ordererSpawnPoint).GetComponent<Orderer>();
-        orderer.SetOrder(orderBacklog.Dequeue());
-        orderer.OccupyDock(openDock);
+        if (orderBacklog.Count > 0) {
+            Orderer orderer = Instantiate(ordererObj, ordererSpawnPoint).GetComponent<Orderer>();
+            orderer.SetOrder(orderBacklog.Dequeue());
+            orderer.OccupyDock(openDock);
+        }
+        // TODO: handle when no orders remain gracefully
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {
@@ -145,10 +147,14 @@ public class OrderManager : MonoBehaviour {
                 Requirement req = Random.Range(0f, 1f) < chanceReqFromExisting ?
                     MakeRequirementFromExisting(availableStock) :
                     MakeRequirement();
-                order.Add(req);
+                if (req != null) {
+                    order.Add(req);
+                }
             }
 
-            orderBacklog.Enqueue(order);
+            if (order.Requirements.Count > 0) {
+                orderBacklog.Enqueue(order);
+            }
         }
     }
 
@@ -181,6 +187,11 @@ public class OrderManager : MonoBehaviour {
         ProductID productID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
         int randomQuantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
         int quantity = Math.Min(randomQuantity, availableStock[productID]);
+        if (quantity == 0) {
+            Debug.LogWarning("No available stock to generate orders from!");
+            return null;
+        }
+        
         Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
 
         if (Random.Range(0f, 1f) > chanceReqNeedsColor) { req.Color = null; }
