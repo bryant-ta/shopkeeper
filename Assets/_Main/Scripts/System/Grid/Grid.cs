@@ -265,7 +265,7 @@ public class Grid : MonoBehaviour {
                             return null;
                         }
 
-                        cellsToCheck.Enqueue(checkCoord + offset); // Add cells of current shape to the check queue
+                        cellsToCheck.Enqueue(shape.ShapeData.RootCoord + offset); // Add cells of current shape to the check queue
                     }
 
                     stackedShapes.Add(shape);

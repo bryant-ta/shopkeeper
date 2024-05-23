@@ -754,7 +754,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   useWholeGridAsBounds: 0
   minBoundProductSpawn: {x: -1, y: 0, z: -1}
-  maxBoundProductSpawn: {x: 0, y: 0, z: 0}
+  maxBoundProductSpawn: {x: 1, y: 2, z: 1}
   basicDeliverers:
   - {fileID: 2016905535}
   bulkQuantityMin: 10
@@ -5592,7 +5592,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numTotalOrders: 4
+  numTotalOrders: 5
   numActiveOrders: 3
   NextOrderDelay:
     Min: 0
@@ -5615,7 +5615,7 @@ MonoBehaviour:
   shapeDifficultyPool:
     outerList:
     - innerList: 01000000
-  perfectOrders: 0
+  <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
 --- !u!4 &1273376992
 Transform:

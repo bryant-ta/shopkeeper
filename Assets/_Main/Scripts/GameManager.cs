@@ -97,7 +97,7 @@ public class GameManager : Singleton<GameManager> {
             closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
         }
         
-        Util.DoAfterSeconds(this, 5, () => {
+        Util.DoAfterSeconds(this, 30, () => {
             GlobalClock.SetTimeScale(0f);
         });
     }

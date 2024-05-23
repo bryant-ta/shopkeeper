@@ -56,7 +56,10 @@ public class Ledger : Singleton<Ledger> {
     static void RemoveColorCellCount(Color color, int n) {
         if (CellCountByColor.ContainsKey(color)) {
             CellCountByColor[color] -= n;
-            if (CellCountByColor[color] < 0) { Debug.LogWarning("Attempted to decrease cell count of color below 0."); }
+            if (CellCountByColor[color] < 0) {
+                Debug.LogWarning("Attempted to decrease cell count of color below 0.");
+                CellCountByColor[color] = 0;
+            }
         } else {
             Debug.LogWarning("Attempted to decrease cell count of color that does not exist in ledger.");
         }
