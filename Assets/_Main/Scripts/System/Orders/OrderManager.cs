@@ -105,7 +105,7 @@ public class OrderManager : MonoBehaviour {
         }
 
         if (orderBacklog.Count > 0) {
-            Orderer orderer = Instantiate(ordererObj, ordererSpawnPoint).GetComponent<Orderer>();
+            Orderer orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
             orderer.SetOrder(orderBacklog.Dequeue());
             orderer.OccupyDock(openDock);
         }

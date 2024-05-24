@@ -33,7 +33,7 @@ public class RequirementsDisplayUI : MonoBehaviour {
             Product product = ProductFactory.Instance.CreateProduct(productData, Vector3.zero);
             product.ShapeTransform.gameObject.layer = 0;
             product.ColliderTransform.gameObject.layer = 0;
-            GameObject productDisplay = product.gameObject;
+            GameObject productDisplay = product.ShapeTransform.gameObject;
             Destroy(product);
             productDisplay.transform.SetParent(requirementDisplayPoints[i]);
             productDisplay.transform.localPosition = Vector3.zero;
