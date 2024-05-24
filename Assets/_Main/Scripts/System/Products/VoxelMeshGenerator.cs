@@ -40,33 +40,6 @@ public static class VoxelMeshGenerator {
         MakeVoxelCollider(targetObj, shapeData);
     }
 
-    static Vector3[] SmoothNormals(Vector3[] normals) {
-        Vector3[] smoothedNormals = new Vector3[normals.Length];
-        Dictionary<Vector3, Vector3> _smoothedNormals = new Dictionary<Vector3, Vector3>();
-
-        for (int i = 0; i < vertices.Count; i++) {
-            if (!_smoothedNormals.ContainsKey(vertices[i]))
-                _smoothedNormals.Add(vertices[i], normals[i]);
-            else {
-                Vector3 value = Vector3.zero;
-                _smoothedNormals.TryGetValue(vertices[i], out value);
-                value += normals[i];
-                _smoothedNormals.Remove(vertices[i]);
-                _smoothedNormals.Add(vertices[i], value);
-            }
-        }
-
-        for (int i = 0; i < vertices.Count; i++) {
-            Vector3 n = Vector3.zero;
-            _smoothedNormals.TryGetValue(vertices[i], out n);
-            n.Normalize();
-
-            smoothedNormals[i] = n;
-        }
-
-        return smoothedNormals;
-    }
-
     static void MakeCube(ShapeData shapeData, Vector3Int cubeCoord) {
         // faces
         for (int i = 0; i < 6; i++) { // must match Direction enum
@@ -92,6 +65,31 @@ public static class VoxelMeshGenerator {
         for (int i = 0; i < 8; i++) {
             MakeCapBevel(shapeData, i, cubeCoord);
         }
+    }
+
+    static void MakeFace(Direction dir, Vector3Int cubeCoord) {
+        vertices.AddRange(CubeMeshData.CubeFaceVertices(dir, cubeCoord, scale, bevel));
+        SetQuad();
+    }
+
+    static void MakeEdgeBevel(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
+        if (shapeData.NeighborExists(cubeCoord, dir1)
+            && !shapeData.NeighborExists(cubeCoord, dir2)
+            && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
+            vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
+        } else if (shapeData.NeighborExists(cubeCoord, dir1)
+                   && shapeData.NeighborExists(cubeCoord, dir2)
+                   && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
+            vertices.AddRange(CubeMeshData.ElbowBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
+        } else if (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2)) { // side/top/bot corner
+            vertices.AddRange(CubeMeshData.CornerBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
+        } else if ((dir1 == Direction.Up || dir1 == Direction.Down) && shapeData.NeighborExists(cubeCoord, dir2)) { // top/bot flat
+            vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
+        } else {
+            return;
+        }
+
+        SetQuad();
     }
 
     static void MakeCapBevel(ShapeData shapeData, int vertice, Vector3Int cubeCoord) {
@@ -135,31 +133,6 @@ public static class VoxelMeshGenerator {
         SetQuad();
     }
 
-    static void MakeFace(Direction dir, Vector3Int cubeCoord) {
-        vertices.AddRange(CubeMeshData.CubeFaceVertices(dir, cubeCoord, scale, bevel));
-        SetQuad();
-    }
-
-    static void MakeEdgeBevel(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
-        if (shapeData.NeighborExists(cubeCoord, dir1)
-            && !shapeData.NeighborExists(cubeCoord, dir2)
-            && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
-            vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if (shapeData.NeighborExists(cubeCoord, dir1)
-                   && shapeData.NeighborExists(cubeCoord, dir2)
-                   && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
-            vertices.AddRange(CubeMeshData.ElbowBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2)) { // side/top/bot corner
-            vertices.AddRange(CubeMeshData.CornerBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if ((dir1 == Direction.Up || dir1 == Direction.Down) && shapeData.NeighborExists(cubeCoord, dir2)) { // top/bot flat
-            vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else {
-            return;
-        }
-
-        SetQuad();
-    }
-
     static Vector4[] CalculateTangentsFromNormals(Vector3[] normals) {
         Vector4[] tangents = new Vector4[vertices.Count];
         for (int i = 0; i < triangles.Count; i += 3) {
@@ -180,6 +153,33 @@ public static class VoxelMeshGenerator {
         } else {
             return Quaternion.Euler(-90f, 0f, 0f) * n;
         }
+    }
+
+    static Vector3[] SmoothNormals(Vector3[] normals) {
+        Vector3[] smoothedNormals = new Vector3[normals.Length];
+        Dictionary<Vector3, Vector3> _smoothedNormals = new Dictionary<Vector3, Vector3>();
+
+        for (int i = 0; i < vertices.Count; i++) {
+            if (!_smoothedNormals.ContainsKey(vertices[i]))
+                _smoothedNormals.Add(vertices[i], normals[i]);
+            else {
+                Vector3 value = Vector3.zero;
+                _smoothedNormals.TryGetValue(vertices[i], out value);
+                value += normals[i];
+                _smoothedNormals.Remove(vertices[i]);
+                _smoothedNormals.Add(vertices[i], value);
+            }
+        }
+
+        for (int i = 0; i < vertices.Count; i++) {
+            Vector3 n = Vector3.zero;
+            _smoothedNormals.TryGetValue(vertices[i], out n);
+            n.Normalize();
+
+            smoothedNormals[i] = n;
+        }
+
+        return smoothedNormals;
     }
 
     // Call once after adding vertices of a quad to vertices array. Expects vertices added from top right to bottom left (ccw)

@@ -130,7 +130,7 @@ Transform:
   - {fileID: 6290203767441872665}
   - {fileID: 6290203767494797369}
   m_Father: {fileID: 7792300833620461062}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &147160742436527082
 MonoBehaviour:
@@ -279,6 +279,54 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridLinesFadeDistance: 3
+--- !u!1 &7141972749315762966
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 538398961451630581}
+  - component: {fileID: 3802450337205120314}
+  m_Layer: 0
+  m_Name: Mold
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &538398961451630581
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7141972749315762966}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.55, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7792300833620461062}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3802450337205120314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7141972749315762966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7aa42222a1c2e44ab4e58e5844a368b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scale: 1
+  lineRendererPrefab: {fileID: 7019388057183065858, guid: 57326201eb1a8d449bb79caae7bd2aaf, type: 3}
+  solidMaterial: {fileID: -3963241562183589234, guid: 81a18cf1f4f018548baf11c5f85e0e11, type: 3}
+  dottedMaterial: {fileID: 2100000, guid: e874f26a6402e984285e04e3897cff14, type: 2}
 --- !u!1 &7792300833620461063
 GameObject:
   m_ObjectHideFlags: 0
@@ -311,6 +359,7 @@ Transform:
   - {fileID: 7792300834956233486}
   - {fileID: 147160742613606796}
   - {fileID: 7792300833795536532}
+  - {fileID: 538398961451630581}
   - {fileID: 147160742436527083}
   m_Father: {fileID: 0}
   m_RootOrder: 0

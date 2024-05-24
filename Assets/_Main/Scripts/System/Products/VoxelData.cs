@@ -21,7 +21,7 @@ public enum Direction2D {
 public static class CubeMeshData {
     // All these arrays must match order of Direction enum
     // DON'T CHANGE ORDER!
-    static readonly Vector3[] vertices = {
+    public static readonly Vector3[] vertices = {
         new Vector3(1, 1, 1),
         new Vector3(-1, 1, 1),
         new Vector3(-1, -1, 1),
@@ -80,7 +80,7 @@ public static class CubeMeshData {
 
     #region Bevel Edges
 
-    static readonly int[][] bevelEdges = {
+    public static readonly int[][] bevelEdges = {
         new int[] {1, 2}, // NW
         new int[] {0, 3}, // EN
         new int[] {5, 6}, // SE
