@@ -14,26 +14,12 @@ public class MoldRenderer : MonoBehaviour {
 
     void Awake() {
         mainCamera = Camera.main;
-        Init(
-            new ShapeData() {
-                ID = ShapeDataID.L2x2,
-                ShapeOffsets = new List<Vector3Int>() {
-                    new(0, 0, 0),
-                    new(1, 0, 0),
-                    new(2, 0, 0),
-                    new(0, 0, 1),
-                    new(0, 0, 2),
-                }
-            }
-        );
     }
 
-    public void Init(ShapeData shapeData) {
+    public void Render(ShapeData shapeData) {
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
             MakeCubeOutline(shapeData, offset);
         }
-
-        UpdateLineMaterials();
     }
 
     void MakeCubeOutline(ShapeData shapeData, Vector3Int cubeCoord) {
@@ -77,9 +63,10 @@ public class MoldRenderer : MonoBehaviour {
         }
     }
 
-    void Update() {
-        UpdateLineMaterials();
-    }
+    // TODO: figure out better way to draw "back" lines as dotted
+    // void Update() {
+    //     UpdateLineMaterials();
+    // }
 
     void UpdateLineMaterials() {
         // shift center of cube for dot test to avoid results close to 0 and capture "more" of the cube's edges

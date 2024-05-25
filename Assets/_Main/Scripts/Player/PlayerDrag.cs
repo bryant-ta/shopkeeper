@@ -234,8 +234,7 @@ public class PlayerDrag : MonoBehaviour {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
         
-        if (clickInputArgs.TargetObj.CompareTag("Trash")) { ;
-            Trash trash = clickInputArgs.TargetObj.GetComponent<Trash>();
+        if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) { ;
             trash.TrashProducts(heldShapes, DragGrid);
             isHolding = false;
             return;

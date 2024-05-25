@@ -148,7 +148,7 @@ public class OrderManager : MonoBehaviour {
                     MakeRequirementFromExisting(availableStock) :
                     MakeRequirement();
                 if (req != null) {
-                    order.Add(req);
+                    order.AddRequirement(req);
                 }
             }
 
