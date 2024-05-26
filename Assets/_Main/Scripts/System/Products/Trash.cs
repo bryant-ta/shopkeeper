@@ -10,16 +10,16 @@ public class Trash : MonoBehaviour {
         he.OnHoverExit += Close;
     }
     
-    public void TrashProduct(IGridShape shape, Grid originGrid) {
+    public void TrashShape(IGridShape shape, Grid originGrid) {
         originGrid.DestroyShape(shape);
         if (shape.ColliderTransform.TryGetComponent(out Product product)) {
             Ledger.RemoveStockedProduct(product);
         }
     }
 
-    public void TrashProducts(List<IGridShape> shapes, Grid originGrid) {
+    public void TrashShapes(List<IGridShape> shapes, Grid originGrid) {
         foreach (IGridShape shape in shapes) {
-            TrashProduct(shape, originGrid);
+            TrashShape(shape, originGrid);
         }
     }
 

@@ -243,7 +243,7 @@ public class PlayerDrag : MonoBehaviour {
             }
             return;
         } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) { ;
-            trash.TrashProducts(heldShapes, DragGrid);
+            trash.TrashShapes(heldShapes, DragGrid);
             isHolding = false;
             return;
         }

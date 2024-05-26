@@ -46,7 +46,13 @@ public class Orderer : MonoBehaviour {
             if (Order.Fulfill(product.ID)) {
                 submittedProducts.Add(product);
                 SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
+            } else {
+                Debug.LogError("Invalid product given to Order when check should have prevented this!");
             }
+        }
+
+        if (grid != null) { // Destroy fulfilled product for bag orders
+            Ref.Instance.Trash.TrashShapes(shapes, Ref.Player.PlayerDrag.DragGrid);
         }
 
         if (Order.IsFinished()) {
@@ -100,7 +106,7 @@ public class Orderer : MonoBehaviour {
         LeaveDock();
     }
     void OrderFailed() {
-        // TODO: effects of failing an order
+        // TODO: game effects of failing an order
 
         // TODO: some visual for fulfill vs. fail
         LeaveDock();

@@ -13,6 +13,7 @@ public class Ref : Singleton<Ref> {
     
     public DeliveryManager DeliveryMngr;
     public OrderManager OrderMngr;
+    public Trash Trash;
 
     void Awake() {
         _player = player;
