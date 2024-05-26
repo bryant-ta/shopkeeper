@@ -4,16 +4,16 @@ using Orders;
 using TMPro;
 using UnityEngine;
 
-public class RequirementsDisplayUI : MonoBehaviour {
+public class RequirementsUI : MonoBehaviour {
     [SerializeField] List<Transform> requirementDisplayPoints;
     [SerializeField] List<TextMeshProUGUI> remainingQuantityTexts;
 
     void Awake() {
         Orderer orderer = GetComponentInParent<Orderer>();
-        orderer.OnOrderSet += SetRequirements;
+        orderer.OnOrderSet += DisplayRequirements;
     }
 
-    void SetRequirements(Order order) {
+    void DisplayRequirements(Order order) {
         for (int i = 0; i < order.Requirements.Count; i++) {
             Requirement req = order.Requirements[i];
             if (req.Color == null || req.ShapeDataID == null) {

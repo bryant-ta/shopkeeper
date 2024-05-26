@@ -13,6 +13,7 @@ public class Orderer : MonoBehaviour {
     List<Product> submittedProducts = new();
 
     public event Action<Order> OnOrderSet;
+    public event Action<Product> OnInvalidProductSet;
 
     void Awake() {
         HoverEvent he = GetComponent<HoverEvent>();
@@ -75,7 +76,7 @@ public class Orderer : MonoBehaviour {
         List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
 
         if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
-            // TODO: display invalid product that is currently in held shapes
+            OnInvalidProductSet?.Invoke(invalidProduct);
 
             if (grid != null) {
                 grid.IsLocked = true;
@@ -94,7 +95,7 @@ public class Orderer : MonoBehaviour {
         return true;
     }
     void HoverExit() {
-        // TODO: undisplay invalid product
+        OnInvalidProductSet?.Invoke(null);
 
         if (grid != null) {
             grid.IsLocked = false;
