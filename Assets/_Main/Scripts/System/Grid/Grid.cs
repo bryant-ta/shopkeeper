@@ -22,6 +22,7 @@ public class Grid : MonoBehaviour {
 
     [Title("Other")]
     [SerializeField] bool smoothPlaceMovement = true;
+    public bool IsLocked = false;
 
     Dictionary<Vector3Int, Cell> cells = new();
     public Dictionary<Vector3Int, Cell> Cells => cells;
@@ -61,6 +62,7 @@ public class Grid : MonoBehaviour {
     #region Manipulation
 
     public bool PlaceShape(Vector3Int targetCoord, IGridShape shape, bool ignoreZone = false) {
+        if (IsLocked) return false;
         if (!ValidateShapePlacement(targetCoord, shape, ignoreZone).IsValid) return false;
         PlaceShapeNoValidate(targetCoord, shape);
 
@@ -101,6 +103,7 @@ public class Grid : MonoBehaviour {
     // Placement is relative to first shape's root coord placed at targetCoord.
     public bool PlaceShapes(Vector3Int targetCoord, List<IGridShape> shapes, bool ignoreZone = false) {
         if (shapes.Count == 0) return false;
+        if (IsLocked) return false;
         if (!ValidateShapesPlacement(targetCoord, shapes, ignoreZone).IsValid) return false;
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
@@ -125,7 +128,9 @@ public class Grid : MonoBehaviour {
             return false;
         }
 
-        // Check shape move rules
+        if (IsLocked) return false;
+
+        // Check zone/shape move rules
         if (!ignoreZone) {
             for (int i = 0; i < shapes.Count; i++) {
                 if (!CheckZones(shapes[i].ShapeData.RootCoord, prop => prop.CanTake)) {

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Util : MonoBehaviour {
@@ -59,5 +60,19 @@ public class Util : MonoBehaviour {
         }
 
         return DateTime.Compare(t1, t2);
+    }
+
+    public static List<Product> GetProductsFromShapes(List<IGridShape> shapes) {
+        List<Product> heldProducts = new();
+        foreach (IGridShape shape in shapes) {
+            if (shape.ColliderTransform.TryGetComponent(out Product product)) {
+                heldProducts.Add(product);
+            } else {
+                Debug.LogError("Unexpected input in held shapes: shape is missing Product component.");
+                return null;
+            }
+        }
+
+        return heldProducts;
     }
 }

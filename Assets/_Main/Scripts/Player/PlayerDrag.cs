@@ -234,11 +234,20 @@ public class PlayerDrag : MonoBehaviour {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
         
-        if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) { ;
+        if (clickInputArgs.TargetObj.TryGetComponent(out Orderer orderer)) { ;
+            if (orderer.TryFulfillOrder(heldShapes)) {
+                isHolding = false;
+            } else {
+                TweenManager.Shake(heldShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            }
+            return;
+        } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) { ;
             trash.TrashProducts(heldShapes, DragGrid);
             isHolding = false;
             return;
         }
+        
         if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
@@ -262,7 +271,7 @@ public class PlayerDrag : MonoBehaviour {
 
             return;
         }
-
+        
         for (int i = 0; i < heldShapes.Count; i++) {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = true;

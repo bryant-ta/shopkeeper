@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using Orders;
 using UnityEngine;
 
+[RequireComponent(typeof(HoverEvent))]
 public class Orderer : MonoBehaviour {
     public Order Order { get; private set; }
     public Dock AssignedDock { get; private set; }
-
-    [SerializeField] PhysicalButton submitButton;
-    [SerializeField] PhysicalButton rejectButton;
 
     Grid grid;
 
@@ -17,12 +15,13 @@ public class Orderer : MonoBehaviour {
     public event Action<Order> OnOrderSet;
 
     void Awake() {
-        submitButton.OnInteract += SubmitOrder;
-        rejectButton.OnInteract += RejectOrder;
-        
+        HoverEvent he = GetComponent<HoverEvent>();
+        he.OnHoverEnter += HoverEnter;
+        he.OnHoverExit += HoverExit;
+
         grid = gameObject.GetComponentInChildren<Grid>();
         if (grid != null) {
-            grid.OnPlaceShapes += TryFulfillOrder;
+            grid.OnPlaceShapes += DoTryFulfillOrderList;
             grid.OnRemoveShapes += RemoveFromOrder;
         }
     }
@@ -35,16 +34,26 @@ public class Orderer : MonoBehaviour {
         Order.OnOrderFailed += OrderFailed;
     }
 
-    public void TryFulfillOrder(List<IGridShape> shapes) {
-        foreach (IGridShape shape in shapes) {
-            if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-                if (Order.TryFulfill(product.ID)) {
-                    SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
-                }
+    void DoTryFulfillOrderList(List<IGridShape> shapes) { TryFulfillOrder(shapes, true); } // checked already in HoverEnter()
+    public bool TryFulfillOrder(List<IGridShape> shapes, bool skipCheck = false) {
+        List<Product> products = Util.GetProductsFromShapes(shapes);
 
+        if (!skipCheck && !CheckOrderInput(products, out Product invalidProduct)) {
+            return false;
+        }
+
+        foreach (Product product in products) {
+            if (Order.Fulfill(product.ID)) {
                 submittedProducts.Add(product);
+                SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
             }
         }
+
+        if (Order.IsFinished()) {
+            Order.Succeed();
+        }
+
+        return true;
     }
     public void RemoveFromOrder(List<IGridShape> shapes) {
         foreach (IGridShape shape in shapes) {
@@ -55,14 +64,47 @@ public class Orderer : MonoBehaviour {
         }
     }
 
-    void SubmitOrder() { Order.Submit(); }
-    void RejectOrder() { Order.Reject(); }
+    public void HoverEnter() {
+        List<IGridShape> heldShapes = Ref.Player.PlayerDrag.DragGrid.AllShapes();
+        List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
+
+        if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
+            // TODO: display invalid product that is currently in held shapes
+
+            if (grid != null) {
+                grid.IsLocked = true;
+            }
+        }
+    }
+    public bool CheckOrderInput(List<Product> products, out Product invalidProduct) {
+        invalidProduct = null;
+        foreach (Product product in products) {
+            if (!Order.Check(product.ID)) {
+                invalidProduct = product;
+                return false;
+            }
+        }
+
+        return true;
+    }
+    void HoverExit() {
+        // TODO: undisplay invalid product
+
+        if (grid != null) {
+            grid.IsLocked = false;
+        }
+    }
 
     void OrderSucceeded() {
         // TODO: some visual for fulfill vs. fail
         LeaveDock();
     }
-    void OrderFailed() { LeaveDock(); }
+    void OrderFailed() {
+        // TODO: effects of failing an order
+
+        // TODO: some visual for fulfill vs. fail
+        LeaveDock();
+    }
 
     public void SetOrder(Order order) {
         if (Order != null) {

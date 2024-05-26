@@ -45,7 +45,7 @@ public class Order {
         }
     }
 
-    public bool TryFulfill(ProductID productID) {
+    public bool Fulfill(ProductID productID) {
         // Match submitted productID
         bool acceptedSubmit = false;
         for (int i = 0; i < Requirements.Count; i++) {
@@ -72,17 +72,21 @@ public class Order {
         }
     }
 
+    // returns true if productID matches at least one requirement
+    public bool Check(ProductID productID) {
+        for (int i = 0; i < Requirements.Count; i++) {
+            Requirement req = Requirements[i];
+            if (req.Match(productID)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     #region Submission
 
-    public virtual void Submit() {
-        if (Check()) {
-            Succeed();
-        } else {
-        }
-    }
-    public void Reject() { }
-
-    bool Check() {
+    public virtual bool IsFinished() {
         foreach (Requirement req in Requirements) {
             if (!req.IsFulfilled) {
                 return false;
@@ -92,12 +96,15 @@ public class Order {
         return true;
     }
 
-    protected void Succeed() {
+    public void Succeed() {
         StopOrder();
         IsFulfilled = true;
         OnOrderSucceeded?.Invoke();
     }
-    void Fail() { OnOrderFailed?.Invoke(); }
+    void Fail() { 
+        StopOrder();
+        OnOrderFailed?.Invoke(); 
+    }
 
     #endregion
 
@@ -150,14 +157,7 @@ public class MoldOrder : Order {
 
     #region Submission
 
-    public override void Submit() {
-        if (Check()) {
-            Succeed();
-        } else {
-        }
-    }
-
-    bool Check() {
+    public override bool IsFinished() {
         if (Mold == null) return true;
 
         // Mold must be fully occupied
