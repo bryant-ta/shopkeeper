@@ -6,6 +6,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
 public class PlayerDrag : MonoBehaviour {
+    [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
 
     [SerializeField] Transform rotationPivot;
@@ -119,7 +120,7 @@ public class PlayerDrag : MonoBehaviour {
             // Drag grid follows cursor directly
             string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
             DOTween.Kill(tweenID);
-            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, -clickInputArgs.HitPoint.y, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
+            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
             
             OnDrag?.Invoke(clickInputArgs.HitPoint);
             return;

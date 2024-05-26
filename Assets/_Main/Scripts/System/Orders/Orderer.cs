@@ -52,7 +52,7 @@ public class Orderer : MonoBehaviour {
             }
         }
 
-        if (grid != null) { // Destroy fulfilled product for bag orders
+        if (grid == null) { // Destroy fulfilled product for bag orders
             Ref.Instance.Trash.TrashShapes(shapes, Ref.Player.PlayerDrag.DragGrid);
         }
 

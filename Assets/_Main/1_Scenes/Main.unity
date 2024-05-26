@@ -12310,6 +12310,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 730feb2c7e5b8424a8035d551d7f977a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hoverHeight: 0.5
   <DragGrid>k__BackingField: {fileID: 827863211}
   rotationPivot: {fileID: 1244452520}
   selectedOutlineColor: {r: 0.1672837, g: 0.6981132, b: 0.6950798, a: 1}
