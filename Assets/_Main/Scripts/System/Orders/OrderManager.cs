@@ -167,7 +167,7 @@ public class OrderManager : MonoBehaviour {
             req.Color = c[Random.Range(0, c.Count)];
         }
 
-        // if (Random.Range(0, 2) < 1) {
+        // if (Random.Range(0, 2) <= 1) {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
         if (Random.Range(0f, 1f) <= chanceReqNeedsShape) {
@@ -194,9 +194,10 @@ public class OrderManager : MonoBehaviour {
         
         Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
 
+        // equality check is flipped vs. MakeRequirement bc here we overwrite req values with null instead of filling them out
         if (Random.Range(0f, 1f) > chanceReqNeedsColor) { req.Color = null; }
 
-        // if (Random.Range(0f, 1f) < 1) {
+        // if (Random.Range(0f, 1f) > 1) {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
         if (Random.Range(0f, 1f) > chanceReqNeedsShape) { req.ShapeDataID = null; }

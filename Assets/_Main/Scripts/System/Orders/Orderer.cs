@@ -7,6 +7,9 @@ public class Orderer : MonoBehaviour {
     public Order Order { get; private set; }
     public Dock AssignedDock { get; private set; }
 
+    [SerializeField] PhysicalButton submitButton;
+    [SerializeField] PhysicalButton rejectButton;
+
     Grid grid;
 
     List<Product> submittedProducts = new();
@@ -14,6 +17,9 @@ public class Orderer : MonoBehaviour {
     public event Action<Order> OnOrderSet;
 
     void Awake() {
+        submitButton.OnInteract += SubmitOrder;
+        rejectButton.OnInteract += RejectOrder;
+        
         grid = gameObject.GetComponentInChildren<Grid>();
         if (grid != null) {
             grid.OnPlaceShapes += TryFulfillOrder;
@@ -49,9 +55,8 @@ public class Orderer : MonoBehaviour {
         }
     }
 
-    // TEMP: until working on real buttons for Orderer submit/reject
-    public void SubmitOrder() { Order.Submit(); }
-    public void RejectOrder() { Order.Reject(); }
+    void SubmitOrder() { Order.Submit(); }
+    void RejectOrder() { Order.Reject(); }
 
     void OrderSucceeded() {
         // TODO: some visual for fulfill vs. fail

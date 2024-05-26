@@ -72,6 +72,16 @@ public class Order {
         }
     }
 
+    #region Submission
+
+    public virtual void Submit() {
+        if (Check()) {
+            Succeed();
+        } else {
+        }
+    }
+    public void Reject() { }
+
     bool Check() {
         foreach (Requirement req in Requirements) {
             if (!req.IsFulfilled) {
@@ -82,23 +92,16 @@ public class Order {
         return true;
     }
 
-    public virtual void Submit() {
-        if (Check()) {
-            Succeed();
-        } else {
-            
-        }
-    }
-    public void Reject() {
-        
-    }
-
     protected void Succeed() {
         StopOrder();
         IsFulfilled = true;
         OnOrderSucceeded?.Invoke();
     }
     void Fail() { OnOrderFailed?.Invoke(); }
+
+    #endregion
+
+    #region Helper
 
     // requirement input should have everything set, including target quantity
     public void AddRequirement(Requirement requirement) {
@@ -132,16 +135,28 @@ public class Order {
 
         return t;
     }
+
+    #endregion
 }
 
 public class MoldOrder : Order {
     public Mold Mold { get; private set; }
-    
-    public MoldOrder(int minTimePerOrder, int timePerProduct, int valuePerProduct) : base(minTimePerOrder, timePerProduct, valuePerProduct) {
+
+    public MoldOrder(int minTimePerOrder, int timePerProduct, int valuePerProduct) :
+        base(minTimePerOrder, timePerProduct, valuePerProduct) {
     }
-    
+
     public void AddMold(Mold mold) { Mold = mold; }
-    
+
+    #region Submission
+
+    public override void Submit() {
+        if (Check()) {
+            Succeed();
+        } else {
+        }
+    }
+
     bool Check() {
         if (Mold == null) return true;
 
@@ -164,13 +179,7 @@ public class MoldOrder : Order {
 
         return reqsPassed.All(x => x);
     }
-    
-    public override void Submit() {
-        if (Check()) {
-            Succeed();
-        } else {
-            
-        }
-    }
+
+    #endregion
 }
 }

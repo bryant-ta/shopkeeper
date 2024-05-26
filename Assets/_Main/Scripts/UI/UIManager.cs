@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI perfectOrdersText;
     [SerializeField] TextMeshProUGUI productsUnlockedText;
-    [SerializeField] Button nextDayButton;
+    [SerializeField] PhysicalButton nextDayButton;
 
     [Title("Pause Menu")]
     [SerializeField] GameObject pauseMenuPanel;
