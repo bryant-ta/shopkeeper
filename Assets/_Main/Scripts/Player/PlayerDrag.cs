@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
-using EventManager;
 using TriInspector;
 using UnityEngine;
 

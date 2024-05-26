@@ -16,7 +16,7 @@ public class InvalidProductOrderUI : MonoBehaviour {
             productDisplay.transform.localPosition = Vector3.zero;
             productDisplay.transform.localScale *= 0.5f;
         } else {
-            // Destroy(productDisplay);
+            Destroy(productDisplay);
         }
     }
 }

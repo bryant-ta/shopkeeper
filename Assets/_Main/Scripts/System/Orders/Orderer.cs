@@ -72,7 +72,6 @@ public class Orderer : MonoBehaviour {
     }
 
     public void HoverEnter() {
-        print("aaa");
         List<IGridShape> heldShapes = Ref.Player.PlayerDrag.DragGrid.AllShapes();
         List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
 
@@ -85,7 +84,6 @@ public class Orderer : MonoBehaviour {
         }
     }
     void HoverExit() {
-        print("b");
         OnInvalidProductSet?.Invoke(null);
 
         if (grid != null) {
