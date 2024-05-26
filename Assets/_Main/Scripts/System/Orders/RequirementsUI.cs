@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Orders;
 using TMPro;
@@ -19,29 +18,22 @@ public class RequirementsUI : MonoBehaviour {
             if (req.Color == null || req.ShapeDataID == null) {
                 continue;
             }
-            
+
             requirementDisplayPoints[i].gameObject.SetActive(true);
 
-            Color c = req.Color ?? Color.clear;
-            ShapeDataID s = req.ShapeDataID ?? ShapeDataID.Custom;
+            Color color = req.Color ?? Color.clear;
+            Pattern pattern = req.Pattern ?? Pattern.None;
+            ShapeDataID shapeDataID = req.ShapeDataID ?? ShapeDataID.Custom;
+            // TODO: handle null (default) values
 
-            SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                c,
-                Pattern.None, // TEMP: until implementing pattern
-                ShapeDataLookUp.LookUp[s]
-            );
-            Product product = ProductFactory.Instance.CreateProduct(productData, Vector3.zero);
-            product.ShapeTransform.gameObject.layer = 0;
-            product.ColliderTransform.gameObject.layer = 0;
-            GameObject productDisplay = product.ShapeTransform.gameObject;
-            Destroy(product);
+            GameObject productDisplay = ProductFactory.Instance.CreateProductDisplay(color, pattern, ShapeDataLookUp.LookUp[shapeDataID]);
             productDisplay.transform.SetParent(requirementDisplayPoints[i]);
             productDisplay.transform.localPosition = Vector3.zero;
             productDisplay.transform.localScale *= 0.5f;
-            
+
             UpdateQuantityText(i, req.QuantityUntilTarget());
         }
-        
+
         order.OnProductFulfilled += UpdateQuantityText;
     }
 

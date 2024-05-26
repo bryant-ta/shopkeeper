@@ -11,7 +11,7 @@ public static class VoxelMeshGenerator {
     /// <summary>
     /// Generates and sets mesh/colliders for voxel objects described by ShapeData. 
     /// </summary>
-    public static void Generate(GameObject targetObj, ShapeData shapeData) {
+    public static void Generate(GameObject targetObj, ShapeData shapeData, bool generateColliders = true) {
         vertices.Clear();
         triangles.Clear();
         lastVCount = -1;
@@ -37,7 +37,9 @@ public static class VoxelMeshGenerator {
         // Outline shader uses smooth normals
         mesh.SetUVs(7, SmoothNormals(mesh.normals));
 
-        MakeVoxelCollider(targetObj, shapeData);
+        if (generateColliders) {
+            MakeVoxelCollider(targetObj, shapeData);
+        }
     }
 
     static void MakeCube(ShapeData shapeData, Vector3Int cubeCoord) {

@@ -72,6 +72,7 @@ public class Orderer : MonoBehaviour {
     }
 
     public void HoverEnter() {
+        print("aaa");
         List<IGridShape> heldShapes = Ref.Player.PlayerDrag.DragGrid.AllShapes();
         List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
 
@@ -81,6 +82,14 @@ public class Orderer : MonoBehaviour {
             if (grid != null) {
                 grid.IsLocked = true;
             }
+        }
+    }
+    void HoverExit() {
+        print("b");
+        OnInvalidProductSet?.Invoke(null);
+
+        if (grid != null) {
+            grid.IsLocked = false;
         }
     }
     public bool CheckOrderInput(List<Product> products, out Product invalidProduct) {
@@ -93,13 +102,6 @@ public class Orderer : MonoBehaviour {
         }
 
         return true;
-    }
-    void HoverExit() {
-        OnInvalidProductSet?.Invoke(null);
-
-        if (grid != null) {
-            grid.IsLocked = false;
-        }
     }
 
     void OrderSucceeded() {

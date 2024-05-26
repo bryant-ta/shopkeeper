@@ -1,7 +1,9 @@
+using MK.Toon;
 using UnityEngine;
 
 public class ProductFactory : Singleton<ProductFactory> {
     [SerializeField] GameObject productBase;
+    [SerializeField] GameObject productDisplayBase;
 
     public Product CreateProduct(SO_Product productData, Vector3 position) {
         GameObject productObj = Instantiate(productBase, position, Quaternion.identity);
@@ -14,6 +16,18 @@ public class ProductFactory : Singleton<ProductFactory> {
         product.Init(productData);
 
         return product;
+    }
+    
+    // Just creates the mesh of a product, used mainly for displaying a product.
+    public GameObject CreateProductDisplay(Color color, Pattern pattern, ShapeData shapeData) {
+        GameObject productDisplayObj = Instantiate(productDisplayBase);
+        VoxelMeshGenerator.Generate(productDisplayObj, shapeData, false);
+        
+        Material mat = productDisplayObj.GetComponent<MeshRenderer>().material;
+        Properties.albedoColor.SetValue(mat, color);
+        // MK.Toon.Properties.sketchMap.SetValue(mat, pattern); // TODO: Pattern lookup
+
+        return productDisplayObj;
     }
 
     // public Product CreateRandomProduct(Vector3 position) {

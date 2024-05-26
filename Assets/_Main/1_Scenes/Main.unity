@@ -3122,6 +3122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   productBase: {fileID: 7749960157126138598, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
+  productDisplayBase: {fileID: 3929358183220339599, guid: f1761134525bd7d4992856971de4f624, type: 3}
 --- !u!114 &525756791
 MonoBehaviour:
   m_ObjectHideFlags: 0
