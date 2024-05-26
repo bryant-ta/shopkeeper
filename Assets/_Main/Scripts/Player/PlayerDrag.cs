@@ -111,17 +111,23 @@ public class PlayerDrag : MonoBehaviour {
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
         if (!SelectTargetGrid(clickInputArgs)) {
-            // Set invalid outline
             List<IGridShape> heldShapes = DragGrid.AllShapes();
-            for (int i = 0; i < heldShapes.Count; i++) {
-                heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+            if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
+                for (int i = 0; i < heldShapes.Count; i++) {
+                    heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth);
+                }
+            } else { // Set invalid outline
+                for (int i = 0; i < heldShapes.Count; i++) {
+                    heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+                }
             }
-            
+
             // Drag grid follows cursor directly
             string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
             DOTween.Kill(tweenID);
-            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
-            
+            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID)
+                .SetEase(Ease.OutQuad);
+
             OnDrag?.Invoke(clickInputArgs.HitPoint);
             return;
         }
@@ -147,7 +153,7 @@ public class PlayerDrag : MonoBehaviour {
         // Tries to find a valid position above baseSelectedCellCoord to fit shapes in drag grid
         List<IGridShape> heldShapes = DragGrid.AllShapes();
         Grid.PlacementValidations validations = targetGrid.ValidateShapesPlacement(selectedCellCoord - selectedShapeCellOffset, heldShapes);
-        
+
         // Raise selected cell coord until held shapes do not overlap anything
         bool hasOverlap = true;
         while (hasOverlap && selectedCellCoord.y <= targetGrid.MaxY) {
@@ -233,25 +239,26 @@ public class PlayerDrag : MonoBehaviour {
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
-        
-        if (clickInputArgs.TargetObj.TryGetComponent(out Orderer orderer)) { ;
-            if (orderer.TryFulfillOrder(heldShapes)) {
+
+        if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) {
+            if (bag.orderer.TryFulfillOrder(heldShapes)) {
                 isHolding = false;
             } else {
                 TweenManager.Shake(heldShapes);
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             }
+
             return;
-        } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) { ;
+        } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) {
             trash.TrashShapes(heldShapes, DragGrid);
             isHolding = false;
             return;
         }
-        
+
         if (!SelectTargetGrid(clickInputArgs)) {
             return;
         }
-        
+
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
@@ -271,7 +278,7 @@ public class PlayerDrag : MonoBehaviour {
 
             return;
         }
-        
+
         for (int i = 0; i < heldShapes.Count; i++) {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = true;

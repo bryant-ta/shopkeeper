@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlayArea
   - Trash
+  - OrderBag
   layers:
   - Default
   - TransparentFX

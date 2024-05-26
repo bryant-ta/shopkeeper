@@ -263,9 +263,10 @@ GameObject:
   - component: {fileID: 384548702336372765}
   - component: {fileID: 362917864834053522}
   - component: {fileID: 1008005159100895875}
+  - component: {fileID: 2841348887769406053}
   m_Layer: 0
   m_Name: Bag
-  m_TagString: Untagged
+  m_TagString: OrderBag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -348,6 +349,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   he: {fileID: 6071217619679705435}
+--- !u!114 &2841348887769406053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5272810786942729092}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d94384c9c3302804384c28d99d86959f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <orderer>k__BackingField: {fileID: 7792300833620461061}
 --- !u!1 &6060212821678278271
 GameObject:
   m_ObjectHideFlags: 0
