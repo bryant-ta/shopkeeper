@@ -14,6 +14,10 @@ public class Mold {
     public void InitByOrderer(Grid grid, MoldRenderer moldRenderer) {
         Grid = grid;
         ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
+        int cwRandomRotationTimes = Random.Range(0, 4);
+        for (int i = 0; i < cwRandomRotationTimes; i++) {
+            ShapeData.RotateShape(true);
+        }
 
         this.moldRenderer = moldRenderer;
         this.moldRenderer.Render(ShapeData);

@@ -1378,7 +1378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useWholeGridAsBounds: 0
+  useWholeGridAsBounds: 1
   minBoundProductSpawn: {x: -1, y: 0, z: -1}
   maxBoundProductSpawn: {x: 1, y: 2, z: 1}
   basicDeliverers:
@@ -3398,7 +3398,7 @@ MonoBehaviour:
     DayClockTickDurationSeconds: 1
     DayclockTickStepMinutes: 10
     DeliveryPhaseClockTime: 8:00AM
-    OpenPhaseClockTime: 8:10AM
+    OpenPhaseClockTime: 8:00AM
     ClosePhaseClockTime: 9:00AM
   isPaused: 0
   worldGrid: {fileID: 976189241}
@@ -7455,7 +7455,7 @@ MonoBehaviour:
     - innerList: 01000000
   moldShapeDifficultyPool:
     outerList:
-    - innerList: 15000000190000000e000000
+    - innerList: 15000000
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
 --- !u!4 &1273376992

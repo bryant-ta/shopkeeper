@@ -11,6 +11,13 @@ public class ShapeData {
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
     public int Size => ShapeOffsets?.Count ?? 0;
 
+    public ShapeData() { }
+    public ShapeData(ShapeData original) {
+        ID = original.ID;
+        RootCoord = original.RootCoord;
+        ShapeOffsets = new List<Vector3Int>(original.ShapeOffsets);
+    }
+
     // CW/CCW rotation around (0,0,0). No physical gameobject rotation.
     public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
@@ -48,7 +55,7 @@ public class ShapeData {
             return ShapeDataID.None;
         }
 
-        foreach (KeyValuePair<ShapeDataID, ShapeData> kv in ShapeDataLookUp.LookUp) {
+        foreach (KeyValuePair<ShapeDataID, ShapeData> kv in ShapeDataLookUp.ShapeDataByID) {
             // First match offsets length
             if (shapeOffsets.Count != kv.Value.ShapeOffsets.Count) continue;
 
@@ -99,7 +106,7 @@ public enum ShapeDataID {
 }
 
 public static class ShapeDataLookUp {
-    public static Dictionary<ShapeDataID, ShapeData> LookUp = new() {
+    public static readonly Dictionary<ShapeDataID, ShapeData> ShapeDataByID = new() {
         {
             ShapeDataID.O1, new ShapeData() {
                 ID = ShapeDataID.O1,
@@ -381,4 +388,14 @@ public static class ShapeDataLookUp {
             }
         },
     };
+
+    // MUST use this to get new copy of ShapeData
+    public static ShapeData LookUp(ShapeDataID id) {
+        if (ShapeDataByID.TryGetValue(id, out ShapeData shapeData)) {
+            return new ShapeData(shapeData);
+        } else {
+            Debug.LogError($"ShapeDataID {id} does not exist in ShapeDataLookUp.");
+            return null;
+        }
+    }
 }

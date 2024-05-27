@@ -16,6 +16,12 @@ public class RequirementsUI : MonoBehaviour {
         for (int i = 0; i < order.Requirements.Count; i++) {
             Requirement req = order.Requirements[i];
             if (req.Color == null || req.ShapeDataID == null) {
+                
+                
+                
+                
+                
+                
                 continue;
             }
 
@@ -26,7 +32,7 @@ public class RequirementsUI : MonoBehaviour {
             ShapeDataID shapeDataID = req.ShapeDataID ?? ShapeDataID.Custom;
             // TODO: handle null (default) values
 
-            GameObject productDisplay = ProductFactory.Instance.CreateProductDisplay(color, pattern, ShapeDataLookUp.LookUp[shapeDataID]);
+            GameObject productDisplay = ProductFactory.Instance.CreateProductDisplay(color, pattern, ShapeDataLookUp.LookUp(shapeDataID));
             productDisplay.transform.SetParent(requirementDisplayPoints[i]);
             productDisplay.transform.localPosition = Vector3.zero;
             productDisplay.transform.localScale *= 0.5f;

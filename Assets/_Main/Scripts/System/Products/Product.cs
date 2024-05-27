@@ -62,7 +62,7 @@ public class Product : MonoBehaviour, IGridShape {
 
         ShapeData = productData.ShapeData;
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
-            ShapeData = ShapeDataLookUp.LookUp[ShapeData.ID];
+            ShapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
 
         VoxelMeshGenerator.Generate(gameObject, ShapeData);

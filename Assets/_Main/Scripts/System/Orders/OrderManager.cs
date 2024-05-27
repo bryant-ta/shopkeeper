@@ -239,7 +239,7 @@ public class OrderManager : MonoBehaviour {
         // generate mold shape
         List<ShapeDataID> moldShapeIDs = moldShapeDifficultyPool.outerList[0].innerList;
         ShapeDataID moldShapeDataID = moldShapeIDs[Random.Range(0, moldShapeIDs.Count)];
-        ShapeData moldShapeData = ShapeDataLookUp.LookUp[moldShapeDataID];
+        ShapeData moldShapeData = ShapeDataLookUp.LookUp(moldShapeDataID);
         moldOrder.AddMold(new Mold(moldShapeData));
 
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
@@ -250,6 +250,11 @@ public class OrderManager : MonoBehaviour {
             // find available stock with enough quantity to fill mold
             List<Color> availableColors = Ledger.CellCountByColor.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
                 .ToList();
+            if (availableColors.Count == 0) {
+                Debug.LogWarning("Not enough available stock to generate mold order.");
+                return null;
+            }
+            
             Color reqColor = availableColors[Random.Range(0, availableColors.Count)];
 
             // add requirement
