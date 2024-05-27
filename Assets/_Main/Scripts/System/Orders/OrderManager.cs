@@ -114,9 +114,10 @@ public class OrderManager : MonoBehaviour {
             Orderer orderer = null;
 
             if (order is MoldOrder moldOrder) {
+                // Setup MoldOrder Orderer
                 orderer = Instantiate(moldOrdererObj, openDock.transform).GetComponent<Orderer>();
                 MoldRenderer moldRenderer = orderer.GetComponentInChildren<MoldRenderer>();
-                moldOrder.Mold.Init(orderer.Grid, moldRenderer);
+                moldOrder.Mold.InitByOrderer(orderer.Grid, moldRenderer);
             } else {
                 orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
             }
@@ -155,8 +156,7 @@ public class OrderManager : MonoBehaviour {
         }
 
         for (int i = 0; i < numOrders; i++) {
-            Order order = null;
-            order = Random.Range(0f, 1f) <= chanceMoldOrder ? GenerateMoldOrder(availableStock) : GenerateBagOrder(availableStock);
+            Order order = Random.Range(0f, 1f) <= chanceMoldOrder ? GenerateMoldOrder(availableStock) : GenerateBagOrder(availableStock);
 
             if (order != null) {
                 orderBacklog.Enqueue(order);
@@ -201,7 +201,6 @@ public class OrderManager : MonoBehaviour {
 
         return req;
     }
-
     Requirement MakeRequirementFromExisting(Dictionary<ProductID, int> availableStock) {
         if (availableStock.Count == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
@@ -253,6 +252,7 @@ public class OrderManager : MonoBehaviour {
                 .ToList();
             Color reqColor = availableColors[Random.Range(0, availableColors.Count)];
 
+            // add requirement
             Requirement req = new Requirement(reqColor, null, null);
             moldOrder.AddRequirement(req);
 

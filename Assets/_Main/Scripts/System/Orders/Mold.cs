@@ -10,8 +10,11 @@ public class Mold {
         ShapeData = shapeData;
     }
 
-    public void Init(Grid grid, MoldRenderer moldRenderer) {
+    // params only available when Orderer is ready, so must separate from constructor
+    public void InitByOrderer(Grid grid, MoldRenderer moldRenderer) {
         Grid = grid;
+        ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
+
         this.moldRenderer = moldRenderer;
         this.moldRenderer.Render(ShapeData);
     }

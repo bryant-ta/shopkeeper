@@ -11,7 +11,7 @@ public class ShapeData {
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
     public int Size => ShapeOffsets?.Count ?? 0;
 
-    // Rotates shape data to match a CW/CCW rotation. No physical gameobject rotation
+    // CW/CCW rotation around (0,0,0). No physical gameobject rotation.
     public void RotateShape(bool clockwise) {
         int cw = clockwise ? 1 : -1;
 

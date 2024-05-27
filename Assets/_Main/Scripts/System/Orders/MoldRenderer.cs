@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,11 +11,11 @@ public class MoldRenderer : MonoBehaviour {
 
     Camera mainCamera;
 
-    void Awake() {
-        mainCamera = Camera.main;
-    }
+    void Awake() { mainCamera = Camera.main; }
 
     public void Render(ShapeData shapeData) {
+        transform.localPosition = shapeData.RootCoord + new Vector3(0, 0.55f, 0); // should move this...
+        
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
             MakeCubeOutline(shapeData, offset);
         }
@@ -70,11 +69,11 @@ public class MoldRenderer : MonoBehaviour {
 
     void UpdateLineMaterials() {
         // shift center of cube for dot test to avoid results close to 0 and capture "more" of the cube's edges
-        Vector3 dotTestPoint = transform.position + mainCamera.transform.forward * 0.2f; 
+        Vector3 dotTestPoint = transform.position + mainCamera.transform.forward * 0.2f;
         foreach (LineRenderer lineRenderer in lineRenderers) {
             Vector3 startPoint = transform.position + lineRenderer.GetPosition(0);
             Vector3 endPoint = transform.position + lineRenderer.GetPosition(1);
-            
+
             Vector3 midPoint = (startPoint + endPoint) / 2;
             Vector3 cubeToMidPoint = midPoint - dotTestPoint;
 
