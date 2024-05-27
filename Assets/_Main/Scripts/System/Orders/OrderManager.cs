@@ -194,7 +194,8 @@ public class OrderManager : MonoBehaviour {
         // if (Random.Range(0, 2) <= 1) {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
-        if (Random.Range(0f, 1f) <= chanceReqNeedsShape) {
+        // Guarantee at least ShapeDataID is generated
+        if (Random.Range(0f, 1f) <= chanceReqNeedsShape || (req.Color == null && req.Pattern == null)) {
             List<ShapeDataID> s = shapeDifficultyPool.outerList[0].innerList;
             req.ShapeDataID = s[Random.Range(0, s.Count)];
         }
@@ -224,7 +225,8 @@ public class OrderManager : MonoBehaviour {
         // if (Random.Range(0f, 1f) > 1) {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
-        if (Random.Range(0f, 1f) > chanceReqNeedsShape) { req.ShapeDataID = null; }
+        // Guarantee at least ShapeDataID is kept
+        if (Random.Range(0f, 1f) > chanceReqNeedsShape && (req.Color != null || req.Pattern != null)) { req.ShapeDataID = null; }
 
         availableStock[productID] -= quantity;
         if (availableStock[productID] == 0) availableStock.Remove(productID);
