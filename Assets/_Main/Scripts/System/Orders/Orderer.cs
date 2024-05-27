@@ -8,7 +8,7 @@ public class Orderer : MonoBehaviour {
     public Order Order { get; private set; }
     public Dock AssignedDock { get; private set; }
 
-    Grid grid;
+    public Grid Grid { get; private set; }
 
     List<Product> submittedProducts = new();
 
@@ -20,10 +20,10 @@ public class Orderer : MonoBehaviour {
         he.OnHoverEnter += HoverEnter;
         he.OnHoverExit += HoverExit;
 
-        grid = gameObject.GetComponentInChildren<Grid>();
-        if (grid != null) {
-            grid.OnPlaceShapes += DoTryFulfillOrderList;
-            grid.OnRemoveShapes += RemoveFromOrder;
+        Grid = gameObject.GetComponentInChildren<Grid>();
+        if (Grid != null) {
+            Grid.OnPlaceShapes += DoTryFulfillOrderList;
+            Grid.OnRemoveShapes += RemoveFromOrder;
         }
     }
 
@@ -52,7 +52,7 @@ public class Orderer : MonoBehaviour {
             }
         }
 
-        if (grid == null) { // Destroy fulfilled product for bag orders
+        if (Grid == null) { // Destroy fulfilled product for bag orders
             Ref.Instance.Trash.TrashShapes(shapes, Ref.Player.PlayerDrag.DragGrid);
         }
 
@@ -78,16 +78,16 @@ public class Orderer : MonoBehaviour {
         if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
             OnInvalidProductSet?.Invoke(invalidProduct);
 
-            if (grid != null) {
-                grid.IsLocked = true;
+            if (Grid != null) {
+                Grid.IsLocked = true;
             }
         }
     }
     void HoverExit() {
         OnInvalidProductSet?.Invoke(null);
 
-        if (grid != null) {
-            grid.IsLocked = false;
+        if (Grid != null) {
+            Grid.IsLocked = false;
         }
     }
     public bool CheckOrderInput(List<Product> products, out Product invalidProduct) {

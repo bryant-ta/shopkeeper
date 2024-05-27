@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Orders;
 using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -11,6 +12,7 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int numTotalOrders;
     [SerializeField] int numActiveOrders;
     [SerializeField] MinMax NextOrderDelay;
+    [SerializeField, Range(0f, 1f)] float chanceMoldOrder;
 
     [Header("Order Parameters")]
     [SerializeField] MinMax numReqsPerOrder;
@@ -29,13 +31,16 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] Transform docksContainer; // TEMP: using just as spawn points until orderer anims
     List<Dock> docks;
     [SerializeField] GameObject ordererObj;
+    [SerializeField] GameObject moldOrdererObj;
     [SerializeField] Transform ordererSpawnPoint;
 
     [Header("Other")]
     [SerializeField] ListList<ShapeDataID> shapeDifficultyPool;
+    [SerializeField] ListList<ShapeDataID> moldShapeDifficultyPool;
 
-    [field: Header("ReadOnly")] // ReadOnly unity tag not working
+    [field: Header("ReadOnly")]                                                       // ReadOnly unity tag not working
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
+
     [field: SerializeField, ReadOnly] public int NumRemainingOrders { get; private set; }
 
     Queue<Order> orderBacklog = new();
@@ -105,8 +110,18 @@ public class OrderManager : MonoBehaviour {
         }
 
         if (orderBacklog.Count > 0) {
-            Orderer orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
-            orderer.SetOrder(orderBacklog.Dequeue());
+            Order order = orderBacklog.Dequeue();
+            Orderer orderer = null;
+
+            if (order is MoldOrder moldOrder) {
+                orderer = Instantiate(moldOrdererObj, openDock.transform).GetComponent<Orderer>();
+                MoldRenderer moldRenderer = orderer.GetComponentInChildren<MoldRenderer>();
+                moldOrder.Mold.Init(orderer.Grid, moldRenderer);
+            } else {
+                orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
+            }
+
+            orderer.SetOrder(order);
             orderer.OccupyDock(openDock);
         }
         // TODO: handle when no orders remain gracefully
@@ -140,22 +155,31 @@ public class OrderManager : MonoBehaviour {
         }
 
         for (int i = 0; i < numOrders; i++) {
-            Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
-            int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
+            Order order = null;
+            order = Random.Range(0f, 1f) <= chanceMoldOrder ? GenerateMoldOrder(availableStock) : GenerateBagOrder(availableStock);
 
-            for (int j = 0; j < numReqs; j++) {
-                Requirement req = Random.Range(0f, 1f) < chanceReqFromExisting ?
-                    MakeRequirementFromExisting(availableStock) :
-                    MakeRequirement();
-                if (req != null) {
-                    order.AddRequirement(req);
-                }
-            }
-
-            if (order.Requirements.Count > 0) {
+            if (order != null) {
                 orderBacklog.Enqueue(order);
             }
         }
+    }
+
+    Order GenerateBagOrder(Dictionary<ProductID, int> availableStock) {
+        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
+        int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
+
+        for (int j = 0; j < numReqs; j++) {
+            Requirement req = Random.Range(0f, 1f) <= chanceReqFromExisting ?
+                MakeRequirementFromExisting(availableStock) :
+                MakeRequirement();
+
+            if (req != null) {
+                order.AddRequirement(req);
+            }
+        }
+
+        if (order.Requirements.Count == 0) return null;
+        return order;
     }
 
     Requirement MakeRequirement() {
@@ -185,13 +209,14 @@ public class OrderManager : MonoBehaviour {
         }
 
         ProductID productID = availableStock.Keys.ToArray()[Random.Range(0, availableStock.Count)];
+
         int randomQuantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
         int quantity = Math.Min(randomQuantity, availableStock[productID]);
         if (quantity == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
             return null;
         }
-        
+
         Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
 
         // equality check is flipped vs. MakeRequirement bc here we overwrite req values with null instead of filling them out
@@ -206,6 +231,49 @@ public class OrderManager : MonoBehaviour {
         if (availableStock[productID] == 0) availableStock.Remove(productID);
 
         return req;
+    }
+
+    // Mold order requirement is only a color
+    MoldOrder GenerateMoldOrder(Dictionary<ProductID, int> availableStock) {
+        MoldOrder moldOrder = new MoldOrder(minTimePerOrder, timePerProduct, goldPerProduct);
+
+        // generate mold shape
+        List<ShapeDataID> moldShapeIDs = moldShapeDifficultyPool.outerList[0].innerList;
+        ShapeDataID moldShapeDataID = moldShapeIDs[Random.Range(0, moldShapeIDs.Count)];
+        ShapeData moldShapeData = ShapeDataLookUp.LookUp[moldShapeDataID];
+        moldOrder.AddMold(new Mold(moldShapeData));
+
+        int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
+        // remove rounding if want some orders to possibly be impossible with available stock
+        int minColorCount = Mathf.CeilToInt((float) moldShapeData.Size / numReqs);
+
+        for (int j = 0; j < numReqs; j++) {
+            // find available stock with enough quantity to fill mold
+            List<Color> availableColors = Ledger.CellCountByColor.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
+                .ToList();
+            Color reqColor = availableColors[Random.Range(0, availableColors.Count)];
+
+            Requirement req = new Requirement(reqColor, null, null);
+            moldOrder.AddRequirement(req);
+
+            // update count of availableStock - subtracts from quantity of first found productID in availableStock that matches req color
+            int consumedCount = minColorCount;
+            List<ProductID> availableStockIDs = availableStock.Keys.ToList();
+            for (int i = 0; i < availableStockIDs.Count; i++) {
+                ProductID productID = availableStockIDs[i];
+                if (productID.Color == reqColor) {
+                    int t = availableStock[productID];
+                    availableStock[productID] -= Math.Min(availableStock[productID], consumedCount);
+                    consumedCount -= t;
+
+                    if (availableStock[productID] == 0) availableStock.Remove(productID);
+                    if (consumedCount == 0) { break; }
+                }
+            }
+        }
+
+        if (moldOrder.Requirements.Count == 0) return null;
+        return moldOrder;
     }
 
     void ScaleOrderDifficulty(int day) {

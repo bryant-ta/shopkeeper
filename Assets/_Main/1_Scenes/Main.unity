@@ -1556,8 +1556,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 15
-  m_fontSizeBase: 15
+  m_fontSize: 16
+  m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -3765,7 +3765,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1553700581}
   m_HandleRect: {fileID: 1553700580}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -6311,7 +6311,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0.000061035156, y: 59.99997}
+  m_AnchoredPosition: {x: 0.00012207031, y: 59.99994}
   m_SizeDelta: {x: 239.8374, y: 314.07}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &1082569920
@@ -7433,6 +7433,7 @@ MonoBehaviour:
   NextOrderDelay:
     Min: 0
     Max: 0
+  chanceMoldOrder: 1
   numReqsPerOrder:
     Min: 1
     Max: 1
@@ -7447,10 +7448,14 @@ MonoBehaviour:
   chanceReqNeedsShape: 1
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+  moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
   ordererSpawnPoint: {fileID: 237343046}
   shapeDifficultyPool:
     outerList:
     - innerList: 01000000
+  moldShapeDifficultyPool:
+    outerList:
+    - innerList: 15000000190000000e000000
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
 --- !u!4 &1273376992
