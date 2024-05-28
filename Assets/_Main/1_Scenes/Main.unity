@@ -12700,6 +12700,8 @@ GameObject:
   - component: {fileID: 2107359966}
   - component: {fileID: 2107359967}
   - component: {fileID: 2107359965}
+  - component: {fileID: 2107359969}
+  - component: {fileID: 2107359968}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -13028,6 +13030,54 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 24d0e4ab-c69f-4142-9019-89fe6a00371b
     m_ActionName: Player/RotateCCW1[/Keyboard/shift,/Keyboard/r]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: OnDragTool
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 5b4969b8-08d2-4795-9757-ba181abc384e
+    m_ActionName: Player/DragTool[/Keyboard/1]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: OnSliceTool
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: df994319-0cbb-493b-a234-682211f762d5
+    m_ActionName: Player/SliceTool[/Keyboard/2]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: OnCompactTool
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: e7894687-9c81-4560-b517-4d3b7f527a2d
+    m_ActionName: Player/CompactTool[/Keyboard/3]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Global
@@ -13097,6 +13147,8 @@ MonoBehaviour:
   <PlayerInput>k__BackingField: {fileID: 2107359962}
   <PlayerInteract>k__BackingField: {fileID: 2107359967}
   <PlayerDrag>k__BackingField: {fileID: 2107359965}
+  <PlayerSlice>k__BackingField: {fileID: 2107359969}
+  <PlayerCompact>k__BackingField: {fileID: 2107359968}
 --- !u!114 &2107359967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13107,6 +13159,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7932b055763078441bbb36f75c8a8039, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2107359968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2107359958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeefd617a0990ba4a82e823af7ec5155, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2107359969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2107359958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dc32737e56a5b74ab503c1852325d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2111481137

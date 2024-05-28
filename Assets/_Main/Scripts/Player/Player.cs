@@ -15,18 +15,25 @@ public class Player : MonoBehaviour {
         PlayerInput.InputDragTool += SelectDragTool;
         PlayerInput.InputSliceTool += SelectSliceTool;
         PlayerInput.InputCompactTool += SelectCompactTool;
+        
+        // Default tool mode: Drag
+        curTool = PlayerDrag;
+        PlayerDrag.Equip();
     }
 
     void SelectDragTool() {
         curTool.Unequip();
+        curTool = PlayerDrag;
         PlayerDrag.Equip();
     }
     void SelectSliceTool() {
         curTool.Unequip();
+        curTool = PlayerSlice;
         PlayerSlice.Equip();
     }
     void SelectCompactTool() {
         curTool.Unequip();
+        curTool = PlayerCompact;
         PlayerCompact.Equip();
     }
 }
