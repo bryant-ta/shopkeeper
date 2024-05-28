@@ -1,5 +1,4 @@
 using System;
-using EventManager;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -91,6 +90,32 @@ public class PlayerInput : MonoBehaviour {
 
     #endregion
 
+    #region Tools
+
+    public event Action InputDragTool;
+    public event Action InputSliceTool;
+    public event Action InputCompactTool;
+
+    public void OnDragTool(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            InputDragTool?.Invoke();
+        }
+    }
+    
+    public void OnSliceTool(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            InputSliceTool?.Invoke();
+        }
+    }
+
+    public void OnCompactTool(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            InputCompactTool?.Invoke();
+        }
+    }
+
+    #endregion
+    
     #region Camera
 
     public event Action<float> InputScroll;

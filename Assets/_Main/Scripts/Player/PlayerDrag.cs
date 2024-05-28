@@ -5,7 +5,7 @@ using TriInspector;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInteract))]
-public class PlayerDrag : MonoBehaviour {
+public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
 
@@ -30,11 +30,6 @@ public class PlayerDrag : MonoBehaviour {
 
     void Awake() {
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
-
-        Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
-        Ref.Player.PlayerInput.InputPrimaryUp += Release;
-        Ref.Player.PlayerInput.InputPoint += Drag;
-        Ref.Player.PlayerInput.InputRotate += Rotate;
     }
 
     bool isHolding = false;
@@ -327,4 +322,17 @@ public class PlayerDrag : MonoBehaviour {
     public void ModifyMaxDragHeight(int delta) { DragGrid.SetMaxHeight(DragGrid.Height + delta); }
 
     #endregion
+
+    public void Equip() {
+        Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
+        Ref.Player.PlayerInput.InputPrimaryUp += Release;
+        Ref.Player.PlayerInput.InputPoint += Drag;
+        Ref.Player.PlayerInput.InputRotate += Rotate;
+    }
+    public void Unequip() {
+        Ref.Player.PlayerInput.InputPrimaryDown -= GrabRelease;
+        Ref.Player.PlayerInput.InputPrimaryUp -= Release;
+        Ref.Player.PlayerInput.InputPoint -= Drag;
+        Ref.Player.PlayerInput.InputRotate -= Rotate;
+    }
 }
