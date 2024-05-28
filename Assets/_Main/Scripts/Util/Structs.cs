@@ -1,5 +1,16 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
+
+public struct ClickInputArgs {
+    public Vector3 HitNormal;
+    public Vector3 HitPoint;
+    public GameObject TargetObj;
+}
+
+public struct MoveInputArgs {
+    public Vector2 MoveInput;
+}
 
 public struct DeltaArgs {
     public int NewValue;
