@@ -27,7 +27,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
     void Slice(ClickInputArgs clickInputArgs) { }
 
-    Vector3 lastSliceFirstPos;
+    Vector3 lastSelectedShapeCellCoord;
+    bool lastIsZSlice;
     void SlicePreview(ClickInputArgs clickInputArgs) {
         if (!SelectTargetGrid(clickInputArgs)) {
             slicePreviewObj.SetActive(false);
@@ -50,6 +51,13 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         Vector3 cellToHitPoint = localHitPoint - selectedShapeCellCoord;
         bool isZSlice = Math.Abs(cellToHitPoint.z) > Math.Abs(cellToHitPoint.x);
         if (localHitAntiNormal.y < 0) isZSlice = !isZSlice;
+
+        // Cutoff for not repeating on same slice position
+        if (selectedShapeCellCoord == lastSelectedShapeCellCoord && isZSlice == lastIsZSlice) {
+            return;
+        }
+        lastSelectedShapeCellCoord = selectedShapeCellCoord;
+        lastIsZSlice = isZSlice;
 
         // Midpoint between the two cell centers for initial slice (localPosition)
         Vector3 sliceFirstPos = isZSlice ?
@@ -78,14 +86,10 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
             }
         }
 
-        if ((sliceFirstPos - lastSliceFirstPos).sqrMagnitude < 0.001f) return; // Cutoff for not repeating on same slice position
-        lastSliceFirstPos = sliceFirstPos;
-
         if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) {
             slicePreviewObj.SetActive(false);
             return;
         }
-
 
         Direction sliceDir = DirectionData.GetClosestDirection(localHitAntiNormal);
         Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
