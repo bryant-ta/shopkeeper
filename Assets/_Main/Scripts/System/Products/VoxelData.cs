@@ -18,21 +18,10 @@ public enum Direction2D {
     West = 3
 }
 
-public static class CubeMeshData {
+public static class DirectionData {
     // All these arrays must match order of Direction enum
     // DON'T CHANGE ORDER!
-    public static readonly Vector3[] vertices = {
-        new Vector3(1, 1, 1),
-        new Vector3(-1, 1, 1),
-        new Vector3(-1, -1, 1),
-        new Vector3(1, -1, 1),
-        new Vector3(-1, 1, -1),
-        new Vector3(1, 1, -1),
-        new Vector3(1, -1, -1),
-        new Vector3(-1, -1, -1)
-    };
-
-    static readonly Vector3[] DirectionVectors = {
+    public static readonly Vector3[] DirectionVectors = {
         Vector3.forward,
         Vector3.right,
         Vector3.back,
@@ -50,6 +39,71 @@ public static class CubeMeshData {
         Vector3Int.down,
     };
 
+    public static Direction GetClosestDirection(Vector3 inputVector) {
+        float maxDot = float.MinValue;
+        int bestMatchIndex = 0;
+
+        for (int i = 0; i < DirectionVectorsInt.Length; i++) {
+            float dotProduct = Vector3.Dot(inputVector.normalized, DirectionVectorsInt[i]);
+            if (dotProduct > maxDot) {
+                maxDot = dotProduct;
+                bestMatchIndex = i;
+            }
+        }
+
+        return (Direction) bestMatchIndex;
+    }
+
+    public static Direction OppositeDirection(Direction dir) {
+        switch (dir) {
+            case Direction.North:
+                return Direction.South;
+            case Direction.East:
+                return Direction.West;
+            case Direction.South:
+                return Direction.North;
+            case Direction.West:
+                return Direction.East;
+            case Direction.Up:
+                return Direction.Down;
+            case Direction.Down:
+                return Direction.Up;
+            default:
+                Debug.LogError("Invalid direction.");
+                return Direction.North;
+        }
+    }
+}
+
+public static class CubeMeshData {
+    // All these arrays must match order of Direction enum
+    // DON'T CHANGE ORDER!
+    public static readonly Vector3[] vertices = {
+        new Vector3(1, 1, 1),
+        new Vector3(-1, 1, 1),
+        new Vector3(-1, -1, 1),
+        new Vector3(1, -1, 1),
+        new Vector3(-1, 1, -1),
+        new Vector3(1, 1, -1),
+        new Vector3(1, -1, -1),
+        new Vector3(-1, -1, -1)
+    };
+
+    public static readonly int[][] edges = {
+        new int[] {1, 2}, // NW
+        new int[] {0, 3}, // EN
+        new int[] {5, 6}, // SE
+        new int[] {4, 7}, // WS
+        new int[] {1, 0}, // UN
+        new int[] {0, 5}, // UE
+        new int[] {5, 4}, // US
+        new int[] {4, 1}, // UW
+        new int[] {3, 2}, // DN
+        new int[] {6, 3}, // DE
+        new int[] {7, 6}, // DS
+        new int[] {2, 7}, // DW
+    };
+
     #region Faces
 
     static readonly int[][] faceTriangles = {
@@ -64,7 +118,7 @@ public static class CubeMeshData {
     static Vector3[] CubeFaceVertices(int dir, Vector3 pos, float scale, float bevel) {
         Vector3[] fv = new Vector3[4];
         for (int i = 0; i < fv.Length; i++) {
-            fv[i] = pos + (vertices[faceTriangles[dir][i]] * scale * (1 - bevel)) + (DirectionVectors[dir] * scale * bevel);
+            fv[i] = pos + (vertices[faceTriangles[dir][i]] * scale * (1 - bevel)) + (DirectionData.DirectionVectors[dir] * scale * bevel);
         }
 
         return fv;
@@ -80,29 +134,14 @@ public static class CubeMeshData {
 
     #region Bevel Edges
 
-    public static readonly int[][] bevelEdges = {
-        new int[] {1, 2}, // NW
-        new int[] {0, 3}, // EN
-        new int[] {5, 6}, // SE
-        new int[] {4, 7}, // WS
-        new int[] {1, 0}, // UN
-        new int[] {0, 5}, // UE
-        new int[] {5, 4}, // US
-        new int[] {4, 1}, // UW
-        new int[] {3, 2}, // DN
-        new int[] {6, 3}, // DE
-        new int[] {7, 6}, // DS
-        new int[] {2, 7}, // DW
-    };
-
     public static Vector3[] CornerBevelFaceVertices(Direction dir1, Direction dir2, Vector3 pos, float scale, float bevel) {
         int d1 = (int) dir1;
         int d2 = (int) dir2;
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
 
         int i = dir1 switch {
             Direction.Up => d1 + d2,
@@ -111,10 +150,10 @@ public static class CubeMeshData {
         };
 
         Vector3[] fv = new Vector3[4];
-        fv[0] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + bevelVector1;
-        fv[1] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + bevelVector2;
-        fv[2] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + bevelVector2;
-        fv[3] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + bevelVector1;
+        fv[0] = pos + (vertices[edges[i][0]] * innerCubeScale) + bevelVector1;
+        fv[1] = pos + (vertices[edges[i][0]] * innerCubeScale) + bevelVector2;
+        fv[2] = pos + (vertices[edges[i][1]] * innerCubeScale) + bevelVector2;
+        fv[3] = pos + (vertices[edges[i][1]] * innerCubeScale) + bevelVector1;
 
         return fv;
     }
@@ -124,8 +163,8 @@ public static class CubeMeshData {
         int d2 = (int) dir2;
         float bevelOffset = scale * bevel; // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
 
         Vector3[] fv = CornerBevelFaceVertices(dir1, dir2, pos, scale, bevel);
         for (int i = 0; i < fv.Length; i++) {
@@ -141,8 +180,8 @@ public static class CubeMeshData {
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
 
         int i = dir1 switch {
             Direction.Up => d1 + d2,
@@ -152,15 +191,15 @@ public static class CubeMeshData {
 
         Vector3[] fv = new Vector3[4];
         if (dir1 == Direction.Up || dir1 == Direction.Down) {
-            fv[0] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + bevelVector1;
-            fv[1] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + bevelVector1 + 2 * bevelVector2;
-            fv[2] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + bevelVector1 + 2 * bevelVector2;
-            fv[3] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + bevelVector1;
+            fv[0] = pos + (vertices[edges[i][0]] * innerCubeScale) + bevelVector1;
+            fv[1] = pos + (vertices[edges[i][0]] * innerCubeScale) + bevelVector1 + 2 * bevelVector2;
+            fv[2] = pos + (vertices[edges[i][1]] * innerCubeScale) + bevelVector1 + 2 * bevelVector2;
+            fv[3] = pos + (vertices[edges[i][1]] * innerCubeScale) + bevelVector1;
         } else {
-            fv[0] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + 2 * bevelVector1 + bevelVector2;
-            fv[1] = pos + (vertices[bevelEdges[i][0]] * innerCubeScale) + bevelVector2;
-            fv[2] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + bevelVector2;
-            fv[3] = pos + (vertices[bevelEdges[i][1]] * innerCubeScale) + 2 * bevelVector1 + bevelVector2;
+            fv[0] = pos + (vertices[edges[i][0]] * innerCubeScale) + 2 * bevelVector1 + bevelVector2;
+            fv[1] = pos + (vertices[edges[i][0]] * innerCubeScale) + bevelVector2;
+            fv[2] = pos + (vertices[edges[i][1]] * innerCubeScale) + bevelVector2;
+            fv[3] = pos + (vertices[edges[i][1]] * innerCubeScale) + 2 * bevelVector1 + bevelVector2;
         }
 
         return fv;
@@ -188,9 +227,9 @@ public static class CubeMeshData {
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
-        Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector3 = DirectionData.DirectionVectors[d3] * bevelOffset;
 
         Vector3[] fv = new Vector3[3];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
@@ -207,9 +246,9 @@ public static class CubeMeshData {
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
-        Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector3 = DirectionData.DirectionVectors[d3] * bevelOffset;
 
         Vector3[] fv = new Vector3[7];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
@@ -230,9 +269,9 @@ public static class CubeMeshData {
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
-        Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector3 = DirectionData.DirectionVectors[d3] * bevelOffset;
 
         Vector3[] fv = new Vector3[4];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + 2 * bevelVector2 + bevelVector1;
@@ -251,9 +290,9 @@ public static class CubeMeshData {
         float innerCubeScale = scale * (1 - bevel); // inner cube vertice
         float bevelOffset = scale * bevel;          // offset from inner cube vertice
 
-        Vector3 bevelVector1 = DirectionVectors[d1] * bevelOffset;
-        Vector3 bevelVector2 = DirectionVectors[d2] * bevelOffset;
-        Vector3 bevelVector3 = DirectionVectors[d3] * bevelOffset;
+        Vector3 bevelVector1 = DirectionData.DirectionVectors[d1] * bevelOffset;
+        Vector3 bevelVector2 = DirectionData.DirectionVectors[d2] * bevelOffset;
+        Vector3 bevelVector3 = DirectionData.DirectionVectors[d3] * bevelOffset;
 
         Vector3[] fv = new Vector3[4];
         fv[0] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1 + bevelVector2;
@@ -262,30 +301,6 @@ public static class CubeMeshData {
         fv[3] = pos + (vertices[vertice] * innerCubeScale) + bevelVector1;
 
         return fv;
-    }
-
-    #endregion
-
-    #region Helper
-
-    public static Direction OppositeDirection(Direction dir) {
-        switch (dir) {
-            case Direction.North:
-                return Direction.South;
-            case Direction.East:
-                return Direction.West;
-            case Direction.South:
-                return Direction.North;
-            case Direction.West:
-                return Direction.East;
-            case Direction.Up:
-                return Direction.Down;
-            case Direction.Down:
-                return Direction.Up;
-            default:
-                Debug.LogError("Invalid direction.");
-                return Direction.North;
-        }
     }
 
     #endregion

@@ -282,7 +282,7 @@ public class Grid : MonoBehaviour {
     }
 
     public IGridShape SelectPosition(Vector3Int coord) {
-        if (!IsInBounds(coord)) return null;
+        if (!IsInBounds(coord) || IsOpen(coord)) return null;
         return cells[coord].Shape;
     }
 

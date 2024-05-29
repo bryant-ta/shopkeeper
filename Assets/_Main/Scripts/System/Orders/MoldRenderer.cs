@@ -39,7 +39,7 @@ public class MoldRenderer : MonoBehaviour {
     void MakeEdgeLine(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
         if ((shapeData.NeighborExists(cubeCoord, dir1) // side elbow || side/top/bot corner
              && shapeData.NeighborExists(cubeCoord, dir2)
-             && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) ||
+             && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) ||
             (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2))) {
             int d1 = (int) dir1;
             int d2 = (int) dir2;
@@ -50,8 +50,8 @@ public class MoldRenderer : MonoBehaviour {
             };
 
             float length = 0.5f * scale;
-            Vector3 startPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.bevelEdges[i][0]] * length;
-            Vector3 endPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.bevelEdges[i][1]] * length;
+            Vector3 startPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.edges[i][0]] * length;
+            Vector3 endPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.edges[i][1]] * length;
 
             GameObject lineObject = Instantiate(lineRendererPrefab, transform);
             LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();

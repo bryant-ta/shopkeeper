@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class PlayerSlice : MonoBehaviour, IPlayerTool {
     [SerializeField] GameObject lineRendererPrefab;
+    [SerializeField] GameObject slicePreviewObj; // a plane
 
     List<LineRenderer> lineRendererPool = new(); // TODO: make slice preview pooled
     
@@ -21,6 +23,9 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         Vector3 localHitAntiNormal =
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
+
+        IGridShape selectedShape = targetGrid.SelectPosition(selectedCellCoord);
+        if (selectedShape == null) return;
         
         Vector3 cellToHitPoint = localHitPoint - selectedCellCoord;
         
@@ -28,66 +33,46 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         bool isXFace = Math.Abs(cellToHitPoint.z) > Math.Abs(cellToHitPoint.x) ? true : false;
         
         // midpoint between the two cell centers for initial slice
-        Vector3 sliceFirstCellPos = isXFace ?
-            cellToHitPoint + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0, 0) :
-            cellToHitPoint + new Vector3(0, 0, 0.5f * Math.Sign(cellToHitPoint.x));
+        Vector3 sliceFirstPos = isXFace ?
+            selectedCellCoord + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0.5f, 0) :
+            selectedCellCoord + new Vector3(0, 0.5f, 0.5f * Math.Sign(cellToHitPoint.x));
+        
+        
+        // find cell pairs to slice
+        Vector3Int leftCellCoord = Vector3Int.RoundToInt(sliceFirstPos + new Vector3(-0.1f, 0, 0));
+        Vector3Int rightCellCoord = Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, 0, 0));
+        
+        float x = sliceFirstPos.x;
+        float z = sliceFirstPos.z; // change to int
+        Direction sliceDir = DirectionData.GetClosestDirection(localHitAntiNormal);
+        List<float> p = new() {sliceFirstPos.z};
+        int iterations = 10;
+        int i = 0;
+        ShapeData shapeData = selectedShape.ShapeData;
+        while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
+            i++;
+            
+            p.Add(z++);
+            leftCellCoord += DirectionData.DirectionVectorsInt[(int)sliceDir];
+            rightCellCoord += DirectionData.DirectionVectorsInt[(int)sliceDir];
+
+            if (i > iterations) {
+                Debug.LogError("something went wrong");
+                break;
+            }
+        }
+
+        // size and position slice preview plane
+        float slicePreviewPosZ = p.Average();
+        slicePreviewObj.transform.position = new Vector3(sliceFirstPos.x, sliceFirstPos.y, slicePreviewPosZ);
+        slicePreviewObj.transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
+        slicePreviewObj.transform.localScale = new Vector3(p.Count + 0.2f, 1.2f, 1);
+        
         
         // draw slice preview line around slice edge
-        
-        // search for further cells to slice (only where both sides occupied, otherwise stop)
-        ShapeData shapeData = targetGrid.SelectPosition(selectedCellCoord).ShapeData;
-        MakeSliceOutline(shapeData, selectedCellCoord);
-    }
-    public void Render(ShapeData shapeData) {
-        transform.localPosition = shapeData.RootCoord + new Vector3(0, 0.55f, 0); // should move this...
-        
-        foreach (Vector3Int offset in shapeData.ShapeOffsets) {
-            MakeCubeOutline(shapeData, offset);
-        }
     }
 
-    void MakeSliceOutline(ShapeData shapeData, Vector3Int cubeCoord) {
-        // succinctly code this area..... for a whole bunch of xz cases
-        
-        
-        // side edges
-        for (int d1 = 0; d1 < 4; d1++) {
-            int d2 = d1 - 1;
-            if (d2 < 0) d2 = 3;
-            MakeEdgeLine(shapeData, (Direction) d1, (Direction) d2, cubeCoord);
-        }
 
-        // top/bot edges
-        for (int d2 = 0; d2 < 4; d2++) {
-            MakeEdgeLine(shapeData, Direction.Up, (Direction) d2, cubeCoord);
-            MakeEdgeLine(shapeData, Direction.Down, (Direction) d2, cubeCoord);
-        }
-    }
-
-    void MakeEdgeLine(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
-        if ((shapeData.NeighborExists(cubeCoord, dir1) // side elbow || side/top/bot corner
-             && shapeData.NeighborExists(cubeCoord, dir2)
-             && !shapeData.NeighborExists(cubeCoord + CubeMeshData.DirectionVectorsInt[(int) dir1], dir2)) ||
-            (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2))) {
-            int d1 = (int) dir1;
-            int d2 = (int) dir2;
-            int i = dir1 switch {
-                Direction.Up => d1 + d2,
-                Direction.Down => d1 + d2 + 3,
-                _ => d1
-            };
-
-            float length = 0.5f;
-            Vector3 startPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.bevelEdges[i][0]] * length;
-            Vector3 endPoint = cubeCoord + CubeMeshData.vertices[CubeMeshData.bevelEdges[i][1]] * length;
-
-            GameObject lineObject = Instantiate(lineRendererPrefab, transform);
-            LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, startPoint);
-            lineRenderer.SetPosition(1, endPoint);
-        }
-    }
 
     void DetermineQuadrant(ClickInputArgs clickInputArgs) { }
 
