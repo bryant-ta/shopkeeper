@@ -11,6 +11,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     List<LineRenderer> slicePreviewLineRenderers;
 
     Grid targetGrid;
+    CameraController camCtrl;
 
     void Awake() {
         slicePreviewPlaneMeshFilter = slicePreviewObj.GetComponent<MeshFilter>();
@@ -20,6 +21,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         }
 
         slicePreviewLineRenderers = slicePreviewObj.GetComponentsInChildren<LineRenderer>().ToList();
+
+        camCtrl = Camera.main.GetComponent<CameraController>();
     }
 
     void Slice(ClickInputArgs clickInputArgs) { }
@@ -27,6 +30,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     Vector3 lastSliceFirstPos;
     void SlicePreview(ClickInputArgs clickInputArgs) {
         if (!SelectTargetGrid(clickInputArgs)) {
+            slicePreviewObj.SetActive(false);
             return;
         }
 
@@ -34,43 +38,67 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
         Vector3 localHitAntiNormal =
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
-        Vector3Int selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
+        Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
-        IGridShape selectedShape = targetGrid.SelectPosition(selectedCellCoord);
-        if (selectedShape == null) return;
+        IGridShape selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
+        if (selectedShape == null) {
+            slicePreviewObj.SetActive(false);
+            return;
+        }
 
         // Determine if the hit point is on an X parallel face, otherwise it is on a Z parallel face
-        Vector3 cellToHitPoint = localHitPoint - selectedCellCoord;
-        bool isXFace = Math.Abs(cellToHitPoint.z) > Math.Abs(cellToHitPoint.x);
+        Vector3 cellToHitPoint = localHitPoint - selectedShapeCellCoord;
+        bool isZSlice = Math.Abs(cellToHitPoint.z) > Math.Abs(cellToHitPoint.x);
 
-        // Midpoint between the two cell centers for initial slice
-        Vector3 sliceFirstPos = isXFace ?
-            selectedCellCoord + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0.5f, 0) :
-            selectedCellCoord + new Vector3(0, 0.5f, 0.5f * Math.Sign(cellToHitPoint.z));
+        // Midpoint between the two cell centers for initial slice (localPosition)
+        Vector3 sliceFirstPos = isZSlice ?
+            selectedShapeCellCoord + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0.5f, 0) :
+            selectedShapeCellCoord + new Vector3(0, 0.5f, 0.5f * Math.Sign(cellToHitPoint.z));
 
-        if ((sliceFirstPos - lastSliceFirstPos).sqrMagnitude < 0.001f) return;
-        lastSliceFirstPos = sliceFirstPos;
 
         // Find cell pairs to slice past initial slice
-        Vector3Int leftCellCoord = isXFace ?
+        Vector3Int leftCellCoord = isZSlice ?
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(-0.1f, 0, 0)) :
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, -0.1f));
-        Vector3Int rightCellCoord = isXFace ?
+        Vector3Int rightCellCoord = isZSlice ?
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, 0, 0)) :
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, 0.1f));
+
+        ShapeData shapeData = selectedShape.ShapeData;
+        if (localHitAntiNormal.y < 0) {
+            // Walk backwards along slice dir from selected cell for correct first slice cell coord
+            Direction antiSliceDir = isZSlice ?
+                DirectionData.GetClosestDirection(-camCtrl.IsometricRight) :
+                DirectionData.GetClosestDirection(-camCtrl.IsometricForward);
+                
+            while (shapeData.NeighborExists(leftCellCoord, antiSliceDir) && shapeData.NeighborExists(rightCellCoord, antiSliceDir)) {
+                leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
+                rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
+                sliceFirstPos = (leftCellCoord - rightCellCoord) / 2;
+            }
+        }
+
+        if ((sliceFirstPos - lastSliceFirstPos).sqrMagnitude < 0.001f) return; // Cutoff for not repeating on same slice position
+        lastSliceFirstPos = sliceFirstPos;
+
+        if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) {
+            slicePreviewObj.SetActive(false);
+            return;
+        }
+
 
         Direction sliceDir = DirectionData.GetClosestDirection(localHitAntiNormal);
         Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
         float x = sliceFirstPos.x;
         float z = sliceFirstPos.z;
-        List<float> p = new() {isXFace ? sliceFirstPos.z : sliceFirstPos.x};
-        ShapeData shapeData = selectedShape.ShapeData;
-        int iterations = 10;
-        int i = 0;
+        List<float> p = new() {isZSlice ? sliceFirstPos.z : sliceFirstPos.x};
+        int iterations = 10; // TEMP
+        int i = 0;           // TEMP
+        // Walk slice direction for cell pairs
         while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
             i++;
 
-            p.Add(isXFace ? z++ : x++);
+            p.Add(isZSlice ? z++ : x++);
             leftCellCoord += sliceDirVector;
             rightCellCoord += sliceDirVector;
 
@@ -82,19 +110,17 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Place slice preview plane
         float slicePreviewPos = p.Average();
-        slicePreviewObj.transform.position = isXFace ?
+        slicePreviewObj.transform.position = isZSlice ?
             new Vector3(sliceFirstPos.x, sliceFirstPos.y, slicePreviewPos) + targetGrid.transform.position :
             new Vector3(slicePreviewPos, sliceFirstPos.y, sliceFirstPos.z) + targetGrid.transform.position;
-        slicePreviewObj.transform.rotation =
-            isXFace ?
-                Quaternion.LookRotation(Quaternion.Euler(0, 90, 0) * localHitAntiNormal, Vector3.up) :
-                Quaternion.LookRotation(Quaternion.Euler(0, -90, 0) * localHitAntiNormal, Vector3.up);
+        slicePreviewObj.transform.rotation = isZSlice ?
+            Quaternion.LookRotation(-camCtrl.IsometricRight, Vector3.up) :
+            Quaternion.LookRotation(-camCtrl.IsometricForward, Vector3.up);
         slicePreviewObj.transform.localScale = new Vector3(
             p.Count + slicePreviewScale, 1f + slicePreviewScale, p.Count + slicePreviewScale
         );
 
         // Draw slice preview line around slice edge
-
         // Convert vertices of quad to world positions
         Vector3[] localVertices = slicePreviewPlaneMeshFilter.mesh.vertices;
         Vector3[] worldVertices = new Vector3[localVertices.Length];
@@ -111,9 +137,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         slicePreviewLineRenderers[2].SetPosition(1, worldVertices[2]);
         slicePreviewLineRenderers[3].SetPosition(0, worldVertices[2]);
         slicePreviewLineRenderers[3].SetPosition(1, worldVertices[0]);
+        slicePreviewObj.SetActive(true);
     }
-
-    void DetermineQuadrant(ClickInputArgs clickInputArgs) { }
 
     // TEMP: will consider moving to Player to consolidate among Player Tools
     GameObject lastHitObj;
@@ -139,5 +164,6 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     public void Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= Slice;
         Ref.Player.PlayerInput.InputPoint -= SlicePreview;
+        slicePreviewObj.SetActive(false);
     }
 }

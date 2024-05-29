@@ -42,7 +42,10 @@ public struct ProductID {
         return Color == other.Color && Pattern == other.Pattern && ShapeDataID == other.ShapeDataID;
     }
 
-    public override string ToString() { return $"{Color}_{Pattern}_{ShapeDataID}"; }
+    public override string ToString() {
+        if (ShapeData == null) return $"{Color}_{Pattern}_None";
+        return $"{Color}_{Pattern}_{ShapeDataID}";
+    }
 }
 
 public enum Pattern {

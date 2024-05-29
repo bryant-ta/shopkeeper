@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class DebugUI : MonoBehaviour {
     [SerializeField] TextMeshProUGUI InputPointTargetObjText;
+    [SerializeField] TextMeshProUGUI InputPointHitPointText;
+    [SerializeField] TextMeshProUGUI InputPointHitNormalText;
 
     void Awake() { Ref.Player.PlayerInput.InputPoint += GetInputPoint; }
 
@@ -17,6 +19,9 @@ public class DebugUI : MonoBehaviour {
         if (inputPointArgs.TargetObj != null) {
             InputPointTargetObjText.text = $"InputPoint.TargetObj: {inputPointArgs.TargetObj.name}";
         }
+
+        InputPointHitPointText.text = $"InputPoint.HitPoint: {inputPointArgs.HitPoint}";
+        InputPointHitNormalText.text = $"InputPoint.HitNormal: {inputPointArgs.HitNormal}";
     }
 
     ClickInputArgs inputPointArgs;

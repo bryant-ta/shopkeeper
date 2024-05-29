@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e455b0a0e974a614a930b2097b219017, type: 3}
   m_Name: TestProduct1
   m_EditorClassIdentifier: 
-  ProductID: 2
-  ShapeDataID: 5
-  Texture: {fileID: 2800000, guid: 080adf283cdd3c343a1ebbc89d516f30, type: 3}
-  BasicTagIDs: 01000000
-  ScoreTagIDs: 01000000
-  MoveTagIDs: 01000000
+  ID:
+    Color: {r: 0.93207544, g: 0.06858658, b: 0.06858658, a: 1}
+    Pattern: 10
+  ShapeData:
+    ID: 21
+    <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
+    ShapeOffsets: []
+  MoveTagIDs: 
   PlaceTagIDs: 
