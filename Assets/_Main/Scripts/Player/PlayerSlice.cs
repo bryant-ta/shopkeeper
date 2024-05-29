@@ -49,12 +49,12 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         // Determine if the hit point is on an X parallel face, otherwise it is on a Z parallel face
         Vector3 cellToHitPoint = localHitPoint - selectedShapeCellCoord;
         bool isZSlice = Math.Abs(cellToHitPoint.z) > Math.Abs(cellToHitPoint.x);
+        if (localHitAntiNormal.y < 0) isZSlice = !isZSlice;
 
         // Midpoint between the two cell centers for initial slice (localPosition)
         Vector3 sliceFirstPos = isZSlice ?
             selectedShapeCellCoord + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0.5f, 0) :
             selectedShapeCellCoord + new Vector3(0, 0.5f, 0.5f * Math.Sign(cellToHitPoint.z));
-
 
         // Find cell pairs to slice past initial slice
         Vector3Int leftCellCoord = isZSlice ?
@@ -68,9 +68,9 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         if (localHitAntiNormal.y < 0) {
             // Walk backwards along slice dir from selected cell for correct first slice cell coord
             Direction antiSliceDir = isZSlice ?
-                DirectionData.GetClosestDirection(-camCtrl.IsometricRight) :
-                DirectionData.GetClosestDirection(-camCtrl.IsometricForward);
-                
+                DirectionData.GetClosestDirection(-camCtrl.IsometricForward) :
+                DirectionData.GetClosestDirection(-camCtrl.IsometricRight);
+
             while (shapeData.NeighborExists(leftCellCoord, antiSliceDir) && shapeData.NeighborExists(rightCellCoord, antiSliceDir)) {
                 leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
                 rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
