@@ -141,8 +141,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         ShapeData shapeData = selectedShape.ShapeData;
         Direction sliceDir = isZSlice ?
-            DirectionData.GetClosestDirection(camCtrl.IsometricForward) :
-            DirectionData.GetClosestDirection(camCtrl.IsometricRight);
+            Direction.North :
+            Direction.East;
         if (localHitAntiNormal.y < 0) {
             // Walk backwards along slice dir from selected cell for correct first slice cell coord
             Direction antiSliceDir = DirectionData.OppositeDirection(sliceDir);
@@ -179,9 +179,10 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         previewObj.transform.position = isZSlice ?
             targetGrid.transform.TransformPoint(new Vector3(sliceFirstPos.x, sliceFirstPos.y, previewPosXorZ)) :
             targetGrid.transform.TransformPoint(new Vector3(previewPosXorZ, sliceFirstPos.y, sliceFirstPos.z));
+        bool camRotationState = camCtrl.IsometricForward == Vector3Int.forward || camCtrl.IsometricForward == Vector3Int.right; 
         previewObj.transform.rotation = isZSlice ?
-            Quaternion.LookRotation(-camCtrl.IsometricRight, Vector3.up) :
-            Quaternion.LookRotation(-camCtrl.IsometricForward, Vector3.up);
+            Quaternion.LookRotation(camRotationState ? Vector3.left : Vector3.right, Vector3.up) :
+            Quaternion.LookRotation(camRotationState ? Vector3.back : Vector3.forward, Vector3.up);
         previewObj.transform.localScale = new Vector3(p.Count + previewScale, 1f + previewScale, p.Count + previewScale);
 
         // Draw slice preview line around slice edge

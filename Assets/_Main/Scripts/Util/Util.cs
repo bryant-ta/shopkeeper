@@ -61,6 +61,24 @@ public class Util : MonoBehaviour {
         return DateTime.Compare(t1, t2);
     }
 
+    /// <summary>
+    /// Checks if target point is left or right of an object defined with a forward/up
+    /// </summary>
+    /// <param name="forward">forward vector of reference point</param>
+    /// <param name="up">up vector of reference point</param>
+    /// <param name="targetDir">test point</param>
+    /// <returns>left -> -1, right -> 1, directly in front/behind -> 0</returns>
+    public static float IsLeftOrRight(Vector3 forward, Vector3 up, Vector3 targetDir) {
+        Vector3 perp = Vector3.Cross(forward, targetDir);
+        float dir = Vector3.Dot(perp, up);
+
+        return dir switch {
+            > 0f => 1f,
+            < 0f => -1f,
+            _ => 0f
+        };
+    }
+
     public static Product GetProductFromShape(IGridShape shape) {
         if (shape == null) {
             Debug.LogError("Unexpected input shape: shape is null.");

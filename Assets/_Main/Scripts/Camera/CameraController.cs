@@ -24,8 +24,8 @@ public class CameraController : MonoBehaviour {
 
     Vector3 targetRotation;
     public event Action OnCameraRotate;
-    public Vector3 IsometricForward { get; private set; } // 45 degrees CCW (left side) from camera.forward 
-    public Vector3 IsometricRight { get; private set; }   // 45 degrees CW (right side) from camera.forward 
+    public Vector3Int IsometricForward { get; private set; } // 45 degrees CCW (left side) from camera.forward 
+    public Vector3Int IsometricRight { get; private set; }   // 45 degrees CW (right side) from camera.forward 
 
     Camera cam;
 
@@ -44,8 +44,9 @@ public class CameraController : MonoBehaviour {
         targetZoom = cam.orthographicSize;
         targetRotation = transform.parent.rotation.eulerAngles;
 
-        IsometricForward = (Quaternion.Euler(0, -45, 0) * new Vector3(cam.transform.forward.x, 0, cam.transform.forward.z)).normalized;
-        IsometricRight = (Quaternion.Euler(0, 45, 0) * new Vector3(cam.transform.forward.x, 0, cam.transform.forward.z)).normalized;
+        Vector3 transForwardXZ = new Vector3(cam.transform.forward.x, 0, cam.transform.forward.z).normalized;
+        IsometricForward = Vector3Int.RoundToInt(Quaternion.Euler(0, -45, 0) * transForwardXZ);
+        IsometricRight =  Vector3Int.RoundToInt(Quaternion.Euler(0, 45, 0) * transForwardXZ);
 
         Ref.Player.PlayerInput.InputScroll += ZoomView;
         Ref.Player.PlayerInput.InputRotateCamera += RotateCamera;
@@ -77,8 +78,8 @@ public class CameraController : MonoBehaviour {
 
         int sign = (int) Mathf.Sign(rotateCameraInput);
         targetRotation = transform.parent.rotation.eulerAngles + new Vector3(0f, 90f * sign, 0f);
-        IsometricForward = Quaternion.Euler(0, 90 * sign, 0) * IsometricForward;
-        IsometricRight = Quaternion.Euler(0, 90 * sign, 0) * IsometricRight;
+        IsometricForward = Vector3Int.RoundToInt(Quaternion.Euler(0, 90 * sign, 0) * IsometricForward);
+        IsometricRight = Vector3Int.RoundToInt(Quaternion.Euler(0, 90 * sign, 0) * IsometricRight);
 
         transform.parent.DOKill();
         transform.parent.DORotate(targetRotation, rotationDuration).SetEase(Ease.OutQuad).OnUpdate(() => OnCameraRotate?.Invoke());
