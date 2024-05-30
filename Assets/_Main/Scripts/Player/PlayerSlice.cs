@@ -72,51 +72,50 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, 0, 0)) :
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, 0.1f));
 
-        ShapeData shapeData = selectedShape.ShapeData;
-        if (localHitAntiNormal.y < 0) {
-            // Walk backwards along slice dir from selected cell for correct first slice cell coord
-            Direction antiSliceDir = isZSlice ?
-                DirectionData.GetClosestDirection(-camCtrl.IsometricForward) :
-                DirectionData.GetClosestDirection(-camCtrl.IsometricRight);
-
-            while (shapeData.NeighborExists(leftCellCoord, antiSliceDir) && shapeData.NeighborExists(rightCellCoord, antiSliceDir)) {
-                leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
-                rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
-                sliceFirstPos = (leftCellCoord - rightCellCoord) / 2;
-            }
-        }
-
-        if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) {
+        if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) { // Don't display on shape edges
             slicePreviewObj.SetActive(false);
             return;
         }
 
-        Direction sliceDir = DirectionData.GetClosestDirection(localHitAntiNormal);
-        Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
-        float x = sliceFirstPos.x;
-        float z = sliceFirstPos.z;
-        List<float> p = new() {isZSlice ? sliceFirstPos.z : sliceFirstPos.x};
-        int iterations = 10; // TEMP
-        int i = 0;           // TEMP
-        // Walk slice direction for cell pairs
-        while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
-            i++;
-
-            p.Add(isZSlice ? z++ : x++);
-            leftCellCoord += sliceDirVector;
-            rightCellCoord += sliceDirVector;
-
-            if (i > iterations) {
-                Debug.LogError("something went wrong");
-                break;
+        ShapeData shapeData = selectedShape.ShapeData;
+        Direction sliceDir = isZSlice ?
+            DirectionData.GetClosestDirection(camCtrl.IsometricForward) :
+            DirectionData.GetClosestDirection(camCtrl.IsometricRight);
+        if (localHitAntiNormal.y < 0) {
+            // Walk backwards along slice dir from selected cell for correct first slice cell coord
+            Direction antiSliceDir = DirectionData.OppositeDirection(sliceDir);
+            while (shapeData.NeighborExists(leftCellCoord, antiSliceDir) && shapeData.NeighborExists(rightCellCoord, antiSliceDir)) {
+                leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
+                rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
+                sliceFirstPos += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
             }
         }
+        
+        // print($"{sliceFirstPos} | {leftCellCoord} | {rightCellCoord}");
+
+        // Walk slice direction for cell pairs
+        float x = sliceFirstPos.x;
+        float z = sliceFirstPos.z;
+        List<float> p = new() {isZSlice ? z : x};
+        Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
+        while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
+            z++; x++;
+            p.Add(isZSlice ? z : x);
+            leftCellCoord += sliceDirVector;
+            rightCellCoord += sliceDirVector;
+        }
+
+        string a = "";
+        foreach (var pp in p) {
+            a += pp + " ";
+        }
+        print(a);
 
         // Place slice preview plane
         float slicePreviewPos = p.Average();
         slicePreviewObj.transform.position = isZSlice ?
-            new Vector3(sliceFirstPos.x, sliceFirstPos.y, slicePreviewPos) + targetGrid.transform.position :
-            new Vector3(slicePreviewPos, sliceFirstPos.y, sliceFirstPos.z) + targetGrid.transform.position;
+            targetGrid.transform.TransformPoint(new Vector3(sliceFirstPos.x, sliceFirstPos.y, slicePreviewPos)) :
+            targetGrid.transform.TransformPoint(new Vector3(slicePreviewPos, sliceFirstPos.y, sliceFirstPos.z));
         slicePreviewObj.transform.rotation = isZSlice ?
             Quaternion.LookRotation(-camCtrl.IsometricRight, Vector3.up) :
             Quaternion.LookRotation(-camCtrl.IsometricForward, Vector3.up);
