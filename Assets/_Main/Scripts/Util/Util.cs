@@ -4,12 +4,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Util : MonoBehaviour {
-    public class ValueRef<T> where T : struct
-    {
+    public class ValueRef<T> where T : struct {
         public T Value { get; set; }
         public ValueRef(T value) { Value = value; }
     }
-    
+
     /// <summary>
     /// Executes action exactly one frame later from calling.
     /// </summary>
@@ -41,10 +40,10 @@ public class Util : MonoBehaviour {
             if (interrupt is {Value: false}) {
                 yield break;
             }
-            
+
             yield return null;
         }
-        
+
         onComplete?.Invoke();
     }
 
@@ -62,15 +61,28 @@ public class Util : MonoBehaviour {
         return DateTime.Compare(t1, t2);
     }
 
+    public static Product GetProductFromShape(IGridShape shape) {
+        if (shape == null) {
+            Debug.LogError("Unexpected input shape: shape is null.");
+            return null;
+        }
+
+        if (shape.ColliderTransform.TryGetComponent(out Product product)) {
+            return product;
+        } else {
+            Debug.LogError("Unexpected input shapes: shape is missing Product component.");
+            return null;
+        }
+    }
     public static List<Product> GetProductsFromShapes(List<IGridShape> shapes) {
         List<Product> heldProducts = new();
         foreach (IGridShape shape in shapes) {
-            if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-                heldProducts.Add(product);
-            } else {
-                Debug.LogError("Unexpected input in held shapes: shape is missing Product component.");
+            Product p = GetProductFromShape(shape);
+            if (p == null) {
                 return null;
             }
+
+            heldProducts.Add(p);
         }
 
         return heldProducts;

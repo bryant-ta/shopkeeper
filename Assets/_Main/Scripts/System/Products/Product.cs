@@ -6,7 +6,7 @@ using TriInspector;
 using UnityEngine;
 
 public class Product : MonoBehaviour, IGridShape {
-    [SerializeField] SO_Product productData;
+    [field: SerializeField] public SO_Product ProductData { get; private set; }
 
     #region Product
 
@@ -49,18 +49,18 @@ public class Product : MonoBehaviour, IGridShape {
     void Awake() {
         Colliders = new();
 
-        if (productData == null) {
+        if (ProductData == null) {
             // Debug.Log($"Product {gameObject.name} did not self-init.");
             return;
         }
 
-        Init(productData);
+        Init(ProductData);
     }
 
-    public void Init(SO_Product _productData) {
-        if (productData == null) productData = _productData;
+    public void Init(SO_Product productData) {
+        if (ProductData == null) ProductData = productData;
 
-        ShapeData = productData.ShapeData;
+        ShapeData = ProductData.ShapeData;
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
             ShapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
@@ -70,8 +70,8 @@ public class Product : MonoBehaviour, IGridShape {
         ShapeTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
-        ID = productData.ID;
-        gameObject.name = Name = productData.ID.ToString();
+        ID = ProductData.ID;
+        gameObject.name = Name = ProductData.ID.ToString();
 
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
@@ -79,7 +79,7 @@ public class Product : MonoBehaviour, IGridShape {
         Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
-        ShapeTags = new ShapeTags(productData.MoveTagIDs, productData.PlaceTagIDs);
+        ShapeTags = new ShapeTags(ProductData.MoveTagIDs, ProductData.PlaceTagIDs);
     }
     
     public void SetOutline(Color color, float weight) {

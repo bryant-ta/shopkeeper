@@ -6,7 +6,15 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
     public ProductID ID;
-    public ShapeData ShapeData;
+
+    [SerializeField] ShapeData shapeData;
+    public ShapeData ShapeData {
+        get => shapeData;
+        set {
+            shapeData = value;
+            ID.SetShapeData(value);
+        }
+    }
 
     public List<MoveTagID> MoveTagIDs;
     public List<PlaceTagID> PlaceTagIDs;
@@ -16,9 +24,9 @@ public class SO_Product : ScriptableObject {
 public struct ProductID {
     public Color Color;
     public Pattern Pattern;
-    public ShapeDataID ShapeDataID => ShapeData.ID;
+    public ShapeDataID ShapeDataID => ShapeData.ID; // this pattern kinda sucks to use... don't do this again
 
-    ShapeData ShapeData;
+    public ShapeData ShapeData { get; private set; }
 
     public ProductID(Color color, Pattern pattern, ShapeData shapeData) {
         Color = color;
@@ -46,6 +54,11 @@ public struct ProductID {
         if (ShapeData == null) return $"{Color}_{Pattern}_None";
         return $"{Color}_{Pattern}_{ShapeDataID}";
     }
+
+    /// <summary>
+    /// Generally should never be called manually!! Is called by SO_Product.ShapeData setter.
+    /// </summary>
+    public void SetShapeData(ShapeData shapeData) { ShapeData = shapeData; }
 }
 
 public enum Pattern {

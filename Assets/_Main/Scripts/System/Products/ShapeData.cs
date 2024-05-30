@@ -7,7 +7,7 @@ using UnityEngine;
 [Serializable]
 public class ShapeData {
     public ShapeDataID ID;
-    [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; }
+    [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; } // Shape's cell grid position, (0,0,0) in offset matches
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
     public int Size => ShapeOffsets?.Count ?? 0;
 
@@ -32,6 +32,25 @@ public class ShapeData {
         }
 
         ShapeOffsets = rotatedShapeOffsets;
+    }
+
+    /// <summary>
+    /// Recenters offsets, used when first offset is not (0,0,0). Uses first offset in input list as new center.
+    /// </summary>
+    public void RecenterOffsets() {
+        if (ShapeOffsets == null || ShapeOffsets.Count == 0) {
+            Debug.LogError("Shape offsets not yet set.");
+            return;
+        }
+        if (ShapeOffsets[0] == Vector3Int.zero) return;
+
+        List<Vector3Int> centeredOffsets = new();
+        for (int i = 0; i < ShapeOffsets.Count; i++) {
+            centeredOffsets.Add(ShapeOffsets[i] - ShapeOffsets[0]);
+        }
+
+        RootCoord += ShapeOffsets[0];
+        ShapeOffsets = centeredOffsets;
     }
 
     public bool NeighborExists(Vector3Int coord, Direction dir) {
@@ -70,8 +89,8 @@ public class ShapeData {
             }
         }
 
-        Debug.LogError("Unable to match shape data ID: Did not match any shape.");
-        return ShapeDataID.None;
+        Debug.Log("Did not match shape data to any shape data ID.");
+        return ShapeDataID.Custom;
     }
 }
 
@@ -102,6 +121,7 @@ public enum ShapeDataID {
     L3x1 = 24,
     L2x2 = 25,
     L3x3 = 26,
+    C1x1 = 30,
     Custom = 100,
 }
 
@@ -384,6 +404,17 @@ public static class ShapeDataLookUp {
                     new(0, 0, 1),
                     new(0, 0, 2),
                     new(0, 0, 3),
+                }
+            }
+        }, {
+            ShapeDataID.C1x1, new ShapeData() {
+                ID = ShapeDataID.C1x1,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0),
+                    new(1, 0, 0),
+                    new(0, 0, 1),
+                    new(0, 0, 2),
+                    new(1, 0, 2),
                 }
             }
         },

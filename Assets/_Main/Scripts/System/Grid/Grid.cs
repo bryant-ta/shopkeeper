@@ -179,7 +179,7 @@ public class Grid : MonoBehaviour {
     /// <param name="shape">Shape of cells to remove</param>
     /// <param name="triggerAllFall">If false, shapes directly above coord will ignore falling. Set false to correctly move
     /// a stack of shapes.</param>
-    void RemoveShapeCells(IGridShape shape, bool triggerAllFall) {
+    public void RemoveShapeCells(IGridShape shape, bool triggerAllFall) {
         Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells.Remove(shape.ShapeData.RootCoord + offset);

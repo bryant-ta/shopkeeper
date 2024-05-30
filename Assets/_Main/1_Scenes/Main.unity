@@ -10527,7 +10527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 734ba6acfc77bbb44a002f207d4916fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  productData: {fileID: 11400000, guid: 351d48bfb9ca5594281b171cd6d0bedd, type: 2}
+  <ProductData>k__BackingField: {fileID: 11400000, guid: 351d48bfb9ca5594281b171cd6d0bedd, type: 2}
   <ID>k__BackingField:
     Color: {r: 0.59607846, g: 0.9607844, b: 0.882353, a: 1}
     Pattern: 0
@@ -13002,8 +13002,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7dc32737e56a5b74ab503c1852325d5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slicePreviewScale: 0.2
-  slicePreviewObj: {fileID: 1843504537}
+  previewScale: 0.2
+  previewObj: {fileID: 1843504537}
 --- !u!1 &2111481137
 GameObject:
   m_ObjectHideFlags: 0

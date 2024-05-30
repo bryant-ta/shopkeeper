@@ -15,8 +15,8 @@ MonoBehaviour:
   ID:
     Color: {r: 0.93207544, g: 0.06858658, b: 0.06858658, a: 1}
     Pattern: 10
-  ShapeData:
-    ID: 10
+  shapeData:
+    ID: 7
     <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
   MoveTagIDs: 

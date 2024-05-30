@@ -4,34 +4,95 @@ using System.Linq;
 using UnityEngine;
 
 public class PlayerSlice : MonoBehaviour, IPlayerTool {
-    [SerializeField] float slicePreviewScale = 0.3f;
-    [SerializeField] GameObject slicePreviewObj; // a plane
+    [SerializeField] float previewScale = 0.3f;
+    [SerializeField] GameObject previewObj; // a plane
 
-    MeshFilter slicePreviewPlaneMeshFilter;
-    List<LineRenderer> slicePreviewLineRenderers;
+    MeshFilter previewPlaneMeshFilter;
+    List<LineRenderer> previewLineRenderers;
 
     Grid targetGrid;
     CameraController camCtrl;
 
     void Awake() {
-        slicePreviewPlaneMeshFilter = slicePreviewObj.GetComponent<MeshFilter>();
-        if (slicePreviewPlaneMeshFilter == null || slicePreviewPlaneMeshFilter.mesh == null) {
+        previewPlaneMeshFilter = previewObj.GetComponent<MeshFilter>();
+        if (previewPlaneMeshFilter == null || previewPlaneMeshFilter.mesh == null) {
             Debug.LogError("MeshFilter or mesh is missing on slice preview plane.");
             return;
         }
 
-        slicePreviewLineRenderers = slicePreviewObj.GetComponentsInChildren<LineRenderer>().ToList();
+        previewLineRenderers = previewObj.GetComponentsInChildren<LineRenderer>().ToList();
 
         camCtrl = Camera.main.GetComponent<CameraController>();
     }
 
-    void Slice(ClickInputArgs clickInputArgs) { }
+    // separated slice execution vars for readability
+    bool execZSlice;
+    float xzThreshold_ShapeLocal; // local to shape offsset
+    Vector3Int rightCellCoord_ShapeLocal;
+    IGridShape origShape;
+    void Slice(ClickInputArgs clickInputArgs) {
+        if (origShape == null) return;
 
+        // Split targetShapeData into two shapes according to slicing selection
+        List<Vector3Int> unvisitedOffsets = origShape.ShapeData.ShapeOffsets;
+        List<Vector3Int> offsetsB = new();
+        Queue<Vector3Int> searchQueue = new();
+
+        Vector3Int rightCellOffset = rightCellCoord_ShapeLocal - origShape.ShapeData.RootCoord; // now working in shape offset space
+        searchQueue.Enqueue(rightCellOffset);
+        // Find right group offsets to create one shape data. Remaining offsets make up the other shape.
+        while (searchQueue.Count > 0) {
+            Vector3Int coord = searchQueue.Dequeue();
+            unvisitedOffsets.Remove(coord);
+            offsetsB.Add(coord);
+
+            for (int i = 0; i < 4; i++) {
+                if (origShape.ShapeData.NeighborExists(coord, (Direction) i)) {
+                    Vector3Int c = coord + DirectionData.DirectionVectorsInt[i];
+                    if (((execZSlice && c.x > xzThreshold_ShapeLocal) || (!execZSlice && c.z > xzThreshold_ShapeLocal)) &&
+                        unvisitedOffsets.Contains(c)) {
+                        searchQueue.Enqueue(c);
+                    }
+                }
+            }
+        }
+
+        // Remove original shape from grid
+        targetGrid.RemoveShapeCells(origShape, false);
+
+        // Create two new shapes from slicing, replacing only shapeData from original shape
+        MakeSlicedShape(unvisitedOffsets);
+        MakeSlicedShape(offsetsB);
+
+        // Destroy original shape
+        origShape.DestroyShape();
+        origShape = null;
+    }
+
+    void MakeSlicedShape(List<Vector3Int> offsets) {
+        ShapeData shapeData = new ShapeData {RootCoord = origShape.ShapeData.RootCoord, ShapeOffsets = offsets};
+        shapeData.RecenterOffsets();
+        shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
+
+        Product origProduct = Util.GetProductFromShape(origShape);
+        if (origProduct == null) return;
+
+        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+            origProduct.ID.Color, origProduct.ID.Pattern, origProduct.ShapeData
+        );
+        productData.ShapeData = shapeData;
+        Product product = ProductFactory.Instance.CreateProduct(productData, targetGrid.transform.TransformPoint(shapeData.RootCoord));
+
+        targetGrid.PlaceShapeNoValidate(shapeData.RootCoord, product);
+        Ledger.AddStockedProduct(product);
+    }
+
+    // works in target grid local space, positions preview in world space!
     Vector3 lastSelectedShapeCellCoord;
     bool lastIsZSlice;
     void SlicePreview(ClickInputArgs clickInputArgs) {
         if (!SelectTargetGrid(clickInputArgs)) {
-            slicePreviewObj.SetActive(false);
+            previewObj.SetActive(false);
             return;
         }
 
@@ -43,7 +104,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         IGridShape selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
         if (selectedShape == null) {
-            slicePreviewObj.SetActive(false);
+            previewObj.SetActive(false);
             return;
         }
 
@@ -56,6 +117,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         if (selectedShapeCellCoord == lastSelectedShapeCellCoord && isZSlice == lastIsZSlice) {
             return;
         }
+
         lastSelectedShapeCellCoord = selectedShapeCellCoord;
         lastIsZSlice = isZSlice;
 
@@ -73,7 +135,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, 0.1f));
 
         if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) { // Don't display on shape edges
-            slicePreviewObj.SetActive(false);
+            previewObj.SetActive(false);
             return;
         }
 
@@ -90,8 +152,14 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
                 sliceFirstPos += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
             }
         }
-        
-        // print($"{sliceFirstPos} | {leftCellCoord} | {rightCellCoord}");
+
+        // Save values used for executing slice
+        execZSlice = isZSlice;
+        xzThreshold_ShapeLocal = isZSlice ?
+            sliceFirstPos.x - targetGrid.transform.TransformPoint(shapeData.RootCoord).x :
+            sliceFirstPos.z - targetGrid.transform.TransformPoint(shapeData.RootCoord).z;
+        rightCellCoord_ShapeLocal = Vector3Int.RoundToInt(targetGrid.transform.TransformPoint(rightCellCoord));
+        origShape = selectedShape;
 
         // Walk slice direction for cell pairs
         float x = sliceFirstPos.x;
@@ -99,48 +167,41 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         List<float> p = new() {isZSlice ? z : x};
         Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
         while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
-            z++; x++;
+            z++;
+            x++;
             p.Add(isZSlice ? z : x);
             leftCellCoord += sliceDirVector;
             rightCellCoord += sliceDirVector;
         }
 
-        string a = "";
-        foreach (var pp in p) {
-            a += pp + " ";
-        }
-        print(a);
-
         // Place slice preview plane
-        float slicePreviewPos = p.Average();
-        slicePreviewObj.transform.position = isZSlice ?
-            targetGrid.transform.TransformPoint(new Vector3(sliceFirstPos.x, sliceFirstPos.y, slicePreviewPos)) :
-            targetGrid.transform.TransformPoint(new Vector3(slicePreviewPos, sliceFirstPos.y, sliceFirstPos.z));
-        slicePreviewObj.transform.rotation = isZSlice ?
+        float previewPosXorZ = p.Average();
+        previewObj.transform.position = isZSlice ?
+            targetGrid.transform.TransformPoint(new Vector3(sliceFirstPos.x, sliceFirstPos.y, previewPosXorZ)) :
+            targetGrid.transform.TransformPoint(new Vector3(previewPosXorZ, sliceFirstPos.y, sliceFirstPos.z));
+        previewObj.transform.rotation = isZSlice ?
             Quaternion.LookRotation(-camCtrl.IsometricRight, Vector3.up) :
             Quaternion.LookRotation(-camCtrl.IsometricForward, Vector3.up);
-        slicePreviewObj.transform.localScale = new Vector3(
-            p.Count + slicePreviewScale, 1f + slicePreviewScale, p.Count + slicePreviewScale
-        );
+        previewObj.transform.localScale = new Vector3(p.Count + previewScale, 1f + previewScale, p.Count + previewScale);
 
         // Draw slice preview line around slice edge
         // Convert vertices of quad to world positions
-        Vector3[] localVertices = slicePreviewPlaneMeshFilter.mesh.vertices;
+        Vector3[] localVertices = previewPlaneMeshFilter.mesh.vertices;
         Vector3[] worldVertices = new Vector3[localVertices.Length];
         for (int j = 0; j < localVertices.Length; j++) {
             worldVertices[j] = transform.TransformPoint(localVertices[j]);
         }
 
         // Align line renderes along quad perimeter
-        slicePreviewLineRenderers[0].SetPosition(0, worldVertices[0]);
-        slicePreviewLineRenderers[0].SetPosition(1, worldVertices[1]);
-        slicePreviewLineRenderers[1].SetPosition(0, worldVertices[1]);
-        slicePreviewLineRenderers[1].SetPosition(1, worldVertices[3]);
-        slicePreviewLineRenderers[2].SetPosition(0, worldVertices[3]);
-        slicePreviewLineRenderers[2].SetPosition(1, worldVertices[2]);
-        slicePreviewLineRenderers[3].SetPosition(0, worldVertices[2]);
-        slicePreviewLineRenderers[3].SetPosition(1, worldVertices[0]);
-        slicePreviewObj.SetActive(true);
+        previewLineRenderers[0].SetPosition(0, worldVertices[0]);
+        previewLineRenderers[0].SetPosition(1, worldVertices[1]);
+        previewLineRenderers[1].SetPosition(0, worldVertices[1]);
+        previewLineRenderers[1].SetPosition(1, worldVertices[3]);
+        previewLineRenderers[2].SetPosition(0, worldVertices[3]);
+        previewLineRenderers[2].SetPosition(1, worldVertices[2]);
+        previewLineRenderers[3].SetPosition(0, worldVertices[2]);
+        previewLineRenderers[3].SetPosition(1, worldVertices[0]);
+        previewObj.SetActive(true);
     }
 
     // TEMP: will consider moving to Player to consolidate among Player Tools
@@ -167,6 +228,6 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     public void Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= Slice;
         Ref.Player.PlayerInput.InputPoint -= SlicePreview;
-        slicePreviewObj.SetActive(false);
+        previewObj.SetActive(false);
     }
 }
