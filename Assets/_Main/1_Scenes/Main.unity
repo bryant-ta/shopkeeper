@@ -7485,7 +7485,7 @@ MonoBehaviour:
   NextOrderDelay:
     Min: 0
     Max: 0
-  chanceMoldOrder: 0
+  chanceMoldOrder: 1
   numReqsPerOrder:
     Min: 1
     Max: 1

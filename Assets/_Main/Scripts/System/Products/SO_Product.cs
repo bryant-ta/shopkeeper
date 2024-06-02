@@ -51,8 +51,8 @@ public struct ProductID {
     }
 
     public override string ToString() {
-        if (ShapeData == null) return $"{Color}_{Pattern}_None";
-        return $"{Color}_{Pattern}_{ShapeDataID}";
+        if (ShapeData == null) return $"None_{Color}_{Pattern}";
+        return $"{ShapeDataID}_{Color}_{Pattern}";
     }
 
     /// <summary>

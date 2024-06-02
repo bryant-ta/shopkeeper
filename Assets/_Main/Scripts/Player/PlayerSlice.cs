@@ -27,30 +27,32 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
     // separated slice execution vars for readability
     bool execZSlice;
-    float xzThreshold_ShapeLocal; // local to shape offsset
-    Vector3Int rightCellCoord_ShapeLocal;
+    float execXZThreshold; // in shape offset space
+    Vector3Int execRightCellCoord;
     IGridShape origShape;
     void Slice(ClickInputArgs clickInputArgs) {
         if (origShape == null) return;
+        
+        // convert local grid coord -> shape offset coord
+        float xzThreshold = execZSlice ? execXZThreshold - origShape.ShapeData.RootCoord.x : execXZThreshold - origShape.ShapeData.RootCoord.z;
+        Vector3Int rightCellOffset = execRightCellCoord - origShape.ShapeData.RootCoord;
 
         // Split targetShapeData into two shapes according to slicing selection
-        List<Vector3Int> unvisitedOffsets = origShape.ShapeData.ShapeOffsets;
         List<Vector3Int> offsetsB = new();
+        List<Vector3Int> unvisitedOffsets = origShape.ShapeData.ShapeOffsets;
         Queue<Vector3Int> searchQueue = new();
-
-        Vector3Int rightCellOffset = rightCellCoord_ShapeLocal - origShape.ShapeData.RootCoord; // now working in shape offset space
+        offsetsB.Add(rightCellOffset);
+        unvisitedOffsets.Remove(rightCellOffset);
         searchQueue.Enqueue(rightCellOffset);
-        // Find right group offsets to create one shape data. Remaining offsets make up the other shape.
-        while (searchQueue.Count > 0) {
+        while (searchQueue.Count > 0) { // Find right group offsets to create one shape data. Remaining offsets make up the other shape.
             Vector3Int coord = searchQueue.Dequeue();
-            unvisitedOffsets.Remove(coord);
-            offsetsB.Add(coord);
 
             for (int i = 0; i < 4; i++) {
                 if (origShape.ShapeData.NeighborExists(coord, (Direction) i)) {
                     Vector3Int c = coord + DirectionData.DirectionVectorsInt[i];
-                    if (((execZSlice && c.x > xzThreshold_ShapeLocal) || (!execZSlice && c.z > xzThreshold_ShapeLocal)) &&
-                        unvisitedOffsets.Contains(c)) {
+                    if (((execZSlice && c.x > xzThreshold) || (!execZSlice && c.z > xzThreshold)) && unvisitedOffsets.Contains(c)) {
+                        offsetsB.Add(c);
+                        unvisitedOffsets.Remove(c);
                         searchQueue.Enqueue(c);
                     }
                 }
@@ -71,7 +73,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
     void MakeSlicedShape(List<Vector3Int> offsets) {
         ShapeData shapeData = new ShapeData {RootCoord = origShape.ShapeData.RootCoord, ShapeOffsets = offsets};
-        shapeData.RecenterOffsets();
+        shapeData.RecenterOffsets(); // modifies root coord too
         shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
 
         Product origProduct = Util.GetProductFromShape(origShape);
@@ -121,32 +123,34 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         lastSelectedShapeCellCoord = selectedShapeCellCoord;
         lastIsZSlice = isZSlice;
 
-        // Midpoint between the two cell centers for initial slice (localPosition)
+        // Midpoint between the two cell centers for initial slice (local pos)
         Vector3 sliceFirstPos = isZSlice ?
             selectedShapeCellCoord + new Vector3(0.5f * Math.Sign(cellToHitPoint.x), 0.5f, 0) :
             selectedShapeCellCoord + new Vector3(0, 0.5f, 0.5f * Math.Sign(cellToHitPoint.z));
 
         // Find cell pairs to slice past initial slice
         Vector3Int leftCellCoord = isZSlice ?
-            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(-0.1f, 0, 0)) :
-            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, -0.1f));
+            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(-0.1f, -0.1f, 0)) : // y = -0.1 to round down, it's relative to selectedShapeCoord
+            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, -0.1f, -0.1f));
         Vector3Int rightCellCoord = isZSlice ?
-            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, 0, 0)) :
-            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, 0, 0.1f));
+            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, -0.1f, 0)) :
+            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, -0.1f, 0.1f));
 
-        if (targetGrid.SelectPosition(leftCellCoord) != targetGrid.SelectPosition(rightCellCoord)) { // Don't display on shape edges
+        // Don't display preview on shape edges
+        IGridShape leftShape = targetGrid.SelectPosition(leftCellCoord);
+        IGridShape rightShape = targetGrid.SelectPosition(rightCellCoord);
+        if (leftShape == null || rightShape == null || leftShape != rightShape) { 
             previewObj.SetActive(false);
             return;
         }
 
         ShapeData shapeData = selectedShape.ShapeData;
-        Direction sliceDir = isZSlice ?
-            Direction.North :
-            Direction.East;
+        Direction sliceDir = isZSlice ? Direction.North : Direction.East;
         if (localHitAntiNormal.y < 0) {
             // Walk backwards along slice dir from selected cell for correct first slice cell coord
             Direction antiSliceDir = DirectionData.OppositeDirection(sliceDir);
-            while (shapeData.NeighborExists(leftCellCoord, antiSliceDir) && shapeData.NeighborExists(rightCellCoord, antiSliceDir)) {
+            while (shapeData.NeighborExists(leftCellCoord - shapeData.RootCoord, antiSliceDir) &&
+                   shapeData.NeighborExists(rightCellCoord - shapeData.RootCoord, antiSliceDir)) {
                 leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
                 rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
                 sliceFirstPos += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
@@ -155,10 +159,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Save values used for executing slice
         execZSlice = isZSlice;
-        xzThreshold_ShapeLocal = isZSlice ?
-            sliceFirstPos.x - targetGrid.transform.TransformPoint(shapeData.RootCoord).x :
-            sliceFirstPos.z - targetGrid.transform.TransformPoint(shapeData.RootCoord).z;
-        rightCellCoord_ShapeLocal = Vector3Int.RoundToInt(targetGrid.transform.TransformPoint(rightCellCoord));
+        execXZThreshold = isZSlice ? sliceFirstPos.x : sliceFirstPos.z;
+        execRightCellCoord = rightCellCoord;
         origShape = selectedShape;
 
         // Walk slice direction for cell pairs
@@ -166,7 +168,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         float z = sliceFirstPos.z;
         List<float> p = new() {isZSlice ? z : x};
         Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
-        while (shapeData.NeighborExists(leftCellCoord, sliceDir) && shapeData.NeighborExists(rightCellCoord, sliceDir)) {
+        while (shapeData.NeighborExists(leftCellCoord - shapeData.RootCoord, sliceDir) &&
+               shapeData.NeighborExists(rightCellCoord - shapeData.RootCoord, sliceDir)) {
             z++;
             x++;
             p.Add(isZSlice ? z : x);
@@ -179,7 +182,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         previewObj.transform.position = isZSlice ?
             targetGrid.transform.TransformPoint(new Vector3(sliceFirstPos.x, sliceFirstPos.y, previewPosXorZ)) :
             targetGrid.transform.TransformPoint(new Vector3(previewPosXorZ, sliceFirstPos.y, sliceFirstPos.z));
-        bool camRotationState = camCtrl.IsometricForward == Vector3Int.forward || camCtrl.IsometricForward == Vector3Int.right; 
+        bool camRotationState = camCtrl.IsometricForward == Vector3Int.forward || camCtrl.IsometricForward == Vector3Int.right;
         previewObj.transform.rotation = isZSlice ?
             Quaternion.LookRotation(camRotationState ? Vector3.left : Vector3.right, Vector3.up) :
             Quaternion.LookRotation(camRotationState ? Vector3.back : Vector3.forward, Vector3.up);
