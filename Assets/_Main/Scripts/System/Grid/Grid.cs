@@ -187,63 +187,6 @@ public class Grid : MonoBehaviour {
         if (triggerAllFall) TriggerFallByGap(shape.ShapeData.RootCoord, shape.ShapeData.ShapeOffsets);
     }
 
-    // usually called on where a shape used to be (bc of destruction or movement)
-    public void TriggerFallByGap(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
-        Queue<Vector3Int> gapCoords = new();
-        foreach (Vector3Int offset in shapeOffsets) {
-            gapCoords.Enqueue(rootCoord + offset);
-        }
-
-        // Trigger falling for any shapes above removed shape cells
-        while (gapCoords.Count > 0) {
-            Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
-            if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord) && CanFall(aboveCoord, shapeOffsets)) {
-                // Cause all shapes above to fall as well
-                IGridShape aboveShape = cells[aboveCoord].Shape;
-                Vector3Int aboveRoot = aboveShape.ShapeData.RootCoord;
-                foreach (Vector3Int offset in aboveShape.ShapeData.ShapeOffsets) {
-                    gapCoords.Enqueue(aboveRoot + offset);
-                }
-
-                // Find lowest open spot that fits falling shape
-                Vector3Int yDiff = Vector3Int.down;
-                while (CanFall(aboveRoot + yDiff, aboveShape.ShapeData.ShapeOffsets)) {
-                    yDiff += Vector3Int.down;
-                }
-                
-                MoveShapes(this, aboveRoot + yDiff, new List<IGridShape> {aboveShape}, true);
-            }
-        }
-    }
-
-    public void TriggerFallOnTarget(IGridShape targetShape) {
-        Vector3Int origRoot = targetShape.ShapeData.RootCoord;
-        if (CanFall(origRoot, targetShape.ShapeData.ShapeOffsets)) {
-            // Find lowest open spot that fits falling shape
-            Vector3Int yDiff = Vector3Int.down;
-            while (CanFall(origRoot + yDiff, targetShape.ShapeData.ShapeOffsets)) {
-                yDiff += Vector3Int.down;
-            }
-            
-            MoveShapes(this, origRoot + yDiff, new List<IGridShape> {targetShape}, true);
-            TriggerFallByGap(origRoot, targetShape.ShapeData.ShapeOffsets);
-        }
-    }
-
-    // Checks every cell beneath the input shape data is open
-    bool CanFall(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
-        bool canFall = true;
-        foreach (Vector3Int offset in shapeOffsets) {
-            Vector3Int c = rootCoord + offset + Vector3Int.down;
-            if (!IsInBounds(c) || !IsOpen(c)) {
-                canFall = false;
-                break;
-            }
-        }
-
-        return canFall;
-    }
-
     // no validation
     public void RotateShapes(List<IGridShape> shapes, bool clockwise) {
         for (int i = 0; i < shapes.Count; i++) {
@@ -366,6 +309,67 @@ public class Grid : MonoBehaviour {
 
     #endregion
 
+    #region Falling
+
+    // usually called on where a shape used to be (bc of destruction or movement)
+    public void TriggerFallByGap(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
+        Queue<Vector3Int> gapCoords = new();
+        foreach (Vector3Int offset in shapeOffsets) {
+            gapCoords.Enqueue(rootCoord + offset);
+        }
+
+        // Trigger falling for any shapes above removed shape cells
+        while (gapCoords.Count > 0) {
+            Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
+            if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord) && CanFall(aboveCoord, shapeOffsets)) {
+                // Cause all shapes above to fall as well
+                IGridShape aboveShape = cells[aboveCoord].Shape;
+                Vector3Int aboveRoot = aboveShape.ShapeData.RootCoord;
+                foreach (Vector3Int offset in aboveShape.ShapeData.ShapeOffsets) {
+                    gapCoords.Enqueue(aboveRoot + offset);
+                }
+
+                // Find lowest open spot that fits falling shape
+                Vector3Int yDiff = Vector3Int.down;
+                while (CanFall(aboveRoot + yDiff, aboveShape.ShapeData.ShapeOffsets)) {
+                    yDiff += Vector3Int.down;
+                }
+                
+                MoveShapes(this, aboveRoot + yDiff, new List<IGridShape> {aboveShape}, true);
+            }
+        }
+    }
+
+    public void TriggerFallOnTarget(IGridShape targetShape) {
+        Vector3Int origRoot = targetShape.ShapeData.RootCoord;
+        if (CanFall(origRoot, targetShape.ShapeData.ShapeOffsets)) {
+            // Find lowest open spot that fits falling shape
+            Vector3Int yDiff = Vector3Int.down;
+            while (CanFall(origRoot + yDiff, targetShape.ShapeData.ShapeOffsets)) {
+                yDiff += Vector3Int.down;
+            }
+            
+            MoveShapes(this, origRoot + yDiff, new List<IGridShape> {targetShape}, true);
+            TriggerFallByGap(origRoot, targetShape.ShapeData.ShapeOffsets);
+        }
+    }
+
+    // Checks every cell beneath the input shape data is open
+    bool CanFall(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
+        bool canFall = true;
+        foreach (Vector3Int offset in shapeOffsets) {
+            Vector3Int c = rootCoord + offset + Vector3Int.down;
+            if (!IsInBounds(c) || !IsOpen(c)) {
+                canFall = false;
+                break;
+            }
+        }
+
+        return canFall;
+    }
+
+    #endregion
+
     #region Validation
 
     // Validates placement of shape when shape's root coord is placed at targetCoord
@@ -422,6 +426,39 @@ public class Grid : MonoBehaviour {
         }
 
         return validations;
+    }
+
+    public class PlacementValidations {
+        public List<PlacementValidation> ValidationList = new();
+
+        public bool IsValid {
+            get {
+                for (int i = 0; i < ValidationList.Count; i++) {
+                    if (!ValidationList[i].IsValid) return false;
+                }
+
+                return true;
+            }
+        }
+    }
+
+    public struct PlacementValidation {
+        PlacementInvalidFlag flags;
+        public bool IsValid => (flags | 0) == 0;
+
+        public void SetFlag(PlacementInvalidFlag flag) { flags |= flag; }
+        public void UnsetFlag(PlacementInvalidFlag flag) { flags &= ~flag; }
+        public bool HasFlag(PlacementInvalidFlag flag) { return (flags & flag) == flag; }
+    }
+
+    [Flags]
+    public enum PlacementInvalidFlag {
+        None = 0,
+        OutOfBoundsXZ = 1 << 0,
+        OutOfBoundsY = 1 << 1,
+        Overlap = 1 << 2,
+        ZoneRule = 1 << 3,
+        ShapeTagRule = 1 << 4,
     }
 
     // bool ValidateShapeRotate(IGridShape shape, bool clockwise, bool ignoreZone = false) {
@@ -546,39 +583,6 @@ public class Grid : MonoBehaviour {
     }
 
     #endregion
-
-    public class PlacementValidations {
-        public List<PlacementValidation> ValidationList = new();
-
-        public bool IsValid {
-            get {
-                for (int i = 0; i < ValidationList.Count; i++) {
-                    if (!ValidationList[i].IsValid) return false;
-                }
-
-                return true;
-            }
-        }
-    }
-
-    public struct PlacementValidation {
-        PlacementInvalidFlag flags;
-        public bool IsValid => (flags | 0) == 0;
-
-        public void SetFlag(PlacementInvalidFlag flag) { flags |= flag; }
-        public void UnsetFlag(PlacementInvalidFlag flag) { flags &= ~flag; }
-        public bool HasFlag(PlacementInvalidFlag flag) { return (flags & flag) == flag; }
-    }
-
-    [Flags]
-    public enum PlacementInvalidFlag {
-        None = 0,
-        OutOfBoundsXZ = 1 << 0,
-        OutOfBoundsY = 1 << 1,
-        Overlap = 1 << 2,
-        ZoneRule = 1 << 3,
-        ShapeTagRule = 1 << 4,
-    }
 
     // TEMP: prob, until think of better way with shaders to do invalid/overlap feedbakc
     public void ChangeColorAllShapes(Color color) {
