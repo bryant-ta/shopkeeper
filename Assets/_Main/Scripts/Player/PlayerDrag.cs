@@ -105,7 +105,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
-        if (!SelectTargetGrid(clickInputArgs)) {
+        targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
+        if (targetGrid == null) {
             List<IGridShape> heldShapes = DragGrid.AllShapes();
             if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
                 for (int i = 0; i < heldShapes.Count; i++) {
@@ -249,8 +250,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             isHolding = false;
             return;
         }
-
-        if (!SelectTargetGrid(clickInputArgs)) {
+        
+        targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
+        if (targetGrid == null) {
             return;
         }
 
@@ -294,28 +296,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         OnRelease?.Invoke();
     }
-
-    #region Helper
-
-    // Select grid that is currently dragged over, caches last selected
-    // Returns false if targetGrid is not set
-    GameObject lastHitObj;
-    bool SelectTargetGrid(ClickInputArgs clickInputArgs) {
-        if (clickInputArgs.TargetObj != lastHitObj) {
-            lastHitObj = clickInputArgs.TargetObj;
-            if (clickInputArgs.TargetObj.TryGetComponent(out GridFloorHelper gridFloor)) {
-                targetGrid = gridFloor.Grid;
-            } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
-                targetGrid = shape.Grid;
-            } else {
-                targetGrid = null;
-            }
-        }
-
-        return targetGrid != null;
-    }
-
-    #endregion
 
     #region Upgrades
 

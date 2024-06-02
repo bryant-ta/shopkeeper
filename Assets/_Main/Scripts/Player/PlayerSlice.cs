@@ -103,7 +103,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     Vector3 lastSelectedShapeCellCoord;
     bool lastIsZSlice;
     void SlicePreview(ClickInputArgs clickInputArgs) {
-        if (!SelectTargetGrid(clickInputArgs)) {
+        targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
+        if (targetGrid == null) {
             previewObj.SetActive(false);
             return;
         }
@@ -216,23 +217,6 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         previewLineRenderers[3].SetPosition(0, worldVertices[2]);
         previewLineRenderers[3].SetPosition(1, worldVertices[0]);
         previewObj.SetActive(true);
-    }
-
-    // TEMP: will consider moving to Player to consolidate among Player Tools
-    GameObject lastHitObj;
-    bool SelectTargetGrid(ClickInputArgs clickInputArgs) {
-        if (clickInputArgs.TargetObj != lastHitObj) {
-            lastHitObj = clickInputArgs.TargetObj;
-            if (clickInputArgs.TargetObj.TryGetComponent(out GridFloorHelper gridFloor)) {
-                targetGrid = gridFloor.Grid;
-            } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
-                targetGrid = shape.Grid;
-            } else {
-                targetGrid = null;
-            }
-        }
-
-        return targetGrid != null;
     }
 
     public void Equip() {

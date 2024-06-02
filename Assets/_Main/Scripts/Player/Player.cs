@@ -36,6 +36,29 @@ public class Player : MonoBehaviour {
         curTool = PlayerCompact;
         PlayerCompact.Equip();
     }
+
+    #region Helper
+
+    // Select grid that is currently dragged over, caches last selected
+    // Returns false if targetGrid is not set
+    GameObject lastHitObj;
+    Grid lastTargetedGrid;
+    public Grid SelectTargetGrid(ClickInputArgs clickInputArgs) {
+        if (clickInputArgs.TargetObj != lastHitObj) {
+            lastHitObj = clickInputArgs.TargetObj;
+            if (clickInputArgs.TargetObj.TryGetComponent(out GridFloorHelper gridFloor)) {
+                lastTargetedGrid = gridFloor.Grid;
+            } else if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
+                lastTargetedGrid = shape.Grid;
+            } else {
+                lastTargetedGrid = null;
+            }
+        }
+
+        return lastTargetedGrid;
+    }
+
+    #endregion
 }
 
 public interface IPlayerTool {
