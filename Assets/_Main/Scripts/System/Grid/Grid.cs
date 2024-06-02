@@ -116,7 +116,7 @@ public class Grid : MonoBehaviour {
             lastShapeRootCoord = shape.ShapeData.RootCoord;
             PlaceShapeNoValidate(targetCoord, shape);
         }
-        
+
         OnPlaceShapes?.Invoke(shapes);
 
         return true;
@@ -180,35 +180,68 @@ public class Grid : MonoBehaviour {
     /// <param name="triggerAllFall">If false, shapes directly above coord will ignore falling. Set false to correctly move
     /// a stack of shapes.</param>
     public void RemoveShapeCells(IGridShape shape, bool triggerAllFall) {
-        Queue<Vector3Int> gapCoords = new();
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cells.Remove(shape.ShapeData.RootCoord + offset);
-            gapCoords.Enqueue(shape.ShapeData.RootCoord + offset);
+        }
+
+        if (triggerAllFall) TriggerFallByGap(shape.ShapeData.RootCoord, shape.ShapeData.ShapeOffsets);
+    }
+
+    // usually called on where a shape used to be (bc of destruction or movement)
+    public void TriggerFallByGap(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
+        Queue<Vector3Int> gapCoords = new();
+        foreach (Vector3Int offset in shapeOffsets) {
+            gapCoords.Enqueue(rootCoord + offset);
         }
 
         // Trigger falling for any shapes above removed shape cells
-        while (triggerAllFall && gapCoords.Count > 0) {
+        while (gapCoords.Count > 0) {
             Vector3Int aboveCoord = gapCoords.Dequeue() + Vector3Int.up;
-            if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord)) {
-                // Check every cell beneath the above shape is open
+            if (IsInBounds(aboveCoord) && !IsOpen(aboveCoord) && CanFall(aboveCoord, shapeOffsets)) {
+                // Cause all shapes above to fall as well
                 IGridShape aboveShape = cells[aboveCoord].Shape;
-                bool canFall = false;
-                foreach (var offset in aboveShape.ShapeData.ShapeOffsets) {
-                    if (IsOpen(aboveCoord + offset + Vector3Int.down)) {
-                        canFall = true;
-                    } else {
-                        canFall = false;
-                        break;
-                    }
+                Vector3Int aboveRoot = aboveShape.ShapeData.RootCoord;
+                foreach (Vector3Int offset in aboveShape.ShapeData.ShapeOffsets) {
+                    gapCoords.Enqueue(aboveRoot + offset);
                 }
 
-                if (canFall) {
-                    // Will recursively cause all shapes above to fall as well
-                    MoveShapes(this, aboveShape.ShapeData.RootCoord + Vector3Int.down, new List<IGridShape> {aboveShape}, true);
-                    gapCoords.Enqueue(aboveCoord);
+                // Find lowest open spot that fits falling shape
+                Vector3Int yDiff = Vector3Int.down;
+                while (CanFall(aboveRoot + yDiff, aboveShape.ShapeData.ShapeOffsets)) {
+                    yDiff += Vector3Int.down;
                 }
+                
+                MoveShapes(this, aboveRoot + yDiff, new List<IGridShape> {aboveShape}, true);
             }
         }
+    }
+
+    public void TriggerFallOnTarget(IGridShape targetShape) {
+        Vector3Int origRoot = targetShape.ShapeData.RootCoord;
+        if (CanFall(origRoot, targetShape.ShapeData.ShapeOffsets)) {
+            // Find lowest open spot that fits falling shape
+            Vector3Int yDiff = Vector3Int.down;
+            while (CanFall(origRoot + yDiff, targetShape.ShapeData.ShapeOffsets)) {
+                yDiff += Vector3Int.down;
+            }
+            
+            MoveShapes(this, origRoot + yDiff, new List<IGridShape> {targetShape}, true);
+            TriggerFallByGap(origRoot, targetShape.ShapeData.ShapeOffsets);
+        }
+    }
+
+    // Checks every cell beneath the input shape data is open
+    bool CanFall(Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
+        bool canFall = true;
+        foreach (Vector3Int offset in shapeOffsets) {
+            Vector3Int c = rootCoord + offset + Vector3Int.down;
+            if (!IsInBounds(c) || !IsOpen(c)) {
+                canFall = false;
+                break;
+            }
+        }
+
+        return canFall;
     }
 
     // no validation
@@ -350,10 +383,13 @@ public class Grid : MonoBehaviour {
 
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
-        
+
             if (!IsInBoundsXZ(checkPos)) { pv.SetFlag(PlacementInvalidFlag.OutOfBoundsXZ); }
+
             if (!IsInBoundsY(checkPos)) { pv.SetFlag(PlacementInvalidFlag.OutOfBoundsY); }
+
             if (!IsOpen(checkPos)) { pv.SetFlag(PlacementInvalidFlag.Overlap); }
+
             if (!ignoreZone && !CheckZones(checkPos, prop => prop.CanPlace)) { pv.SetFlag(PlacementInvalidFlag.ZoneRule); }
 
             if (!pv.IsValid) break;
@@ -492,7 +528,7 @@ public class Grid : MonoBehaviour {
     public bool IsOpen(Vector3Int coord) { return !cells.ContainsKey(coord); }
     public bool IsInBounds(Vector3Int coord) { return IsInBoundsY(coord) && IsInBoundsXZ(coord); }
     bool IsInBoundsXZ(Vector3Int coord) { return validCells.Contains(new Vector2Int(coord.x, coord.z)); }
-    bool IsInBoundsY(Vector3Int coord) { return coord.y < height; }
+    bool IsInBoundsY(Vector3Int coord) { return coord.y >= MinY && coord.y <= MaxY; }
 
     public bool IsEmpty() { return cells.Count == 0; }
 

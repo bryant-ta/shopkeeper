@@ -63,21 +63,29 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         targetGrid.RemoveShapeCells(origShape, false);
 
         // Create two new shapes from slicing, replacing only shapeData from original shape
-        MakeSlicedShape(unvisitedOffsets);
-        MakeSlicedShape(offsetsB);
+        IGridShape shapeA = MakeSlicedShape(unvisitedOffsets);
+        IGridShape shapeB = MakeSlicedShape(offsetsB);
+        if (shapeA == null || shapeB == null) {
+            return;
+        }
+        targetGrid.TriggerFallOnTarget(shapeA);
+        targetGrid.TriggerFallOnTarget(shapeB);
 
         // Destroy original shape
         origShape.DestroyShape();
         origShape = null;
     }
 
-    void MakeSlicedShape(List<Vector3Int> offsets) {
+    IGridShape MakeSlicedShape(List<Vector3Int> offsets) {
         ShapeData shapeData = new ShapeData {RootCoord = origShape.ShapeData.RootCoord, ShapeOffsets = offsets};
         shapeData.RecenterOffsets(); // modifies root coord too
         shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
 
         Product origProduct = Util.GetProductFromShape(origShape);
-        if (origProduct == null) return;
+        if (origProduct == null) {
+            Debug.LogError("Unable to slice shape: could not get product from shape.");
+            return null;
+        }
 
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
             origProduct.ID.Color, origProduct.ID.Pattern, origProduct.ShapeData
@@ -87,6 +95,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         targetGrid.PlaceShapeNoValidate(shapeData.RootCoord, product);
         Ledger.AddStockedProduct(product);
+
+        return product;
     }
 
     // works in target grid local space, positions preview in world space!
