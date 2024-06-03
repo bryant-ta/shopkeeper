@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class PlayerCompact : MonoBehaviour, IPlayerTool {
+public class PlayerCombine : MonoBehaviour, IPlayerTool {
     [SerializeField] float previewScale = 0.3f;
     [SerializeField] GameObject previewObj; // a plane
 
@@ -25,14 +25,14 @@ public class PlayerCompact : MonoBehaviour, IPlayerTool {
         camCtrl = Camera.main.GetComponent<CameraController>();
     }
     
-    void Compact(ClickInputArgs clickInputArgs) {
+    void Combine(ClickInputArgs clickInputArgs) {
         
     }
 
     // works in target grid local space, positions preview in world space!
     Vector3 lastSelectedShapeCellCoord;
     bool lastIsZSlice;
-    void CompactPreview(ClickInputArgs clickInputArgs) {
+    void CombinePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid == null) {
             previewObj.SetActive(false);
@@ -55,12 +55,12 @@ public class PlayerCompact : MonoBehaviour, IPlayerTool {
     }
     
     public void Equip() {
-        Ref.Player.PlayerInput.InputPrimaryDown += Compact;
-        Ref.Player.PlayerInput.InputPoint += CompactPreview;
+        Ref.Player.PlayerInput.InputPrimaryDown += Combine;
+        Ref.Player.PlayerInput.InputPoint += CombinePreview;
     }
     public void Unequip() {
-        Ref.Player.PlayerInput.InputPrimaryDown -= Compact;
-        Ref.Player.PlayerInput.InputPoint -= CompactPreview;
+        Ref.Player.PlayerInput.InputPrimaryDown -= Combine;
+        Ref.Player.PlayerInput.InputPoint -= CombinePreview;
         previewObj.SetActive(false);
     }
 }

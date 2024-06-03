@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
 
     [field: SerializeField] public PlayerDrag PlayerDrag { get; private set; }
     [field: SerializeField] public PlayerSlice PlayerSlice { get; private set; }
-    [field: SerializeField] public PlayerCompact PlayerCompact { get; private set; }
+    [field: SerializeField] public PlayerCombine PlayerCombine { get; private set; }
 
     IPlayerTool curTool;
 
@@ -33,8 +33,8 @@ public class Player : MonoBehaviour {
     }
     void SelectCompactTool() {
         curTool.Unequip();
-        curTool = PlayerCompact;
-        PlayerCompact.Equip();
+        curTool = PlayerCombine;
+        PlayerCombine.Equip();
     }
 
     #region Helper

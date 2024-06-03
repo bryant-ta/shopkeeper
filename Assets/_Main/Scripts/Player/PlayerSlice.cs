@@ -30,6 +30,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     float execXZThreshold; // in shape offset space
     Vector3Int execRightCellCoord;
     IGridShape origShape;
+    Product origProduct;
     void Slice(ClickInputArgs clickInputArgs) {
         if (origShape == null) return;
         
@@ -63,8 +64,13 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         targetGrid.RemoveShapeCells(origShape, false);
 
         // Create two new shapes from slicing, replacing only shapeData from original shape
-        IGridShape shapeA = MakeSlicedShape(unvisitedOffsets);
-        IGridShape shapeB = MakeSlicedShape(offsetsB);
+        origProduct = Util.GetProductFromShape(origShape);
+        if (origProduct == null) {
+            Debug.LogError("Unable to slice shape: could not get product from shape.");
+            return;
+        }
+        IGridShape shapeA = MakeSlicedShape(unvisitedOffsets, origProduct);
+        IGridShape shapeB = MakeSlicedShape(offsetsB, origProduct);
         if (shapeA == null || shapeB == null) {
             return;
         }
@@ -73,22 +79,17 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Destroy original shape
         origShape.DestroyShape();
+        Ledger.RemoveStockedProduct(origProduct);
         origShape = null;
     }
 
-    IGridShape MakeSlicedShape(List<Vector3Int> offsets) {
+    IGridShape MakeSlicedShape(List<Vector3Int> offsets, Product originalProduct) {
         ShapeData shapeData = new ShapeData {RootCoord = origShape.ShapeData.RootCoord, ShapeOffsets = offsets};
         shapeData.RecenterOffsets(); // modifies root coord too
         shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
 
-        Product origProduct = Util.GetProductFromShape(origShape);
-        if (origProduct == null) {
-            Debug.LogError("Unable to slice shape: could not get product from shape.");
-            return null;
-        }
-
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            origProduct.ID.Color, origProduct.ID.Pattern, origProduct.ShapeData
+            originalProduct.ID.Color, originalProduct.ID.Pattern, originalProduct.ShapeData
         );
         productData.ShapeData = shapeData;
         Product product = ProductFactory.Instance.CreateProduct(productData, targetGrid.transform.TransformPoint(shapeData.RootCoord));
