@@ -82,6 +82,10 @@ public class CameraController : MonoBehaviour {
         IsometricRight = Vector3Int.RoundToInt(Quaternion.Euler(0, 90 * sign, 0) * IsometricRight);
 
         transform.parent.DOKill();
-        transform.parent.DORotate(targetRotation, rotationDuration).SetEase(Ease.OutQuad).OnUpdate(() => OnCameraRotate?.Invoke());
+        transform.parent.DORotate(targetRotation, rotationDuration).SetEase(Ease.OutQuad).OnUpdate(() => {
+                // seems to be a bug in DoTween that invokes events in callback 4 extra times (code in callback is still called just once)
+                OnCameraRotate?.Invoke(); 
+            }
+        );
     }
 }
