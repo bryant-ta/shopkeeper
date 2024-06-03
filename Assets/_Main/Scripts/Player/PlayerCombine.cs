@@ -31,7 +31,6 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
 
     // works in target grid local space, positions preview in world space!
     Vector3 lastSelectedShapeCellCoord;
-    bool lastIsZSlice;
     void CombinePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid == null) {
@@ -51,7 +50,10 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             return;
         }
 
-        
+        // Find adjacent shapes of same color
+        foreach (Vector3Int offset in selectedShape.ShapeData.ShapeOffsets) {
+            if ()
+        }
     }
     
     public void Equip() {

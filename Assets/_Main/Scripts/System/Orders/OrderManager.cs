@@ -116,8 +116,8 @@ public class OrderManager : MonoBehaviour {
             if (order is MoldOrder moldOrder) {
                 // Setup MoldOrder Orderer
                 orderer = Instantiate(moldOrdererObj, openDock.transform).GetComponent<Orderer>();
-                MoldRenderer moldRenderer = orderer.GetComponentInChildren<MoldRenderer>();
-                moldOrder.Mold.InitByOrderer(orderer.Grid, moldRenderer);
+                ShapeOutlineRenderer shapeOutlineRenderer = orderer.GetComponentInChildren<ShapeOutlineRenderer>();
+                moldOrder.Mold.InitByOrderer(orderer.Grid, shapeOutlineRenderer);
             } else {
                 orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
             }

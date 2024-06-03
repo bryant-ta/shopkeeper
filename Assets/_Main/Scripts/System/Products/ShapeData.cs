@@ -53,7 +53,7 @@ public class ShapeData {
         ShapeOffsets = centeredOffsets;
     }
 
-    public bool NeighborExists(Vector3Int coord, Direction dir) {
+    public bool ContainsDir(Vector3Int coord, Direction dir) {
         return dir switch {
             Direction.North => ShapeOffsets.Contains(coord + Vector3Int.forward),
             Direction.East => ShapeOffsets.Contains(coord + Vector3Int.right),

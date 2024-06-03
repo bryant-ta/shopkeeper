@@ -4,14 +4,14 @@ using UnityEngine;
 public class Mold {
     public ShapeData ShapeData { get; private set; }
     public Grid Grid { get; private set; }
-    MoldRenderer moldRenderer;
+    ShapeOutlineRenderer shapeOutlineRenderer;
 
     public Mold(ShapeData shapeData) {
         ShapeData = shapeData;
     }
 
     // params only available when Orderer is ready, so must separate from constructor
-    public void InitByOrderer(Grid grid, MoldRenderer moldRenderer) {
+    public void InitByOrderer(Grid grid, ShapeOutlineRenderer shapeOutlineRenderer) {
         Grid = grid;
         ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
         int cwRandomRotationTimes = Random.Range(0, 4);
@@ -19,8 +19,8 @@ public class Mold {
             ShapeData.RotateShape(true);
         }
 
-        this.moldRenderer = moldRenderer;
-        this.moldRenderer.Render(ShapeData);
+        this.shapeOutlineRenderer = shapeOutlineRenderer;
+        this.shapeOutlineRenderer.Render(ShapeData);
     }
 
     public bool IsFullyOccupied() {

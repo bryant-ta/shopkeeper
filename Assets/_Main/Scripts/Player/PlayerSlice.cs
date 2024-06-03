@@ -49,7 +49,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
             Vector3Int coord = searchQueue.Dequeue();
 
             for (int i = 0; i < 4; i++) {
-                if (origShape.ShapeData.NeighborExists(coord, (Direction) i)) {
+                if (origShape.ShapeData.ContainsDir(coord, (Direction) i)) {
                     Vector3Int c = coord + DirectionData.DirectionVectorsInt[i];
                     if (((execZSlice && c.x > xzThreshold) || (!execZSlice && c.z > xzThreshold)) && unvisitedOffsets.Contains(c)) {
                         offsetsB.Add(c);
@@ -161,8 +161,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         if (localHitAntiNormal.y < 0) {
             // Walk backwards along slice dir from selected cell for correct first slice cell coord
             Direction antiSliceDir = DirectionData.OppositeDirection(sliceDir);
-            while (shapeData.NeighborExists(leftCellCoord - shapeData.RootCoord, antiSliceDir) &&
-                   shapeData.NeighborExists(rightCellCoord - shapeData.RootCoord, antiSliceDir)) {
+            while (shapeData.ContainsDir(leftCellCoord - shapeData.RootCoord, antiSliceDir) &&
+                   shapeData.ContainsDir(rightCellCoord - shapeData.RootCoord, antiSliceDir)) {
                 leftCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
                 rightCellCoord += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
                 sliceFirstPos += DirectionData.DirectionVectorsInt[(int) antiSliceDir];
@@ -180,8 +180,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         float z = sliceFirstPos.z;
         List<float> p = new() {isZSlice ? z : x};
         Vector3Int sliceDirVector = DirectionData.DirectionVectorsInt[(int) sliceDir];
-        while (shapeData.NeighborExists(leftCellCoord - shapeData.RootCoord, sliceDir) &&
-               shapeData.NeighborExists(rightCellCoord - shapeData.RootCoord, sliceDir)) {
+        while (shapeData.ContainsDir(leftCellCoord - shapeData.RootCoord, sliceDir) &&
+               shapeData.ContainsDir(rightCellCoord - shapeData.RootCoord, sliceDir)) {
             z++;
             x++;
             p.Add(isZSlice ? z : x);

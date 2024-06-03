@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoldRenderer : MonoBehaviour {
+public class ShapeOutlineRenderer : MonoBehaviour {
     [SerializeField] float scale = 1f;
     [SerializeField] GameObject lineRendererPrefab;
     [SerializeField] Material solidMaterial;
@@ -37,10 +37,10 @@ public class MoldRenderer : MonoBehaviour {
     }
 
     void MakeEdgeLine(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
-        if ((shapeData.NeighborExists(cubeCoord, dir1) // side elbow || side/top/bot corner
-             && shapeData.NeighborExists(cubeCoord, dir2)
-             && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) ||
-            (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2))) {
+        if ((shapeData.ContainsDir(cubeCoord, dir1) // side elbow || side/top/bot corner
+             && shapeData.ContainsDir(cubeCoord, dir2)
+             && !shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) ||
+            (!shapeData.ContainsDir(cubeCoord, dir1) && !shapeData.ContainsDir(cubeCoord, dir2))) {
             int d1 = (int) dir1;
             int d2 = (int) dir2;
             int i = dir1 switch {

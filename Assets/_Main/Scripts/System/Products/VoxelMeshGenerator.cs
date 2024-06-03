@@ -45,7 +45,7 @@ public static class VoxelMeshGenerator {
     static void MakeCube(ShapeData shapeData, Vector3Int cubeCoord) {
         // faces
         for (int i = 0; i < 6; i++) { // must match Direction enum
-            if (!shapeData.NeighborExists(cubeCoord, (Direction) i)) {
+            if (!shapeData.ContainsDir(cubeCoord, (Direction) i)) {
                 MakeFace((Direction) i, cubeCoord);
             }
         }
@@ -75,17 +75,17 @@ public static class VoxelMeshGenerator {
     }
 
     static void MakeEdgeBevel(ShapeData shapeData, Direction dir1, Direction dir2, Vector3Int cubeCoord) {
-        if (shapeData.NeighborExists(cubeCoord, dir1)
-            && !shapeData.NeighborExists(cubeCoord, dir2)
-            && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
+        if (shapeData.ContainsDir(cubeCoord, dir1)
+            && !shapeData.ContainsDir(cubeCoord, dir2)
+            && !shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
             vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if (shapeData.NeighborExists(cubeCoord, dir1)
-                   && shapeData.NeighborExists(cubeCoord, dir2)
-                   && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
+        } else if (shapeData.ContainsDir(cubeCoord, dir1)
+                   && shapeData.ContainsDir(cubeCoord, dir2)
+                   && !shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
             vertices.AddRange(CubeMeshData.ElbowBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2)) { // side/top/bot corner
+        } else if (!shapeData.ContainsDir(cubeCoord, dir1) && !shapeData.ContainsDir(cubeCoord, dir2)) { // side/top/bot corner
             vertices.AddRange(CubeMeshData.CornerBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
-        } else if ((dir1 == Direction.Up || dir1 == Direction.Down) && shapeData.NeighborExists(cubeCoord, dir2)) { // top/bot flat
+        } else if ((dir1 == Direction.Up || dir1 == Direction.Down) && shapeData.ContainsDir(cubeCoord, dir2)) { // top/bot flat
             vertices.AddRange(CubeMeshData.FlatBevelFaceVertices(dir1, dir2, cubeCoord, scale, bevel));
         } else {
             return;
@@ -98,13 +98,13 @@ public static class VoxelMeshGenerator {
         Direction dir0 = CubeMeshData.CapVerticeDirectionVectors[vertice][0];
         Direction dir1 = CubeMeshData.CapVerticeDirectionVectors[vertice][1];
         Direction dir2 = CubeMeshData.CapVerticeDirectionVectors[vertice][2];
-        if (shapeData.NeighborExists(cubeCoord, dir1)
-            && !shapeData.NeighborExists(cubeCoord, dir2)
-            && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
+        if (shapeData.ContainsDir(cubeCoord, dir1)
+            && !shapeData.ContainsDir(cubeCoord, dir2)
+            && !shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side flat
             vertices.AddRange(CubeMeshData.FlatCapBevelFaceVertices(vertice, cubeCoord, scale, bevel));
-        } else if (shapeData.NeighborExists(cubeCoord, dir1)
-                   && shapeData.NeighborExists(cubeCoord, dir2)
-                   && !shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
+        } else if (shapeData.ContainsDir(cubeCoord, dir1)
+                   && shapeData.ContainsDir(cubeCoord, dir2)
+                   && !shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // side elbow
             Vector3[] r = CubeMeshData.ElbowCapBevelFaceVertices(vertice, cubeCoord, scale, bevel);
 
             vertices.Add(r[0]);
@@ -119,14 +119,14 @@ public static class VoxelMeshGenerator {
             SetQuad();
 
             return;
-        } else if (!shapeData.NeighborExists(cubeCoord, dir1) && !shapeData.NeighborExists(cubeCoord, dir2)) { // side corner
+        } else if (!shapeData.ContainsDir(cubeCoord, dir1) && !shapeData.ContainsDir(cubeCoord, dir2)) { // side corner
             vertices.AddRange(CubeMeshData.CornerCapBevelFaceVertices(vertice, cubeCoord, scale, bevel));
             SetTriangle();
             return;
         } else if ((dir0 == Direction.Up || dir0 == Direction.Down)
-                   && shapeData.NeighborExists(cubeCoord, dir1)
-                   && shapeData.NeighborExists(cubeCoord, dir2)
-                   && shapeData.NeighborExists(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // top/bot flat
+                   && shapeData.ContainsDir(cubeCoord, dir1)
+                   && shapeData.ContainsDir(cubeCoord, dir2)
+                   && shapeData.ContainsDir(cubeCoord + DirectionData.DirectionVectorsInt[(int) dir1], dir2)) { // top/bot flat
             vertices.AddRange(CubeMeshData.FlatCapTopFaceVertices(vertice, cubeCoord, scale, bevel));
         } else {
             return;
