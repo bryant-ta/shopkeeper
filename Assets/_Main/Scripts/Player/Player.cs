@@ -18,7 +18,9 @@ public class Player : MonoBehaviour {
         
         // Default tool mode: Drag
         curTool = PlayerDrag;
-        PlayerDrag.Equip();
+        if (PlayerDrag != null) {
+            PlayerDrag.Equip();
+        }
     }
 
     void SelectDragTool() {
