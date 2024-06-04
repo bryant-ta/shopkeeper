@@ -20,32 +20,35 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             return;
         }
     }
-    
+
     void Combine(ClickInputArgs clickInputArgs) {
         if (selectedShape == null || newShapeData == null) return;
-        
+
         Product selectedProduct = Util.GetProductFromShape(selectedShape);
         if (selectedProduct == null) return;
-        
+
         // Remove original shapes from grid
         foreach (Product product in combinedProducts) {
             targetGrid.RemoveShapeCells(product, false);
         }
-        
+
         // Create new shape using selected shape root as new root
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
             selectedProduct.ID.Color, selectedProduct.ID.Pattern, newShapeData
         );
-        Product newProduct = ProductFactory.Instance.CreateProduct(productData, targetGrid.transform.TransformPoint(newShapeData.RootCoord));
+        Product newProduct = ProductFactory.Instance.CreateProduct(
+            productData, targetGrid.transform.TransformPoint(newShapeData.RootCoord)
+        );
 
         targetGrid.PlaceShapeNoValidate(newShapeData.RootCoord, newProduct);
         Ledger.AddStockedProduct(newProduct);
-        
+
         // Destroy original shapes
         foreach (Product product in combinedProducts) {
             Ledger.RemoveStockedProduct(product);
-            ((IGridShape)product).DestroyShape();
+            ((IGridShape) product).DestroyShape();
         }
+
         selectedShape = null;
         combinedProducts.Clear();
         newShapeData = null;
@@ -72,11 +75,11 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             previewObj.SetActive(false);
             return;
         }
-        
+
         // Cutoff for not repeating on same shape
         if (selectedShape == lastSelectedShape) return;
         lastSelectedShape = selectedShape;
-        
+
         Vector3Int selectedRoot = selectedShape.ShapeData.RootCoord;
         Product selectedProduct = Util.GetProductFromShape(selectedShape);
         if (selectedProduct == null) return;
@@ -98,7 +101,7 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
                 }
             }
         }
-        
+
         // Create new offsets for combined shape
         List<Vector3Int> newOffsets = new();
         foreach (Product product in combinedProducts) {
@@ -107,13 +110,11 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
                 newOffsets.Add(toProductRoot + offset);
             }
         }
-        
-        // TODO: possible problem if shape is rotated/ offsets could repeat?
-        
+
         // Draw shape outline for combined shape
         newShapeData = new ShapeData {RootCoord = selectedRoot, ShapeOffsets = newOffsets};
         newShapeData.ID = ShapeData.DetermineID(newShapeData.ShapeOffsets);
-        
+
         previewRenderer.Render(newShapeData);
         previewObj.SetActive(true);
     }
