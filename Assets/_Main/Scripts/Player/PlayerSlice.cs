@@ -12,6 +12,13 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
     Grid targetGrid;
     CameraController camCtrl;
+    
+    // separated slice execution vars for readability
+    bool execZSlice;
+    float execXZThreshold; // in shape offset space
+    Vector3Int execRightCellCoord;
+    IGridShape origShape;
+    Product origProduct;
 
     void Awake() {
         previewPlaneMeshFilter = previewObj.GetComponent<MeshFilter>();
@@ -24,18 +31,13 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         camCtrl = Camera.main.GetComponent<CameraController>();
     }
-
-    // separated slice execution vars for readability
-    bool execZSlice;
-    float execXZThreshold; // in shape offset space
-    Vector3Int execRightCellCoord;
-    IGridShape origShape;
-    Product origProduct;
+    
     void Slice(ClickInputArgs clickInputArgs) {
         if (origShape == null) return;
-        
+
         // convert local grid coord -> shape offset coord
-        float xzThreshold = execZSlice ? execXZThreshold - origShape.ShapeData.RootCoord.x : execXZThreshold - origShape.ShapeData.RootCoord.z;
+        float xzThreshold =
+            execZSlice ? execXZThreshold - origShape.ShapeData.RootCoord.x : execXZThreshold - origShape.ShapeData.RootCoord.z;
         Vector3Int rightCellOffset = execRightCellCoord - origShape.ShapeData.RootCoord;
 
         // Split targetShapeData into two shapes according to slicing selection
@@ -65,21 +67,18 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Create two new shapes from slicing, replacing only shapeData from original shape
         origProduct = Util.GetProductFromShape(origShape);
-        if (origProduct == null) {
-            Debug.LogError("Unable to slice shape: could not get product from shape.");
-            return;
-        }
+        if (origProduct == null) return;
+
         IGridShape shapeA = MakeSlicedShape(unvisitedOffsets, origProduct);
         IGridShape shapeB = MakeSlicedShape(offsetsB, origProduct);
-        if (shapeA == null || shapeB == null) {
-            return;
-        }
+        if (shapeA == null || shapeB == null) return;
+
         targetGrid.TriggerFallOnTarget(shapeA);
         targetGrid.TriggerFallOnTarget(shapeB);
 
         // Destroy original shape
-        origShape.DestroyShape();
         Ledger.RemoveStockedProduct(origProduct);
+        origShape.DestroyShape();
         origShape = null;
     }
 
@@ -89,9 +88,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
 
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            originalProduct.ID.Color, originalProduct.ID.Pattern, originalProduct.ShapeData
+            originalProduct.ID.Color, originalProduct.ID.Pattern, shapeData
         );
-        productData.ShapeData = shapeData;
         Product product = ProductFactory.Instance.CreateProduct(productData, targetGrid.transform.TransformPoint(shapeData.RootCoord));
 
         targetGrid.PlaceShapeNoValidate(shapeData.RootCoord, product);
@@ -142,7 +140,9 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Find cell pairs to slice past initial slice
         Vector3Int leftCellCoord = isZSlice ?
-            Vector3Int.RoundToInt(sliceFirstPos + new Vector3(-0.1f, -0.1f, 0)) : // y = -0.1 to round down, it's relative to selectedShapeCoord
+            Vector3Int.RoundToInt(
+                sliceFirstPos + new Vector3(-0.1f, -0.1f, 0)
+            ) : // y = -0.1 to round down, it's relative to selectedShapeCoord
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0, -0.1f, -0.1f));
         Vector3Int rightCellCoord = isZSlice ?
             Vector3Int.RoundToInt(sliceFirstPos + new Vector3(0.1f, -0.1f, 0)) :
@@ -151,7 +151,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         // Don't display preview on shape edges
         IGridShape leftShape = targetGrid.SelectPosition(leftCellCoord);
         IGridShape rightShape = targetGrid.SelectPosition(rightCellCoord);
-        if (leftShape == null || rightShape == null || leftShape != rightShape) { 
+        if (leftShape == null || rightShape == null || leftShape != rightShape) {
             previewObj.SetActive(false);
             return;
         }

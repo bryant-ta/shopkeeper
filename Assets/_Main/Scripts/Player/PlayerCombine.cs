@@ -4,33 +4,55 @@ using System.Linq;
 using UnityEngine;
 
 public class PlayerCombine : MonoBehaviour, IPlayerTool {
-    [SerializeField] float previewScale = 0.3f;
-    [SerializeField] GameObject previewObj; // a plane
-
-    MeshFilter previewPlaneMeshFilter;
-    List<LineRenderer> previewLineRenderers;
+    [SerializeField] GameObject previewObj; // a obj with ShapeOutlineRenderer component
+    ShapeOutlineRenderer previewRenderer;
 
     Grid targetGrid;
-    CameraController camCtrl;
+
+    IGridShape selectedShape;
+    List<Product> combinedProducts = new();
+    ShapeData newShapeData;
 
     void Awake() {
-        previewPlaneMeshFilter = previewObj.GetComponent<MeshFilter>();
-        if (previewPlaneMeshFilter == null || previewPlaneMeshFilter.mesh == null) {
-            Debug.LogError("MeshFilter or mesh is missing on slice preview plane.");
+        previewRenderer = previewObj.GetComponent<ShapeOutlineRenderer>();
+        if (previewRenderer == null) {
+            Debug.LogError("Combine preview obj is missing ShapeOutlineRenderer component.");
             return;
         }
-
-        previewLineRenderers = previewObj.GetComponentsInChildren<LineRenderer>().ToList();
-
-        camCtrl = Camera.main.GetComponent<CameraController>();
     }
     
     void Combine(ClickInputArgs clickInputArgs) {
+        if (selectedShape == null || newShapeData == null) return;
         
+        Product selectedProduct = Util.GetProductFromShape(selectedShape);
+        if (selectedProduct == null) return;
+        
+        // Remove original shapes from grid
+        foreach (Product product in combinedProducts) {
+            targetGrid.RemoveShapeCells(product, false);
+        }
+        
+        // Create new shape using selected shape root as new root
+        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+            selectedProduct.ID.Color, selectedProduct.ID.Pattern, newShapeData
+        );
+        Product newProduct = ProductFactory.Instance.CreateProduct(productData, targetGrid.transform.TransformPoint(newShapeData.RootCoord));
+
+        targetGrid.PlaceShapeNoValidate(newShapeData.RootCoord, newProduct);
+        Ledger.AddStockedProduct(newProduct);
+        
+        // Destroy original shapes
+        foreach (Product product in combinedProducts) {
+            Ledger.RemoveStockedProduct(product);
+            ((IGridShape)product).DestroyShape();
+        }
+        selectedShape = null;
+        combinedProducts.Clear();
+        newShapeData = null;
     }
 
     // works in target grid local space, positions preview in world space!
-    Vector3 lastSelectedShapeCellCoord;
+    IGridShape lastSelectedShape;
     void CombinePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid == null) {
@@ -44,18 +66,58 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
-        IGridShape selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
+        selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
         if (selectedShape == null) {
+            lastSelectedShape = null;
             previewObj.SetActive(false);
             return;
         }
+        
+        // Cutoff for not repeating on same shape
+        if (selectedShape == lastSelectedShape) return;
+        lastSelectedShape = selectedShape;
+        
+        Vector3Int selectedRoot = selectedShape.ShapeData.RootCoord;
+        Product selectedProduct = Util.GetProductFromShape(selectedShape);
+        if (selectedProduct == null) return;
 
         // Find adjacent shapes of same color
+        combinedProducts.Clear();
+        combinedProducts.Add(selectedProduct);
         foreach (Vector3Int offset in selectedShape.ShapeData.ShapeOffsets) {
-            if ()
+            for (int i = 0; i < 4; i++) {
+                IGridShape adjacentShape = targetGrid.SelectPosition(selectedRoot + offset + DirectionData.DirectionVectorsInt[i]);
+
+                if (adjacentShape != null && adjacentShape != selectedShape && !combinedProducts.Contains(adjacentShape)) {
+                    Product adjacentProduct = Util.GetProductFromShape(adjacentShape);
+                    if (adjacentProduct == null) return;
+
+                    if (adjacentProduct.ID.Color == selectedProduct.ID.Color) {
+                        combinedProducts.Add(adjacentProduct);
+                    }
+                }
+            }
         }
+        
+        // Create new offsets for combined shape
+        List<Vector3Int> newOffsets = new();
+        foreach (Product product in combinedProducts) {
+            Vector3Int toProductRoot = product.ShapeData.RootCoord - selectedRoot;
+            foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
+                newOffsets.Add(toProductRoot + offset);
+            }
+        }
+        
+        // TODO: possible problem if shape is rotated/ offsets could repeat?
+        
+        // Draw shape outline for combined shape
+        newShapeData = new ShapeData {RootCoord = selectedRoot, ShapeOffsets = newOffsets};
+        newShapeData.ID = ShapeData.DetermineID(newShapeData.ShapeOffsets);
+        
+        previewRenderer.Render(newShapeData);
+        previewObj.SetActive(true);
     }
-    
+
     public void Equip() {
         Ref.Player.PlayerInput.InputPrimaryDown += Combine;
         Ref.Player.PlayerInput.InputPoint += CombinePreview;
@@ -66,4 +128,3 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
         previewObj.SetActive(false);
     }
 }
-

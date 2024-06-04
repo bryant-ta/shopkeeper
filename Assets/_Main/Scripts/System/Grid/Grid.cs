@@ -262,13 +262,6 @@ public class Grid : MonoBehaviour {
         return cells[coord].Shape;
     }
 
-    public IGridShape SelectOffset(Vector3Int origin, Vector3Int offset) {
-        Vector3Int targetCoord = new Vector3Int(origin.x + offset.x, origin.y + offset.y, origin.z + offset.z);
-        if (!IsInBounds(targetCoord)) return null;
-
-        return cells[targetCoord].Shape;
-    }
-
     /// <summary>
     /// Returns true if valid highest open cell exists in column at (x, z).
     /// </summary>

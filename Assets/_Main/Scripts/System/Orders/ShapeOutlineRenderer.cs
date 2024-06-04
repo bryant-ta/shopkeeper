@@ -14,6 +14,13 @@ public class ShapeOutlineRenderer : MonoBehaviour {
     void Awake() { mainCamera = Camera.main; }
 
     public void Render(ShapeData shapeData) {
+        // TODO: line renderer pooling instead of many instantiates
+        // reset renderer
+        for (int i = 0; i < lineRenderers.Count; i++) {
+            Destroy(lineRenderers[i].gameObject);
+        }
+        lineRenderers.Clear();
+
         transform.localPosition = shapeData.RootCoord + new Vector3(0, 0.55f, 0); // should move this...
         
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
