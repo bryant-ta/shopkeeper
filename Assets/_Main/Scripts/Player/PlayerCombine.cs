@@ -46,7 +46,7 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
         // Destroy original shapes
         foreach (Product product in combinedProducts) {
             Ledger.RemoveStockedProduct(product);
-            ((IGridShape) product).DestroyShape();
+            ((IGridShape) product).DestroyShape(false);
         }
 
         selectedShape = null;

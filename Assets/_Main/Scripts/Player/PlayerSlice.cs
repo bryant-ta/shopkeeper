@@ -78,7 +78,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Destroy original shape
         Ledger.RemoveStockedProduct(origProduct);
-        origShape.DestroyShape();
+        origShape.DestroyShape(false);
         origShape = null;
     }
 

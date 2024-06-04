@@ -18,12 +18,19 @@ public interface IGridShape {
     public void SetOutline(Color color, float weight);
     public void ResetOutline();
 
-    public void DestroyShape() {
-        ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(
-            () => {
-                ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object
-                Object.Destroy(ShapeTransform.gameObject);
-            }
-        );
+    public void DestroyShape(bool doAnim = true) {
+        if (doAnim) {
+            ColliderTransform.DOScale(Vector3.zero, TweenManager.DestroyShapeDur).OnComplete(
+                () => {
+                    ShapeTransform.DOKill();
+                    ColliderTransform.DOKill(); // Note: may need to use manual tween ID when tweening other things on this object
+                    Object.Destroy(ShapeTransform.gameObject);
+                }
+            );
+        } else {
+            ShapeTransform.DOKill();
+            ColliderTransform.DOKill();
+            Object.Destroy(ShapeTransform.gameObject);
+        }
     }
 }
