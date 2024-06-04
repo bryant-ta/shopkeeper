@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using PathCreation.Utility;
+using Paths.Utility;
 using UnityEngine;
 
 
-namespace PathCreation {
+namespace Paths {
     /// A vertex path is a collection of points (vertices) that lie along a bezier path.
     /// This allows one to do things like move at a constant speed along the path,
     /// which is not possible with a bezier path directly due to how they're constructed mathematically.

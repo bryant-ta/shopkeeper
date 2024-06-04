@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
 using Orders;
+using Paths;
 using UnityEngine;
 
-[RequireComponent(typeof(HoverEvent))]
+[RequireComponent(typeof(HoverEvent), typeof(PathActor))]
 public class Orderer : MonoBehaviour {
     public Order Order { get; private set; }
     public Dock AssignedDock { get; private set; }
 
     public Grid Grid { get; private set; }
+    public PathActor Docker { get; private set; }
 
     List<Product> submittedProducts = new();
-
+    
     public event Action<Order> OnOrderSet;
     public event Action<Product> OnInvalidProductSet;
 
@@ -25,6 +27,8 @@ public class Orderer : MonoBehaviour {
             Grid.OnPlaceShapes += DoTryFulfillOrderList;
             Grid.OnRemoveShapes += RemoveFromOrder;
         }
+
+        Docker = GetComponent<PathActor>();
     }
 
     #region Order
@@ -129,20 +133,20 @@ public class Orderer : MonoBehaviour {
 
     public void OccupyDock(Dock dock) {
         AssignedDock = dock; // do not unset, OrderManager uses ref
-        AssignedDock.SetOrderer(this);
-        transform.position = dock.GetDockingPoint(); // TEMP: until anim
-        StartOrder();
+        AssignedDock.SetDocker(Docker);
+        Docker.OnPathEnd += StartOrder; // assumes single path from Occupy -> Dock
+
+        Docker.StartPath(0);
     }
     void LeaveDock() {
-        AssignedDock.RemoveOrderer();
+        AssignedDock.RemoveDocker();
 
         foreach (Product product in submittedProducts) {
             Ledger.RemoveStockedProduct(product);
         }
 
-        // TODO: throwing away bad submissions
-
         // TODO: leaving anim
+        Docker.StartNextPath();
 
         Ref.Instance.OrderMngr.HandleFinishedOrderer(this);
     }

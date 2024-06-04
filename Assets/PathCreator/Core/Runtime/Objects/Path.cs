@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace PathCreation {
+namespace Paths {
     public class Path : MonoBehaviour {
 
         /// This class stores data for the path editor, and provides accessors to get the current vertex and bezier path.

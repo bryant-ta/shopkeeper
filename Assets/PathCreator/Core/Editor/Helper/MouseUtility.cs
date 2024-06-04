@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using PathCreation;
+using Paths;
 
 namespace PathCreationEditor
 {

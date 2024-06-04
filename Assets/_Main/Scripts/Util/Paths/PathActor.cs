@@ -1,53 +1,54 @@
 using System;
 using System.Collections.Generic;
-using PathCreation;
+using Unity.VisualScripting;
 using UnityEngine;
 
+namespace Paths {
 public class PathActor : MonoBehaviour {
     [SerializeField] float moveSpeed = 1;
     [SerializeField] List<Path> paths;
-    
-    int curPathIndex;
+
+    int curPathIndex = -1;
     Path curPath;
     Vector3 curEndPoint;
     bool isMoving;
-    
+
     float distanceTraveled;
 
-    // NOTE: a bit silly passing index, but works for simple cases - see station idea for extension
-    public event Action<int> OnPathEnd; // index of path that this actor just finished
+    public event Action OnPathEnd;
 
-    void Awake() {
-        if (paths.Count == 0) return;
-        curPathIndex = 0;
+    public void StartPath(int pathIndex) {
+        if (curPathIndex == paths.Count - 1) return;
+
+        curPathIndex = pathIndex;
         curPath = paths[curPathIndex];
         curEndPoint = curPath.path.GetPoint(curPath.path.NumPoints - 1);
-        
-        isMoving = true;
-    }
 
-    void Update() {
-        FollowPath();
+        distanceTraveled = 0;
+        isMoving = true;
     }
 
     public void StartNextPath() {
-        curPathIndex++;
-        curPath = paths[curPathIndex];
-        curEndPoint = curPath.path.GetPoint(curPath.path.NumPoints - 1);
-        
-        isMoving = true;
+        StartPath(curPathIndex + 1);
     }
+
+    void Update() { FollowPath(); }
 
     void FollowPath() {
         if (isMoving) {
             if (transform.position == curEndPoint) { // positions match exactly with EndOfPathInstruction.Stop
-                OnPathEnd?.Invoke(curPathIndex);
                 isMoving = false;
+                OnPathEnd?.Invoke();
             }
-            
+
             distanceTraveled += moveSpeed * Time.deltaTime * GlobalClock.TimeScale;
             transform.position = curPath.path.GetPointAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
             transform.rotation = curPath.path.GetRotationAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
         }
     }
+
+    public void AddPath(Path path) {
+        paths.Add(path);
+    }
+}
 }

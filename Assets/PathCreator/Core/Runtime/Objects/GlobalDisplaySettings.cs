@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PathCreation
+namespace Paths
 {
     //[CreateAssetMenu()]
     public class GlobalDisplaySettings : ScriptableObject

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using PathCreation;
-using PathCreation.Utility;
+using Paths;
+using Paths.Utility;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;

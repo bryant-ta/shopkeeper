@@ -606,6 +606,7 @@ GameObject:
   - component: {fileID: 7792300833620461062}
   - component: {fileID: 7792300833620461061}
   - component: {fileID: 6071217619679705435}
+  - component: {fileID: 1564048019024104974}
   m_Layer: 0
   m_Name: Orderer
   m_TagString: Untagged
@@ -657,6 +658,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ded15fab794140049a36b8312ed107a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1564048019024104974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7792300833620461063}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af0f10351b9e8a9439f62770aee57335, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  paths: []
 --- !u!1 &7792300834180455255
 GameObject:
   m_ObjectHideFlags: 0

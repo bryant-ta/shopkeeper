@@ -111,7 +111,7 @@ public class OrderManager : MonoBehaviour {
 
         if (orderBacklog.Count > 0) {
             Order order = orderBacklog.Dequeue();
-            Orderer orderer = null;
+            Orderer orderer;
 
             if (order is MoldOrder moldOrder) {
                 // Setup MoldOrder Orderer
@@ -140,7 +140,11 @@ public class OrderManager : MonoBehaviour {
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
 
-        Destroy(orderer.gameObject); // TEMP: until anim
+        orderer.Docker.OnPathEnd += () => DestroyOrderer(orderer);
+    }
+
+    void DestroyOrderer(Orderer orderer) {
+        Destroy(orderer.gameObject);
     }
 
     #endregion
@@ -256,7 +260,7 @@ public class OrderManager : MonoBehaviour {
                 Debug.LogWarning("Not enough available stock to generate mold order.");
                 return null;
             }
-            
+
             Color reqColor = availableColors[Random.Range(0, availableColors.Count)];
 
             // add requirement

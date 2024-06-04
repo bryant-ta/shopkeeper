@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using PathCreation;
-using PathCreation.Utility;
+using Paths;
+using Paths.Utility;
 
 namespace PathCreationEditor
 {

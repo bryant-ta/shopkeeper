@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace PathCreation {
+namespace Paths {
     /// Stores state data for the path creator editor
 
     [System.Serializable]
