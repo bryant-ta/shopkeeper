@@ -1,7 +1,13 @@
+using PathCreation;
 using UnityEngine;
 
 public class Dock : MonoBehaviour {
-    public Orderer Orderer { get; private set; }
+    [SerializeField] Path pathIn;
+    [SerializeField] Path pathOut;
+    
+    public PathActor Docker { get; private set; }
+    
+    public Orderer Orderer { get; private set; } // TEMP: generalize for deliveries too
     public bool IsOccupied => Orderer != null;
 
     public bool SetOrderer(Orderer orderer) {

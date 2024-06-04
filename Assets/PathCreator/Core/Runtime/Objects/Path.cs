@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace PathCreation {
-    public class PathCreator : MonoBehaviour {
+    public class Path : MonoBehaviour {
 
         /// This class stores data for the path editor, and provides accessors to get the current vertex and bezier path.
         /// Attach to a GameObject to create a new path editor.

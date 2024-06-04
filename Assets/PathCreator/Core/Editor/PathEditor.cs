@@ -8,7 +8,7 @@ using UnityEngine;
 namespace PathCreationEditor {
     /// Editor class for the creation of Bezier and Vertex paths
 
-    [CustomEditor (typeof (PathCreator))]
+    [CustomEditor (typeof (Path))]
     public class PathEditor : Editor {
 
         #region Fields
@@ -31,7 +31,7 @@ namespace PathCreationEditor {
         GUIStyle boldFoldoutStyle;
 
         // References:
-        PathCreator creator;
+        Path creator;
         Editor globalDisplaySettingsEditor;
         ScreenSpacePolyLine screenSpaceLine;
         ScreenSpacePolyLine.MouseInfo pathMouseInfo;
@@ -601,7 +601,7 @@ namespace PathCreationEditor {
         }
 
         void OnEnable () {
-            creator = (PathCreator) target;
+            creator = (Path) target;
             bool in2DEditorMode = EditorSettings.defaultBehaviorMode == EditorBehaviorMode.Mode2D;
             creator.InitializeEditorData (in2DEditorMode);
 
