@@ -38,12 +38,12 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] [Tooltip("Time on clock Close Phase starts")]
     string closePhaseClockTime;
 
-    [field:SerializeField] public int Day { get; private set; }
-    
+    [field: SerializeField] public int Day { get; private set; }
+
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
-    
+
     List<string> phaseTriggerTimes = new();
 
     public event Action OnDayEnd;
@@ -53,22 +53,22 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] int gold;
     public int Gold => gold;
     [SerializeField] int perfectOrdersGoldBonus;
-    
+
     public event Action<DeltaArgs> OnModifyMoney;
 
     void Awake() {
         if (DebugMode) AwakeDebugTasks();
-        
+
         // Required to reset every Play mode start because static
         _worldGrid = worldGrid;
 
         // Setup Day Cycle
         DayTimer = new ClockTimer(-1, dayStartClockTime, dayEndClockTime, dayClockTickDurationSeconds, dayclockTickStepMinutes);
         DayTimer.TickEvent += DayPhaseTrigger;
-        
+
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
-        
+
         phaseTriggerTimes.Add(deliveryPhaseClockTime);
         phaseTriggerTimes.Add(openPhaseClockTime);
         phaseTriggerTimes.Add(closePhaseClockTime);
@@ -77,11 +77,11 @@ public class GameManager : Singleton<GameManager> {
 
     void Start() {
         if (DebugMode) StartDebugTasks();
-        
+
         // need to wait for all scripts' Start to finish before starting main loop
         Util.DoAfterOneFrame(this, () => MainLoop());
     }
-    
+
     void ExitStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Close) DayEndTrigger();
     }
@@ -96,19 +96,16 @@ public class GameManager : Singleton<GameManager> {
             openPhaseClockTime = debugDayClockTimes.OpenPhaseClockTime;
             closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
         }
-        
-        Util.DoAfterSeconds(this, 30, () => {
-            GlobalClock.SetTimeScale(0f);
-        });
+
+        Util.DoAfterSeconds(this, 30, () => { GlobalClock.SetTimeScale(0f); });
     }
-    void StartDebugTasks() {
-    }
+    void StartDebugTasks() { }
 
     #region Main
 
     void MainLoop() {
         ModifyGold(initialGold);
-        
+
         DayTimer.Start();
     }
 
@@ -121,14 +118,14 @@ public class GameManager : Singleton<GameManager> {
         for (int i = 0; i < phaseTriggerTimes.Count; i++) {
             if (Util.CompareTime(clockTime, phaseTriggerTimes[i]) == 0) {
                 SM_dayPhase.ExecuteNextState();
-                
+
                 //TEMP: sound insert for now
                 if (SM_dayPhase.CurState == null) continue;
                 if (CurDayPhase == DayPhase.Open) {
                     SoundManager.Instance.PlaySound(SoundID.EnterOpenPhase);
                 } else if (CurDayPhase == DayPhase.Close) {
                     SoundManager.Instance.PlaySound(SoundID.EnterClosePhase);
-                } 
+                }
             }
         }
     }
@@ -138,14 +135,14 @@ public class GameManager : Singleton<GameManager> {
         if (Ref.Instance.OrderMngr.PerfectOrders) {
             ModifyGold(perfectOrdersGoldBonus);
         }
-        
+
         OnDayEnd?.Invoke();
     }
-    
+
     // actions for starting a new following day
     public void StartNextDay() {
         Day++;
-        
+
         DayTimer.Reset();
         DayTimer.Start();
     }
@@ -160,8 +157,7 @@ public class GameManager : Singleton<GameManager> {
             Time.timeScale = 0f;
             GlobalClock.SetTimeScale(0f);
             OnPause?.Invoke(true);
-        }
-        else {
+        } else {
             Time.timeScale = 1f;
             GlobalClock.SetTimeScale(1f);
             OnPause?.Invoke(false);
@@ -178,7 +174,7 @@ public class GameManager : Singleton<GameManager> {
 
         SM_dayPhase.OnStateEnter += ResetTimeScaleDelegate;
     }
-    
+
     #endregion
 
     #region Gold

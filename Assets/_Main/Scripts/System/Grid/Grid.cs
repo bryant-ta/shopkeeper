@@ -22,7 +22,7 @@ public class Grid : MonoBehaviour {
 
     [Title("Other")]
     [SerializeField] bool smoothPlaceMovement = true;
-    public bool IsLocked = false;
+    public bool IsLocked;
 
     Dictionary<Vector3Int, Cell> cells = new();
     public Dictionary<Vector3Int, Cell> Cells => cells;
@@ -33,11 +33,7 @@ public class Grid : MonoBehaviour {
     public event Action<List<IGridShape>> OnPlaceShapes;  // triggered once per move of a STACK of shape on both origin and target grid
     public event Action<List<IGridShape>> OnRemoveShapes; // triggered once per move of a STACK of shape on both origin and target grid
 
-    // Requires Init at Start since requires IGridShape setup which occurs in Awake. This also means everything relying on Grid can
-    // only occur in Start. Thus, Grid Start is executed before most other gameObjects.
-    void Start() { Init(); }
-
-    void Init() {
+    void Awake() {
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
         for (int x = MinX; x <= MaxX; x++) {
@@ -45,9 +41,9 @@ public class Grid : MonoBehaviour {
                 validCells.Add(new Vector2Int(x, z));
             }
         }
-
+        
         height = GameManager.Instance.GlobalGridHeight;
-
+        
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
             if (transform.GetChild(i).childCount == 0) continue;
@@ -174,8 +170,6 @@ public class Grid : MonoBehaviour {
     /// <summary>
     /// Removes shapes from grid.
     /// </summary>
-    /// <param name="coord">Original coord of shape to remove. Can be different from that shape's current RootCoord,
-    /// such as when the shape was just placed in the new grid, but still needs to be removed from the old.</param>
     /// <param name="shape">Shape of cells to remove</param>
     /// <param name="triggerAllFall">If false, shapes directly above coord will ignore falling. Set false to correctly move
     /// a stack of shapes.</param>
@@ -582,7 +576,7 @@ public class Grid : MonoBehaviour {
         List<IGridShape> shapes = AllShapes();
         for (int i = 0; i < shapes.Count; i++) {
             // Ensure the object has a renderer
-            if (shapes[i].ColliderTransform.TryGetComponent<Renderer>(out Renderer rd)) {
+            if (shapes[i].ColliderTransform.TryGetComponent(out Renderer rd)) {
                 rd.material.SetColor("_BaseColor", color);
             } else {
                 Debug.LogError("Shape is missing a renderer.");

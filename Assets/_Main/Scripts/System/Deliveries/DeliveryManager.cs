@@ -60,18 +60,23 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
-        GenerateBasicDelivery();
+        // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
+        // currently just one dock
+        GenerateBasicDelivery(docks[0]);
 
         // for (int i = 0; i < specialDeliverers.Count; i++) {
         //     GenerateSpecialDelivery(specialDeliverers[i]);
         // }
     }
 
-    void GenerateBasicDelivery() {
+    void GenerateBasicDelivery(Dock openDock) {
         // Setup Deliverer
-        Deliverer deliverer = Instantiate(delivererObj, )
+        Deliverer deliverer = Instantiate(delivererObj, openDock.transform).GetComponent<Deliverer>();
+        deliverer.OccupyDock(openDock);
         
         Grid grid = deliverer.Grid;
+        
+        // Generate shape datas of basic delivery
         List<ShapeData> volumeData;
         if (useWholeGridAsBounds) {
             volumeData = vs.Slice(new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, grid.Height - 1, grid.MaxZ));

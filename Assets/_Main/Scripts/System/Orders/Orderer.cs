@@ -138,14 +138,17 @@ public class Orderer : MonoBehaviour, IDocker {
     #region Dock
 
     public void OccupyDock(Dock dock) {
-        AssignedDock = dock; // do not unset, OrderManager uses ref
+        AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
         Docker.OnPathEnd += StartOrder; // assumes single path from Occupy -> Dock
 
         Docker.StartPath(0);
     }
     public void LeaveDock() {
+        Ref.Instance.OrderMngr.HandleFinishedOrderer(this);
+        
         AssignedDock.RemoveDocker();
+        AssignedDock = null;
 
         foreach (Product product in submittedProducts) {
             Ledger.RemoveStockedProduct(product);
@@ -154,7 +157,6 @@ public class Orderer : MonoBehaviour, IDocker {
         // TODO: leaving anim
         Docker.StartNextPath();
 
-        Ref.Instance.OrderMngr.HandleFinishedOrderer(this);
     }
 
     #endregion

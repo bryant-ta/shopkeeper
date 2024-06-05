@@ -11,33 +11,41 @@ public class Deliverer : MonoBehaviour, IDocker {
 
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
+        Grid.IsLocked = true;
+        
+        Docker = GetComponent<PathActor>();
 
-        Grid.OnRemoveShapes += DisableOnEmpty;
+        Grid.OnRemoveShapes += LeaveOnEmpty;
+    }
+
+    void AllowInteraction() {
+        Grid.IsLocked = false;
+    }
+    
+    // TEMP: placeholder until/if doing delivery boxes
+    void LeaveOnEmpty(List<IGridShape> shapes) {
+        if (!Grid.IsEmpty()) return;
+        LeaveDock();
     }
     
     #region Dock
 
     public void OccupyDock(Dock dock) {
-        AssignedDock = dock; // do not unset, OrderManager uses ref
+        AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
-        Docker.OnPathEnd += StartOrder; // assumes single path from Occupy -> Dock
+        Docker.OnPathEnd += AllowInteraction; // assumes single path from Occupy -> Dock
 
         Docker.StartPath(0);
     }
-    void LeaveDock() {
+    public void LeaveDock() {
         AssignedDock.RemoveDocker();
+        AssignedDock = null;
 
-        // TODO: leaving anim
-        Docker.StartNextPath();
+        // TEMP: until leaving anim
+        Destroy(gameObject);
     }
 
     #endregion
-
-    // TEMP: placeholder until doing anims/theme for basic delivery
-    void DisableOnEmpty(List<IGridShape> shapes) {
-        if (!Grid.IsEmpty()) return;
-        Disable();
-    }
 
     public void Enable() { gameObject.SetActive(true); }
     public void Disable() { gameObject.SetActive(false); }
