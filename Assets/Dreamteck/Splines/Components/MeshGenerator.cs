@@ -310,9 +310,9 @@ namespace Dreamteck.Splines
             if (_mesh == null) return;
             gameObject.isStatic = false;
             UnityEditor.MeshUtility.Optimize(_mesh);
-            if (spline != null)
+            if (Spline != null)
             {
-                spline.Unsubscribe(this);
+                Spline.Unsubscribe(this);
             }
             filter = GetComponent<MeshFilter>();
             meshRenderer = GetComponent<MeshRenderer>();
@@ -336,7 +336,7 @@ namespace Dreamteck.Splines
             DestroyImmediate(_bakedMesh);
             _bakedMesh = null;
             CreateMesh();
-            spline.Subscribe(this);
+            Spline.Subscribe(this);
             Rebuild();
         }
 
@@ -547,7 +547,7 @@ namespace Dreamteck.Splines
             _vDist = 0f;
             if (uvMode == UVMode.UniformClip)
             {
-                _vDist = spline.CalculateLength(0.0, GetSamplePercent(0));
+                _vDist = Spline.CalculateLength(0.0, GetSamplePercent(0));
             }
         }
 

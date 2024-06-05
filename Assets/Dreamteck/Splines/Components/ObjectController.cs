@@ -615,7 +615,7 @@ namespace Dreamteck.Splines
 
         IEnumerator InstantiateAllWithDelay()
         {
-            if (spline == null) yield break;
+            if (Spline == null) yield break;
             if (objects.Length == 0) yield break;
             for (int i = spawned.Length; i <= spawnCount; i++)
             {
@@ -626,7 +626,7 @@ namespace Dreamteck.Splines
 
         private void InstantiateAll()
         {
-            if (spline == null) return;
+            if (Spline == null) return;
             if (objects.Length == 0) return;
             for (int i = spawned.Length; i < spawnCount; i++) InstantiateSingle();
         }
@@ -690,7 +690,7 @@ namespace Dreamteck.Splines
                 {
                     if(!_useCustomObjectDistance)
                     {
-                        if (spline.isClosed)
+                        if (Spline.isClosed)
                         {
                             percent = (float)i / spawned.Length;
                         }
@@ -716,7 +716,7 @@ namespace Dreamteck.Splines
                 
                 if (objectPositioning == Positioning.Clip)
                 {
-                    spline.Evaluate(percent, ref evalResult);
+                    Spline.Evaluate(percent, ref evalResult);
                 }
                 else
                 {
@@ -825,7 +825,7 @@ namespace Dreamteck.Splines
                 {
                     if (objectPositioning == Positioning.Clip)
                     {
-                        distancePercentAccum = spline.Travel(distancePercentAccum, Mathf.Lerp(_minObjectDistance, _maxObjectDistance, (float)distanceRandomizer.NextDouble()));
+                        distancePercentAccum = Spline.Travel(distancePercentAccum, Mathf.Lerp(_minObjectDistance, _maxObjectDistance, (float)distanceRandomizer.NextDouble()));
                     }
                     else
                     {

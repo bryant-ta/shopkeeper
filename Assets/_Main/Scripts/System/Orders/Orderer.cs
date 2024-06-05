@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Dreamteck.Splines;
 using Orders;
-using Paths;
 using UnityEngine;
 
-[RequireComponent(typeof(HoverEvent), typeof(PathActor))]
+[RequireComponent(typeof(HoverEvent), typeof(SplineFollower))]
 public class Orderer : MonoBehaviour, IDocker {
     public Order Order { get; private set; }
     public Grid Grid { get; private set; }
     
     public Dock AssignedDock { get; private set; }
-    public PathActor Docker { get; private set; }
+    public SplineFollower Docker { get; private set; }
 
     List<Product> submittedProducts = new();
     
@@ -28,7 +28,7 @@ public class Orderer : MonoBehaviour, IDocker {
             Grid.OnRemoveShapes += RemoveFromOrder;
         }
 
-        Docker = GetComponent<PathActor>();
+        Docker = GetComponent<SplineFollower>();
     }
 
     #region Order
@@ -140,9 +140,9 @@ public class Orderer : MonoBehaviour, IDocker {
     public void OccupyDock(Dock dock) {
         AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
-        Docker.OnPathEnd += StartOrder; // assumes single path from Occupy -> Dock
+        Docker.OnReachedEnd += StartOrder; // assumes single path from Occupy -> Dock
 
-        Docker.StartPath(0);
+        Docker.StartFollowing();
     }
     public void LeaveDock() {
         Ref.Instance.OrderMngr.HandleFinishedOrderer(this);
@@ -155,7 +155,7 @@ public class Orderer : MonoBehaviour, IDocker {
         }
 
         // TODO: leaving anim
-        Docker.StartNextPath();
+        Docker.StartFollowing();
 
     }
 

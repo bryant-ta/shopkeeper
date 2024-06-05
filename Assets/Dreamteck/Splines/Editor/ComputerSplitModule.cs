@@ -156,7 +156,7 @@ namespace Dreamteck.Splines.Editor
             for (int i = 0; i < users.Length; i++)
             {
                 spline.Unsubscribe(users[i]);
-                users[i].spline = newSpline;
+                users[i].Spline = newSpline;
                 newSpline.Subscribe(users[i]);
             }
             for(int i = go.transform.childCount-1; i>=0; i--)

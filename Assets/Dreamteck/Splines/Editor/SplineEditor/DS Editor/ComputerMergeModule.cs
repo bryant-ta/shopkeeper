@@ -165,7 +165,7 @@ namespace Dreamteck.Splines.Editor
             for (int i = 0; i < subs.Length; i++)
             {
                 mergedSpline.Unsubscribe(subs[i]);
-                subs[i].spline = spline;
+                subs[i].Spline = spline;
                 subs[i].clipFrom = DMath.Lerp(from, to, subs[i].clipFrom);
                 subs[i].clipTo = DMath.Lerp(from, to, subs[i].clipTo);
             }

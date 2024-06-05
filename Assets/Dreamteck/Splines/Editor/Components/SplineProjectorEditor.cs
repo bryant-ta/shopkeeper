@@ -63,7 +63,7 @@ namespace Dreamteck.Splines.Editor
             for (int i = 0; i < users.Length; i++)
             {
                 SplineProjector user = (SplineProjector)users[i];
-                if (user.spline == null) return;
+                if (user.Spline == null) return;
                 if (!user.autoProject) return;
                 DrawResult(user.result);
             }

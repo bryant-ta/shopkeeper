@@ -192,7 +192,7 @@ namespace Dreamteck.Splines.Editor
 
             if (permanent && !copy)
             {
-                SplineComputer meshGenComputer = gen.spline;
+                SplineComputer meshGenComputer = gen.Spline;
                 if (permanent)
                 {
                     meshGenComputer.Unsubscribe(gen);

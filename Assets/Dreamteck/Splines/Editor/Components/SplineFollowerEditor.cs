@@ -58,6 +58,7 @@ namespace Dreamteck.Splines.Editor
 
             EditorGUI.BeginChangeCheck();
 
+            if (follow == null) return;
             bool lastFollow = follow.boolValue;
             EditorGUILayout.PropertyField(follow);
             if(lastFollow != follow.boolValue)
@@ -153,12 +154,12 @@ namespace Dreamteck.Splines.Editor
                 {
                     for (int i = 0; i < followers.Length; i++)
                     {
-                        if(followers[i].spline.sampleCount > 0)
+                        if(followers[i].Spline.sampleCount > 0)
                         {
                             if (!followers[i].autoStartPosition)
                             {
                                 followers[i].SetPercent(startPosition.floatValue);
-                                if (!followers[i].follow) SceneView.RepaintAll();
+                                if (!followers[i].IsFollowing) SceneView.RepaintAll();
                             }
                         }
                     }
@@ -189,15 +190,15 @@ namespace Dreamteck.Splines.Editor
             if (user == null) return;
             if (Application.isPlaying)
             {
-                if (!user.follow) DrawResult(user.modifiedResult);
+                if (!user.IsFollowing) DrawResult(user.modifiedResult);
                 return;
             }
-            if (user.spline == null) return;
+            if (user.Spline == null) return;
             if (user.autoStartPosition)
             {
-                user.spline.Project(user.transform.position, ref result, user.clipFrom, user.clipTo);
+                user.Spline.Project(user.transform.position, ref result, user.clipFrom, user.clipTo);
                 DrawResult(result);
-            } else if(!user.follow) DrawResult(user.result);
+            } else if(!user.IsFollowing) DrawResult(user.result);
 
             if (followers.Length == 1)
             {

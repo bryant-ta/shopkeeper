@@ -93,7 +93,7 @@ namespace Dreamteck.Splines
         public int triggerGroup = 0;
         [SerializeField]
         [HideInInspector]
-        protected Spline.Direction _direction = Spline.Direction.Forward;
+        protected Spline.Direction _direction = Splines.Spline.Direction.Forward;
 
         [SerializeField]
         [HideInInspector]
@@ -179,7 +179,7 @@ namespace Dreamteck.Splines
         public virtual void SetDistance(float distance, bool checkTriggers = false, bool handleJunctions = false)
         {
             double lastPercent = _result.percent;
-            Evaluate(Travel(0.0, distance, Spline.Direction.Forward), ref _result);
+            Evaluate(Travel(0.0, distance, Splines.Spline.Direction.Forward), ref _result);
             ApplyMotion();
             if (checkTriggers)
             {
@@ -216,15 +216,15 @@ namespace Dreamteck.Splines
                 double unclippedPercent = UnclipPercent(_result.percent);
                 int index;
                 double lerp;
-                spline.GetSamplingValues(unclippedPercent, out index, out lerp);
-                _finalResult.forward = spline[index].forward;
-                _finalResult.up = spline[index].up;
+                Spline.GetSamplingValues(unclippedPercent, out index, out lerp);
+                _finalResult.forward = Spline[index].forward;
+                _finalResult.up = Spline[index].up;
             }
 
             motion.targetUser = this;
             motion.splineResult = _finalResult;
             if (applyDirectionRotation) motion.direction = _direction;
-            else motion.direction = Spline.Direction.Forward;
+            else motion.direction = Splines.Spline.Direction.Forward;
 
             switch (_physicsMode)
             {
@@ -264,14 +264,14 @@ namespace Dreamteck.Splines
             if (from == to) return;
             UnclipPercent(ref from);
             UnclipPercent(ref to);
-            Spline.FormatFromTo(ref from, ref to, true);
+            Splines.Spline.FormatFromTo(ref from, ref to, true);
             int fromPoint, toPoint;
-            fromPoint = spline.PercentToPointIndex(from, _direction);
-            toPoint = spline.PercentToPointIndex(to, _direction);
+            fromPoint = Spline.PercentToPointIndex(from, _direction);
+            toPoint = Spline.PercentToPointIndex(to, _direction);
 
             if (fromPoint != toPoint)
             {
-                if (_direction == Spline.Direction.Forward)
+                if (_direction == Splines.Spline.Direction.Forward)
                 {
                     for (int i = fromPoint + 1; i <= toPoint; i++)
                     {
@@ -295,10 +295,10 @@ namespace Dreamteck.Splines
             }
             else if (to > 1.0 - MIN_DELTA && from < to)
             {
-                int pointCount = spline.pointCount - 1;
-                if (spline.isClosed)
+                int pointCount = Spline.pointCount - 1;
+                if (Spline.isClosed)
                 {
-                    pointCount = spline.pointCount;
+                    pointCount = Spline.pointCount;
                 }
                 NodeConnection junction = GetJunction(pointCount);
                 if (junction != null) nodeConnectionQueue.Add(junction);
@@ -323,17 +323,17 @@ namespace Dreamteck.Splines
             if (from == to) return;
             UnclipPercent(ref from);
             UnclipPercent(ref to);
-            if (triggerGroup < 0 || triggerGroup >= spline.triggerGroups.Length) return;
-            for (int i = 0; i < spline.triggerGroups[triggerGroup].triggers.Length; i++)
+            if (triggerGroup < 0 || triggerGroup >= Spline.triggerGroups.Length) return;
+            for (int i = 0; i < Spline.triggerGroups[triggerGroup].triggers.Length; i++)
             {
-                if (spline.triggerGroups[triggerGroup].triggers[i] == null) continue;
-                if (spline.triggerGroups[triggerGroup].triggers[i].Check(from, to)) AddTriggerToQueue(spline.triggerGroups[triggerGroup].triggers[i]);
+                if (Spline.triggerGroups[triggerGroup].triggers[i] == null) continue;
+                if (Spline.triggerGroups[triggerGroup].triggers[i].Check(from, to)) AddTriggerToQueue(Spline.triggerGroups[triggerGroup].triggers[i]);
             }
         }
 
         NodeConnection GetJunction(int pointIndex)
         {
-            Node node = spline.GetNode(pointIndex);
+            Node node = Spline.GetNode(pointIndex);
             if (node == null) return null;
             return new NodeConnection(node, pointIndex);
         }
@@ -373,7 +373,7 @@ namespace Dreamteck.Splines
         {
             if (addTriggerIndex >= triggerInvokeQueue.Length)
             {
-                SplineTrigger[] newQueue = new SplineTrigger[triggerInvokeQueue.Length + spline.triggerGroups[triggerGroup].triggers.Length];
+                SplineTrigger[] newQueue = new SplineTrigger[triggerInvokeQueue.Length + Spline.triggerGroups[triggerGroup].triggers.Length];
                 triggerInvokeQueue.CopyTo(newQueue, 0);
                 triggerInvokeQueue = newQueue;
             }

@@ -67,7 +67,7 @@ namespace Dreamteck.Splines.Editor
                 if (permanent)
                 {
                     removeComputer = EditorGUILayout.Toggle("Remove SplineComputer", removeComputer);
-                    if (meshGen.spline.subscriberCount > 1 && !isCopy) EditorGUILayout.HelpBox("WARNING: Removing the SplineComputer from this object will cause other SplineUsers to malfunction!", MessageType.Warning);
+                    if (meshGen.Spline.subscriberCount > 1 && !isCopy) EditorGUILayout.HelpBox("WARNING: Removing the SplineComputer from this object will cause other SplineUsers to malfunction!", MessageType.Warning);
                 }
             }
 
@@ -126,7 +126,7 @@ namespace Dreamteck.Splines.Editor
             EditorUtility.SetDirty(meshGen);
             if (permanent && !copy)
             {
-                SplineComputer meshGenComputer = meshGen.spline;
+                SplineComputer meshGenComputer = meshGen.Spline;
                 if (permanent)
                 {
                     meshGenComputer.Unsubscribe(meshGen);

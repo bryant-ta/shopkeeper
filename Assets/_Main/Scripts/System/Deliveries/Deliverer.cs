@@ -1,19 +1,19 @@
 using System.Collections.Generic;
-using Paths;
+using Dreamteck.Splines;
 using UnityEngine;
 
-[RequireComponent(typeof(PathActor))]
+[RequireComponent(typeof(SplineFollower))]
 public class Deliverer : MonoBehaviour, IDocker {
     public Grid Grid { get; private set; }
     
     public Dock AssignedDock { get; private set; }
-    public PathActor Docker { get; private set; }
+    public SplineFollower Docker { get; private set; }
 
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
         Grid.IsLocked = true;
         
-        Docker = GetComponent<PathActor>();
+        Docker = GetComponent<SplineFollower>();
 
         Grid.OnRemoveShapes += LeaveOnEmpty;
     }
@@ -33,9 +33,9 @@ public class Deliverer : MonoBehaviour, IDocker {
     public void OccupyDock(Dock dock) {
         AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
-        Docker.OnPathEnd += AllowInteraction; // assumes single path from Occupy -> Dock
+        Docker.OnReachedEnd += AllowInteraction; // assumes single path from Occupy -> Dock
 
-        Docker.StartPath(0);
+        Docker.StartFollowing();
     }
     public void LeaveDock() {
         AssignedDock.RemoveDocker();

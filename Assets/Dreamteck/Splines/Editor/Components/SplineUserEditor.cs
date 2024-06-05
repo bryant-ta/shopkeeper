@@ -61,7 +61,7 @@ namespace Dreamteck.Splines.Editor
             }
 
 
-            if (user.spline == null) EditorGUILayout.HelpBox("No SplineComputer is referenced. Link a SplineComputer to make this SplineUser work.", MessageType.Error);
+            if (user.Spline == null) EditorGUILayout.HelpBox("No SplineComputer is referenced. Link a SplineComputer to make this SplineUser work.", MessageType.Error);
 
             settingsFoldout = EditorGUILayout.Foldout(settingsFoldout, "User Configuration", foldoutHeaderStyle);
             if (settingsFoldout)
@@ -83,8 +83,8 @@ namespace Dreamteck.Splines.Editor
             bool loopSamples = true;
             for (int i = 0; i < users.Length; i++)
             {
-                if (users[i].spline == null) isClosed = false;
-                else if (!users[i].spline.isClosed) isClosed = false;
+                if (users[i].Spline == null) isClosed = false;
+                else if (!users[i].Spline.isClosed) isClosed = false;
                 else if (!users[i].loopSamples) loopSamples = false;
             }
 
@@ -120,17 +120,17 @@ namespace Dreamteck.Splines.Editor
                     float length = 0f;
                     if(users.Length == 1)
                     {
-                        length = users[0].spline.CalculateLength();
+                        length = users[0].Spline.CalculateLength();
                     }
                     float fromDist = 0f;
                     float toDist = 0f;
                     int divide = 0;
                     for (int i = 0; i < users.Length; i++)
                     {
-                        if(users[i].spline != null)
+                        if(users[i].Spline != null)
                         {
-                            fromDist += users[i].spline.CalculateLength(0.0, users[i].clipFrom);
-                            toDist += users[i].spline.CalculateLength(0.0, users[i].clipTo);
+                            fromDist += users[i].Spline.CalculateLength(0.0, users[i].clipFrom);
+                            toDist += users[i].Spline.CalculateLength(0.0, users[i].clipTo);
                             divide++;
                         }
                     }
@@ -176,7 +176,7 @@ namespace Dreamteck.Splines.Editor
             float max = 0f;
             for (int i = 0; i < users.Length; i++)
             {
-                if (users[i].spline == null) continue;
+                if (users[i].Spline == null) continue;
                 float length = users[i].CalculateLength();
                 if(length > max)
                 {
@@ -187,14 +187,14 @@ namespace Dreamteck.Splines.Editor
             clipFromProperty = serializedObject.FindProperty("_clipFrom");
             clipToProperty = serializedObject.FindProperty("_clipTo");
             serializedObject.Update();
-            clipFromProperty.floatValue = (float)users[longest].spline.Travel(0.0, from);
-            clipToProperty.floatValue = (float)users[longest].spline.Travel(0.0, to);
+            clipFromProperty.floatValue = (float)users[longest].Spline.Travel(0.0, from);
+            clipToProperty.floatValue = (float)users[longest].Spline.Travel(0.0, to);
 
             serializedObject.ApplyModifiedProperties();
 
             for (int i = 0; i < users.Length; i++)
             {
-                if (users[i].spline == null) continue;
+                if (users[i].Spline == null) continue;
                 users[i].clipFrom = clipFromProperty.floatValue;
                 users[i].clipTo = clipToProperty.floatValue;
                 users[i].RebuildImmediate();
@@ -230,17 +230,17 @@ namespace Dreamteck.Splines.Editor
             }
             SplineUser user = (SplineUser)target;
             if (user == null) return;
-            if (user.spline != null)
+            if (user.Spline != null)
             {
                 SplineComputer rootComputer = user.GetComponent<SplineComputer>();
-                List<SplineComputer> allComputers = user.spline.GetConnectedComputers();
+                List<SplineComputer> allComputers = user.Spline.GetConnectedComputers();
                 for (int i = 0; i < allComputers.Count; i++)
                 {
                     if (allComputers[i] == rootComputer && _editIndex == -1) continue;
                     if (allComputers[i].editorAlwaysDraw) continue;
                     DSSplineDrawer.DrawSplineComputer(allComputers[i], 0.0, 1.0, 0.4f);
                 }
-                DSSplineDrawer.DrawSplineComputer(user.spline);
+                DSSplineDrawer.DrawSplineComputer(user.Spline);
             }
             if (_editIndex == 0) SceneClipEdit();
             if (offsetModifierEditor != null) offsetModifierEditor.DrawScene();
@@ -253,14 +253,14 @@ namespace Dreamteck.Splines.Editor
         {
             if (users.Length > 1) return;
             SplineUser user = (SplineUser)target;
-            if (user.spline == null) return;
-            Color col = user.spline.editorPathColor;
+            if (user.Spline == null) return;
+            Color col = user.Spline.editorPathColor;
             Undo.RecordObject(user, "Edit Clip Range");
             double val = user.clipFrom;
-            SplineComputerEditorHandles.Slider(user.spline, ref val, col, "Clip From", SplineComputerEditorHandles.SplineSliderGizmo.ForwardTriangle);
+            SplineComputerEditorHandles.Slider(user.Spline, ref val, col, "Clip From", SplineComputerEditorHandles.SplineSliderGizmo.ForwardTriangle);
             if (val != user.clipFrom) user.clipFrom = val;
             val = user.clipTo;
-            SplineComputerEditorHandles.Slider(user.spline, ref val, col, "Clip To", SplineComputerEditorHandles.SplineSliderGizmo.BackwardTriangle);
+            SplineComputerEditorHandles.Slider(user.Spline, ref val, col, "Clip To", SplineComputerEditorHandles.SplineSliderGizmo.BackwardTriangle);
             if (val != user.clipTo) user.clipTo = val;
         }
 

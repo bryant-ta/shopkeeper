@@ -92,9 +92,9 @@
             if (tracers.Length == 1)
             {
                 bool mightBe2d = false;
-                if(tracers[0].spline != null)
+                if(tracers[0].Spline != null)
                 {
-                    mightBe2d = tracers[0].spline.is2D;
+                    mightBe2d = tracers[0].Spline.is2D;
                 }
                 if (!mightBe2d)
                 {

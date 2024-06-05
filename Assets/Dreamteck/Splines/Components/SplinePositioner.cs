@@ -151,7 +151,7 @@ namespace Dreamteck.Splines
         private bool _followLoop;
         [SerializeField]
         [HideInInspector]
-        private Spline.Direction _followTargetDirection = Spline.Direction.Backward;
+        private Spline.Direction _followTargetDirection = Splines.Spline.Direction.Backward;
         [SerializeField]
         [HideInInspector]
         private float _position = 0f;
@@ -252,7 +252,7 @@ namespace Dreamteck.Splines
         public override void SetDistance(float distance, bool checkTriggers = false, bool handleJunctions = false)
         {
             double lastPercent = _result.percent;
-            double travel = Travel(0.0, distance, Spline.Direction.Forward);
+            double travel = Travel(0.0, distance, Splines.Spline.Direction.Forward);
             Evaluate(travel, ref _result);
             ApplyMotion();
 

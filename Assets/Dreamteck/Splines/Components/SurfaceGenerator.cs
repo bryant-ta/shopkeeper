@@ -223,7 +223,7 @@ namespace Dreamteck.Splines
 
         protected override void BuildMesh()
         {
-            if (spline.pointCount == 0) return;
+            if (Spline.pointCount == 0) return;
             base.BuildMesh();
             Generate();
         }
@@ -247,7 +247,7 @@ namespace Dreamteck.Splines
                 _trsForward = trs.forward;
             }
             int surfaceVertexCount = sampleCount;
-            if (spline.isClosed) surfaceVertexCount--;
+            if (Spline.isClosed) surfaceVertexCount--;
             int vertexCount = surfaceVertexCount;
             bool pathExtrude = false;
             if (_extrudeSpline != null)

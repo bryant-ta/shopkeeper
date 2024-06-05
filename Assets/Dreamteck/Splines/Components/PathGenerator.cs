@@ -61,7 +61,7 @@ namespace Dreamteck.Splines
             get { return _shapeExposure; }
             set
             {
-                if (spline != null && value != _shapeExposure)
+                if (Spline != null && value != _shapeExposure)
                 {
                     _shapeExposure = value;
                     Rebuild();

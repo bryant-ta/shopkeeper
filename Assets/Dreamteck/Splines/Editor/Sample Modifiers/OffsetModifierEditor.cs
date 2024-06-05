@@ -44,7 +44,7 @@ namespace Dreamteck.Splines.Editor
         {
             if (!isOpen) return false;
             bool changed = false;
-            bool is2D = user.spline != null && user.spline.is2D;
+            bool is2D = user.Spline != null && user.Spline.is2D;
             SplineSample result = new SplineSample();
             SerializedProperty start = key.FindPropertyRelative("_featherStart");
             SerializedProperty end = key.FindPropertyRelative("_featherEnd");
@@ -54,7 +54,7 @@ namespace Dreamteck.Splines.Editor
 
             float position = GetPosition(start.floatValue, end.floatValue, centerStart.floatValue, centerEnd.floatValue);
 
-            user.spline.Evaluate(position, ref result);
+            user.Spline.Evaluate(position, ref result);
             matrix.SetTRS(result.position, Quaternion.LookRotation(result.forward, result.up), Vector3.one * result.size);
             Vector3 pos = matrix.MultiplyPoint(offset.vector2Value);
             if (is2D)

@@ -104,12 +104,12 @@ namespace Dreamteck.Splines
             int vertIndex = 0;
             float avgTop = 0f;
             float totalLength = 0f;
-            Vector3 computerPosition = spline.position;
-            Vector3 normal = spline.TransformDirection(Vector3.right);
+            Vector3 computerPosition = Spline.position;
+            Vector3 normal = Spline.TransformDirection(Vector3.right);
             switch (_axis)
             {
-                case Axis.Y: normal = spline.TransformDirection(Vector3.up); break;
-                case Axis.Z: normal = spline.TransformDirection(Vector3.forward); break;
+                case Axis.Y: normal = Spline.TransformDirection(Vector3.up); break;
+                case Axis.Z: normal = Spline.TransformDirection(Vector3.forward); break;
             }
 
             Vector3 lastPosition = Vector3.zero;
@@ -118,7 +118,7 @@ namespace Dreamteck.Splines
                 GetSample(i, ref evalResult);
                 float resultSize = GetBaseSize(evalResult);
                 Vector3 samplePosition = evalResult.position;
-                Vector3 localSamplePosition = spline.InverseTransformPoint(samplePosition);
+                Vector3 localSamplePosition = Spline.InverseTransformPoint(samplePosition);
                 Vector3 bottomPosition = localSamplePosition;
                 Vector3 sampleDirection = evalResult.forward;
                 Vector3 sampleNormal = evalResult.up;
@@ -137,7 +137,7 @@ namespace Dreamteck.Splines
                     case Axis.Y: bottomPosition.y = _symmetry ? -localSamplePosition.y : 0f;  heightPercent = uvScale.y * Mathf.Abs(localSamplePosition.y); avgTop += localSamplePosition.y; break;
                     case Axis.Z: bottomPosition.z = _symmetry ? -localSamplePosition.z : 0f;  heightPercent = uvScale.y * Mathf.Abs(localSamplePosition.z); avgTop += localSamplePosition.z; break;
                 }
-                bottomPosition = spline.TransformPoint(bottomPosition);
+                bottomPosition = Spline.TransformPoint(bottomPosition);
                 Vector3 right = Vector3.Cross(normal, sampleDirection).normalized;
                 Vector3 offsetRight = Vector3.Cross(sampleNormal, sampleDirection);
                 

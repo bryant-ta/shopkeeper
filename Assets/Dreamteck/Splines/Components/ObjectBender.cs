@@ -39,7 +39,7 @@ namespace Dreamteck.Splines
             get { return _axis; }
             set
             {
-                if (spline != null && value != _axis)
+                if (Spline != null && value != _axis)
                 {
                     _axis = value;
                     UpdateReferences();
@@ -54,7 +54,7 @@ namespace Dreamteck.Splines
             get { return _normalMode; }
             set
             {
-                if (spline != null && value != _normalMode)
+                if (Spline != null && value != _normalMode)
                 {
                     _normalMode = value;
                     Rebuild();
@@ -67,7 +67,7 @@ namespace Dreamteck.Splines
             get { return _customNormal; }
             set
             {
-                if (spline != null && value != _customNormal)
+                if (Spline != null && value != _customNormal)
                 {
                     _customNormal = value;
                     Rebuild();
@@ -81,7 +81,7 @@ namespace Dreamteck.Splines
             get { return _forwardMode; }
             set
             {
-                if (spline != null && value != _forwardMode)
+                if (Spline != null && value != _forwardMode)
                 {
                     _forwardMode = value;
                     Rebuild();
@@ -94,7 +94,7 @@ namespace Dreamteck.Splines
             get { return _customForward; }
             set
             {
-                if (spline != null && value != _customForward)
+                if (Spline != null && value != _customForward)
                 {
                     _customForward = value;
                     Rebuild();
@@ -150,7 +150,7 @@ namespace Dreamteck.Splines
             }
             bendProperties = newProperties;
             SplineComputer splineComponent = GetComponent<SplineComputer>();
-            _parentIsTheSpline = splineComponent == spline;
+            _parentIsTheSpline = splineComponent == Spline;
         }
 
         public TS_Bounds GetBounds()
@@ -351,7 +351,7 @@ namespace Dreamteck.Splines
                 Bend();
                 for (int i = 0; i < bendProperties.Length; i++)
                 {
-                    bendProperties[i].Apply(i > 0 || trs != spline.transform);
+                    bendProperties[i].Apply(i > 0 || trs != Spline.transform);
                     bendProperties[i].Update();
                 }
             }
@@ -493,7 +493,7 @@ namespace Dreamteck.Splines
             if (!_bend) return;
             for (int i = 0; i < bendProperties.Length; i++)
             {
-                bendProperties[i].Apply(i > 0 || trs != spline.transform);
+                bendProperties[i].Apply(i > 0 || trs != Spline.transform);
                 bendProperties[i].Update();
             }
         }

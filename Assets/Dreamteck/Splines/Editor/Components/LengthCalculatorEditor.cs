@@ -23,8 +23,8 @@ namespace Dreamteck.Splines.Editor
             for (int i = 0; i < targets.Length; i++)
             {
                 LengthCalculator lengthCalc = (LengthCalculator)targets[i];
-                if (lengthCalc.spline == null) continue;
-                EditorGUILayout.HelpBox(lengthCalc.spline.name + " Length: " + lengthCalc.length, MessageType.Info);
+                if (lengthCalc.Spline == null) continue;
+                EditorGUILayout.HelpBox(lengthCalc.Spline.name + " Length: " + lengthCalc.length, MessageType.Info);
             }
             if (targets.Length > 1) return;
             SerializedProperty events = serializedObject.FindProperty("lengthEvents");

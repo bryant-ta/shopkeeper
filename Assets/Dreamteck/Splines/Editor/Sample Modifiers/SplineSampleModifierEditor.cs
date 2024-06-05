@@ -248,7 +248,7 @@
             {
                 user.UnclipPercent(ref value);
             }
-            SplineComputerEditorHandles.Slider(user.spline, ref value, user.spline.editorPathColor, "Start", SplineComputerEditorHandles.SplineSliderGizmo.ForwardTriangle, 0.8f);
+            SplineComputerEditorHandles.Slider(user.Spline, ref value, user.Spline.editorPathColor, "Start", SplineComputerEditorHandles.SplineSliderGizmo.ForwardTriangle, 0.8f);
             if (useClip)
             {
                 user.ClipPercent(ref value);
@@ -265,7 +265,7 @@
             {
                 user.UnclipPercent(ref value);
             }
-            SplineComputerEditorHandles.Slider(user.spline, ref value, user.spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Rectangle, 0.6f);
+            SplineComputerEditorHandles.Slider(user.Spline, ref value, user.Spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Rectangle, 0.6f);
             if (useClip)
             {
                 user.ClipPercent(ref value);
@@ -281,7 +281,7 @@
             {
                 user.UnclipPercent(ref value);
             }
-            SplineComputerEditorHandles.Slider(user.spline, ref value, user.spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Rectangle, 0.6f);
+            SplineComputerEditorHandles.Slider(user.Spline, ref value, user.Spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Rectangle, 0.6f);
             if (useClip)
             {
                 user.ClipPercent(ref value);
@@ -298,7 +298,7 @@
             {
                 user.UnclipPercent(ref value);
             }
-            SplineComputerEditorHandles.Slider(user.spline, ref value, user.spline.editorPathColor, "End", SplineComputerEditorHandles.SplineSliderGizmo.BackwardTriangle, 0.8f);
+            SplineComputerEditorHandles.Slider(user.Spline, ref value, user.Spline.editorPathColor, "End", SplineComputerEditorHandles.SplineSliderGizmo.BackwardTriangle, 0.8f);
             if (useClip)
             {
                 user.ClipPercent(ref value);
@@ -319,7 +319,7 @@
                 {
                     user.UnclipPercent(ref value);
                 }
-                SplineComputerEditorHandles.Slider(user.spline, ref value, user.spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Circle, 0.4f);
+                SplineComputerEditorHandles.Slider(user.Spline, ref value, user.Spline.editorPathColor, "", SplineComputerEditorHandles.SplineSliderGizmo.Circle, 0.4f);
                 if (useClip)
                 {
                     user.ClipPercent(ref value);

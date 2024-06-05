@@ -174,15 +174,15 @@ namespace Dreamteck.Splines
 
         protected override void OnSplineChanged()
         {
-            if (spline != null)
+            if (Spline != null)
             {
                 if (_mode == Mode.Accurate)
                 {
-                    spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo, SplineComputer.EvaluateMode.Calculate, subdivide);
+                    Spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo, SplineComputer.EvaluateMode.Calculate, subdivide);
                 } 
                 else
                 {
-                    spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo);
+                    Spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo);
                 }
                 _result.percent = ClipPercent(_result.percent);
             }
@@ -191,9 +191,9 @@ namespace Dreamteck.Splines
 
         private void Project()
         {
-            if (_mode == Mode.Accurate && spline != null)
+            if (_mode == Mode.Accurate && Spline != null)
             {
-                spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo, SplineComputer.EvaluateMode.Calculate, subdivide);
+                Spline.Project(_projectTarget.position, ref _result, clipFrom, clipTo, SplineComputer.EvaluateMode.Calculate, subdivide);
                 _result.percent = ClipPercent(_result.percent);
             }
             else

@@ -345,7 +345,7 @@ namespace Dreamteck.Splines.Editor
             if (Application.isEditor && !Application.isPlaying)
             {
                 if (user == null) OnDelete(); //The object or the component is being deleted
-                else if (user.spline != null)
+                else if (user.Spline != null)
                 {
                     if(!generatedUvs)  user.Rebuild();
                 }

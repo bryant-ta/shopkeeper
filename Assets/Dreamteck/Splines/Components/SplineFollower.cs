@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Dreamteck.Splines {
 public delegate void SplineReachHandler();
@@ -16,8 +15,8 @@ public class SplineFollower : SplineTracer {
 
     [HideInInspector] public bool autoStartPosition;
 
-    [SerializeField] [HideInInspector] [FormerlySerializedAs("follow")]
-    bool _follow = true;
+    [SerializeField] [HideInInspector]
+    bool isFollowing;
 
     [SerializeField] [HideInInspector] [Range(0f, 1f)]
     double _startPosition;
@@ -38,11 +37,11 @@ public class SplineFollower : SplineTracer {
                 Spline.Direction lastDirection = _direction;
                 if (Mathf.Approximately(_followSpeed, 0f)) return;
                 if (_followSpeed < 0f) {
-                    direction = Spline.Direction.Backward;
+                    direction = Splines.Spline.Direction.Backward;
                 }
 
                 if (_followSpeed > 0f) {
-                    direction = Spline.Direction.Forward;
+                    direction = Splines.Spline.Direction.Forward;
                 }
             }
         }
@@ -52,7 +51,7 @@ public class SplineFollower : SplineTracer {
         get { return base.direction; }
         set {
             base.direction = value;
-            if (_direction == Spline.Direction.Forward) {
+            if (_direction == Splines.Spline.Direction.Forward) {
                 if (_followSpeed < 0f) {
                     _followSpeed = -_followSpeed;
                 }
@@ -77,22 +76,22 @@ public class SplineFollower : SplineTracer {
         }
     }
 
-    public bool follow {
-        get { return _follow; }
+    public bool IsFollowing {
+        get { return isFollowing; }
         set {
-            if (_follow != value) {
+            if (isFollowing != value) {
                 if (autoStartPosition) {
                     Project(GetTransform().position, ref evalResult);
                     SetPercent(evalResult.percent);
                 }
 
-                _follow = value;
+                isFollowing = value;
             }
         }
     }
 
-    public event Action OnEndReached;
-    public event Action OnStartReached;
+    public event Action OnReachedEnd;
+    public event Action OnReachedStart;
 
     public FollowerSpeedModifier speedModifier { get { return _speedModifier; } }
 
@@ -106,8 +105,8 @@ public class SplineFollower : SplineTracer {
 
     protected override void Start() {
         base.Start();
-        if (_follow && autoStartPosition) {
-            SetPercent(spline.Project(GetTransform().position).percent);
+        if (isFollowing && autoStartPosition) {
+            SetPercent(Spline.Project(GetTransform().position).percent);
         }
     }
 
@@ -116,7 +115,7 @@ public class SplineFollower : SplineTracer {
 #if UNITY_EDITOR
         if (!Application.isPlaying) return;
 #endif
-        if (_follow) {
+        if (isFollowing) {
             Follow();
         }
     }
@@ -125,10 +124,12 @@ public class SplineFollower : SplineTracer {
         base.PostBuild();
         Evaluate(_result.percent, ref _result);
         if (sampleCount > 0) {
-            if (_follow && !autoStartPosition) ApplyMotion();
+            if (isFollowing && !autoStartPosition) ApplyMotion();
         }
     }
 
+    public void StartFollowing() { IsFollowing = true; }
+    public void StopFollowing() { IsFollowing = false; }
     void Follow() {
         switch (followMode) {
             case FollowMode.Uniform:
@@ -185,10 +186,10 @@ public class SplineFollower : SplineTracer {
         double startPercent = _result.percent;
         if (wrapMode == Wrap.Default && lastClippedPercent >= 1.0 && startPercent == 0.0) startPercent = 1.0;
 
-        double p = startPercent + (_direction == Spline.Direction.Forward ? percent : -percent);
+        double p = startPercent + (_direction == Splines.Spline.Direction.Forward ? percent : -percent);
         bool callOnEndReached = false, callOnBeginningReached = false;
         lastClippedPercent = p;
-        if (_direction == Spline.Direction.Forward && p >= 1.0) {
+        if (_direction == Splines.Spline.Direction.Forward && p >= 1.0) {
             if (startPercent < 1.0) {
                 callOnEndReached = true;
             }
@@ -206,10 +207,10 @@ public class SplineFollower : SplineTracer {
                 case Wrap.PingPong:
                     p = DMath.Clamp01(1.0 - (p - 1.0));
                     startPercent = 1.0;
-                    direction = Spline.Direction.Backward;
+                    direction = Splines.Spline.Direction.Backward;
                     break;
             }
-        } else if (_direction == Spline.Direction.Backward && p <= 0.0) {
+        } else if (_direction == Splines.Spline.Direction.Backward && p <= 0.0) {
             if (startPercent > 0.0) {
                 callOnBeginningReached = true;
             }
@@ -227,7 +228,7 @@ public class SplineFollower : SplineTracer {
                 case Wrap.PingPong:
                     p = DMath.Clamp01(-p);
                     startPercent = 0.0;
-                    direction = Spline.Direction.Forward;
+                    direction = Splines.Spline.Direction.Forward;
                     break;
             }
         }
@@ -238,12 +239,12 @@ public class SplineFollower : SplineTracer {
         ApplyMotion();
 
         if (callOnEndReached) {
-            if (OnEndReached != null) {
-                OnEndReached();
+            if (OnReachedEnd != null) {
+                OnReachedEnd();
             }
         } else if (callOnBeginningReached) {
-            if (OnStartReached != null) {
-                OnStartReached();
+            if (OnReachedStart != null) {
+                OnReachedStart();
             }
         }
 
@@ -262,7 +263,7 @@ public class SplineFollower : SplineTracer {
             CheckNodes(startPercent, travelPercent);
         }
 
-        if (direction == Spline.Direction.Forward) {
+        if (direction == Splines.Spline.Direction.Forward) {
             if (travelPercent >= 1.0) {
                 if (startPercent < 1.0) {
                     endReached = true;
@@ -275,7 +276,7 @@ public class SplineFollower : SplineTracer {
                         CheckNodes(0.0, travelPercent);
                         break;
                     case Wrap.PingPong:
-                        direction = Spline.Direction.Backward;
+                        direction = Splines.Spline.Direction.Backward;
                         travelPercent = DoTravel(1.0, distance - moved, out moved);
                         CheckTriggers(1.0, travelPercent);
                         CheckNodes(1.0, travelPercent);
@@ -295,7 +296,7 @@ public class SplineFollower : SplineTracer {
                         CheckNodes(1.0, travelPercent);
                         break;
                     case Wrap.PingPong:
-                        direction = Spline.Direction.Forward;
+                        direction = Splines.Spline.Direction.Forward;
                         travelPercent = DoTravel(0.0, Mathf.Abs(distance - moved), out moved);
                         CheckTriggers(0.0, travelPercent);
                         CheckNodes(0.0, travelPercent);
@@ -307,12 +308,12 @@ public class SplineFollower : SplineTracer {
         Evaluate(travelPercent, ref _result);
         ApplyMotion();
         if (endReached) {
-            if (OnEndReached != null) {
-                OnEndReached();
+            if (OnReachedEnd != null) {
+                OnReachedEnd();
             }
         } else if (beginningReached) {
-            if (OnStartReached != null) {
-                OnStartReached();
+            if (OnReachedStart != null) {
+                OnReachedStart();
             }
         }
 

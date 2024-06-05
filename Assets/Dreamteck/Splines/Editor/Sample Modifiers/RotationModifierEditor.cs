@@ -61,7 +61,7 @@ namespace Dreamteck.Splines.Editor
             SerializedProperty useLookTarget = key.FindPropertyRelative("useLookTarget");
             float position = GetPosition(start.floatValue, end.floatValue, centerStart.floatValue, centerEnd.floatValue);
             SplineSample result = new SplineSample();
-            user.spline.Evaluate(position, ref result);
+            user.Spline.Evaluate(position, ref result);
             if (useLookTarget.boolValue)
             {
                 if (target.objectReferenceValue != null)

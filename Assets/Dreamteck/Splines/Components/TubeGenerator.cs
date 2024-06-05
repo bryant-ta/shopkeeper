@@ -117,7 +117,7 @@ namespace Dreamteck.Splines
             get
             {
                 bool isCapSet = _capMode != CapMethod.None;
-                if (spline != null) return isCapSet && (!spline.isClosed || span < 1f);
+                if (Spline != null) return isCapSet && (!Spline.isClosed || span < 1f);
                 return isCapSet;
             }
         }
@@ -267,15 +267,15 @@ namespace Dreamteck.Splines
             switch (uvMode)
             {
                 case UVMode.Clip: startV = (float)evalResult.percent;
-                    capLengthPercent = (size * 0.5f) / spline.CalculateLength(); break;
+                    capLengthPercent = (size * 0.5f) / Spline.CalculateLength(); break;
                 case UVMode.UniformClip:
-                    startV = spline.CalculateLength(0.0, evalResult.percent);
+                    startV = Spline.CalculateLength(0.0, evalResult.percent);
                     capLengthPercent = size * 0.5f; break;
                 case UVMode.UniformClamp:
                     startV = 0f;
                     capLengthPercent = size * 0.5f / (float)span;
                     break;
-                case UVMode.Clamp: capLengthPercent = (size * 0.5f) / spline.CalculateLength(clipFrom, clipTo); break;
+                case UVMode.Clamp: capLengthPercent = (size * 0.5f) / Spline.CalculateLength(clipFrom, clipTo); break;
             }
 
             Color vertexColor = GetBaseColor(evalResult) * color;
@@ -333,9 +333,9 @@ namespace Dreamteck.Splines
             switch (uvMode)
             {
                 case UVMode.Clip: startV = (float)evalResult.percent; break;
-                case UVMode.UniformClip: startV = spline.CalculateLength(0.0, evalResult.percent); break;
+                case UVMode.UniformClip: startV = Spline.CalculateLength(0.0, evalResult.percent); break;
                 case UVMode.Clamp: startV = 1f; break;
-                case UVMode.UniformClamp: startV = spline.CalculateLength(); break;
+                case UVMode.UniformClamp: startV = Spline.CalculateLength(); break;
             }
 
             vertexColor = GetBaseColor(evalResult) * color;

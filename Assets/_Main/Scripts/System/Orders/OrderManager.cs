@@ -138,7 +138,7 @@ public class OrderManager : MonoBehaviour {
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
 
-        orderer.Docker.OnPathEnd += () => DestroyOrderer(orderer);
+        orderer.Docker.OnReachedEnd += () => DestroyOrderer(orderer);
     }
 
     void DestroyOrderer(Orderer orderer) {

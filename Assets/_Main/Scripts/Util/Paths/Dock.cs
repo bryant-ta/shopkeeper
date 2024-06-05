@@ -1,19 +1,18 @@
 using System;
 using Dreamteck.Splines;
-using Paths;
 using UnityEngine;
 
 public class Dock : MonoBehaviour {
     // Dock arrival callback assumes single path in and single out!
-    [SerializeField] SplineComputer pathIn;
+    [SerializeField] SplineComputer pathIn; // TODO: look into Spline Nodes, they seem to handle this
     [SerializeField] SplineComputer pathOut;
     
-    public PathActor Docker { get; private set; }
+    public SplineFollower Docker { get; private set; }
     public bool IsOccupied => Docker != null;
 
     public event Action OnDockerArrived;
 
-    public bool SetDocker(PathActor docker) {
+    public bool SetDocker(SplineFollower docker) {
         if (Docker != null) {
             Debug.LogWarning("Unable to set orderer: dock is occupied.");
             return false;
@@ -22,21 +21,22 @@ public class Dock : MonoBehaviour {
         Docker = docker;
         
         // Start listening for when docker arrives at dock
-        Docker.OnPathEnd += HandleArrival;
-
-        // Setup docker to use dock's paths
-        Docker.AddPath(pathIn);
-        Docker.AddPath(pathOut);
+        Docker.OnReachedEnd += HandleArrival;
         
+        Docker.Spline = pathIn;
+
         return true;
     }
     public void RemoveDocker() {
-        Docker.OnPathEnd -= HandleArrival;
+        Docker.OnReachedEnd -= HandleArrival;
         Docker = null;
     }
 
     void HandleArrival() {
-        Docker.OnPathEnd -= HandleArrival;
+        Docker.OnReachedEnd -= HandleArrival;
+
+        Docker.Spline = pathOut;
+        
         OnDockerArrived?.Invoke();
     }
 
