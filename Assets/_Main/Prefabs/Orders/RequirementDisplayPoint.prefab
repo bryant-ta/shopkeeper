@@ -144,7 +144,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9131769650614413056}
-  - component: {fileID: 3983260176825896713}
   m_Layer: 0
   m_Name: CanvasHolder
   m_TagString: Untagged
@@ -168,18 +167,6 @@ Transform:
   m_Father: {fileID: 6143361884805785950}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 315, y: 225, z: 0}
---- !u!114 &3983260176825896713
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1290355529785477924}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283acff8e17bed64e84e5af307d34bd0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &2174416665463673430
 GameObject:
   m_ObjectHideFlags: 0
@@ -196,7 +183,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6143361884805785950
 Transform:
   m_ObjectHideFlags: 0
@@ -247,7 +234,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &393486654280770799
 RectTransform:
   m_ObjectHideFlags: 0
@@ -350,7 +337,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7405966605754069253
 Transform:
   m_ObjectHideFlags: 0

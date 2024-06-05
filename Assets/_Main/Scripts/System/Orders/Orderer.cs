@@ -14,7 +14,7 @@ public class Orderer : MonoBehaviour {
 
     List<Product> submittedProducts = new();
     
-    public event Action<Order> OnOrderSet;
+    public event Action<Order> OnOrderStart;
     public event Action<Product> OnInvalidProductSet;
 
     void Awake() {
@@ -34,9 +34,16 @@ public class Orderer : MonoBehaviour {
     #region Order
 
     public void StartOrder() {
+        if (Order == null) {
+            Debug.LogError("Unable to start order: Order is not set.");
+            return;
+        }
+        
         // Order.StartOrder(); // TEMP: currently no timer
         Order.OnOrderSucceeded += OrderSucceeded;
         Order.OnOrderFailed += OrderFailed;
+        
+        OnOrderStart?.Invoke(Order);
     }
 
     void DoTryFulfillOrderList(List<IGridShape> shapes) { TryFulfillOrder(shapes, true); } // checked already in HoverEnter()
@@ -124,7 +131,6 @@ public class Orderer : MonoBehaviour {
         }
 
         Order = order;
-        OnOrderSet?.Invoke(Order);
     }
 
     #endregion

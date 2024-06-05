@@ -4,12 +4,20 @@ using Orders;
 using TMPro;
 using UnityEngine;
 
+[RequireComponent(typeof(LookAtOnCameraRotation))]
 public class RequirementsUI : MonoBehaviour {
     [SerializeField] List<RequirementDisplayUI> requirementDisplays;
 
     void Awake() {
         Orderer orderer = GetComponentInParent<Orderer>();
-        orderer.OnOrderSet += DisplayRequirements;
+        orderer.OnOrderStart += DisplayRequirements;
+
+        // Hide all requirement displays, to be shown as needed
+        for (int i = 0; i < requirementDisplays.Count; i++) {
+            requirementDisplays[i].gameObject.SetActive(false);
+            requirementDisplays[i].RemainingQuantityCanvas.gameObject.SetActive(false);
+            requirementDisplays[i].ShapelessDisplayObj.SetActive(false);
+        }
     }
 
     void DisplayRequirements(Order order) {
@@ -54,6 +62,8 @@ public class RequirementsUI : MonoBehaviour {
 
             UpdateQuantityText(i, req.QuantityUntilTarget());
         }
+        
+        GetComponent<LookAtOnCameraRotation>().RotateWithCamera();
 
         order.OnProductFulfilled += UpdateQuantityText;
     }
