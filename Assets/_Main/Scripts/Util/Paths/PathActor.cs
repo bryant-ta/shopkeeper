@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using Dreamteck.Splines;
 using UnityEngine;
 
 namespace Paths {
 public class PathActor : MonoBehaviour {
     [SerializeField] float moveSpeed = 1;
-    [SerializeField] List<Path> paths;
+    [SerializeField] List<SplineComputer> paths;
 
     int curPathIndex = -1;
-    Path curPath;
+    SplineComputer curPath;
     Vector3 curEndPoint;
     bool isMoving;
 
@@ -22,7 +22,7 @@ public class PathActor : MonoBehaviour {
 
         curPathIndex = pathIndex;
         curPath = paths[curPathIndex];
-        curEndPoint = curPath.path.GetPoint(curPath.path.NumPoints - 1);
+        // curEndPoint = curPath.GetPoint(curPath.pointCount - 1);
 
         distanceTraveled = 0;
         isMoving = true;
@@ -42,12 +42,12 @@ public class PathActor : MonoBehaviour {
             }
 
             distanceTraveled += moveSpeed * Time.deltaTime * GlobalClock.TimeScale;
-            transform.position = curPath.path.GetPointAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
-            transform.rotation = curPath.path.GetRotationAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
+            // transform.position = curPath.path.GetPointAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
+            // transform.rotation = curPath.path.GetRotationAtDistance(distanceTraveled, EndOfPathInstruction.Stop);
         }
     }
 
-    public void AddPath(Path path) {
+    public void AddPath(SplineComputer path) {
         paths.Add(path);
     }
 }

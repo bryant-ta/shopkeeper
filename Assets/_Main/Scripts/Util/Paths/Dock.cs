@@ -1,11 +1,12 @@
 using System;
+using Dreamteck.Splines;
 using Paths;
 using UnityEngine;
 
 public class Dock : MonoBehaviour {
     // Dock arrival callback assumes single path in and single out!
-    [SerializeField] Path pathIn;
-    [SerializeField] Path pathOut;
+    [SerializeField] SplineComputer pathIn;
+    [SerializeField] SplineComputer pathOut;
     
     public PathActor Docker { get; private set; }
     public bool IsOccupied => Docker != null;
