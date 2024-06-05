@@ -7,13 +7,14 @@ using UnityEngine;
 public class DeliveryManager : MonoBehaviour {
     [Title("Basic Delivery")]
     [SerializeField, Space] bool useWholeGridAsBounds;
+    
     [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
     [ShowIf(nameof(useWholeGridAsBounds), false)]
     [SerializeField] Vector3Int minBoundProductSpawn;
+    
     [Tooltip("The highest coord of the volume in a Deliverer grid to spawn products in. The opposite corner of a cube.")]
     [ShowIf(nameof(useWholeGridAsBounds), false)]
     [SerializeField] Vector3Int maxBoundProductSpawn;
-    [SerializeField] List<Deliverer> basicDeliverers = new();
 
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
@@ -22,6 +23,11 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int irregularQuantityMin;
     [SerializeField] int irregularQuantityMax;
     [SerializeField] List<Deliverer> specialDeliverers = new();
+    
+    [Header("Deliverers")]
+    [SerializeField] Transform docksContainer;
+    List<Dock> docks;
+    [SerializeField] GameObject delivererObj;
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
@@ -36,6 +42,8 @@ public class DeliveryManager : MonoBehaviour {
 
     void Awake() {
         vs = GetComponent<VolumeSlicer>();
+        
+        docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
     }
@@ -52,16 +60,17 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
-        for (int i = 0; i < basicDeliverers.Count; i++) {
-            GenerateBasicDelivery(basicDeliverers[i]);
-        }
+        GenerateBasicDelivery();
 
         // for (int i = 0; i < specialDeliverers.Count; i++) {
         //     GenerateSpecialDelivery(specialDeliverers[i]);
         // }
     }
 
-    void GenerateBasicDelivery(Deliverer deliverer) {
+    void GenerateBasicDelivery() {
+        // Setup Deliverer
+        Deliverer deliverer = Instantiate(delivererObj, )
+        
         Grid grid = deliverer.Grid;
         List<ShapeData> volumeData;
         if (useWholeGridAsBounds) {

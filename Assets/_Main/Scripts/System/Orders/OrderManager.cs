@@ -28,11 +28,10 @@ public class OrderManager : MonoBehaviour {
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
 
     [Header("Orderers")]
-    [SerializeField] Transform docksContainer; // TEMP: using just as spawn points until orderer anims
+    [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject ordererObj;
     [SerializeField] GameObject moldOrdererObj;
-    [SerializeField] Transform ordererSpawnPoint;
 
     [Header("Other")]
     [SerializeField] ListList<ShapeDataID> shapeDifficultyPool;

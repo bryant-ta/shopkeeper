@@ -5,11 +5,11 @@ using Paths;
 using UnityEngine;
 
 [RequireComponent(typeof(HoverEvent), typeof(PathActor))]
-public class Orderer : MonoBehaviour {
+public class Orderer : MonoBehaviour, IDocker {
     public Order Order { get; private set; }
-    public Dock AssignedDock { get; private set; }
-
     public Grid Grid { get; private set; }
+    
+    public Dock AssignedDock { get; private set; }
     public PathActor Docker { get; private set; }
 
     List<Product> submittedProducts = new();
@@ -144,7 +144,7 @@ public class Orderer : MonoBehaviour {
 
         Docker.StartPath(0);
     }
-    void LeaveDock() {
+    public void LeaveDock() {
         AssignedDock.RemoveDocker();
 
         foreach (Product product in submittedProducts) {
