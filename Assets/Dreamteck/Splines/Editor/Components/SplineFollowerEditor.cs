@@ -51,14 +51,13 @@ namespace Dreamteck.Splines.Editor
             SerializedProperty wrapMode = serializedObject.FindProperty("wrapMode");
             SerializedProperty startPosition = serializedObject.FindProperty("_startPosition");
             SerializedProperty autoStartPosition = serializedObject.FindProperty("autoStartPosition");
-            SerializedProperty follow = serializedObject.FindProperty("_follow");
+            SerializedProperty follow = serializedObject.FindProperty("isFollowing");
             SerializedProperty direction = serializedObject.FindProperty("_direction");
             SerializedProperty unityOnEndReached = serializedObject.FindProperty("_unityOnEndReached");
             SerializedProperty unityOnBeginningReached = serializedObject.FindProperty("_unityOnBeginningReached");
 
             EditorGUI.BeginChangeCheck();
 
-            if (follow == null) return;
             bool lastFollow = follow.boolValue;
             EditorGUILayout.PropertyField(follow);
             if(lastFollow != follow.boolValue)
@@ -143,9 +142,6 @@ namespace Dreamteck.Splines.Editor
                 EditorGUILayout.LabelField("Start position", GUILayout.Width(EditorGUIUtility.labelWidth));
             }
             EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.PropertyField(unityOnBeginningReached);
-            EditorGUILayout.PropertyField(unityOnEndReached);
 
             if (EditorGUI.EndChangeCheck())
             {

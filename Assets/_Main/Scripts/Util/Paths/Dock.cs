@@ -34,8 +34,11 @@ public class Dock : MonoBehaviour {
 
     void HandleArrival() {
         Docker.OnReachedEnd -= HandleArrival;
-
+        
         Docker.Spline = pathOut;
+        Docker.RebuildImmediate();
+        Docker.Restart();
+        Docker.IsFollowing = false;
         
         OnDockerArrived?.Invoke();
     }
