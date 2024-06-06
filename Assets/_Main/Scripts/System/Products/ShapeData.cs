@@ -9,7 +9,9 @@ public class ShapeData {
     public ShapeDataID ID;
     [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; } // Shape's cell grid position, (0,0,0) in offset matches
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
+    
     public int Size => ShapeOffsets?.Count ?? 0;
+    public bool IsMultiY => ShapeOffsets.Any(offset => offset.y != 0);
 
     public ShapeData() { }
     public ShapeData(ShapeData original) {
@@ -42,6 +44,7 @@ public class ShapeData {
             Debug.LogError("Shape offsets not yet set.");
             return;
         }
+
         if (ShapeOffsets[0] == Vector3Int.zero) return;
 
         List<Vector3Int> centeredOffsets = new();
@@ -122,6 +125,7 @@ public enum ShapeDataID {
     L2x2 = 25,
     L3x3 = 26,
     C1x1 = 30,
+    Box3x3 = 90,
     Custom = 100,
 }
 
@@ -415,6 +419,15 @@ public static class ShapeDataLookUp {
                     new(0, 0, 1),
                     new(0, 0, 2),
                     new(1, 0, 2),
+                }
+            }
+        }, {
+            ShapeDataID.Box3x3, new ShapeData() {
+                ID = ShapeDataID.Box3x3,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0), new(1, 0, 0), new(2, 0, 0), new(0, 0, 1), new(1, 0, 1), new(2, 0, 1), new(0, 0, 2), new(1, 0, 2), new(2, 0, 2),
+                    new(0, 1, 0), new(1, 1, 0), new(2, 1, 0), new(0, 1, 1), new(1, 1, 1), new(2, 1, 1), new(0, 1, 2), new(1, 1, 2), new(2, 1, 2),
+                    new(0, 2, 0), new(1, 2, 0), new(2, 2, 0), new(0, 2, 1), new(1, 2, 1), new(2, 2, 1), new(0, 2, 2), new(1, 2, 2), new(2, 2, 2),
                 }
             }
         },

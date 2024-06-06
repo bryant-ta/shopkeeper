@@ -58,7 +58,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-
         if (heldShapes.Count == 0) { // keep separate from null check for debugging
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
@@ -69,6 +68,11 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Vector3 localHitAntiNormal =
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
+
+        if (clickedShape.ShapeData.IsMultiY) {
+            // use root as shortcut to lowest y level offset, assumes root is always on lowest y
+            selectedShapeCellCoord = new Vector3Int(selectedShapeCellCoord.x, clickedShape.ShapeData.RootCoord.y, selectedShapeCellCoord.z);
+        }
 
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
 
@@ -236,6 +240,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
 
+        // Non-grid releases
         if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) {
             if (bag.orderer.TryFulfillOrder(heldShapes)) {
                 isHolding = false;

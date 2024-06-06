@@ -46,8 +46,9 @@ public class Grid : MonoBehaviour {
         
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
-            if (transform.GetChild(i).childCount == 0) continue;
-            if (transform.GetChild(i).GetChild(0).TryGetComponent(out IGridShape shape)) {
+            Transform trs = transform.GetChild(i);
+            if (trs.gameObject.activeSelf == false || trs.childCount == 0) continue;
+            if (trs.GetChild(0).TryGetComponent(out IGridShape shape)) {
                 if (!PlaceShape(Vector3Int.FloorToInt(shape.ShapeTransform.position), shape, true)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
                 }
@@ -210,18 +211,21 @@ public class Grid : MonoBehaviour {
         }
 
         IGridShape shape = cells[coord].Shape;
-
+        
         List<IGridShape> stackedShapes = new();  // Return list of shape stack
         Queue<Vector3Int> cellsToCheck = new();  // Work queue for cells to recursively check shapes stack on top of cell
         List<Vector2Int> stackFootprint = new(); // Tracks cells of bottom shape of stack, the "footprint"
+        
+        stackedShapes.Add(shape);
+        
+        // Multi-y shapes cannot be stacked on (i.e. DeliveryBox). Return just shape at coord.
+        if (shape.ShapeData.IsMultiY) return stackedShapes;
 
         // Determine footprint, enqueue every cell above footprint for checking for stacked shapes
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             cellsToCheck.Enqueue(shape.ShapeData.RootCoord + offset);
             stackFootprint.Add(new Vector2Int(shape.ShapeData.RootCoord.x + offset.x, shape.ShapeData.RootCoord.z + offset.z));
         }
-
-        stackedShapes.Add(shape);
 
         while (cellsToCheck.Count > 0) {
             Vector3Int checkCoord = cellsToCheck.Dequeue();
