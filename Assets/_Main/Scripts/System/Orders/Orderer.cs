@@ -14,7 +14,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
     List<Product> submittedProducts = new();
     
-    public event Action<Order> OnOrderStart;
+    public event Action<Order> OnOrderStarted;
+    public event Action<Order> OnOrderFinished;
     public event Action<Product> OnInvalidProductSet;
 
     void Awake() {
@@ -43,7 +44,7 @@ public class Orderer : MonoBehaviour, IDocker {
         Order.OnOrderSucceeded += OrderSucceeded;
         Order.OnOrderFailed += OrderFailed;
         
-        OnOrderStart?.Invoke(Order);
+        OnOrderStarted?.Invoke(Order);
     }
 
     void DoTryFulfillOrderList(List<IGridShape> shapes) { TryFulfillOrder(shapes, true); } // checked already in HoverEnter()
@@ -115,12 +116,14 @@ public class Orderer : MonoBehaviour, IDocker {
 
     void OrderSucceeded() {
         // TODO: some visual for fulfill vs. fail
+        OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
     void OrderFailed() {
         // TODO: game effects of failing an order
 
         // TODO: some visual for fulfill vs. fail
+        OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
 

@@ -10,7 +10,8 @@ public class RequirementsUI : MonoBehaviour {
 
     void Awake() {
         Orderer orderer = GetComponentInParent<Orderer>();
-        orderer.OnOrderStart += DisplayRequirements;
+        orderer.OnOrderStarted += Display;
+        orderer.OnOrderFinished += Hide;
 
         // Hide all requirement displays, to be shown as needed
         for (int i = 0; i < requirementDisplays.Count; i++) {
@@ -20,7 +21,7 @@ public class RequirementsUI : MonoBehaviour {
         }
     }
 
-    void DisplayRequirements(Order order) {
+    void Display(Order order) {
         for (int i = 0; i < order.Requirements.Count; i++) {
             Requirement req = order.Requirements[i];
             
@@ -66,6 +67,12 @@ public class RequirementsUI : MonoBehaviour {
         GetComponent<LookAtOnCameraRotation>().RotateWithCamera();
 
         order.OnProductFulfilled += UpdateQuantityText;
+    }
+
+    void Hide(Order order) {
+        for (int i = 0; i < requirementDisplays.Count; i++) {
+            requirementDisplays[i].gameObject.SetActive(false);
+        }
     }
 
     public void UpdateQuantityText(int index, int remainingQuantity) { requirementDisplays[index].RemainingQuantityText.text = remainingQuantity.ToString(); }
