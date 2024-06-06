@@ -5,13 +5,10 @@ using Tags;
 using TriInspector;
 using UnityEngine;
 
-public class Product : MonoBehaviour, IGridShape {
-    [field: SerializeField] public SO_Product ProductData { get; private set; }
+public class DeliveryBox : MonoBehaviour, IGridShape {
+    #region DeliveryBox
 
-    #region Product
-
-    [field: SerializeField, Title("Product"), ReadOnly]
-    public ProductID ID { get; private set; }
+    [SerializeField] ShapeData shapeData;
 
     #endregion
 
@@ -34,7 +31,7 @@ public class Product : MonoBehaviour, IGridShape {
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
-    [field: SerializeField, ReadOnly] public ShapeData ShapeData { get; set; }
+    public ShapeData ShapeData => shapeData;
 
     [field: SerializeField, HideInEditMode]
     public ShapeTags ShapeTags { get; private set; }
@@ -46,37 +43,22 @@ public class Product : MonoBehaviour, IGridShape {
     #endregion
 
     void Awake() {
-        if (ProductData == null) {
-            // Debug.Log($"Product {gameObject.name} did not self-init.");
-            return;
-        }
-
-        Init(ProductData);
+        Init();
     }
 
-    public void Init(SO_Product productData) {
-        if (ProductData == null) ProductData = productData;
-
-        ShapeData = ProductData.ShapeData;
+    public void Init() {
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
-            ShapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
+            shapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
-
-        VoxelMeshGenerator.Generate(gameObject, ShapeData);
 
         ShapeTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
-        ID = ProductData.ID;
-        gameObject.name = Name = ProductData.ID.ToString();
+        Name = gameObject.name;
 
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
         matOutlineOriginalWeight = Properties.outlineSize.GetValue(mat);
-        Properties.albedoColor.SetValue(mat, ID.Color);
-        // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
-
-        ShapeTags = new ShapeTags(ProductData.MoveTagIDs, ProductData.PlaceTagIDs);
     }
     
     public void SetOutline(Color color, float weight) {
