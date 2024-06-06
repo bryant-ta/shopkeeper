@@ -15,6 +15,8 @@ public class Ref : Singleton<Ref> {
     public OrderManager OrderMngr;
     public Trash Trash;
 
+    public Transform OffScreenSpawnTrs;
+
     void Awake() {
         _player = player;
         _upgradeMngr = upgradeMngr;

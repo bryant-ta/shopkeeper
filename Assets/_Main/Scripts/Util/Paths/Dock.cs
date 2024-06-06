@@ -19,6 +19,7 @@ public class Dock : MonoBehaviour {
         }
         
         Docker = docker;
+        Docker.transform.SetParent(transform);
         
         // Start listening for when docker arrives at dock
         Docker.OnReachedEnd += HandleArrival;

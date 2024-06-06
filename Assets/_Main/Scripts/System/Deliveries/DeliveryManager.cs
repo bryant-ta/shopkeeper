@@ -71,8 +71,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void GenerateBasicDelivery(Dock openDock) {
         // Setup Deliverer
-        Deliverer deliverer = Instantiate(delivererObj, openDock.transform).GetComponent<Deliverer>();
-        deliverer.OccupyDock(openDock);
+        Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         
         Grid grid = deliverer.Grid;
         
@@ -98,6 +97,8 @@ public class DeliveryManager : MonoBehaviour {
 
             Ledger.AddStockedProduct(product);
         }
+        
+        deliverer.OccupyDock(openDock);
     }
 
     // void GenerateSpecialDelivery(Deliverer deliverer) {

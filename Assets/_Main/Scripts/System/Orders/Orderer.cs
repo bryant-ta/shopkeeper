@@ -159,7 +159,6 @@ public class Orderer : MonoBehaviour, IDocker {
 
         // TODO: leaving anim
         Docker.StartFollowing();
-
     }
 
     #endregion

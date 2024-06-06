@@ -113,11 +113,11 @@ public class OrderManager : MonoBehaviour {
 
             if (order is MoldOrder moldOrder) {
                 // Setup MoldOrder Orderer
-                orderer = Instantiate(moldOrdererObj, openDock.transform).GetComponent<Orderer>();
+                orderer = Instantiate(moldOrdererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Orderer>();
                 ShapeOutlineRenderer shapeOutlineRenderer = orderer.GetComponentInChildren<ShapeOutlineRenderer>();
                 moldOrder.Mold.InitByOrderer(orderer.Grid, shapeOutlineRenderer);
             } else {
-                orderer = Instantiate(ordererObj, openDock.transform).GetComponent<Orderer>();
+                orderer = Instantiate(ordererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Orderer>();
             }
 
             orderer.SetOrder(order);
@@ -138,11 +138,7 @@ public class OrderManager : MonoBehaviour {
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
 
-        orderer.Docker.OnReachedEnd += () => DestroyOrderer(orderer);
-    }
-
-    void DestroyOrderer(Orderer orderer) {
-        Destroy(orderer.gameObject);
+        orderer.Docker.OnReachedEnd += () => Destroy(orderer.gameObject);
     }
 
     #endregion

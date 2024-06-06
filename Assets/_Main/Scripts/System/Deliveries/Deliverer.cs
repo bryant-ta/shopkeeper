@@ -42,7 +42,8 @@ public class Deliverer : MonoBehaviour, IDocker {
         AssignedDock = null;
 
         // TEMP: until leaving anim
-        Destroy(gameObject);
+        Docker.StartFollowing();
+        Docker.OnReachedEnd += () => Destroy(gameObject);
     }
 
     #endregion
