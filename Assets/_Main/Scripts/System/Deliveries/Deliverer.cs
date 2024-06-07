@@ -15,7 +15,7 @@ public class Deliverer : MonoBehaviour, IDocker {
         
         Docker = GetComponent<SplineFollower>();
 
-        Grid.OnRemoveShapes += LeaveOnEmpty;
+        Grid.OnRemoveShapes += CheckLastShapeMoved;
     }
 
     void AllowInteraction() {
@@ -23,9 +23,25 @@ public class Deliverer : MonoBehaviour, IDocker {
     }
     
     // TEMP: placeholder until/if doing delivery boxes
-    void LeaveOnEmpty(List<IGridShape> shapes) {
+    IGridShape lastShape;
+    void CheckLastShapeMoved(List<IGridShape> shapes) {
         if (!Grid.IsEmpty()) return;
-        LeaveDock();
+
+        lastShape = shapes[0];
+
+        GameManager.WorldGrid.OnPlaceShapes -= HandleCheckLastShapeMoved;
+        GameManager.WorldGrid.OnPlaceShapes += HandleCheckLastShapeMoved;
+    }
+
+    void HandleCheckLastShapeMoved(List<IGridShape> shapes) {
+        GameManager.WorldGrid.OnPlaceShapes -= HandleCheckLastShapeMoved;
+        
+        foreach (IGridShape shape in shapes) {
+            if (shape == lastShape) {
+                LeaveDock();
+                break;
+            }
+        }
     }
     
     #region Dock
