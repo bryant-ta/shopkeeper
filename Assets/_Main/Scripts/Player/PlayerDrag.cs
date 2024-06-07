@@ -17,9 +17,13 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] Color selectedInvalidOutlineColor;
     [SerializeField] float selectedOutlineWidth;
 
-    Vector3Int selectedCellCoord;
-    Vector3Int selectedShapeCellOffset; // local offset from clicked shape's root coord
+    Vector3Int selectedCellCoord;       // target grid coord in context of current drag state
+    Vector3Int selectedShapeCellOffset; // local shape offset from clicked shape's root coord
     Grid targetGrid;
+    
+    // Cancel Drag
+    Vector3Int previousShapePos; // last grid coord of shape (stack) before dragging
+    Grid previousGrid;
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
@@ -30,7 +34,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     void Awake() { pivotTargetRotation = rotationPivot.rotation.eulerAngles; }
 
-    bool isHolding = false;
+    bool isHolding;
     void GrabRelease(ClickInputArgs clickInputArgs) {
         if (isHolding) {
             Release(clickInputArgs);
@@ -49,7 +53,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         // TODO: add tag or something for objects that should be moveable
 
         // Try to pick up stack of shapes
-        Grid targetGrid = clickedShape.Grid;
+        targetGrid = clickedShape.Grid;
         List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape);
         if (heldShapes == null) {
             TweenManager.Shake(outOfFootprintShape);
@@ -73,6 +77,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
+        
+        previousShapePos = clickedShape.ShapeData.RootCoord;
+        previousGrid = targetGrid;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
         DragGrid.transform.position = clickedShape.ObjTransform.position;
@@ -101,7 +108,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         OnGrab?.Invoke(clickInputArgs.HitPoint);
     }
-
+    
     void Update() { rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
@@ -293,6 +300,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             return;
         }
 
+        ReleaseReset(heldShapes);
+    }
+    void ReleaseReset(List<IGridShape> heldShapes) {
         for (int i = 0; i < heldShapes.Count; i++) {
             foreach (Collider col in heldShapes[i].Colliders) {
                 col.enabled = true;
@@ -313,6 +323,17 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         OnRelease?.Invoke();
     }
+    void Cancel(ClickInputArgs clickInputArgs) {
+        if (DragGrid.IsEmpty()) return;
+        List<IGridShape> heldShapes = DragGrid.AllShapes();
+        
+        if (!DragGrid.MoveShapes(previousGrid, previousShapePos, heldShapes)) {
+            Debug.LogError("Unable to return dragged shapes to original position.");
+            return;
+        }
+        
+        ReleaseReset(heldShapes);
+    }
 
     #region Upgrades
 
@@ -323,12 +344,14 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     public void Equip() {
         Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
+        Ref.Player.PlayerInput.InputSecondaryDown += Cancel;
         Ref.Player.PlayerInput.InputPoint += Drag;
         Ref.Player.PlayerInput.InputRotate += Rotate;
     }
     public void Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp -= Release;
+        Ref.Player.PlayerInput.InputSecondaryDown -= Cancel;
         Ref.Player.PlayerInput.InputPoint -= Drag;
         Ref.Player.PlayerInput.InputRotate -= Rotate;
     }
