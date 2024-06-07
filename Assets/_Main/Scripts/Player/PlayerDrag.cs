@@ -70,7 +70,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
         if (clickedShape.ShapeData.IsMultiY) {
-            // use root as shortcut to lowest y level offset, assumes root is always on lowest y
+            // NOTE: uses root as shortcut to lowest y level offset, assumes root is always on lowest y
             selectedShapeCellCoord = new Vector3Int(selectedShapeCellCoord.x, clickedShape.ShapeData.RootCoord.y, selectedShapeCellCoord.z);
         }
 

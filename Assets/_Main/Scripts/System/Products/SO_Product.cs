@@ -16,7 +16,7 @@ public class SO_Product : ScriptableObject {
         }
     }
 
-    public List<ShapeTagID> ShapeTagIDs;
+    public List<ShapeTagID> ShapeTagIDs = new();
 }
 
 [Serializable]

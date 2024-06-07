@@ -48,6 +48,7 @@ public class Grid : MonoBehaviour {
         for (int i = 0; i < transform.childCount; i++) {
             Transform trs = transform.GetChild(i);
             if (trs.gameObject.activeSelf == false || trs.childCount == 0) continue;
+            
             if (trs.GetChild(0).TryGetComponent(out IGridShape shape)) {
                 if (!PlaceShape(Vector3Int.FloorToInt(shape.ShapeTransform.position), shape, true)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
@@ -371,6 +372,9 @@ public class Grid : MonoBehaviour {
             Debug.LogError("Cannot validate shape placement: shape is null");
             return pv;
         }
+        
+        // NOTE: uses targetCoord as shortcut to lowest y level offset, assumes is always on lowest y
+        if (shape.ShapeTags.Contains(ShapeTagID.Unstackable) && targetCoord.y != 0) { pv.SetFlag(PlacementInvalidFlag.ShapeTagRule); }
 
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
@@ -379,7 +383,9 @@ public class Grid : MonoBehaviour {
             if (!IsInBoundsY(checkPos)) { pv.SetFlag(PlacementInvalidFlag.OutOfBoundsY); }
             if (!IsOpen(checkPos)) { pv.SetFlag(PlacementInvalidFlag.Overlap); }
             if (!ignoreZone && !CheckZones(checkPos, prop => prop.CanPlace)) { pv.SetFlag(PlacementInvalidFlag.ZoneRule); }
-            if (SelectPosition(checkPos + Vector3Int.down).ShapeTags.Contains(ShapeTagID.Unstackable)) {
+
+            IGridShape belowShape = SelectPosition(checkPos + Vector3Int.down);
+            if (belowShape != null && belowShape.ShapeTags.Contains(ShapeTagID.Unstackable)) {
                 pv.SetFlag(PlacementInvalidFlag.ShapeTagRule);
             }
 
