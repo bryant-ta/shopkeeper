@@ -34,16 +34,8 @@ public class Grid : MonoBehaviour {
     public event Action<List<IGridShape>> OnRemoveShapes; // triggered once per move of a STACK of shape on both origin and target grid
 
     void Awake() {
-        // Set grid bounds
-        // actual length/width rounds to odd num due to centering on (0,0,0)
-        Vector3Int leastCoord = new Vector3Int(-Length / 2, 0, -Width / 2);
-        for (int x = 0; x <= Length - 1; x++) {
-            for (int z = 0; z <= Width - 1; z++) {
-                validCells.Add(new Vector2Int(leastCoord.x + x, leastCoord.z + z));
-            }
-        }
-
         height = GameManager.Instance.GlobalGridHeight;
+        SetGridSize(length, height, width);
 
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
@@ -548,6 +540,42 @@ public class Grid : MonoBehaviour {
                 validCells.Add(new Vector2Int(x, y));
             }
         }
+    }
+
+    bool xNudged; bool zNudged;
+    public void SetGridSize(int l, int h, int w) {
+        validCells.Clear();
+
+        length = l;
+        height = h;
+        width = w;
+
+        Vector3Int leastCoord = new Vector3Int(-Length / 2, 0, -Width / 2);
+        for (int x = 0; x <= Length - 1; x++) {
+            for (int z = 0; z <= Width - 1; z++) {
+                validCells.Add(new Vector2Int(leastCoord.x + x, leastCoord.z + z));
+            }
+        }
+        
+        // Need to nudge even grids to keep everything aligned.
+        // NOTE: Unsure if this affects any other grid functionality.... test
+        // prob want to keep grid length and width equal
+        if (!xNudged && length % 2 == 0) {
+            gameObject.transform.position += new Vector3(0.5f, 0, 0);
+            xNudged = true;
+        } else if (xNudged && length % 2 == 1) {
+            gameObject.transform.position -= new Vector3(0.5f, 0, 0);
+            xNudged = false;
+        }
+        if (!zNudged && width % 2 == 0) {
+            gameObject.transform.position += new Vector3(0, 0, 0.5f);
+            zNudged = true;
+        } else if (zNudged && width % 2 == 1) {
+            gameObject.transform.position -= new Vector3(0, 0, 0.5f);
+            zNudged = false;
+        }
+        
+        // TODO: Check if all of grid's shapes still fit in grid
     }
 
     public void SetMaxHeight(int height) { this.height = height; }

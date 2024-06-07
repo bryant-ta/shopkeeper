@@ -63,11 +63,18 @@ public class DeliveryManager : MonoBehaviour {
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
 
+        // Select delivery box based on current difficulty
         List<GameObject> possibleDelBoxes = GameManager.Instance.FilterByDifficulty(deliveryBoxObjs);
         GameObject delboxObj = possibleDelBoxes[Random.Range(0, possibleDelBoxes.Count)];
         
         DeliveryBox deliveryBox = Instantiate(delboxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
         Vector3Int targetCoord = new Vector3Int(-deliveryBox.ShapeData.Length / 2, 0, -deliveryBox.ShapeData.Width / 2); // centers shape on grid origin
+        
+        // TEMP: scale deliverer floor grid, replaced after deliverer anim
+        deliverer.Grid.SetGridSize(deliveryBox.ShapeData.Length, deliveryBox.ShapeData.Height, deliveryBox.ShapeData.Width);
+        deliverer.transform.Find("Floor").transform.localScale = new Vector3(
+            0.1f * deliveryBox.ShapeData.Length + 0.05f, 1, 0.1f * deliveryBox.ShapeData.Width + 0.05f
+        );
         
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
     }
