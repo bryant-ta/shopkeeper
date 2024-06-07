@@ -19,7 +19,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     Vector3Int selectedCellCoord;       // target grid coord in context of current drag state
     Vector3Int selectedShapeCellOffset; // local shape offset from clicked shape's root coord
     Grid targetGrid;
-    
+
     // Cancel Drag
     Vector3Int previousShapePos; // last grid coord of shape (stack) before dragging
     Grid previousGrid;
@@ -76,7 +76,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
-        
+
         previousShapePos = clickedShape.ShapeData.RootCoord;
         previousGrid = targetGrid;
 
@@ -99,7 +99,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             heldShapes[i].SetOutline(selectedOutlineColor);
         }
 
-        isHolding = true;
+        SetIsHolding(true);
 
         // Cursor.visible = false;
 
@@ -107,7 +107,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         OnGrab?.Invoke(clickInputArgs.HitPoint);
     }
-    
+
     void Update() { rotationPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
@@ -239,6 +239,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                 }
             );
     }
+    void RotateByClick(ClickInputArgs clickInputArgs) { Rotate(true); }
 
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
@@ -253,7 +254,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             }
 
             if (bag.orderer.TryFulfillOrder(heldShapes)) {
-                isHolding = false;
+                SetIsHolding(false);
             } else {
                 TweenManager.Shake(heldShapes);
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
@@ -266,9 +267,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
                 return;
             }
-            
+
             trash.TrashShapes(heldShapes, DragGrid);
-            isHolding = false;
+            SetIsHolding(false);
             return;
         }
 
@@ -300,7 +301,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         ReleaseReset(heldShapes);
-        
+
         // TEMP: play shape placement smoke burst particles
         ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
         burst.count = heldShapes.Count * 2 + 3;
@@ -316,22 +317,34 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             heldShapes[i].ResetOutline();
         }
 
-        isHolding = false;
+        SetIsHolding(false);
 
         // Cursor.visible = true;
 
         OnRelease?.Invoke();
     }
-    void Cancel(ClickInputArgs clickInputArgs) {
+    void Cancel() {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
-        
+
         if (!DragGrid.MoveShapes(previousGrid, previousShapePos, heldShapes)) {
             Debug.LogError("Unable to return dragged shapes to original position.");
             return;
         }
-        
+
         ReleaseReset(heldShapes);
+    }
+
+    void SetIsHolding(bool enable) {
+        if (enable) {
+            isHolding = true;
+            Ref.Player.PlayerInput.SetAction(Constants.ActionMapNameGlobal, "Pause", false);
+            Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", true);
+        } else {
+            isHolding = false;
+            Ref.Player.PlayerInput.SetAction(Constants.ActionMapNameGlobal, "Pause", true);
+            Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
+        }
     }
 
     #region Upgrades
@@ -343,15 +356,22 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     public void Equip() {
         Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
-        Ref.Player.PlayerInput.InputSecondaryDown += Cancel;
+        Ref.Player.PlayerInput.InputSecondaryDown += RotateByClick;
         Ref.Player.PlayerInput.InputPoint += Drag;
         Ref.Player.PlayerInput.InputRotate += Rotate;
+        Ref.Player.PlayerInput.InputCancel += Cancel;
+
+        Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
     public void Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= GrabRelease;
         Ref.Player.PlayerInput.InputPrimaryUp -= Release;
-        Ref.Player.PlayerInput.InputSecondaryDown -= Cancel;
+        Ref.Player.PlayerInput.InputSecondaryDown -= RotateByClick;
         Ref.Player.PlayerInput.InputPoint -= Drag;
         Ref.Player.PlayerInput.InputRotate -= Rotate;
+        Ref.Player.PlayerInput.InputCancel -= Cancel;
+
+        Cancel();
+        Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
 }

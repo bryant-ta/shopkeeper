@@ -142,7 +142,6 @@ public class PlayerInput : MonoBehaviour {
     #region Interact
 
     public event Action InputInteract;
-    public event Action InputCancel;
     public event Action<bool> InputRotate;
     public event Action InputDrop;
 
@@ -193,6 +192,8 @@ public class PlayerInput : MonoBehaviour {
     }
 
     #endregion
+    
+    public event Action InputCancel;
 
     public void OnPause(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
@@ -204,13 +205,21 @@ public class PlayerInput : MonoBehaviour {
     #region Helper
 
     // TEMP: make more robust if more than two action maps
-    public void SetActionMap(string actionMapName) {
-        if (actionMapName == Constants.ActionMapNamePlayer) {
+    public void SetActionMap(string mapName) {
+        if (mapName == Constants.ActionMapNamePlayer) {
             playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Disable();
             playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Enable();
-        } else if (actionMapName == Constants.ActionMapNameVehicle) {
+        } else if (mapName == Constants.ActionMapNameVehicle) {
             playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Disable();
             playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Enable();
+        }
+    }
+
+    public void SetAction(string mapName, string actionName, bool enable) {
+        if (enable) {
+            playerInput.actions.FindAction(mapName + "/" + actionName).Enable();
+        } else {
+            playerInput.actions.FindAction(mapName + "/" + actionName).Disable();
         }
     }
 

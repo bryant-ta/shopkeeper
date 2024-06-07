@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MK.Toon;
@@ -41,6 +42,10 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         Init();
         
         Ref.Player.PlayerInput.InputSecondaryDown += HandleInput;
+    }
+
+    void OnDestroy() {
+        Ref.Player.PlayerInput.InputSecondaryDown -= HandleInput;
     }
 
     void Init() {

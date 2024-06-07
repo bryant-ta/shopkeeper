@@ -13,35 +13,35 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 54ff4c6ff63913e4daba9ce62c00cf61, type: 2}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalScale.x
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalScale.y
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalScale.z
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 457391773419511172, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_ConstrainProportionsScale
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7749960157126138598, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_Name
-      value: DeliveryBox
+      value: DeliveryBox_Box2x2x4
       objectReference: {fileID: 0}
     - target: {fileID: 7749960157126138599, guid: 0ae947741dadd4e409784876a772c4f7, type: 3}
       propertyPath: m_RootOrder
@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <ShapeData>k__BackingField:
-    ID: 91
+    ID: 82
     <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
   <ShapeTags>k__BackingField:
