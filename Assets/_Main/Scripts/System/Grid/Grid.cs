@@ -41,9 +41,9 @@ public class Grid : MonoBehaviour {
                 validCells.Add(new Vector2Int(x, z));
             }
         }
-        
+
         height = GameManager.Instance.GlobalGridHeight;
-        
+
         // Add pre-existing scene shapes to grid
         for (int i = 0; i < transform.childCount; i++) {
             Transform trs = transform.GetChild(i);
@@ -127,7 +127,7 @@ public class Grid : MonoBehaviour {
 
         if (IsLocked) return false;
 
-        // Check zone/shape move rules
+        // Check zone rules
         if (!ignoreZone) {
             for (int i = 0; i < shapes.Count; i++) {
                 if (!CheckZones(shapes[i].ShapeData.RootCoord, prop => prop.CanTake)) {
@@ -136,8 +136,9 @@ public class Grid : MonoBehaviour {
             }
         }
 
+        // Check shape move rules
         for (int i = 0; i < shapes.Count; i++) {
-            if (!shapes[i].ShapeTags.CheckMoveTags()) return false;
+            if (shapes[i].ShapeTags.Contains(ShapeTagID.Anchored)) return false;
         }
 
         // Save original shape coords in original grid, remove from original grid
@@ -211,13 +212,13 @@ public class Grid : MonoBehaviour {
         }
 
         IGridShape shape = cells[coord].Shape;
-        
+
         List<IGridShape> stackedShapes = new();  // Return list of shape stack
         Queue<Vector3Int> cellsToCheck = new();  // Work queue for cells to recursively check shapes stack on top of cell
         List<Vector2Int> stackFootprint = new(); // Tracks cells of bottom shape of stack, the "footprint"
-        
+
         stackedShapes.Add(shape);
-        
+
         // Multi-y shapes cannot be stacked on (i.e. DeliveryBox). Return just shape at coord.
         if (shape.ShapeData.IsMultiY) return stackedShapes;
 
@@ -325,7 +326,7 @@ public class Grid : MonoBehaviour {
                 while (CanFall(aboveRoot + yDiff, aboveShape.ShapeData.ShapeOffsets)) {
                     yDiff += Vector3Int.down;
                 }
-                
+
                 MoveShapes(this, aboveRoot + yDiff, new List<IGridShape> {aboveShape}, true);
             }
         }
@@ -339,7 +340,7 @@ public class Grid : MonoBehaviour {
             while (CanFall(origRoot + yDiff, targetShape.ShapeData.ShapeOffsets)) {
                 yDiff += Vector3Int.down;
             }
-            
+
             MoveShapes(this, origRoot + yDiff, new List<IGridShape> {targetShape}, true);
             TriggerFallByGap(origRoot, targetShape.ShapeData.ShapeOffsets);
         }
@@ -371,21 +372,16 @@ public class Grid : MonoBehaviour {
             return pv;
         }
 
-        if (!shape.ShapeTags.CheckPlaceTags(targetCoord)) {
-            pv.SetFlag(PlacementInvalidFlag.ShapeTagRule);
-            return pv;
-        }
-
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
 
             if (!IsInBoundsXZ(checkPos)) { pv.SetFlag(PlacementInvalidFlag.OutOfBoundsXZ); }
-
             if (!IsInBoundsY(checkPos)) { pv.SetFlag(PlacementInvalidFlag.OutOfBoundsY); }
-
             if (!IsOpen(checkPos)) { pv.SetFlag(PlacementInvalidFlag.Overlap); }
-
             if (!ignoreZone && !CheckZones(checkPos, prop => prop.CanPlace)) { pv.SetFlag(PlacementInvalidFlag.ZoneRule); }
+            if (SelectPosition(checkPos + Vector3Int.down).ShapeTags.Contains(ShapeTagID.Unstackable)) {
+                pv.SetFlag(PlacementInvalidFlag.ShapeTagRule);
+            }
 
             if (!pv.IsValid) break;
         }

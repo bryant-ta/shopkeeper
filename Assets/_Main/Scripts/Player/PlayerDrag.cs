@@ -266,6 +266,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {
+                // Shake only shapes that are out of height bounds
                 if (heldShapes[i].ShapeData.RootCoord.y + DragGrid.transform.position.y >= targetGrid.Height) {
                     outOfHeightBounds = true;
                     TweenManager.Shake(heldShapes[i]);
@@ -273,6 +274,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                 }
             }
 
+            // Shake whole stack (whole held stack is invalid)
             if (!outOfHeightBounds) {
                 TweenManager.Shake(heldShapes);
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);

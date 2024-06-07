@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MK.Toon;
-using Tags;
 using TriInspector;
 using UnityEngine;
 
@@ -76,7 +75,7 @@ public class Product : MonoBehaviour, IGridShape {
         Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 
-        ShapeTags = new ShapeTags(ProductData.MoveTagIDs, ProductData.PlaceTagIDs);
+        ShapeTags = new ShapeTags(ProductData.ShapeTagIDs);
     }
     
     public void SetOutline(Color color, float weight) {
