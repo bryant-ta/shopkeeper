@@ -19,5 +19,4 @@ MonoBehaviour:
     ID: 90
     <RootCoord>k__BackingField: {x: 0, y: 0, z: 0}
     ShapeOffsets: []
-  MoveTagIDs: 
-  PlaceTagIDs: 
+  ShapeTagIDs: 020000000a0000000b000000

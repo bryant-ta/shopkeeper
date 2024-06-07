@@ -16,4 +16,6 @@ public enum ShapeTagID {
     None = 0,
     Anchored = 1,
     Unstackable = 2,
+    Unsliceable = 10,
+    Uncombinable = 11,
 }
