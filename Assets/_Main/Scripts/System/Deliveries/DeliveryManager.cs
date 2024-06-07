@@ -17,7 +17,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] GameObject deliveryBoxObj;
+    [SerializeField] List<ObjDifficulty> deliveryBoxObjs;
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
@@ -62,9 +62,12 @@ public class DeliveryManager : MonoBehaviour {
     void CreateDeliverer(Dock openDock) {
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
+
+        List<GameObject> possibleDelBoxes = GameManager.Instance.FilterByDifficulty(deliveryBoxObjs);
+        GameObject delboxObj = possibleDelBoxes[Random.Range(0, possibleDelBoxes.Count)];
         
-        DeliveryBox deliveryBox = Instantiate(deliveryBoxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
-        Vector3Int targetCoord = -new Vector3Int(deliveryBox.ShapeData.Length / 2, 0, deliveryBox.ShapeData.Width / 2); // centers shape on grid origin
+        DeliveryBox deliveryBox = Instantiate(delboxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+        Vector3Int targetCoord = new Vector3Int(-deliveryBox.ShapeData.Length / 2, 0, -deliveryBox.ShapeData.Width / 2); // centers shape on grid origin
         
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
     }

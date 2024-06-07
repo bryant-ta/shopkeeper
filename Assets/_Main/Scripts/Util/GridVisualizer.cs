@@ -9,7 +9,7 @@ public class GridVisualizer : MonoBehaviour {
     [ReadOnly] public Vector3 maxBounds = new Vector3(10f, 0f, 10f);
 
     void OnValidate() {
-        minBounds = new Vector3(-(int) (grid.Length / 2) - 1, 0, -(int) (grid.Width / 2) - 1);
-        maxBounds = new Vector3((int) (grid.Length / 2), 0, (int) (grid.Width / 2));
+        minBounds = new Vector3(grid.MinX, 0, grid.MinZ);
+        maxBounds = new Vector3(grid.MaxX, 0, grid.MaxZ);
     }
 }

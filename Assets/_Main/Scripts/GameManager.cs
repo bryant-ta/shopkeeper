@@ -1,28 +1,32 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Timers;
 using TriInspector;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
-    [Header("Debug")]
+    [Title("Debug")]
     public bool DebugMode;
     [SerializeField] bool useDebugDayClockTimes;
     [SerializeField] DebugDayClockTimes debugDayClockTimes;
 
-    [Header("General")]
+    [Title("General")]
     [SerializeField, ReadOnly] bool isPaused;
+    public float Difficulty => DifficultyCurve.Evaluate(Day);
+    [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
+
     public bool IsPaused => isPaused;
     public event Action<bool> OnPause;
 
-    [Header("World Grid")]
+    [Title("World Grid")]
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
     static Grid _worldGrid;
     public int GlobalGridHeight => globalGridHeight;
     [SerializeField] int globalGridHeight;
 
-    [Header("Time")]
+    [Title("Time")]
     [SerializeField] [Tooltip("Time on clock that day starts")]
     string dayStartClockTime;
     [SerializeField] [Tooltip("Time on clock that day ends")]
@@ -48,7 +52,7 @@ public class GameManager : Singleton<GameManager> {
 
     public event Action OnDayEnd;
 
-    [Header("Gold")]
+    [Title("Gold")]
     [SerializeField] int initialGold;
     [SerializeField] int gold;
     public int Gold => gold;
@@ -145,6 +149,17 @@ public class GameManager : Singleton<GameManager> {
 
         DayTimer.Reset();
         DayTimer.Start();
+    }
+
+    #endregion
+
+    #region Difficulty
+
+    public List<GameObject> FilterByDifficulty(List<ObjDifficulty> objDifficulties) {
+        return objDifficulties
+            .Where(objDifficulty => objDifficulty.Day <= Difficulty)
+            .Select(objDifficulty => objDifficulty.Obj)
+            .ToList();
     }
 
     #endregion

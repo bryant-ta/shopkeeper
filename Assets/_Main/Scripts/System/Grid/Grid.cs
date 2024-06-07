@@ -16,9 +16,9 @@ public class Grid : MonoBehaviour {
     public int MinX => -length / 2;
     public int MinY => 0;
     public int MinZ => -width / 2;
-    public int MaxX => length / 2;
+    public int MaxX => length % 2 == 0 ? length / 2 - 1 : length / 2;
     public int MaxY => height - 1;
-    public int MaxZ => width / 2;
+    public int MaxZ => width % 2 == 0 ? width / 2 - 1 : width / 2;
 
     [Title("Other")]
     [SerializeField] bool smoothPlaceMovement = true;
@@ -36,9 +36,10 @@ public class Grid : MonoBehaviour {
     void Awake() {
         // Set grid bounds
         // actual length/width rounds to odd num due to centering on (0,0,0)
-        for (int x = MinX; x <= MaxX; x++) {
-            for (int z = MinZ; z <= MaxZ; z++) {
-                validCells.Add(new Vector2Int(x, z));
+        Vector3Int leastCoord = new Vector3Int(-Length / 2, 0, -Width / 2);
+        for (int x = 0; x <= Length - 1; x++) {
+            for (int z = 0; z <= Width - 1; z++) {
+                validCells.Add(new Vector2Int(leastCoord.x + x, leastCoord.z + z));
             }
         }
 

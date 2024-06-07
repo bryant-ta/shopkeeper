@@ -705,11 +705,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.x
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.z
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185768956132, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: m_RootOrder
@@ -1260,7 +1260,13 @@ MonoBehaviour:
   - {fileID: 10281504}
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  deliveryBoxObj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+  deliveryBoxObjs:
+  - Day: 0
+    Obj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+  - Day: 0
+    Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
+  - Day: 0
+    Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
   possibleProductLists:
     outerList: []
 --- !u!4 &235971277
@@ -3282,7 +3288,6 @@ GameObject:
   - component: {fileID: 525756790}
   - component: {fileID: 525756793}
   - component: {fileID: 525756791}
-  - component: {fileID: 525756787}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3290,18 +3295,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &525756787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 525756786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4a961b2bb47a31c4291e21a45020d90e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &525756788
 Transform:
   m_ObjectHideFlags: 0
@@ -3344,6 +3337,30 @@ MonoBehaviour:
     OpenPhaseClockTime: 8:00AM
     ClosePhaseClockTime: 9:00AM
   isPaused: 0
+  <DifficultyCurve>k__BackingField:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
   dayStartClockTime: 6:00AM
@@ -6460,7 +6477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 976189241}
   offset: {x: 0, y: 0}
-  minBounds: {x: -7, y: 0, z: -7}
+  minBounds: {x: -6, y: 0, z: -6}
   maxBounds: {x: 6, y: 0, z: 6}
 --- !u!1 &986965301
 GameObject:
@@ -7919,11 +7936,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.x
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.z
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185768956132, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: m_RootOrder
@@ -12240,11 +12257,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.x
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185606520953, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: minBounds.z
-      value: -3
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 6107107185768956132, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
       propertyPath: m_RootOrder

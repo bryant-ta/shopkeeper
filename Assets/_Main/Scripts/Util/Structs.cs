@@ -30,6 +30,12 @@ public struct MinMax {
     public int Min;
     public int Max;
 }
+    
+[Serializable]
+public struct ObjDifficulty {
+    public float Day;
+    public GameObject Obj;
+}
 
 // Inspector serializable list of lists
 [Serializable]
