@@ -80,17 +80,16 @@ public class DeliveryManager : MonoBehaviour {
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
     }
 
-    void GenerateBasicDelivery(Grid grid) {
-        
-        // TODO: modify volume slicer input to match where delivery box currently sits
-        
+    /// <summary>
+    /// Uses basic slicing algorithm to generate basic shapes within local grid bounds.
+    /// </summary>
+    /// <param name="deliveryBoxShapeData">Shape data of delivery box containing this delivery.</param>
+    /// <param name="grid">Grid to place shapes on.</param>
+    public void GenerateBasicDelivery(ShapeData deliveryBoxShapeData, Grid grid) {
         // Generate shape datas of basic delivery
-        List<ShapeData> volumeData;
-        if (useWholeGridAsBounds) {
-            volumeData = vs.Slice(new Vector3Int(grid.MinX, 0, grid.MinZ), new Vector3Int(grid.MaxX, grid.Height - 1, grid.MaxZ));
-        } else {
-            volumeData = vs.Slice(minBoundProductSpawn, maxBoundProductSpawn);
-        }
+        Vector3Int minBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MinOffset;
+        Vector3Int maxBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MaxOffset;
+        List<ShapeData> volumeData = vs.Slice(minBoundCoord, maxBoundCoord);
 
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
@@ -100,7 +99,7 @@ public class DeliveryManager : MonoBehaviour {
                 shapeData
             );
             // productData.ID.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
-            Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position);
+            Product product = ProductFactory.Instance.CreateProduct(productData, shapeData.RootCoord);
 
             grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
 

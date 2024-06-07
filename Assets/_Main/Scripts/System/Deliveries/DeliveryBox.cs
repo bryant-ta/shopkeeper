@@ -40,6 +40,8 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
     void Awake() {
         Init();
+        
+        Ref.Player.PlayerInput.InputSecondaryDown += HandleInput;
     }
 
     void Init() {
@@ -55,10 +57,26 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
         matOutlineOriginalWeight = Properties.outlineSize.GetValue(mat);
     }
-    
-    public void SetOutline(Color color, float weight) {
-        Properties.outlineColor.SetValue(mat, color);
-        Properties.outlineSize.SetValue(mat, weight);
+
+    void HandleInput(ClickInputArgs clickInputArgs) {
+        if (clickInputArgs.TargetObj == ColliderTransform.gameObject) {
+            Open();
+        }
     }
-    public void ResetOutline() { SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight); }
+
+    void Open() {
+        if (Grid != GameManager.WorldGrid) return;
+
+        Grid.RemoveShapeCells(this, false);
+
+        Ref.Instance.DeliveryMngr.GenerateBasicDelivery(ShapeData, Grid);
+        
+        // TEMP: until box open animation
+        Destroy(ObjTransform.gameObject);
+    }
+    
+    public void SetOutline(Color color) {
+        Properties.outlineColor.SetValue(mat, color);
+    }
+    public void ResetOutline() { SetOutline(matOutlineOriginalColor); }
 }

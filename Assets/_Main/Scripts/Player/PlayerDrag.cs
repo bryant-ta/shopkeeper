@@ -15,7 +15,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [Title("Selected Shape Outline")]
     [SerializeField] Color selectedOutlineColor;
     [SerializeField] Color selectedInvalidOutlineColor;
-    [SerializeField] float selectedOutlineWidth;
 
     Vector3Int selectedCellCoord;       // target grid coord in context of current drag state
     Vector3Int selectedShapeCellOffset; // local shape offset from clicked shape's root coord
@@ -97,7 +96,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             }
 
             // Outline selected effect
-            heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth);
+            heldShapes[i].SetOutline(selectedOutlineColor);
         }
 
         isHolding = true;
@@ -119,11 +118,11 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             List<IGridShape> heldShapes = DragGrid.AllShapes();
             if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
                 for (int i = 0; i < heldShapes.Count; i++) {
-                    heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth);
+                    heldShapes[i].SetOutline(selectedOutlineColor);
                 }
             } else { // Set invalid outline
                 for (int i = 0; i < heldShapes.Count; i++) {
-                    heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+                    heldShapes[i].SetOutline(selectedInvalidOutlineColor);
                 }
             }
 
@@ -175,9 +174,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         // Set outline for shapes that would have invalid placement
         for (int i = 0; i < validations.ValidationList.Count; i++) {
-            heldShapes[i].SetOutline(selectedOutlineColor, selectedOutlineWidth); // Reset selected shape outline
+            heldShapes[i].SetOutline(selectedOutlineColor); // Reset selected shape outline
             if (!validations.ValidationList[i].IsValid) {
-                heldShapes[i].SetOutline(selectedInvalidOutlineColor, selectedOutlineWidth);
+                heldShapes[i].SetOutline(selectedInvalidOutlineColor);
             }
         }
 
@@ -301,6 +300,12 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         ReleaseReset(heldShapes);
+        
+        // TEMP: play shape placement smoke burst particles
+        ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
+        burst.count = heldShapes.Count * 2 + 3;
+        releaseDraggedPs.emission.SetBurst(0, burst);
+        releaseDraggedPs.Play();
     }
     void ReleaseReset(List<IGridShape> heldShapes) {
         for (int i = 0; i < heldShapes.Count; i++) {
@@ -314,12 +319,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         isHolding = false;
 
         // Cursor.visible = true;
-
-        // TEMP: play shape placement smoke burst particles
-        ParticleSystem.Burst burst = releaseDraggedPs.emission.GetBurst(0);
-        burst.count = heldShapes.Count * 2 + 3;
-        releaseDraggedPs.emission.SetBurst(0, burst);
-        releaseDraggedPs.Play();
 
         OnRelease?.Invoke();
     }

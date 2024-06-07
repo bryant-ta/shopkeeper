@@ -15,6 +15,13 @@ public class ShapeData {
     public int Width => ShapeOffsets.Max(offset => offset.z) + 1;
     public int Size => ShapeOffsets?.Count ?? 0;
 
+    public Vector3Int MinOffset => new(
+        ShapeOffsets.Min(offset => offset.x), ShapeOffsets.Min(offset => offset.y), ShapeOffsets.Min(offset => offset.z)
+    );
+    public Vector3Int MaxOffset => new(
+        ShapeOffsets.Max(offset => offset.x), ShapeOffsets.Max(offset => offset.y), ShapeOffsets.Max(offset => offset.z)
+    );
+
     public bool IsMultiY => ShapeOffsets.Any(offset => offset.y != 0);
 
     public ShapeData() { }
@@ -135,7 +142,6 @@ public enum ShapeDataID {
 }
 
 public static class ShapeDataLookUp {
-    
     /// ShapeData Definition
     /// 1. First entry is (0,0,0)
     /// 2. All entry values are positive
@@ -442,9 +448,12 @@ public static class ShapeDataLookUp {
             ShapeDataID.Box3x3, new ShapeData() {
                 ID = ShapeDataID.Box3x3,
                 ShapeOffsets = new List<Vector3Int>() {
-                    new(0, 0, 0), new(1, 0, 0), new(2, 0, 0), new(0, 0, 1), new(1, 0, 1), new(2, 0, 1), new(0, 0, 2), new(1, 0, 2), new(2, 0, 2),
-                    new(0, 1, 0), new(1, 1, 0), new(2, 1, 0), new(0, 1, 1), new(1, 1, 1), new(2, 1, 1), new(0, 1, 2), new(1, 1, 2), new(2, 1, 2),
-                    new(0, 2, 0), new(1, 2, 0), new(2, 2, 0), new(0, 2, 1), new(1, 2, 1), new(2, 2, 1), new(0, 2, 2), new(1, 2, 2), new(2, 2, 2),
+                    new(0, 0, 0), new(1, 0, 0), new(2, 0, 0), new(0, 0, 1), new(1, 0, 1), new(2, 0, 1), new(0, 0, 2), new(1, 0, 2),
+                    new(2, 0, 2),
+                    new(0, 1, 0), new(1, 1, 0), new(2, 1, 0), new(0, 1, 1), new(1, 1, 1), new(2, 1, 1), new(0, 1, 2), new(1, 1, 2),
+                    new(2, 1, 2),
+                    new(0, 2, 0), new(1, 2, 0), new(2, 2, 0), new(0, 2, 1), new(1, 2, 1), new(2, 2, 1), new(0, 2, 2), new(1, 2, 2),
+                    new(2, 2, 2),
                 }
             }
         },

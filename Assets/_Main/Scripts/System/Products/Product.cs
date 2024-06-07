@@ -77,9 +77,8 @@ public class Product : MonoBehaviour, IGridShape {
         ShapeTags = new ShapeTags(ProductData.ShapeTagIDs);
     }
     
-    public void SetOutline(Color color, float weight) {
+    public void SetOutline(Color color) {
         Properties.outlineColor.SetValue(mat, color);
-        Properties.outlineSize.SetValue(mat, weight);
     }
-    public void ResetOutline() { SetOutline(matOutlineOriginalColor, matOutlineOriginalWeight); }
+    public void ResetOutline() { SetOutline(matOutlineOriginalColor); }
 }

@@ -14,7 +14,7 @@ public interface IGridShape {
 
     public ShapeTags ShapeTags { get; }
 
-    public void SetOutline(Color color, float weight);
+    public void SetOutline(Color color);
     public void ResetOutline();
 
     public void DestroyShape(bool doAnim = true) {
