@@ -7,8 +7,6 @@ using UnityEngine;
 public class DeliveryBox : MonoBehaviour, IGridShape {
     #region DeliveryBox
 
-    [SerializeField] ShapeData shapeData;
-
     #endregion
 
     #region IGridShape
@@ -26,14 +24,13 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         }
     }
 
-    public Transform ObjTransform { get; private set; }
+    public Transform ObjTransform => transform.parent;
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
-    public ShapeData ShapeData => shapeData;
+    [field: SerializeField] public ShapeData ShapeData { get; private set; }
 
-    [field: SerializeField, HideInEditMode]
-    public ShapeTags ShapeTags { get; private set; }
+    [field: SerializeField] public ShapeTags ShapeTags { get; private set; }
 
     Material mat;
     Color matOutlineOriginalColor;
@@ -47,10 +44,9 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
     public void Init() {
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
-            shapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
+            ShapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
 
-        ObjTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
         Name = gameObject.name;

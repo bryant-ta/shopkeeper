@@ -10,7 +10,11 @@ public class ShapeData {
     [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; } // Shape's cell grid position, (0,0,0) in offset matches
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
 
+    public int Length => ShapeOffsets.Max(offset => offset.x) + 1;
+    public int Height => ShapeOffsets.Max(offset => offset.y) + 1;
+    public int Width => ShapeOffsets.Max(offset => offset.z) + 1;
     public int Size => ShapeOffsets?.Count ?? 0;
+
     public bool IsMultiY => ShapeOffsets.Any(offset => offset.y != 0);
 
     public ShapeData() { }
@@ -131,6 +135,10 @@ public enum ShapeDataID {
 }
 
 public static class ShapeDataLookUp {
+    
+    /// ShapeData Definition
+    /// 1. First entry is (0,0,0)
+    /// 2. All entry values are positive
     public static readonly Dictionary<ShapeDataID, ShapeData> ShapeDataByID = new() {
         {
             ShapeDataID.O1, new ShapeData() {

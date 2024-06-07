@@ -29,7 +29,7 @@ public class Product : MonoBehaviour, IGridShape {
         }
     }
 
-    public Transform ObjTransform { get; private set; }
+    public Transform ObjTransform => transform.parent;
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
@@ -63,7 +63,6 @@ public class Product : MonoBehaviour, IGridShape {
 
         VoxelMeshGenerator.Generate(gameObject, ShapeData);
 
-        ObjTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
         ID = ProductData.ID;

@@ -51,7 +51,7 @@ public class Grid : MonoBehaviour {
             
             if (trs.GetChild(0).TryGetComponent(out IGridShape shape)) {
                 if (!PlaceShape(Vector3Int.FloorToInt(shape.ObjTransform.position), shape, true)) {
-                    Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
+                    Debug.LogError("Unable to place shape.");
                 }
             }
         }

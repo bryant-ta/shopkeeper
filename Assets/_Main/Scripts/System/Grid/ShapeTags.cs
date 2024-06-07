@@ -5,7 +5,7 @@ using UnityEngine;
 
 [Serializable]
 public class ShapeTags {
-    [SerializeField, ReadOnly] List<ShapeTagID> Tags = new();
+    [SerializeField] List<ShapeTagID> Tags = new();
 
     public ShapeTags(List<ShapeTagID> tagIDs) { Tags.AddRange(tagIDs); }
 
