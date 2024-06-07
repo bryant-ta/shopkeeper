@@ -86,6 +86,7 @@ public class Orderer : MonoBehaviour, IDocker {
     public void HoverEnter() {
         List<IGridShape> heldShapes = Ref.Player.PlayerDrag.DragGrid.AllShapes();
         List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
+        if (heldProducts == null) return;
 
         if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
             OnInvalidProductSet?.Invoke(invalidProduct);

@@ -139,7 +139,7 @@ public class Grid : MonoBehaviour {
 
         // Check shape move rules
         for (int i = 0; i < shapes.Count; i++) {
-            if (shapes[i].ShapeTags.Contains(ShapeTagID.Anchored)) return false;
+            if (shapes[i].ShapeTags.Contains(ShapeTagID.NoMove)) return false;
         }
 
         // Save original shape coords in original grid, remove from original grid
@@ -374,7 +374,7 @@ public class Grid : MonoBehaviour {
         }
         
         // NOTE: uses targetCoord as shortcut to lowest y level offset, assumes is always on lowest y
-        if (shape.ShapeTags.Contains(ShapeTagID.Unstackable) && targetCoord.y != 0) { pv.SetFlag(PlacementInvalidFlag.ShapeTagRule); }
+        if (shape.ShapeTags.Contains(ShapeTagID.NoStack) && targetCoord.y != 0) { pv.SetFlag(PlacementInvalidFlag.ShapeTagRule); }
 
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
             Vector3Int checkPos = new Vector3Int(targetCoord.x + offset.x, targetCoord.y + offset.y, targetCoord.z + offset.z);
@@ -385,7 +385,7 @@ public class Grid : MonoBehaviour {
             if (!ignoreZone && !CheckZones(checkPos, prop => prop.CanPlace)) { pv.SetFlag(PlacementInvalidFlag.ZoneRule); }
 
             IGridShape belowShape = SelectPosition(checkPos + Vector3Int.down);
-            if (belowShape != null && belowShape.ShapeTags.Contains(ShapeTagID.Unstackable)) {
+            if (belowShape != null && belowShape.ShapeTags.Contains(ShapeTagID.NoStack)) {
                 pv.SetFlag(PlacementInvalidFlag.ShapeTagRule);
             }
 

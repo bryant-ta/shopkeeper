@@ -10,12 +10,23 @@ public class ShapeTags {
     public ShapeTags(List<ShapeTagID> tagIDs) { Tags.AddRange(tagIDs); }
 
     public bool Contains(ShapeTagID tagID) { return Tags.Contains(tagID); }
+
+    public static bool CheckTags(List<IGridShape> shapes, ShapeTagID tagID) {
+        foreach (IGridShape shape in shapes) {
+            if (shape.ShapeTags.Contains(tagID)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 public enum ShapeTagID {
     None = 0,
-    Anchored = 1,
-    Unstackable = 2,
-    Unsliceable = 10,
-    Uncombinable = 11,
+    NoMove = 1,
+    NoStack = 2,
+    NoPlaceInOrder = 3,
+    NoPlaceInTrash = 4,
+    NoSlice = 10,
+    NoCombine = 11,
 }

@@ -70,7 +70,7 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
         selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
-        if (selectedShape == null || selectedShape.ShapeTags.Contains(ShapeTagID.Uncombinable)) {
+        if (selectedShape == null || selectedShape.ShapeTags.Contains(ShapeTagID.NoCombine)) {
             lastSelectedShape = null;
             newShapeData = null;
             previewObj.SetActive(false);

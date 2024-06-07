@@ -115,7 +115,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         Vector3Int selectedShapeCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
         IGridShape selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
-        if (selectedShape == null || selectedShape.ShapeTags.Contains(ShapeTagID.Unsliceable)) {
+        if (selectedShape == null || selectedShape.ShapeTags.Contains(ShapeTagID.NoSlice)) {
             previewObj.SetActive(false);
             origShape = null;
             return;

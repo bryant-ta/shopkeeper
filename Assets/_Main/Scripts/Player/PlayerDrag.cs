@@ -28,9 +28,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     public event Action<Vector3> OnDrag;
     public event Action OnRelease;
 
-    void Awake() {
-        pivotTargetRotation = rotationPivot.rotation.eulerAngles;
-    }
+    void Awake() { pivotTargetRotation = rotationPivot.rotation.eulerAngles; }
 
     bool isHolding = false;
     void GrabRelease(ClickInputArgs clickInputArgs) {
@@ -242,6 +240,12 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         // Non-grid releases
         if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) {
+            if (ShapeTags.CheckTags(heldShapes, ShapeTagID.NoPlaceInOrder)) {
+                TweenManager.Shake(heldShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+                return;
+            }
+
             if (bag.orderer.TryFulfillOrder(heldShapes)) {
                 isHolding = false;
             } else {
@@ -251,11 +255,17 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
             return;
         } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) {
+            if (ShapeTags.CheckTags(heldShapes, ShapeTagID.NoPlaceInTrash)) {
+                TweenManager.Shake(heldShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+                return;
+            }
+            
             trash.TrashShapes(heldShapes, DragGrid);
             isHolding = false;
             return;
         }
-        
+
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid == null) {
             return;

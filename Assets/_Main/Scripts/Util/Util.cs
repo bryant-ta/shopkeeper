@@ -85,12 +85,7 @@ public class Util : MonoBehaviour {
             return null;
         }
 
-        if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-            return product;
-        } else {
-            Debug.LogError("Unexpected input shapes: shape is missing Product component.");
-            return null;
-        }
+        return shape.ColliderTransform.TryGetComponent(out Product product) ? product : null;
     }
     public static List<Product> GetProductsFromShapes(List<IGridShape> shapes) {
         List<Product> heldProducts = new();
