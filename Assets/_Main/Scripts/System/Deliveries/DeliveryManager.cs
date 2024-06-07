@@ -28,6 +28,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
+    [SerializeField] GameObject deliveryBoxObj;
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
@@ -62,18 +63,26 @@ public class DeliveryManager : MonoBehaviour {
     void Deliver() {
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
         // currently just one dock
-        GenerateBasicDelivery(docks[0]);
+        CreateDeliverer(docks[0]);
 
         // for (int i = 0; i < specialDeliverers.Count; i++) {
         //     GenerateSpecialDelivery(specialDeliverers[i]);
         // }
     }
 
-    void GenerateBasicDelivery(Dock openDock) {
-        // Setup Deliverer
+    void CreateDeliverer(Dock openDock) {
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
+        deliverer.OccupyDock(openDock);
         
-        Grid grid = deliverer.Grid;
+        DeliveryBox deliveryBox = Instantiate(deliveryBoxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+        Vector3Int targetCoord = -new Vector3Int(deliveryBox.ShapeData.Length / 2, 0, deliveryBox.ShapeData.Width / 2); // centers shape on grid origin
+        
+        deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
+    }
+
+    void GenerateBasicDelivery(Grid grid) {
+        
+        // TODO: modify volume slicer input to match where delivery box currently sits
         
         // Generate shape datas of basic delivery
         List<ShapeData> volumeData;
@@ -97,8 +106,6 @@ public class DeliveryManager : MonoBehaviour {
 
             Ledger.AddStockedProduct(product);
         }
-        
-        deliverer.OccupyDock(openDock);
     }
 
     // void GenerateSpecialDelivery(Deliverer deliverer) {

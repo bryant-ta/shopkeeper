@@ -1263,6 +1263,7 @@ MonoBehaviour:
   - {fileID: 10281504}
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
+  deliveryBoxObj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
   possibleProductLists:
     outerList: []
 --- !u!4 &235971277
@@ -6429,7 +6430,6 @@ Transform:
   - {fileID: 1177697810}
   - {fileID: 1381232998}
   - {fileID: 851674633}
-  - {fileID: 1334690511}
   m_Father: {fileID: 2078720588}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8584,48 +8584,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1329751413}
   m_CullTransparentMesh: 1
---- !u!1001 &1334690510
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 976189240}
-    m_Modifications:
-    - target: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_Name
-      value: DeliveryBox
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_RootOrder
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
---- !u!4 &1334690511 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6494341235392573769, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-  m_PrefabInstance: {fileID: 1334690510}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1340485851 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3724736231835889270, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}

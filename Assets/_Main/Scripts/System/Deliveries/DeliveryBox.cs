@@ -42,7 +42,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         Init();
     }
 
-    public void Init() {
+    void Init() {
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
             ShapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
