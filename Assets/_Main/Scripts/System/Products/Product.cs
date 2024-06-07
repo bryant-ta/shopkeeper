@@ -40,7 +40,6 @@ public class Product : MonoBehaviour, IGridShape {
 
     Material mat;
     Color matOutlineOriginalColor;
-    float matOutlineOriginalWeight;
 
     #endregion
 
@@ -70,7 +69,6 @@ public class Product : MonoBehaviour, IGridShape {
 
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
-        matOutlineOriginalWeight = Properties.outlineSize.GetValue(mat);
         Properties.albedoColor.SetValue(mat, ID.Color);
         // MK.Toon.Properties.sketchMap.SetValue(mat, _productData.Pattern); // TODO: Pattern lookup
 

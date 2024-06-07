@@ -14,10 +14,10 @@ public class ShapeTags {
     public static bool CheckTags(List<IGridShape> shapes, ShapeTagID tagID) {
         foreach (IGridShape shape in shapes) {
             if (shape.ShapeTags.Contains(tagID)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }
 

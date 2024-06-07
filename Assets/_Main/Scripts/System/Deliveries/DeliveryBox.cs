@@ -34,7 +34,6 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
     Material mat;
     Color matOutlineOriginalColor;
-    float matOutlineOriginalWeight;
 
     #endregion
 
@@ -55,7 +54,6 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
         mat = GetComponent<MeshRenderer>().material;
         matOutlineOriginalColor = Properties.outlineColor.GetValue(mat);
-        matOutlineOriginalWeight = Properties.outlineSize.GetValue(mat);
     }
 
     void HandleInput(ClickInputArgs clickInputArgs) {

@@ -5,17 +5,6 @@ using UnityEngine;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
-    [Title("Basic Delivery")]
-    [SerializeField, Space] bool useWholeGridAsBounds;
-    
-    [Tooltip("The lowest coord of the volume in a Deliverer grid to spawn products in. One corner of a cube.")]
-    [ShowIf(nameof(useWholeGridAsBounds), false)]
-    [SerializeField] Vector3Int minBoundProductSpawn;
-    
-    [Tooltip("The highest coord of the volume in a Deliverer grid to spawn products in. The opposite corner of a cube.")]
-    [ShowIf(nameof(useWholeGridAsBounds), false)]
-    [SerializeField] Vector3Int maxBoundProductSpawn;
-
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
     [SerializeField] int bulkQuantityMax;
