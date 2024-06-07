@@ -77,7 +77,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
-        DragGrid.transform.position = clickedShape.ShapeTransform.position;
+        DragGrid.transform.position = clickedShape.ObjTransform.position;
 
         if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, heldShapes)) {
             TweenManager.Shake(heldShapes);
@@ -205,7 +205,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
          * The simple non-illusion way (no tweening) just requires logical rotation + instant physical rotation -> instant physical shift
          */
         foreach (IGridShape shape in dragShapes) {
-            shape.ShapeTransform.SetParent(rotationPivot);
+            shape.ObjTransform.SetParent(rotationPivot);
         }
 
         // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
@@ -225,7 +225,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             .OnComplete(
                 () => {
                     foreach (IGridShape shape in dragShapes) {
-                        shape.ShapeTransform.SetParent(DragGrid.transform);
+                        shape.ObjTransform.SetParent(DragGrid.transform);
                     }
 
                     DragGrid.RotateShapes(dragShapes, clockwise);

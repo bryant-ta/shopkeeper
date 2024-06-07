@@ -17,7 +17,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
     public string Name { get; private set; }
     public Grid Grid {
         get {
-            if (ShapeTransform.parent.TryGetComponent(out Grid grid)) {
+            if (ObjTransform.parent.TryGetComponent(out Grid grid)) {
                 return grid;
             }
 
@@ -26,7 +26,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         }
     }
 
-    public Transform ShapeTransform { get; private set; }
+    public Transform ObjTransform { get; private set; }
     public Transform ColliderTransform => transform;
     public List<Collider> Colliders { get; private set; }
 
@@ -50,7 +50,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
             shapeData = ShapeDataLookUp.LookUp(ShapeData.ID);
         }
 
-        ShapeTransform = transform.parent;
+        ObjTransform = transform.parent;
         Colliders = GetComponents<Collider>().ToList();
 
         Name = gameObject.name;

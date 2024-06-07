@@ -50,7 +50,7 @@ public class Grid : MonoBehaviour {
             if (trs.gameObject.activeSelf == false || trs.childCount == 0) continue;
             
             if (trs.GetChild(0).TryGetComponent(out IGridShape shape)) {
-                if (!PlaceShape(Vector3Int.FloorToInt(shape.ShapeTransform.position), shape, true)) {
+                if (!PlaceShape(Vector3Int.FloorToInt(shape.ObjTransform.position), shape, true)) {
                     Debug.LogError("Unable to place shape. Pre-existing scene shape overlaps with another shape in grid.");
                 }
             }
@@ -71,9 +71,9 @@ public class Grid : MonoBehaviour {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
 
-        DOTween.Kill(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
+        DOTween.Kill(shape.ObjTransform.GetInstanceID() + TweenManager.PlaceShapeID);
 
-        shape.ShapeTransform.SetParent(transform, true);
+        shape.ObjTransform.SetParent(transform, true);
         shape.ShapeData.RootCoord = targetCoord;
 
         if (smoothPlaceMovement) {
@@ -81,8 +81,8 @@ public class Grid : MonoBehaviour {
                 shape.Colliders[i].enabled = false;
             }
 
-            Sequence seq = DOTween.Sequence().SetId(shape.ShapeTransform.GetInstanceID() + TweenManager.PlaceShapeID);
-            seq.Append(shape.ShapeTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
+            Sequence seq = DOTween.Sequence().SetId(shape.ObjTransform.GetInstanceID() + TweenManager.PlaceShapeID);
+            seq.Append(shape.ObjTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
             seq.Play().OnComplete(
                 () => {
                     for (var i = 0; i < shape.Colliders.Count; i++) {
@@ -91,7 +91,7 @@ public class Grid : MonoBehaviour {
                 }
             );
         } else {
-            shape.ShapeTransform.localPosition = targetCoord;
+            shape.ObjTransform.localPosition = targetCoord;
         }
 
         SoundManager.Instance.PlaySound(SoundID.ProductPlace);

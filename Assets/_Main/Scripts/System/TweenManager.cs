@@ -22,12 +22,12 @@ public static class TweenManager {
     const string InvalidShakeID = "_invalidShake";
     
     public static void Shake(IGridShape shape) {
-        string tweenID = shape.ShapeTransform.GetInstanceID() + InvalidShakeID;
+        string tweenID = shape.ObjTransform.GetInstanceID() + InvalidShakeID;
         
         DOTween.Kill(tweenID); // Note: more efficient to replace with hash?
-        shape.ShapeTransform.localPosition = shape.ShapeData.RootCoord;
+        shape.ObjTransform.localPosition = shape.ShapeData.RootCoord;
         
-        shape.ShapeTransform.DOShakePosition(
+        shape.ObjTransform.DOShakePosition(
             InvalidShake.Duration,
             new Vector3(1, 0, 1) * InvalidShake.Strength,
             InvalidShake.Vibrato,
