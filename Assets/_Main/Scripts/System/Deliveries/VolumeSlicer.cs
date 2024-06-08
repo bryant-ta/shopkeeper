@@ -28,14 +28,14 @@ public class VolumeSlicer : MonoBehaviour {
             Debug.LogError("VolumeSlicer bounds do not fit in grid.");
             return null;
         }
-        
+
         HashSet<Vector2Int> validLayerCells = new();
         for (int x = minBounds.x; x <= maxBounds.x; x++) {
             for (int z = minBounds.z; z <= maxBounds.z; z++) {
                 validLayerCells.Add(new Vector2Int(x, z));
             }
         }
-        
+
         List<ShapeData> volumeData = new(); // shape data with their root coords set
         for (int y = minBounds.y; y <= maxBounds.y; y++) {
             HashSet<Vector2Int> curValidLayerCells = new HashSet<Vector2Int>(validLayerCells);
@@ -58,33 +58,60 @@ public class VolumeSlicer : MonoBehaviour {
                     continue;
                 }
 
-                Direction2D shapeLengthDir = validDirs[Random.Range(0, validDirs.Count)];
+                Direction2D lengthDir = validDirs[Random.Range(0, validDirs.Count)];
 
                 // 3
                 Vector2Int curCoord = baseCoord;
                 Vector2Int curOffset = Vector2Int.zero;
                 int curShapeLength = 1;
-                while (Random.Range(0, 1f) <= chanceOfShapeExtension && NeighborExists(curValidLayerCells, curCoord, shapeLengthDir)) {
+                while (Random.Range(0, 1f) <= chanceOfShapeExtension && NeighborOpen(curValidLayerCells, curCoord, lengthDir)) {
                     if (curShapeLength >= maxShapeLength) break;
 
-                    Vector2Int n = GetNeighbor(curOffset, shapeLengthDir);
-                    Vector3Int newOffset = new Vector3Int(n.x, 0, n.y);
-                    shapeData.ShapeOffsets.Add(newOffset);
+                    curOffset = GetNeighbor(curOffset, lengthDir);
+                    shapeData.ShapeOffsets.Add(new Vector3Int(curOffset.x, 0, curOffset.y));
 
-                    curCoord = GetNeighbor(curCoord, shapeLengthDir);
+                    curCoord = GetNeighbor(curCoord, lengthDir);
                     curValidLayerCells.Remove(curCoord);
-                    curOffset = n;
                     curShapeLength++;
                 }
 
                 //TODO: randomly roll rectangle
-                
+                List<Direction2D> widthDirs = DirectionData.OrthogonalDirection(lengthDir);
+                Direction2D widthDir = widthDirs[Random.Range(0, widthDirs.Count)];
+                int curShapeWidth = 1;
+                while (Random.Range(0, 1f) <= chanceOfShapeExtension) {
+                    if (curShapeWidth >= maxShapeWidth) break;
+
+                    List<Vector2Int> shapeEdgeOffsets = GetEdgeCells(shapeData.ShapeOffsets, widthDir);
+                    
+                    bool widthDirIsValid = true;
+                    for (int i = 0; i < shapeEdgeOffsets.Count; i++) {
+                        if (!NeighborOpen(curValidLayerCells, baseCoord + shapeEdgeOffsets[i], widthDir)) {
+                            widthDirIsValid = false;
+                            break;
+                        }
+                    }
+
+                    if (!widthDirIsValid) break;
+
+                    List<Vector3Int> newOffsets = new();
+                    for (int i = 0; i < shapeEdgeOffsets.Count; i++) {
+                        curOffset = GetNeighbor(shapeEdgeOffsets[i], widthDir);
+                        newOffsets.Add(new Vector3Int(curOffset.x, 0, curOffset.y));
+
+                        curValidLayerCells.Remove(baseCoord + curOffset);
+                    }
+                    shapeData.ShapeOffsets.AddRange(newOffsets);
+
+                    curShapeWidth++;
+                }
+
                 shapeData.ID = ShapeData.DetermineID(shapeData.ShapeOffsets);
                 shapeData.RootCoord = baseCoord3D;
                 volumeData.Add(shapeData);
             }
         }
-        
+
         // Check
         HashSet<Vector3Int> claimedCells = new();
         foreach (ShapeData shapeData in volumeData) {
@@ -103,15 +130,15 @@ public class VolumeSlicer : MonoBehaviour {
     List<Direction2D> ValidDirections(HashSet<Vector2Int> validLayerCells, Vector2Int baseCoord, List<Direction2D> extensionDirs) {
         List<Direction2D> validDirs = new();
         for (int i = 0; i < extensionDirs.Count; i++) {
-            if (NeighborExists(validLayerCells, baseCoord, extensionDirs[i])) {
+            if (NeighborOpen(validLayerCells, baseCoord, extensionDirs[i])) {
                 validDirs.Add(extensionDirs[i]);
             }
         }
 
         return validDirs;
     }
-    
-    bool NeighborExists(HashSet<Vector2Int> validLayerCells, Vector2Int coord, Direction2D dir) {
+
+    bool NeighborOpen(HashSet<Vector2Int> validLayerCells, Vector2Int coord, Direction2D dir) {
         return validLayerCells.Contains(GetNeighbor(coord, dir));
     }
 
@@ -123,6 +150,28 @@ public class VolumeSlicer : MonoBehaviour {
             Direction2D.West => coord + Vector2Int.left,
             _ => throw new ArgumentOutOfRangeException(nameof(dir), dir, null)
         };
+    }
+
+    /// <summary>
+    /// NOTE: Shape must be rectangular
+    /// </summary>
+    List<Vector2Int> GetEdgeCells(List<Vector3Int> shapeOffsets, Direction2D direction) {
+        // Assuming shape is rectangular only
+        int minX = shapeOffsets.Min(offset => offset.x);
+        int maxX = shapeOffsets.Max(offset => offset.x);
+        int minZ = shapeOffsets.Min(offset => offset.y);
+        int maxZ = shapeOffsets.Max(offset => offset.y);
+
+        List<Vector2Int> shapeOffsets2D = shapeOffsets.Select(offset => new Vector2Int(offset.x, offset.z)).ToList();
+        List<Vector2Int> edgeCells = direction switch {
+            Direction2D.North => shapeOffsets2D.Where(offset => offset.y == maxZ).ToList(),
+            Direction2D.East => shapeOffsets2D.Where(offset => offset.x == maxX).ToList(),
+            Direction2D.South => shapeOffsets2D.Where(offset => offset.y == minZ).ToList(),
+            Direction2D.West => shapeOffsets2D.Where(offset => offset.x == minX).ToList(),
+            _ => new List<Vector2Int>()
+        };
+
+        return edgeCells;
     }
 
     public void SetOptions(int maxShapeLength, int maxShapeWidth, float chanceOfShapeExtension, int maxIterations) {

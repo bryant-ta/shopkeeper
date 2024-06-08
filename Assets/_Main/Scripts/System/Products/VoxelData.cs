@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 // DON'T CHANGE ORDER!
@@ -71,6 +72,20 @@ public static class DirectionData {
             default:
                 Debug.LogError("Invalid direction.");
                 return Direction.North;
+        }
+    }
+
+    public static List<Direction2D> OrthogonalDirection(Direction2D dir) {
+        switch (dir) {
+            case Direction2D.North:
+            case Direction2D.South:
+                return new List<Direction2D>() {Direction2D.East, Direction2D.West};
+            case Direction2D.East:
+            case Direction2D.West:
+                return new List<Direction2D>() {Direction2D.North, Direction2D.South};
+            default:
+                Debug.LogError("Invalid direction.");
+                return new List<Direction2D>() {Direction2D.East, Direction2D.West};
         }
     }
 }
