@@ -1,10 +1,23 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TriInspector;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
+    [Title("Basic Delivery")]
+    [SerializeField] int basicMaxShapeLength;
+    [SerializeField] int basicMaxShapeWidth;
+
+    [Tooltip("1 = shapes extended until hitting volume boundary, an existing shape, or reaching max length.")]
+    [SerializeField, Range(0f, 1f)] float basicChanceOfShapeExtension;
+    [Tooltip("1 = all shapes oriented in same direction")]
+    [SerializeField, Range(0f, 1f)] float basicOrderliness;
+
+    [SerializeField] int basicMaxIterations = 100;
+
     [Title("Special Delivery")]
     [SerializeField] int bulkQuantityMin;
     [SerializeField] int bulkQuantityMax;
@@ -12,12 +25,15 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int irregularQuantityMin;
     [SerializeField] int irregularQuantityMax;
     [SerializeField] List<Deliverer> specialDeliverers = new();
-    
+
+    [Title("General Delivery")]
+    [SerializeField] int maxIndexColorPalette;
+
     [Header("Deliverers")]
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] List<ObjDifficulty> deliveryBoxObjs;
+    [SerializeField] List<DifficultyEntry<GameObject>> deliveryBoxObjs;
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
@@ -28,11 +44,12 @@ public class DeliveryManager : MonoBehaviour {
     // [SerializeField] int productsPerDayGrowth;
     // [SerializeField] int productsInDeliveryMax;
 
-    VolumeSlicer vs;
+    VolumeSlicer basicVs;
 
     void Awake() {
-        vs = GetComponent<VolumeSlicer>();
-        
+        basicVs = GetComponent<VolumeSlicer>();
+        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceOfShapeExtension, basicMaxIterations);
+
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
@@ -66,16 +83,18 @@ public class DeliveryManager : MonoBehaviour {
         // Select delivery box based on current difficulty
         List<GameObject> possibleDelBoxes = GameManager.Instance.FilterByDifficulty(deliveryBoxObjs);
         GameObject delboxObj = possibleDelBoxes[Random.Range(0, possibleDelBoxes.Count)];
-        
+
         DeliveryBox deliveryBox = Instantiate(delboxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
-        Vector3Int targetCoord = new Vector3Int(-deliveryBox.ShapeData.Length / 2, 0, -deliveryBox.ShapeData.Width / 2); // centers shape on grid origin
-        
+        Vector3Int targetCoord = new Vector3Int(
+            -deliveryBox.ShapeData.Length / 2, 0, -deliveryBox.ShapeData.Width / 2
+        ); // centers shape on grid origin
+
         // TEMP: scale deliverer floor grid, replaced after deliverer anim
         deliverer.Grid.SetGridSize(deliveryBox.ShapeData.Length, deliveryBox.ShapeData.Height, deliveryBox.ShapeData.Width);
         deliverer.transform.Find("Floor").transform.localScale = new Vector3(
             0.1f * deliveryBox.ShapeData.Length + 0.05f, 1, 0.1f * deliveryBox.ShapeData.Width + 0.05f
         );
-        
+
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
     }
 
@@ -84,16 +103,26 @@ public class DeliveryManager : MonoBehaviour {
     /// </summary>
     /// <param name="deliveryBoxShapeData">Shape data of delivery box containing this delivery.</param>
     /// <param name="grid">Grid to place shapes on.</param>
+    /// <param name="orientation">Extension direction input to volume slicer</param>
     public void GenerateBasicDelivery(ShapeData deliveryBoxShapeData, Grid grid) {
         // Generate shape datas of basic delivery
         Vector3Int minBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MinOffset;
         Vector3Int maxBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MaxOffset;
-        List<ShapeData> volumeData = vs.Slice(minBoundCoord, maxBoundCoord);
+        
+        DeliveryOrientation orientation = SelectOrientation(basicOrderliness);
+        List<Direction2D> extensionDirs = orientation switch {
+            DeliveryOrientation.All => new() {Direction2D.North, Direction2D.East, Direction2D.South, Direction2D.West},
+            DeliveryOrientation.NS => new() {Direction2D.North, Direction2D.South},
+            DeliveryOrientation.EW => new() {Direction2D.East, Direction2D.West},
+            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null)
+        };
+        
+        List<ShapeData> volumeData = basicVs.Slice(minBoundCoord, maxBoundCoord, extensionDirs);
 
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, Ledger.Instance.ColorPaletteData.Colors.Count)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );
@@ -106,48 +135,53 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    // void GenerateSpecialDelivery(Deliverer deliverer) {
-    //     // BulkDelivery(deliverer);
-    //     IrregularDelivery(deliverer);
-    // }
-    //
-    // void BulkDelivery(Deliverer deliverer) {
-    //     Grid grid = deliverer.Grid;
-    //     ShapeDataID id = bulkDeliveryRollTable.GetRandom();
-    //     List<SO_Product> possibleProductDatas = ProductFactory.Instance.ShapeDataIDToProductDataLookUp[id];
-    //     SO_Product productData = possibleProductDatas[Random.Range(0, possibleProductDatas.Count)];
-    //
-    //     int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
-    //     for (int x = grid.MinX; x < grid.MaxX; x++) {
-    //         for (int z = grid.MinZ; z < grid.MaxZ; z++) {
-    //             Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
-    //
-    //             while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
-    //                 Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-    //                 Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
-    //                 if (!grid.PlaceShape(deliveryCoord, product, true)) {
-    //                     Debug.LogErrorFormat(
-    //                         "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
-    //                     );
-    //                     return;
-    //                 }
-    //
-    //                 Ledger.AddStockedProduct(product);
-    //
-    //                 quantity--;
-    //
-    //                 if (quantity == 0) {
-    //                     return;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     if (quantity > 0) {
-    //         Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
-    //     }
-    // }
-    //
+    void GenerateSpecialDelivery(Deliverer deliverer) {
+        BulkDelivery(deliverer);
+        // IrregularDelivery(deliverer);
+    }
+
+    // NOTE: only works for box shaped products
+    void BulkDelivery(Deliverer deliverer) {
+        Grid grid = deliverer.Grid;
+        ShapeDataID id = bulkDeliveryRollTable.GetRandom();
+        ShapeData shapeData = ShapeDataLookUp.LookUp(id);
+        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, Ledger.Instance.ColorPaletteData.Colors.Count)],
+            Pattern.None, // TEMP: until implementing pattern
+            shapeData
+        );
+
+        int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
+        for (int x = grid.MinX; x <= grid.MaxX; x++) {
+            for (int z = grid.MinZ; z <= grid.MaxZ; z++) {
+                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
+
+                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
+                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
+                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
+                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
+                        Debug.LogErrorFormat(
+                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
+                        );
+                        return;
+                    }
+
+                    Ledger.AddStockedProduct(product);
+
+                    quantity--;
+
+                    if (quantity == 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (quantity > 0) {
+            Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
+        }
+    }
+
     // // TEMP: selects one from all products
     // // TODO: fix for new ProductID
     // void IrregularDelivery(Deliverer deliverer) {
@@ -278,7 +312,42 @@ public class DeliveryManager : MonoBehaviour {
                 AddPossibleProduct(productID);
             }
         }
+
+        // TODO: scale all options for basic delivery - modifying volume slicer
     }
+    
+    #region Delivery Orientation
+
+    enum DeliveryOrientation {
+        All = 0,
+        NS = 1, // North South
+        EW = 2, // East West
+    }
+
+    DeliveryOrientation SelectOrientation(float orderliness) {
+        if (orderliness < 0 || 1f < orderliness) {
+            Debug.LogError("Unable to determine delivery orientation: orderliness is not between 0 and 1");
+            return DeliveryOrientation.All;
+        }
+        
+        // scaled weights based on orderliness
+        float nsWeight = Mathf.Lerp(0, 1, orderliness);
+        float ewWeight = Mathf.Lerp(0, 1, orderliness);
+        float allWeight = Mathf.Lerp(1, 0, orderliness);
+
+        float totalWeight = nsWeight + ewWeight + allWeight;
+        float randomValue = Random.Range(0f, totalWeight);
+
+        if (randomValue < nsWeight) {
+            return DeliveryOrientation.NS;
+        } else if (randomValue < nsWeight + ewWeight) {
+            return DeliveryOrientation.EW;
+        } else {
+            return DeliveryOrientation.All;
+        }
+    }
+    
+    #endregion
 
     #region Upgrades
 

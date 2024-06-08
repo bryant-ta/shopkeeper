@@ -155,9 +155,9 @@ public class GameManager : Singleton<GameManager> {
 
     #region Difficulty
 
-    public List<GameObject> FilterByDifficulty(List<ObjDifficulty> objDifficulties) {
+    public List<T> FilterByDifficulty<T>(List<DifficultyEntry<T>> objDifficulties) {
         return objDifficulties
-            .Where(objDifficulty => objDifficulty.Day <= Difficulty)
+            .Where(objDifficulty => objDifficulty.Threshold <= Difficulty)
             .Select(objDifficulty => objDifficulty.Obj)
             .ToList();
     }

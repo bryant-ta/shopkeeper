@@ -32,9 +32,9 @@ public struct MinMax {
 }
     
 [Serializable]
-public struct ObjDifficulty {
-    public float Day;
-    public GameObject Obj;
+public struct DifficultyEntry<T> {
+    [Range(0f,1f)] public float Threshold;
+    public T Obj;
 }
 
 // Inspector serializable list of lists

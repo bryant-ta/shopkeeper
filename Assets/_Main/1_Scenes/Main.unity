@@ -1247,6 +1247,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  basicMaxShapeLength: 3
+  basicMaxShapeWidth: 1
+  basicChanceOfShapeExtension: 1
+  basicOrderliness: 1
+  basicMaxIterations: 100
   bulkQuantityMin: 10
   bulkQuantityMax: 10
   bulkDeliveryRollTable:
@@ -1258,14 +1263,15 @@ MonoBehaviour:
   - {fileID: 1473979365}
   - {fileID: 1340485851}
   - {fileID: 10281504}
+  maxIndexColorPalette: 0
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
   deliveryBoxObjs:
-  - Day: 0
+  - Threshold: 0
     Obj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-  - Day: 0
+  - Threshold: 0
     Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
-  - Day: 0
+  - Threshold: 0
     Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
   possibleProductLists:
     outerList: []
@@ -1296,10 +1302,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6db228792739a76409b957211db11684, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxShapeLength: 4
-  maxShapeWidth: 1
-  chanceOfShapeExtension: 1
-  maxIterations: 50
 --- !u!4 &237343046 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9175227905573436026, guid: fa6dad0fe183d9042906f5331ff29207, type: 3}
