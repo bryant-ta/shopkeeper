@@ -7,6 +7,9 @@ using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
+    [Title("General")]
+    [SerializeField] int maxIndexColorPalette;
+    
     [Title("Basic Delivery")]
     [SerializeField] int basicMaxShapeLength;
     [SerializeField] int basicMaxShapeWidth;
@@ -18,22 +21,15 @@ public class DeliveryManager : MonoBehaviour {
 
     [SerializeField] int basicMaxIterations = 100;
 
-    [Title("Special Delivery")]
-    [SerializeField] int bulkQuantityMin;
-    [SerializeField] int bulkQuantityMax;
-    [SerializeField] RollTable<ShapeDataID> bulkDeliveryRollTable = new();
-    [SerializeField] int irregularQuantityMin;
-    [SerializeField] int irregularQuantityMax;
-    [SerializeField] List<Deliverer> specialDeliverers = new();
-
-    [Title("General Delivery")]
-    [SerializeField] int maxIndexColorPalette;
+    [Title("Irregular Delivery")]
+    [SerializeField] DifficultyTable<float> irregularChanceDiffTable;
+    [SerializeField] DifficultyTable<ShapeDataID> irregularShapesDiffTable;
 
     [Header("Deliverers")]
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] List<DifficultyEntry<GameObject>> deliveryBoxObjs;
+    [SerializeField] DifficultyTable<GameObject> deliveryBoxDiffTable;
 
     [Title("Other")]
     [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
@@ -58,10 +54,6 @@ public class DeliveryManager : MonoBehaviour {
     void StateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
             ScaleDeliveryDifficulty(GameManager.Instance.Day);
-            // StartCoroutine(DoDelivery());
-
-
-            // DEBUG
             Deliver();
         }
     }
@@ -80,22 +72,26 @@ public class DeliveryManager : MonoBehaviour {
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
 
-        // Select delivery box based on current difficulty
-        List<GameObject> possibleDelBoxes = GameManager.Instance.FilterByDifficulty(deliveryBoxObjs);
-        GameObject delboxObj = possibleDelBoxes[Random.Range(0, possibleDelBoxes.Count)];
-
-        DeliveryBox deliveryBox = Instantiate(delboxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
-        Vector3Int targetCoord = new Vector3Int(
-            -deliveryBox.ShapeData.Length / 2, 0, -deliveryBox.ShapeData.Width / 2
-        ); // centers shape on grid origin
-
+        float irregularChance = irregularChanceDiffTable.GetHighestByDifficulty();
+        IGridShape cargoShape;
+        if (Random.Range(0f, 1f) <= irregularChance) {  // Create irregular delivery
+            cargoShape = GenerateIrregularDelivery();
+        } else {                                        // Create delivery box for basic/bulk delivery
+            GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
+            cargoShape = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+        }
+        
         // TEMP: scale deliverer floor grid, replaced after deliverer anim
-        deliverer.Grid.SetGridSize(deliveryBox.ShapeData.Length, deliveryBox.ShapeData.Height, deliveryBox.ShapeData.Width);
+        ShapeData cargoShapeData = cargoShape.ShapeData;
+        deliverer.Grid.SetGridSize(cargoShapeData.Length, cargoShapeData.Height, cargoShapeData.Width);
         deliverer.transform.Find("Floor").transform.localScale = new Vector3(
-            0.1f * deliveryBox.ShapeData.Length + 0.05f, 1, 0.1f * deliveryBox.ShapeData.Width + 0.05f
+            0.1f * cargoShapeData.Length + 0.05f, 1, 0.1f * cargoShapeData.Width + 0.05f
         );
+        
+        // centers shape on grid origin
+        Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
-        deliverer.Grid.PlaceShapeNoValidate(targetCoord, deliveryBox);
+        deliverer.Grid.PlaceShapeNoValidate(targetCoord, cargoShape);
     }
 
     /// <summary>
@@ -131,11 +127,6 @@ public class DeliveryManager : MonoBehaviour {
 
             Ledger.AddStockedProduct(product);
         }
-    }
-
-    void GenerateSpecialDelivery(Deliverer deliverer) {
-        // BulkDelivery(deliverer);
-        // IrregularDelivery(deliverer);
     }
 
     // want either all of y level filled or many neat rows of width 1 shapes to fill, 1 layer deep always
@@ -181,44 +172,21 @@ public class DeliveryManager : MonoBehaviour {
         }
     }
 
-    // // TEMP: selects one from all products
-    // // TODO: fix for new ProductID
-    // void IrregularDelivery(Deliverer deliverer) {
-    //     Grid grid = deliverer.Grid;
-    //     List<ProductID> possibleProductIDs = ProductFactory.Instance.ProductDataLookUp.Keys.ToList();
-    //     ProductID id = possibleProductIDs[Random.Range(0, possibleProductIDs.Count)];
-    //     SO_Product productData = ProductFactory.Instance.ProductDataLookUp[id];
-    //
-    //     int quantity = Random.Range(irregularQuantityMin, irregularQuantityMax);
-    //     for (int x = grid.MinX; x < grid.MaxX; x++) {
-    //         for (int z = grid.MinZ; z < grid.MaxZ; z++) {
-    //             Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
-    //
-    //             while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
-    //                 Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-    //                 Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
-    //                 if (!grid.PlaceShape(deliveryCoord, product, true)) {
-    //                     Debug.LogErrorFormat(
-    //                         "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
-    //                     );
-    //                     return;
-    //                 }
-    //
-    //                 Ledger.AddStockedProduct(product);
-    //
-    //                 quantity--;
-    //
-    //                 if (quantity == 0) {
-    //                     return;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //
-    //     if (quantity > 0) {
-    //         Debug.LogWarning($"Unable to place all products in irregular delivery: {quantity} remaining.");
-    //     }
-    // }
+    Product GenerateIrregularDelivery() {
+        ShapeDataID id = irregularShapesDiffTable.GetRandomByDifficulty();
+        ShapeData shapeData = ShapeDataLookUp.LookUp(id);
+        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)],
+            Pattern.None, // TEMP: until implementing pattern
+            shapeData
+        );
+
+        Product product = ProductFactory.Instance.CreateProduct(productData, Ref.Instance.OffScreenSpawnTrs.position);
+        
+        Ledger.AddStockedProduct(product);
+
+        return product;
+    }
 
     // IEnumerator DoDelivery() {
     //     // Place products starting from (0, 0, 0) within deliveryZone

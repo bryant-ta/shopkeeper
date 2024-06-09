@@ -311,17 +311,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94fb7b4aa4fd8da428cb3743ebec84fe, type: 3}
---- !u!114 &10281504 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3724736231835889270, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  m_PrefabInstance: {fileID: 1243052974}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b762fbdd690018d46b4e332807bcd1fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &20588875 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 81a18cf1f4f018548baf11c5f85e0e11, type: 3}
@@ -1247,32 +1236,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxIndexColorPalette: 1
   basicMaxShapeLength: 3
   basicMaxShapeWidth: 3
   basicChanceOfShapeExtension: 1
   basicOrderliness: 1
   basicMaxIterations: 50
-  bulkQuantityMin: 10
-  bulkQuantityMax: 10
-  bulkDeliveryRollTable:
-    initEntries: []
-    entries: []
-  irregularQuantityMin: 1
-  irregularQuantityMax: 1
-  specialDeliverers:
-  - {fileID: 1473979365}
-  - {fileID: 1340485851}
-  - {fileID: 10281504}
-  maxIndexColorPalette: 1
+  irregularChanceDiffTable:
+    entries:
+    - Difficulty: 0
+      Obj: 0
+    - Difficulty: 0
+      Obj: 1
+  irregularShapesDiffTable:
+    entries:
+    - Difficulty: 0
+      Obj: 30
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  deliveryBoxObjs:
-  - Difficulty: 1
-    Obj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-  - Difficulty: 1
-    Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
-  - Difficulty: 0
-    Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
+  deliveryBoxDiffTable:
+    entries:
+    - Difficulty: 0
+      Obj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - Difficulty: 1
+      Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
+    - Difficulty: 1
+      Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
   possibleProductLists:
     outerList: []
 --- !u!4 &235971277
@@ -8601,17 +8590,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1329751413}
   m_CullTransparentMesh: 1
---- !u!114 &1340485851 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3724736231835889270, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  m_PrefabInstance: {fileID: 129228320}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b762fbdd690018d46b4e332807bcd1fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1350446980
 GameObject:
   m_ObjectHideFlags: 0
@@ -9662,17 +9640,6 @@ LineRenderer:
     generateLightingData: 0
   m_UseWorldSpace: 0
   m_Loop: 1
---- !u!114 &1473979365 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3724736231835889270, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  m_PrefabInstance: {fileID: 1897830353}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b762fbdd690018d46b4e332807bcd1fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1516144615
 GameObject:
   m_ObjectHideFlags: 0

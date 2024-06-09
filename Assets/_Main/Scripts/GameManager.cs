@@ -154,17 +154,6 @@ public class GameManager : Singleton<GameManager> {
 
     #endregion
 
-    #region Difficulty
-
-    public List<T> FilterByDifficulty<T>(List<DifficultyEntry<T>> objDifficulties) {
-        return objDifficulties
-            .Where(objDifficulty => objDifficulty.Difficulty <= Difficulty)
-            .Select(objDifficulty => objDifficulty.Obj)
-            .ToList();
-    }
-
-    #endregion
-
     #region Control
 
     public void TogglePause() {

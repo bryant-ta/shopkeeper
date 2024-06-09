@@ -30,12 +30,6 @@ public struct MinMax {
     public int Min;
     public int Max;
 }
-    
-[Serializable]
-public struct DifficultyEntry<T> {
-    [Range(0f,1f)] public float Difficulty;
-    public T Obj;
-}
 
 // Inspector serializable list of lists
 [Serializable]
