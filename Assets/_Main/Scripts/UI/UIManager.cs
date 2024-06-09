@@ -47,19 +47,6 @@ public class UIManager : MonoBehaviour {
         } else {
             perfectOrdersText.text = "GOOD";
         }
-        
-        // Products Unlocked
-        List<ProductID> nextDayProductsUnlocked = Ref.Instance.DeliveryMngr.GetDayPossibleProducts(gameMngr.Day + 1);
-        if (nextDayProductsUnlocked != null) {
-            string productsUnlockedString = "";
-            for (int i = 0; i < nextDayProductsUnlocked.Count; i++) {
-                productsUnlockedString += $"<sprite name=\"{nextDayProductsUnlocked[i].ToString()}\"> ";
-            }
-
-            productsUnlockedText.text = productsUnlockedString.TrimEnd();
-        } else {
-            productsUnlockedText.enabled = false;
-        }
 
         // Next Day Button
         nextDayButton.gameObject.SetActive(true);

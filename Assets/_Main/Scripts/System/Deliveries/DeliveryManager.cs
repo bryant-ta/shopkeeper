@@ -8,6 +8,7 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [Title("General")]
+    [Tooltip("Determines possible color choices for ALL delivery types.")]
     [SerializeField] int maxIndexColorPalette;
     
     [Title("Basic Delivery")]
@@ -19,7 +20,7 @@ public class DeliveryManager : MonoBehaviour {
     [Tooltip("1 = all shapes oriented in same direction")]
     [SerializeField, Range(0f, 1f)] float basicOrderliness;
 
-    [SerializeField] int basicMaxIterations = 100;
+    VolumeSlicer basicVs;
 
     [Title("Irregular Delivery")]
     [SerializeField] DifficultyTable<float> irregularChanceDiffTable;
@@ -31,20 +32,15 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] GameObject delivererObj;
     [SerializeField] DifficultyTable<GameObject> deliveryBoxDiffTable;
 
-    [Title("Other")]
-    [SerializeField] ListList<ProductID> possibleProductLists; // currently unused, its just looking up shape -> valid product
-    int numProductsInDelivery;
-
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
     // [SerializeField] int productsPerDayGrowth;
     // [SerializeField] int productsInDeliveryMax;
 
-    VolumeSlicer basicVs;
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
-        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceOfShapeExtension, basicMaxIterations);
+        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceOfShapeExtension);
 
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
@@ -188,99 +184,8 @@ public class DeliveryManager : MonoBehaviour {
         return product;
     }
 
-    // IEnumerator DoDelivery() {
-    //     // Place products starting from (0, 0, 0) within deliveryZone
-    //     // Order of placement is alternating forward/backwards every other row, one product on next open y of (x, z).
-    //     int numProductsDelivered = 0;
-    //     while (numProductsDelivered < numProductsInDelivery) {
-    //         SO_Product productData = null;
-    //         int groupQuantity = 0;
-    //         int prodsDeliveredLastCycle = numProductsDelivered;
-    //
-    //         for (int x = 0; x < deliveryZone.Length; x++) {
-    //             int startZ = 0;
-    //             int endZ = deliveryZone.Width;
-    //             int stepZ = 1;
-    //             if (x % 2 == 1) { // iterate backwards every other row
-    //                 startZ = deliveryZone.Width - 1;
-    //                 endZ = -1;
-    //                 stepZ = -1;
-    //             }
-    //
-    //             for (int z = startZ; z != endZ; z += stepZ) {
-    //                 Vector3Int deliveryCoord;
-    //                 Vector3Int selectedCell = new Vector3Int(deliveryZone.RootCoord.x + x, grid.Height, deliveryZone.RootCoord.z + z);
-    //                 if (grid.SelectLowestOpenFromCell(selectedCell, out int y)) {
-    //                     deliveryCoord = deliveryZone.RootCoord + new Vector3Int(x, y, z);
-    //                 } else { // this xz coord has no free cells
-    //                     continue;
-    //                 }
-    //
-    //                 if (groupQuantity == 0) { // finished a group, generate new group with random product
-    //                     productData = ProductFactory.Instance.ProductDataLookUp[basicProductRollTable.GetRandom()];
-    //                     groupQuantity = Random.Range(minGroupQuantity, maxGroupQuantity + 1);
-    //                 }
-    //
-    //                 groupQuantity--;
-    //
-    //                 Product product = ProductFactory.Instance.CreateProduct(productData);
-    //
-    //                 if (product.TryGetComponent(out IGridShape shape)) {
-    //                     shape.ShapeTransform.position = productSpawnPosition.position;
-    //                     if (!grid.PlaceShape(deliveryCoord, shape, true)) {
-    //                         Debug.LogErrorFormat("Unable to place shape at {0} in delivery zone", deliveryCoord);
-    //                     }
-    //
-    //                     GameManager.AddStockedProduct(product);
-    //
-    //                     // Stagger delivery anim
-    //                     // TODO: maybe use tween delay for this - but really there is no anim needed bc they come in off screen
-    //                     yield return new WaitForSeconds(TweenManager.IndividualDeliveryDelay);
-    //                 } else {
-    //                     Debug.LogErrorFormat("Unable to deliver product {0}: product has no grid shape.", product.Name);
-    //                     yield break;
-    //                 }
-    //
-    //                 numProductsDelivered++;
-    //                 if (numProductsDelivered == numProductsInDelivery) yield break;
-    //             }
-    //         }
-    //
-    //         // Did not finish delivering target number of products
-    //         if (prodsDeliveredLastCycle == numProductsDelivered) {
-    //             Debug.LogWarning("Unable to deliver all products: delivery zone is full.");
-    //             yield break;
-    //         }
-    //     }
-    // }
-
-    void AddPossibleProduct(ProductID productID) {
-        // if (!basicProductRollTable.Contains(productID)) {
-        //     basicProductRollTable.Add(productID, 1);
-        // }
-    }
-
-    public List<ProductID> GetDayPossibleProducts(int day) {
-        if (day - 1 >= possibleProductLists.outerList.Count) return null;
-        return possibleProductLists.outerList[day - 1].innerList;
-    }
-
-    // TEMP: pre-crafting difficulty formulas
     void ScaleDeliveryDifficulty(int day) {
-        // Scale quantity
-        // numProductsInDelivery = productsPerDayGrowth * (day - 1) + numInitialProductsInDelivery;
-        // if (numProductsInDelivery > maxProductsInDelivery) {
-        //     numProductsInDelivery = maxProductsInDelivery;
-        // }
-
-        // Scale variety
-        if (day - 1 < possibleProductLists.outerList.Count) {
-            foreach (ProductID productID in possibleProductLists.outerList[day - 1].innerList) {
-                AddPossibleProduct(productID);
-            }
-        }
-
-        // TODO: scale all options for basic delivery - modifying volume slicer
+        // TODO: scale basic, bulk, irregular delivery
     }
 
     #region Delivery Orientation

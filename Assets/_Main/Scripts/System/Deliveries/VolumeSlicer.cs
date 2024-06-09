@@ -8,7 +8,8 @@ public class VolumeSlicer : MonoBehaviour {
     int maxShapeLength;
     int maxShapeWidth;
     float chanceOfShapeExtension;
-    int maxIterations = 100;
+    
+    const int maxIterations = 50;
 
     /// <summary>
     /// 1. Within 2D y layer, pick 1 random point
@@ -174,10 +175,9 @@ public class VolumeSlicer : MonoBehaviour {
         return edgeCells;
     }
 
-    public void SetOptions(int maxShapeLength, int maxShapeWidth, float chanceOfShapeExtension, int maxIterations) {
+    public void SetOptions(int maxShapeLength, int maxShapeWidth, float chanceOfShapeExtension) {
         this.maxShapeLength = maxShapeLength;
         this.maxShapeWidth = maxShapeWidth;
         this.chanceOfShapeExtension = chanceOfShapeExtension;
-        this.maxIterations = maxIterations;
     }
 }

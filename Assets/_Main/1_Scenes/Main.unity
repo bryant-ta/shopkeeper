@@ -1239,15 +1239,17 @@ MonoBehaviour:
   maxIndexColorPalette: 1
   basicMaxShapeLength: 3
   basicMaxShapeWidth: 3
-  basicChanceOfShapeExtension: 1
+  basicChanceOfShapeExtension: 0
   basicOrderliness: 1
   basicMaxIterations: 50
   irregularChanceDiffTable:
     entries:
-    - Difficulty: 0
-      Obj: 0
-    - Difficulty: 0
-      Obj: 1
+    - Difficulty: 0.15
+      Obj: 0.1
+    - Difficulty: 0.3
+      Obj: 0.15
+    - Difficulty: 0.5
+      Obj: 0.2
   irregularShapesDiffTable:
     entries:
     - Difficulty: 0
