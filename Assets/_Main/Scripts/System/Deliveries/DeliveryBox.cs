@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MK.Toon;
@@ -8,12 +7,15 @@ using UnityEngine;
 public class DeliveryBox : MonoBehaviour, IGridShape {
     #region DeliveryBox
 
+    DeliveryBoxType deliveryBoxType;
+
     #endregion
 
     #region IGridShape
 
     [Title("Shape")]
     public string Name { get; private set; }
+
     public Grid Grid {
         get {
             if (ObjTransform.parent.TryGetComponent(out Grid grid)) {
@@ -40,13 +42,11 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
     void Awake() {
         Init();
-        
+
         Ref.Player.PlayerInput.InputSecondaryDown += HandleInput;
     }
 
-    void OnDestroy() {
-        Ref.Player.PlayerInput.InputSecondaryDown -= HandleInput;
-    }
+    void OnDestroy() { Ref.Player.PlayerInput.InputSecondaryDown -= HandleInput; }
 
     void Init() {
         if (ShapeData.ShapeOffsets == null || ShapeData.ShapeOffsets.Count == 0) {
@@ -72,14 +72,23 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
         Grid.RemoveShapeCells(this, false);
 
-        Ref.Instance.DeliveryMngr.BulkDelivery(this);
+        if (deliveryBoxType == DeliveryBoxType.Basic) {
+            Ref.Instance.DeliveryMngr.BasicDelivery(this);
+        } else {
+            Ref.Instance.DeliveryMngr.BulkDelivery(this);
+        }
         
         // TEMP: until box open animation
         Destroy(ObjTransform.gameObject);
     }
-    
-    public void SetOutline(Color color) {
-        Properties.outlineColor.SetValue(mat, color);
-    }
+
+    public void SetOutline(Color color) { Properties.outlineColor.SetValue(mat, color); }
     public void ResetOutline() { SetOutline(matOutlineOriginalColor); }
+
+    public enum DeliveryBoxType {
+        Basic = 0,
+        Bulk = 1,
+    }
+
+    public void SetDeliveryBoxType(DeliveryBoxType type) { deliveryBoxType = type; }
 }

@@ -1237,11 +1237,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxIndexColorPalette: 1
-  basicMaxShapeLength: 3
-  basicMaxShapeWidth: 3
+  basicMaxShapeLength: 1
+  basicMaxShapeWidth: 1
   basicChanceOfShapeExtension: 0
   basicOrderliness: 1
-  basicMaxIterations: 50
   irregularChanceDiffTable:
     entries:
     - Difficulty: 0.15
@@ -1264,8 +1263,6 @@ MonoBehaviour:
       Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
     - Difficulty: 1
       Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
-  possibleProductLists:
-    outerList: []
 --- !u!4 &235971277
 Transform:
   m_ObjectHideFlags: 0

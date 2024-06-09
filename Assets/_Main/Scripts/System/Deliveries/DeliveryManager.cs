@@ -22,6 +22,10 @@ public class DeliveryManager : MonoBehaviour {
 
     VolumeSlicer basicVs;
 
+    [Title("Bulk Delivery")]
+    [Tooltip("Frequency of bulk deliveries (i.e. every X days).")]
+    [SerializeField] int bulkDayInterval = 3;
+
     [Title("Irregular Delivery")]
     [SerializeField] DifficultyTable<float> irregularChanceDiffTable;
     [SerializeField] DifficultyTable<ShapeDataID> irregularShapesDiffTable;
@@ -65,16 +69,26 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void CreateDeliverer(Dock openDock) {
+        // Setup deliverer
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
 
         float irregularChance = irregularChanceDiffTable.GetHighestByDifficulty();
         IGridShape cargoShape;
-        if (Random.Range(0f, 1f) <= irregularChance) {  // Create irregular delivery
-            cargoShape = GenerateIrregularDelivery();
-        } else {                                        // Create delivery box for basic/bulk delivery
+        if (GameManager.Instance.Day % bulkDayInterval == 0) { // Create delivery box for bulk delivery
             GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
-            cargoShape = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+            DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+            deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Bulk);
+            
+            cargoShape = deliveryBox;
+        } else if (Random.Range(0f, 1f) <= irregularChance) {   // Create irregular delivery
+            cargoShape = GenerateIrregularDelivery();
+        } else {                                                // Create delivery box for basic delivery
+            GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
+            DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+            deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Basic);
+
+            cargoShape = deliveryBox;
         }
         
         // TEMP: scale deliverer floor grid, replaced after deliverer anim
@@ -84,7 +98,7 @@ public class DeliveryManager : MonoBehaviour {
             0.1f * cargoShapeData.Length + 0.05f, 1, 0.1f * cargoShapeData.Width + 0.05f
         );
         
-        // centers shape on grid origin
+        // centers shape on deliverer grid origin
         Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, cargoShape);

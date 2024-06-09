@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Util : MonoBehaviour {
     public class ValueRef<T> where T : struct {
@@ -99,5 +100,10 @@ public class Util : MonoBehaviour {
         }
 
         return heldProducts;
+    }
+
+    public static T GetRandomEnumValue<T>() where T : Enum {
+        Array values = Enum.GetValues(typeof(T));
+        return (T) values.GetValue(Random.Range(0, values.Length));
     }
 }
