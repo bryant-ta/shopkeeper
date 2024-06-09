@@ -33,7 +33,7 @@ public struct MinMax {
     
 [Serializable]
 public struct DifficultyEntry<T> {
-    [Range(0f,1f)] public float Threshold;
+    [Range(0f,1f)] public float Difficulty;
     public T Obj;
 }
 

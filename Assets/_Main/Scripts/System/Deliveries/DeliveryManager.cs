@@ -101,14 +101,12 @@ public class DeliveryManager : MonoBehaviour {
     /// <summary>
     /// Uses basic slicing algorithm to generate basic shapes within local grid bounds.
     /// </summary>
-    /// <param name="deliveryBoxShapeData">Shape data of delivery box containing this delivery.</param>
-    /// <param name="grid">Grid to place shapes on.</param>
-    /// <param name="orientation">Extension direction input to volume slicer</param>
-    public void GenerateBasicDelivery(ShapeData deliveryBoxShapeData, Grid grid) {
+    /// <param name="deliveryBox">Delivery box containing this delivery.</param>
+    public void BasicDelivery(DeliveryBox deliveryBox) {
         // Generate shape datas of basic delivery
-        Vector3Int minBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MinOffset;
-        Vector3Int maxBoundCoord = deliveryBoxShapeData.RootCoord + deliveryBoxShapeData.MaxOffset;
-        
+        Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
+        Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
+
         DeliveryOrientation orientation = SelectOrientation(basicOrderliness);
         List<Direction2D> extensionDirs = orientation switch {
             DeliveryOrientation.All => new() {Direction2D.North, Direction2D.East, Direction2D.South, Direction2D.West},
@@ -116,7 +114,7 @@ public class DeliveryManager : MonoBehaviour {
             DeliveryOrientation.EW => new() {Direction2D.East, Direction2D.West},
             _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, null)
         };
-        
+
         List<ShapeData> volumeData = basicVs.Slice(minBoundCoord, maxBoundCoord, extensionDirs);
 
         // Convert generated shape datas to product game objects and place them
@@ -127,58 +125,59 @@ public class DeliveryManager : MonoBehaviour {
                 shapeData
             );
             // productData.ID.Pattern = patternPaletteData.Patterns[Random.Range(0, patternPaletteData.Patterns.Count)]; TODO: pattern lookup
-            Product product = ProductFactory.Instance.CreateProduct(productData, shapeData.RootCoord);
+            Product product = ProductFactory.Instance.CreateProduct(productData, deliveryBox.Grid.transform.position + shapeData.RootCoord);
 
-            grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
+            deliveryBox.Grid.PlaceShapeNoValidate(shapeData.RootCoord, product);
 
             Ledger.AddStockedProduct(product);
         }
     }
 
     void GenerateSpecialDelivery(Deliverer deliverer) {
-        BulkDelivery(deliverer);
+        // BulkDelivery(deliverer);
         // IrregularDelivery(deliverer);
     }
 
-    // NOTE: only works for box shaped products
-    void BulkDelivery(Deliverer deliverer) {
-        Grid grid = deliverer.Grid;
-        ShapeDataID id = bulkDeliveryRollTable.GetRandom();
-        ShapeData shapeData = ShapeDataLookUp.LookUp(id);
-        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, Ledger.Instance.ColorPaletteData.Colors.Count)],
-            Pattern.None, // TEMP: until implementing pattern
-            shapeData
-        );
+    // want either all of y level filled or many neat rows of width 1 shapes to fill, 1 layer deep always
+    public void BulkDelivery(DeliveryBox deliveryBox) {
+        // Determine shape based on delivery box dimensions
+        int length = deliveryBox.ShapeData.Length;
+        int width = 1; // TODO: any width that fits evenly into delivery box
 
-        int quantity = Random.Range(bulkQuantityMin, bulkQuantityMax);
-        for (int x = grid.MinX; x <= grid.MaxX; x++) {
-            for (int z = grid.MinZ; z <= grid.MaxZ; z++) {
-                Vector3Int selectedXZ = new Vector3Int(x, grid.Height, z);
-
-                while (grid.SelectLowestOpenFromCell(selectedXZ, out int y)) {
-                    Vector3Int deliveryCoord = new Vector3Int(x, y, z);
-                    Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
-                    if (!grid.PlaceShape(deliveryCoord, product, true)) {
-                        Debug.LogErrorFormat(
-                            "Unable to place shape at {0} in delivery: Selected cell should have been open.", deliveryCoord
-                        );
-                        return;
-                    }
-
-                    Ledger.AddStockedProduct(product);
-
-                    quantity--;
-
-                    if (quantity == 0) {
-                        return;
-                    }
-                }
+        List<Vector3Int> shapeOffsets = new();
+        for (int x = 0; x < length; x++) {
+            for (int z = 0; z < width; z++) {
+                shapeOffsets.Add(new Vector3Int(x, 0, z));
             }
         }
 
-        if (quantity > 0) {
-            Debug.LogWarning($"Unable to place all products in bulk delivery: {quantity} remaining.");
+        // Build shape data for bulk
+        ShapeDataID id = ShapeData.DetermineID(shapeOffsets);
+        ShapeData shapeData = id == ShapeDataID.Custom ?
+            new ShapeData(ShapeDataID.Custom, Vector3Int.zero, shapeOffsets) :
+            ShapeDataLookUp.LookUp(id);
+
+        // Create shape in bulk to fill delivery box volume
+        Grid grid = deliveryBox.Grid;
+        Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
+        Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
+        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)];
+
+        for (int z = minBoundCoord.z; z <= maxBoundCoord.z; z += width) {
+            for (int y = minBoundCoord.y; y <= maxBoundCoord.y; y++) {
+                SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+                    color,
+                    Pattern.None, // TEMP: until implementing pattern
+                    shapeData
+                );
+
+                Vector3Int deliveryCoord = new Vector3Int(minBoundCoord.x, y, z);
+                Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
+
+                deliveryBox.Grid.PlaceShapeNoValidate(deliveryCoord, product);
+
+                Ledger.AddStockedProduct(product);
+            }
         }
     }
 
@@ -315,7 +314,7 @@ public class DeliveryManager : MonoBehaviour {
 
         // TODO: scale all options for basic delivery - modifying volume slicer
     }
-    
+
     #region Delivery Orientation
 
     enum DeliveryOrientation {
@@ -329,7 +328,7 @@ public class DeliveryManager : MonoBehaviour {
             Debug.LogError("Unable to determine delivery orientation: orderliness is not between 0 and 1");
             return DeliveryOrientation.All;
         }
-        
+
         // scaled weights based on orderliness
         float nsWeight = Mathf.Lerp(0, 1, orderliness);
         float ewWeight = Mathf.Lerp(0, 1, orderliness);
@@ -346,7 +345,7 @@ public class DeliveryManager : MonoBehaviour {
             return DeliveryOrientation.All;
         }
     }
-    
+
     #endregion
 
     #region Upgrades

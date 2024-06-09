@@ -25,6 +25,11 @@ public class ShapeData {
     public bool IsMultiY => ShapeOffsets.Any(offset => offset.y != 0);
 
     public ShapeData() { }
+    public ShapeData(ShapeDataID id, Vector3Int rootCoord, List<Vector3Int> shapeOffsets) {
+        ID = id;
+        RootCoord = rootCoord;
+        ShapeOffsets = shapeOffsets;
+    }
     public ShapeData(ShapeData original) {
         ID = original.ID;
         RootCoord = original.RootCoord;

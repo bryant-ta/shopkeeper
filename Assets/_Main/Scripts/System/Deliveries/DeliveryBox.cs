@@ -72,7 +72,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
 
         Grid.RemoveShapeCells(this, false);
 
-        Ref.Instance.DeliveryMngr.GenerateBasicDelivery(ShapeData, Grid);
+        Ref.Instance.DeliveryMngr.BulkDelivery(this);
         
         // TEMP: until box open animation
         Destroy(ObjTransform.gameObject);

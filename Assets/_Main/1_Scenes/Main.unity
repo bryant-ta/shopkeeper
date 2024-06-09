@@ -1248,7 +1248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   basicMaxShapeLength: 3
-  basicMaxShapeWidth: 2
+  basicMaxShapeWidth: 3
   basicChanceOfShapeExtension: 1
   basicOrderliness: 1
   basicMaxIterations: 50
@@ -1263,15 +1263,15 @@ MonoBehaviour:
   - {fileID: 1473979365}
   - {fileID: 1340485851}
   - {fileID: 10281504}
-  maxIndexColorPalette: 0
+  maxIndexColorPalette: 1
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
   deliveryBoxObjs:
-  - Threshold: 1
+  - Difficulty: 1
     Obj: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-  - Threshold: 1
+  - Difficulty: 1
     Obj: {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
-  - Threshold: 0
+  - Difficulty: 0
     Obj: {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
   possibleProductLists:
     outerList: []
@@ -3373,6 +3373,7 @@ MonoBehaviour:
   openPhaseClockTime: 11:00AM
   closePhaseClockTime: 8:00PM
   <Day>k__BackingField: 1
+  TotalDays: 20
   initialGold: 5000
   gold: 0
   perfectOrdersGoldBonus: 100

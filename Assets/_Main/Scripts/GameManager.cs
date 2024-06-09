@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager> {
 
     [Title("General")]
     [SerializeField, ReadOnly] bool isPaused;
-    public float Difficulty => DifficultyCurve.Evaluate(Day);
+    public float Difficulty => DifficultyCurve.Evaluate((float)Day/TotalDays);
     [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
 
     public bool IsPaused => isPaused;
@@ -43,6 +43,7 @@ public class GameManager : Singleton<GameManager> {
     string closePhaseClockTime;
 
     [field: SerializeField] public int Day { get; private set; }
+    [SerializeField] int TotalDays = 1;
 
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
@@ -157,7 +158,7 @@ public class GameManager : Singleton<GameManager> {
 
     public List<T> FilterByDifficulty<T>(List<DifficultyEntry<T>> objDifficulties) {
         return objDifficulties
-            .Where(objDifficulty => objDifficulty.Threshold <= Difficulty)
+            .Where(objDifficulty => objDifficulty.Difficulty <= Difficulty)
             .Select(objDifficulty => objDifficulty.Obj)
             .ToList();
     }
