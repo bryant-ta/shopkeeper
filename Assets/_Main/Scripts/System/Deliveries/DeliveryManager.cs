@@ -73,7 +73,6 @@ public class DeliveryManager : MonoBehaviour {
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
 
-        float irregularChance = irregularChanceDiffTable.GetHighestByDifficulty();
         IGridShape cargoShape;
         if (GameManager.Instance.Day % bulkDayInterval == 0) { // Create delivery box for bulk delivery
             GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
@@ -81,7 +80,7 @@ public class DeliveryManager : MonoBehaviour {
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Bulk);
             
             cargoShape = deliveryBox;
-        } else if (Random.Range(0f, 1f) <= irregularChance) {   // Create irregular delivery
+        } else if (Random.Range(0f, 1f) <= irregularChanceDiffTable.GetHighestByDifficulty()) {   // Create irregular delivery
             cargoShape = GenerateIrregularDelivery();
         } else {                                                // Create delivery box for basic delivery
             GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();

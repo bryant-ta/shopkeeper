@@ -1241,6 +1241,7 @@ MonoBehaviour:
   basicMaxShapeWidth: 1
   basicChanceOfShapeExtension: 0
   basicOrderliness: 1
+  bulkDayInterval: 1
   irregularChanceDiffTable:
     entries:
     - Difficulty: 0.15
@@ -1249,6 +1250,8 @@ MonoBehaviour:
       Obj: 0.15
     - Difficulty: 0.5
       Obj: 0.2
+    - Difficulty: 0.05
+      Obj: 1
   irregularShapesDiffTable:
     entries:
     - Difficulty: 0
@@ -8301,8 +8304,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numTotalOrders: 5
-  numActiveOrders: 3
+  numActiveOrders: 1
   NextOrderDelay:
     Min: 0
     Max: 0
@@ -8322,9 +8324,8 @@ MonoBehaviour:
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  shapeDifficultyPool:
-    outerList:
-    - innerList: 01000000
+  reqShapeDifficultyPool:
+    outerList: []
   moldShapeDifficultyPool:
     outerList:
     - innerList: 15000000
