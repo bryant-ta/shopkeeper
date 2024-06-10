@@ -6,13 +6,18 @@ public class Mold {
     public Grid Grid { get; private set; }
     ShapeOutlineRenderer shapeOutlineRenderer;
 
-    public Mold(ShapeData shapeData) {
-        ShapeData = shapeData;
-    }
+    public Mold(ShapeData shapeData) { ShapeData = shapeData; }
 
     // params only available when Orderer is ready, so must separate from constructor
     public void InitByOrderer(Grid grid, ShapeOutlineRenderer shapeOutlineRenderer) {
         Grid = grid;
+
+        // TEMP: scale orderer floor grid, replaced after orderer prefabs for different sizes
+        Grid.SetGridSize(ShapeData.Length, ShapeData.Height, ShapeData.Width);
+        Grid.transform.parent.Find("Floor").transform.localScale = new Vector3(
+            0.1f * ShapeData.Length + 0.05f, 1, 0.1f * ShapeData.Width + 0.05f
+        );
+
         ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
         int cwRandomRotationTimes = Random.Range(0, 4);
         for (int i = 0; i < cwRandomRotationTimes; i++) {
@@ -28,7 +33,7 @@ public class Mold {
             Debug.LogError("Mold grid is not set.");
             return false;
         }
-        
+
         foreach (Vector3Int offset in ShapeData.ShapeOffsets) {
             if (Grid.IsOpen(ShapeData.RootCoord + offset)) {
                 return false;
