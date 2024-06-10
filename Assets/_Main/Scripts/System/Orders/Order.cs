@@ -13,7 +13,9 @@ public class Order {
     public List<Requirement> Requirements { get; private set; }
 
     int Value;
+    
     int timePerProduct;
+    int baseOrderValue;
     int valuePerProduct;
 
     public bool IsFulfilled { get; private set; }
@@ -22,9 +24,10 @@ public class Order {
     public event Action OnOrderSucceeded;
     public event Action OnOrderFailed;
 
-    public Order(int minTimePerOrder, int timePerProduct, int valuePerProduct) {
+    public Order(int minTimePerOrder, int timePerProduct, int baseOrderValue, int valuePerProduct) {
         Requirements = new();
         this.timePerProduct = timePerProduct;
+        this.baseOrderValue = baseOrderValue;
         this.valuePerProduct = valuePerProduct;
 
         TimeToComplete = minTimePerOrder;
@@ -123,7 +126,7 @@ public class Order {
     }
 
     public int TotalValue() {
-        int total = 0;
+        int total = baseOrderValue;
         foreach (Requirement req in Requirements) {
             total += req.TargetQuantity * valuePerProduct;
         }
@@ -149,8 +152,8 @@ public class Order {
 public class MoldOrder : Order {
     public Mold Mold { get; private set; }
 
-    public MoldOrder(int minTimePerOrder, int timePerProduct, int valuePerProduct) :
-        base(minTimePerOrder, timePerProduct, valuePerProduct) {
+    public MoldOrder(int minTimePerOrder, int timePerProduct, int baseOrderValue, int valuePerProduct) :
+        base(minTimePerOrder, timePerProduct, baseOrderValue, valuePerProduct) {
     }
 
     public void AddMold(Mold mold) { Mold = mold; }

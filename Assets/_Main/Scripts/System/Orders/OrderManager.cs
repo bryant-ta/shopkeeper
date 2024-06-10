@@ -14,9 +14,9 @@ public class OrderManager : MonoBehaviour {
     [Title("Order Parameters")]
     [SerializeField] MinMax numReqsPerOrder;
     [SerializeField] int baseOrderTime;
-    [SerializeField] int baseOrderValue;
     [SerializeField] int timePerProduct;
-    [SerializeField] int goldPerProduct;
+    [SerializeField] int baseOrderValue;
+    [SerializeField] int valuePerProduct;
 
     [Title("Requirement Paramenters")]
     [SerializeField] MinMax reqQuantity;
@@ -148,7 +148,7 @@ public class OrderManager : MonoBehaviour {
     }
 
     Order GenerateBagOrder(Dictionary<ProductID, int> stock) {
-        Order order = new Order(baseOrderTime, timePerProduct, goldPerProduct);
+        Order order = new Order(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
         for (int j = 0; j < numReqs; j++) {
@@ -170,8 +170,7 @@ public class OrderManager : MonoBehaviour {
         Requirement req = new Requirement(null, null, null, quantity);
 
         if (Random.Range(0f, 1f) <= reqChanceNeedsColor) {
-            List<Color> c = Ledger.Instance.ColorPaletteData.Colors;
-            req.Color = c[Random.Range(0, c.Count)];
+            req.Color = Util.GetRandomFromList(Ledger.Instance.ColorPaletteData.Colors);
         }
 
         // if (Random.Range(0, 2) <= 1) {
@@ -179,7 +178,7 @@ public class OrderManager : MonoBehaviour {
         // }
         // Guarantee at least ShapeDataID is generated
         if (Random.Range(0f, 1f) <= reqChanceNeedsShape || (req.Color == null && req.Pattern == null)) {
-            req.ShapeDataID = reqShapePool[Random.Range(0, reqShapePool.Count)];
+            req.ShapeDataID = Util.GetRandomFromList(reqShapePool);
         }
 
         return req;
@@ -190,7 +189,7 @@ public class OrderManager : MonoBehaviour {
             return null;
         }
 
-        ProductID productID = stock.Keys.ToArray()[Random.Range(0, stock.Count)];
+        ProductID productID = Util.GetRandomFromList(stock.Keys.ToList());
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         int quantity = Math.Min(randomQuantity, stock[productID]);
@@ -218,10 +217,10 @@ public class OrderManager : MonoBehaviour {
 
     // Mold order requirement is only a color
     MoldOrder GenerateMoldOrder(Dictionary<ProductID, int> stock) {
-        MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, goldPerProduct);
+        MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
 
         // generate mold shape
-        ShapeDataID moldShapeDataID = moldShapePool[Random.Range(0, moldShapePool.Count)];
+        ShapeDataID moldShapeDataID = Util.GetRandomFromList(moldShapePool);
         ShapeData moldShapeData = ShapeDataLookUp.LookUp(moldShapeDataID);
         moldOrder.AddMold(new Mold(moldShapeData));
 
@@ -238,7 +237,7 @@ public class OrderManager : MonoBehaviour {
                 return null;
             }
 
-            Color reqColor = availableColors[Random.Range(0, availableColors.Count)];
+            Color reqColor = Util.GetRandomFromList(availableColors);
 
             // add requirement
             Requirement req = new Requirement(reqColor, null, null);
