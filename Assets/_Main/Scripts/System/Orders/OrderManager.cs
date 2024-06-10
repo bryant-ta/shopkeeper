@@ -24,8 +24,8 @@ public class OrderManager : MonoBehaviour {
     [SerializeField, Range(0f, 1f)] float reqChanceFromExisting = 0.5f;
     [SerializeField, Range(0f, 1f)] float reqChanceNeedsColor;
     [SerializeField, Range(0f, 1f)] float reqChanceNeedsShape;
-    [Tooltip("Difficulty Table for requested shapes in requirements.")]
-    [SerializeField] List<ShapeDataID> reqShapePool;
+    [Tooltip("Difficulty Table for requested shapes in requirements. Only used in non-fromExisting orders")]
+    [SerializeField] List<ShapeDataID> reqVirtualShapePool;
     
     [Title("Mold Orders")]
     [SerializeField] GameObject moldOrdererObj;
@@ -178,7 +178,7 @@ public class OrderManager : MonoBehaviour {
         // }
         // Guarantee at least ShapeDataID is generated
         if (Random.Range(0f, 1f) <= reqChanceNeedsShape || (req.Color == null && req.Pattern == null)) {
-            req.ShapeDataID = Util.GetRandomFromList(reqShapePool);
+            req.ShapeDataID = Util.GetRandomFromList(reqVirtualShapePool);
         }
 
         return req;
@@ -284,7 +284,7 @@ public class OrderManager : MonoBehaviour {
         reqChanceFromExisting = orderDiffEntry.reqChanceFromExisting;
         reqChanceNeedsColor = orderDiffEntry.reqChanceNeedsColor;
         reqChanceNeedsShape = orderDiffEntry.reqChanceNeedsShape;
-        reqShapePool = new List<ShapeDataID>(orderDiffEntry.reqShapePool);
+        reqVirtualShapePool = new List<ShapeDataID>(orderDiffEntry.reqVirtualShapePool);
 
         moldChance = orderDiffEntry.moldChance;
         moldShapePool = new List<ShapeDataID>(orderDiffEntry.moldShapePool);
