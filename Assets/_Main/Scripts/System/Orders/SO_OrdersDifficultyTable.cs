@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using TriInspector;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 [CreateAssetMenu(menuName = "Difficulty/SO_OrdersDifficultyTable")]
 public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficultyTable.OrderDifficultyEntry> {
@@ -12,26 +10,26 @@ public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficul
         [field: SerializeField] public int day { get; set; }
 
         public int numActiveDocks;
-        [Range(0f, 1f)] public float baseOrderTime;
-        [Range(0f, 1f)] public float baseOrderValue;
+        public int baseOrderTime;
+        public int baseOrderValue;
 
         [Group("Requirements")]
         public int numReqs;
         [Group("Requirements")]
-        public int quantity;
-        [Group("Requirements")]
-        [Range(0f, 1f)] public float chanceFromExisting;
-        [Group("Requirements")]
-        [Range(0f, 1f)] public float chanceNeedsColor;
-        [Group("Requirements")]
-        [Range(0f, 1f)] public float chanceNeedsShape;
+        public int reqQuantity;
+        [Group("Requirements")] [Tooltip("reqChanceFromExisting")]
+        [Range(0f, 1f)] public float reqChanceFromExisting;
+        [Group("Requirements")] [Tooltip("reqChanceNeedsColor")]
+        [Range(0f, 1f)] public float reqChanceNeedsColor;
+        [Group("Requirements")] [Tooltip("reqChanceNeedsShape")]
+        [Range(0f, 1f)] public float reqChanceNeedsShape;
 
         [ListDrawerSettings(AlwaysExpanded = true)] // moved out of group for better UI
-        public List<ShapeDataID> reqShapes;
+        public List<ShapeDataID> reqShapePool;
 
         [Group("Mold")]
         [Range(0f, 1f)] public float moldChance;
         [Group("Mold")] [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<ShapeDataID> moldShapes;
+        public List<ShapeDataID> moldShapePool;
     }
 }

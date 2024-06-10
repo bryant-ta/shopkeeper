@@ -29,7 +29,7 @@ public class DeliveryManager : MonoBehaviour {
 
     [Title("Irregular Delivery")]
     [SerializeField] float irregularChance;
-    [SerializeField] List<ShapeDataID> irregularShapes;
+    [SerializeField] List<ShapeDataID> irregularShapePool;
 
     [Header("Deliverers")]
     [SerializeField] Transform docksContainer;
@@ -177,7 +177,7 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     Product GenerateIrregularDelivery() {
-        ShapeDataID id = Util.GetRandomFromList(irregularShapes);
+        ShapeDataID id = Util.GetRandomFromList(irregularShapePool);
         ShapeData shapeData = ShapeDataLookUp.LookUp(id);
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
             Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
@@ -237,17 +237,16 @@ public class DeliveryManager : MonoBehaviour {
 
     #endregion
 
-    public void SetDifficultyOptions(SO_DeliveriesDifficultyTable deliveryDiffTable, SO_DeliveriesDifficultyTable overrideTable) {
-        numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries);
-        maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex);
-        deliveryBoxPool = deliveryDiffTable.GetRandomUnder(entry => entry.deliveryBoxes);
-        basicMaxShapeLength = deliveryDiffTable.GetHigh(entry => entry.basicMaxLength);
-        basicMaxShapeWidth = deliveryDiffTable.GetHigh(entry => entry.basicMaxWidth);
-        basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension);
-        basicOrderliness = deliveryDiffTable.GetHigh(entry => entry.basicOrderliness);
-        irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance);
-        irregularShapes = deliveryDiffTable.GetRandomUnder(entry => entry.irregularShapes);
-        
-        
+    public void SetDifficultyOptions(SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry) {
+        numDeliveries = deliveryDiffEntry.numDeliveries;
+        maxColorIndex = deliveryDiffEntry.maxColorIndex;
+        deliveryBoxPool = new List<GameObject>(deliveryDiffEntry.deliveryBoxPool);
+        basicMaxShapeLength = deliveryDiffEntry.basicMaxShapeLength;
+        basicMaxShapeWidth = deliveryDiffEntry.basicMaxShapeWidth;
+        basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
+        basicOrderliness = deliveryDiffEntry.basicOrderliness;
+        irregularChance = deliveryDiffEntry.irregularChance;
+        irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
     }
+
 }

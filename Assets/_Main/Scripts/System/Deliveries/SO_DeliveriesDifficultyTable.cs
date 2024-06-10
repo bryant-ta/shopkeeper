@@ -12,13 +12,13 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         public int numDeliveries;
         public int maxColorIndex;
         [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<GameObject> deliveryBoxes;
+        public List<GameObject> deliveryBoxPool;
 
-        [Group("Basic Delivery")]
-        public int basicMaxLength;
-        [Group("Basic Delivery")]
-        public int basicMaxWidth;
-        [Group("Basic Delivery")]
+        [Group("Basic Delivery")] [Tooltip("length")]
+        public int basicMaxShapeLength;
+        [Group("Basic Delivery")] [Tooltip("width")]
+        public int basicMaxShapeWidth;
+        [Group("Basic Delivery")] [Tooltip("basicChanceShapeExtension")]
         [Range(0f, 1f)] public float basicChanceShapeExtension;
         [Group("Basic Delivery")]
         [Range(0f, 1f)] public float basicOrderliness;
@@ -26,6 +26,6 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         [Group("Irregular Delivery")]
         [Range(0f, 1f)] public float irregularChance;
         [Group("Irregular Delivery")] [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<ShapeDataID> irregularShapes;
+        public List<ShapeDataID> irregularShapePool;
     }
 }

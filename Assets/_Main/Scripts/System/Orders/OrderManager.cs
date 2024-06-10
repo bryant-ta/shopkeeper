@@ -8,34 +8,35 @@ using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
     [Title("Order Queue")]
-    [SerializeField] int numActiveOrders;
+    [SerializeField] int numActiveDocks;
     [SerializeField] MinMax NextOrderDelay;
-    [SerializeField, Range(0f, 1f)] float chanceMoldOrder;
 
     [Title("Order Parameters")]
     [SerializeField] MinMax numReqsPerOrder;
-    [SerializeField] int minTimePerOrder;
+    [SerializeField] int baseOrderTime;
+    [SerializeField] int baseOrderValue;
     [SerializeField] int timePerProduct;
     [SerializeField] int goldPerProduct;
 
     [Title("Requirement Paramenters")]
-    [SerializeField] MinMax ReqQuantity;
+    [SerializeField] MinMax reqQuantity;
     [Tooltip("Chance to generate a Requirement that pulls from available stock.")]
-    [SerializeField, Range(0.5f, 1f)] float chanceReqFromExisting = 0.5f;
-    [SerializeField, Range(0f, 1f)] float chanceReqNeedsColor;
-    [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;
+    [SerializeField, Range(0.5f, 1f)] float reqChanceFromExisting = 0.5f;
+    [SerializeField, Range(0f, 1f)] float reqChanceNeedsColor;
+    [SerializeField, Range(0f, 1f)] float reqChanceNeedsShape;
+    [Tooltip("Difficulty Table for requested shapes in requirements.")]
+    [SerializeField] List<ShapeDataID> reqShapePool;
+    
+    [Title("Mold Orders")]
+    [SerializeField] GameObject moldOrdererObj;
+    [SerializeField, Range(0f, 1f)] float moldChance;
+    [Tooltip("Difficulty Table for mold shapes.")]
+    [SerializeField] List<ShapeDataID> moldShapePool;
 
     [Title("Orderers")]
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject ordererObj;
-    [SerializeField] GameObject moldOrdererObj;
-
-    [Title("Other")]
-    [Tooltip("Difficulty Table for requested shapes in requirements.")]
-    [SerializeField] ListList<ShapeDataID> reqShapeDifficultyPool;
-    [Tooltip("Difficulty Table for mold shapes.")]
-    [SerializeField] ListList<ShapeDataID> moldShapeDifficultyPool;
 
     [field: Title("ReadOnly")]
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
@@ -45,8 +46,6 @@ public class OrderManager : MonoBehaviour {
     Dictionary<ProductID, int> availableStock = new();
 
     Util.ValueRef<bool> isOpenPhase;
-    
-    
 
     void Awake() {
         isOpenPhase = new Util.ValueRef<bool>(false);
@@ -80,7 +79,7 @@ public class OrderManager : MonoBehaviour {
         PerfectOrders = true;
 
         AssignNextOrderer(docks[0]); // always immediately activate first order
-        int activeOrders = Math.Min(numActiveOrders, docks.Count);
+        int activeOrders = Math.Min(numActiveDocks, docks.Count);
         for (var i = 1; i < activeOrders; i++) {
             AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
@@ -143,17 +142,17 @@ public class OrderManager : MonoBehaviour {
 
     // Populates backlog of orders
     Order GenerateOrder() {
-        return Random.Range(0f, 1f) <= chanceMoldOrder ? GenerateMoldOrder(availableStock) : GenerateBagOrder(availableStock);
+        return Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder(availableStock) : GenerateBagOrder(availableStock);
         
         // TODO: handle when no order can be generated?
     }
 
     Order GenerateBagOrder(Dictionary<ProductID, int> stock) {
-        Order order = new Order(minTimePerOrder, timePerProduct, goldPerProduct);
+        Order order = new Order(baseOrderTime, timePerProduct, goldPerProduct);
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
         for (int j = 0; j < numReqs; j++) {
-            Requirement req = Random.Range(0f, 1f) <= chanceReqFromExisting ?
+            Requirement req = Random.Range(0f, 1f) <= reqChanceFromExisting ?
                 MakeRequirementFromExisting(stock) :
                 MakeRequirement();
 
@@ -167,10 +166,10 @@ public class OrderManager : MonoBehaviour {
     }
 
     Requirement MakeRequirement() {
-        int quantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
+        int quantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         Requirement req = new Requirement(null, null, null, quantity);
 
-        if (Random.Range(0f, 1f) <= chanceReqNeedsColor) {
+        if (Random.Range(0f, 1f) <= reqChanceNeedsColor) {
             List<Color> c = Ledger.Instance.ColorPaletteData.Colors;
             req.Color = c[Random.Range(0, c.Count)];
         }
@@ -179,9 +178,8 @@ public class OrderManager : MonoBehaviour {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
         // Guarantee at least ShapeDataID is generated
-        if (Random.Range(0f, 1f) <= chanceReqNeedsShape || (req.Color == null && req.Pattern == null)) {
-            List<ShapeDataID> s = reqShapeDifficultyPool.outerList[0].innerList;
-            req.ShapeDataID = s[Random.Range(0, s.Count)];
+        if (Random.Range(0f, 1f) <= reqChanceNeedsShape || (req.Color == null && req.Pattern == null)) {
+            req.ShapeDataID = reqShapePool[Random.Range(0, reqShapePool.Count)];
         }
 
         return req;
@@ -194,7 +192,7 @@ public class OrderManager : MonoBehaviour {
 
         ProductID productID = stock.Keys.ToArray()[Random.Range(0, stock.Count)];
 
-        int randomQuantity = Random.Range(ReqQuantity.Min, ReqQuantity.Max + 1);
+        int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         int quantity = Math.Min(randomQuantity, stock[productID]);
         if (quantity == 0) {
             Debug.LogWarning("No available stock to generate orders from!");
@@ -204,13 +202,13 @@ public class OrderManager : MonoBehaviour {
         Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
 
         // equality check is flipped vs. MakeRequirement bc here we overwrite req values with null instead of filling them out
-        if (Random.Range(0f, 1f) > chanceReqNeedsColor) { req.Color = null; }
+        if (Random.Range(0f, 1f) > reqChanceNeedsColor) { req.Color = null; }
 
         // if (Random.Range(0f, 1f) > 1) {
         //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
         // }
         // Guarantee at least ShapeDataID is kept
-        if (Random.Range(0f, 1f) > chanceReqNeedsShape && (req.Color != null || req.Pattern != null)) { req.ShapeDataID = null; }
+        if (Random.Range(0f, 1f) > reqChanceNeedsShape && (req.Color != null || req.Pattern != null)) { req.ShapeDataID = null; }
 
         stock[productID] -= quantity;
         if (stock[productID] == 0) stock.Remove(productID);
@@ -220,11 +218,10 @@ public class OrderManager : MonoBehaviour {
 
     // Mold order requirement is only a color
     MoldOrder GenerateMoldOrder(Dictionary<ProductID, int> stock) {
-        MoldOrder moldOrder = new MoldOrder(minTimePerOrder, timePerProduct, goldPerProduct);
+        MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, goldPerProduct);
 
         // generate mold shape
-        List<ShapeDataID> moldShapeIDs = moldShapeDifficultyPool.outerList[0].innerList;
-        ShapeDataID moldShapeDataID = moldShapeIDs[Random.Range(0, moldShapeIDs.Count)];
+        ShapeDataID moldShapeDataID = moldShapePool[Random.Range(0, moldShapePool.Count)];
         ShapeData moldShapeData = ShapeDataLookUp.LookUp(moldShapeDataID);
         moldOrder.AddMold(new Mold(moldShapeData));
 
@@ -273,10 +270,26 @@ public class OrderManager : MonoBehaviour {
         // numTotalOrders = day / 2 + 3;
         // NumRemainingOrders = numTotalOrders;
 
-        ReqQuantity.Max++;
+        reqQuantity.Max++;
     }
 
     #endregion
+    
+    public void SetDifficultyOptions(SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry) {
+        numActiveDocks = orderDiffEntry.numActiveDocks;
+        baseOrderTime = orderDiffEntry.baseOrderTime;
+        baseOrderValue = orderDiffEntry.baseOrderValue;
+
+        numReqsPerOrder.Max = orderDiffEntry.numReqs;
+        reqQuantity.Max = orderDiffEntry.reqQuantity;
+        reqChanceFromExisting = orderDiffEntry.reqChanceFromExisting;
+        reqChanceNeedsColor = orderDiffEntry.reqChanceNeedsColor;
+        reqChanceNeedsShape = orderDiffEntry.reqChanceNeedsShape;
+        reqShapePool = new List<ShapeDataID>(orderDiffEntry.reqShapePool);
+
+        moldChance = orderDiffEntry.moldChance;
+        moldShapePool = new List<ShapeDataID>(orderDiffEntry.moldShapePool);
+    }
 }
 
 public struct ActiveOrderChangedArgs {
