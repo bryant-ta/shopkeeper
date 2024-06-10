@@ -21,7 +21,6 @@ MonoBehaviour:
     basicMaxShapeLength: 1
     basicMaxShapeWidth: 1
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 2
@@ -31,28 +30,25 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 3
     numDeliveries: 0
     maxColorIndex: 0
-    deliveryBoxPool:
-    - {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
+    deliveryBoxPool: []
     basicMaxShapeLength: 2
     basicMaxShapeWidth: 2
     basicChanceShapeExtension: 0.5
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 4
     numDeliveries: 0
     maxColorIndex: 5
-    deliveryBoxPool: []
+    deliveryBoxPool:
+    - {fileID: 6494341235392573768, guid: ec92486686659db4c825ecc4ef994f3b, type: 3}
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 5
@@ -62,7 +58,6 @@ MonoBehaviour:
     basicMaxShapeLength: 3
     basicMaxShapeWidth: 3
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 6
@@ -72,7 +67,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 7
@@ -83,7 +77,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0.1
     irregularShapePool: 0f000000100000001100000012000000
   - <day>k__BackingField: 8
@@ -93,7 +86,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 1e000000
   - <day>k__BackingField: 9
@@ -103,7 +95,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 10
@@ -113,7 +104,6 @@ MonoBehaviour:
     basicMaxShapeLength: 5
     basicMaxShapeWidth: 5
     basicChanceShapeExtension: 0.8
-    basicOrderliness: 0
     irregularChance: 0.2
     irregularShapePool: 1500000016000000170000001800000018000000
   - <day>k__BackingField: 11
@@ -123,7 +113,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 12
@@ -133,7 +122,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 190000001a000000
   - <day>k__BackingField: 13
@@ -143,7 +131,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 14
@@ -153,7 +140,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 15
@@ -163,7 +149,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 16
@@ -173,7 +158,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 17
@@ -183,7 +167,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 18
@@ -193,7 +176,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 19
@@ -203,7 +185,6 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 20
@@ -213,30 +194,10 @@ MonoBehaviour:
     basicMaxShapeLength: 0
     basicMaxShapeWidth: 0
     basicChanceShapeExtension: 0
-    basicOrderliness: 0
     irregularChance: 0
     irregularShapePool: 
-  basicChanceShapeExtension:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: -0.5
-      outSlope: -0.5
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.5
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  useOverride: 1
+  overrides:
+  - day: 7
+    irregularChance: 1
+    irregularShapePool: 1e000000
