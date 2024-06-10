@@ -20,7 +20,7 @@ public class OrderManager : MonoBehaviour {
 
     [Title("Requirement Paramenters")]
     [SerializeField] MinMax ReqQuantity;
-    [Tooltip("Starting chance generate a Requirement that pulls from available stock. Decreases as difficulty increases.")]
+    [Tooltip("Chance to generate a Requirement that pulls from available stock.")]
     [SerializeField, Range(0.5f, 1f)] float chanceReqFromExisting = 0.5f;
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsColor;
     [SerializeField, Range(0f, 1f)] float chanceReqNeedsShape;

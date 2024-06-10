@@ -5,7 +5,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [Serializable]
-public class DifficultyTable<T> {
+public class DifficultyTablee<T> {
     [Serializable]
     public struct Entry {
         [Range(0f,1f)] public float Difficulty;

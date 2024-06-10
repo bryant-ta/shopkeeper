@@ -27,14 +27,14 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int bulkDayInterval = 3;
 
     [Title("Irregular Delivery")]
-    [SerializeField] DifficultyTable<float> irregularChanceDiffTable;
-    [SerializeField] DifficultyTable<ShapeDataID> irregularShapesDiffTable;
+    [SerializeField] DifficultyTablee<float> irregularChanceDiffTablee;
+    [SerializeField] DifficultyTablee<ShapeDataID> irregularShapesDiffTablee;
 
     [Header("Deliverers")]
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] DifficultyTable<GameObject> deliveryBoxDiffTable;
+    [SerializeField] DifficultyTablee<GameObject> deliveryBoxDiffTablee;
 
     // [Title("Delivery Scaling")]
     // [SerializeField] int numInitialProductsInDelivery;
@@ -75,15 +75,15 @@ public class DeliveryManager : MonoBehaviour {
 
         IGridShape cargoShape;
         if (GameManager.Instance.Day % bulkDayInterval == 0) { // Create delivery box for bulk delivery
-            GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
+            GameObject obj = deliveryBoxDiffTablee.GetRandomByDifficulty();
             DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Bulk);
             
             cargoShape = deliveryBox;
-        } else if (Random.Range(0f, 1f) <= irregularChanceDiffTable.GetHighestByDifficulty()) {   // Create irregular delivery
+        } else if (Random.Range(0f, 1f) <= irregularChanceDiffTablee.GetHighestByDifficulty()) {   // Create irregular delivery
             cargoShape = GenerateIrregularDelivery();
         } else {                                                // Create delivery box for basic delivery
-            GameObject obj = deliveryBoxDiffTable.GetRandomByDifficulty();
+            GameObject obj = deliveryBoxDiffTablee.GetRandomByDifficulty();
             DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Basic);
 
@@ -182,7 +182,7 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     Product GenerateIrregularDelivery() {
-        ShapeDataID id = irregularShapesDiffTable.GetRandomByDifficulty();
+        ShapeDataID id = irregularShapesDiffTablee.GetRandomByDifficulty();
         ShapeData shapeData = ShapeDataLookUp.LookUp(id);
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
             Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)],

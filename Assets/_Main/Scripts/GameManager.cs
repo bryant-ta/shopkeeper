@@ -13,7 +13,7 @@ public class GameManager : Singleton<GameManager> {
 
     [Title("General")]
     [SerializeField, ReadOnly] bool isPaused;
-    public float Difficulty => DifficultyCurve.Evaluate((float)Day/TotalDays);
+    public int Difficulty => Day;
     [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
 
     public bool IsPaused => isPaused;
