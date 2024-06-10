@@ -193,7 +193,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     bool isRotating = false;
     int numRotations = 0;
     void Rotate(bool clockwise, bool tween = true) {
-        if (DragGrid.IsEmpty() || targetGrid == null) return;
+        if (DragGrid.IsEmpty()) return;
         if (isRotating) return;
 
         isRotating = true;
@@ -217,7 +217,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
         string moveTweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(moveTweenID);
-        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord);
+        Vector3 worldPos;
+        worldPos = targetGrid ? targetGrid.transform.TransformPoint(selectedCellCoord) : rotationPivot.transform.position;
         worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
         DragGrid.transform.position = worldPos;
 
@@ -237,20 +238,20 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                         }
 
                         DragGrid.RotateShapes(dragShapes, clockwise);
-                        MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
+                        if (targetGrid) MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
 
                         if (clockwise) {
                             numRotations++;
                         } else {
                             numRotations--;
                         }
-                        
+
                         isRotating = false;
                     }
                 );
         } else {
             rotationPivot.transform.rotation = Quaternion.Euler(pivotTargetRotation);
-            
+
             foreach (IGridShape shape in dragShapes) {
                 shape.ObjTransform.SetParent(DragGrid.transform);
             }
@@ -341,7 +342,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         SetIsHolding(false);
         numRotations = 0;
-        
+
         // Cursor.visible = true;
 
         OnRelease?.Invoke();
@@ -352,7 +353,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         // undo rotations during drag... like unwinding lol
         while (numRotations != 0) {
-            print(numRotations);
             if (numRotations < 0) {
                 Rotate(true, false);
                 numRotations++;
