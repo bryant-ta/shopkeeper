@@ -100,6 +100,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         SetIsHolding(true);
+        numRotations = 0;
 
         // Cursor.visible = false;
 
@@ -190,7 +191,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     }
 
     bool isRotating = false;
-    void Rotate(bool clockwise) {
+    int numRotations = 0;
+    void Rotate(bool clockwise, bool tween = true) {
         if (DragGrid.IsEmpty() || targetGrid == null) return;
         if (isRotating) return;
 
@@ -221,25 +223,45 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         rotationPivot.rotation = Quaternion.Euler(pivotTargetRotation);
         pivotTargetRotation = rotationPivot.rotation.eulerAngles;
-        pivotTargetRotation.y += 90f;
+        pivotTargetRotation.y += clockwise ? 90f : -90f;
 
         string rotateTweenID = rotationPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
         DOTween.Kill(rotateTweenID);
-        rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.OutQuad)
-            .OnComplete(
-                () => {
-                    foreach (IGridShape shape in dragShapes) {
-                        shape.ObjTransform.SetParent(DragGrid.transform);
+
+        if (tween) {
+            rotationPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.OutQuad)
+                .OnComplete(
+                    () => {
+                        foreach (IGridShape shape in dragShapes) {
+                            shape.ObjTransform.SetParent(DragGrid.transform);
+                        }
+
+                        DragGrid.RotateShapes(dragShapes, clockwise);
+                        MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
+
+                        if (clockwise) {
+                            numRotations++;
+                        } else {
+                            numRotations--;
+                        }
+                        
+                        isRotating = false;
                     }
+                );
+        } else {
+            rotationPivot.transform.rotation = Quaternion.Euler(pivotTargetRotation);
+            
+            foreach (IGridShape shape in dragShapes) {
+                shape.ObjTransform.SetParent(DragGrid.transform);
+            }
 
-                    DragGrid.RotateShapes(dragShapes, clockwise);
-                    MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
+            DragGrid.RotateShapes(dragShapes, clockwise);
 
-                    isRotating = false;
-                }
-            );
+            isRotating = false;
+        }
     }
     void RotateByClick(ClickInputArgs clickInputArgs) { Rotate(true); }
+    void DoRotate(bool clockwise) { Rotate(true); }
 
     void Release(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsEmpty()) return;
@@ -318,7 +340,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         SetIsHolding(false);
-
+        numRotations = 0;
+        
         // Cursor.visible = true;
 
         OnRelease?.Invoke();
@@ -326,6 +349,18 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void Cancel() {
         if (DragGrid.IsEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
+
+        // undo rotations during drag... like unwinding lol
+        while (numRotations != 0) {
+            print(numRotations);
+            if (numRotations < 0) {
+                Rotate(true, false);
+                numRotations++;
+            } else {
+                Rotate(false, false);
+                numRotations--;
+            }
+        }
 
         if (!DragGrid.MoveShapes(previousGrid, previousShapePos, heldShapes)) {
             Debug.LogError("Unable to return dragged shapes to original position.");
@@ -358,7 +393,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPrimaryUp += Release;
         Ref.Player.PlayerInput.InputSecondaryDown += RotateByClick;
         Ref.Player.PlayerInput.InputPoint += Drag;
-        Ref.Player.PlayerInput.InputRotate += Rotate;
+        Ref.Player.PlayerInput.InputRotate += DoRotate;
         Ref.Player.PlayerInput.InputCancel += Cancel;
 
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
@@ -368,7 +403,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPrimaryUp -= Release;
         Ref.Player.PlayerInput.InputSecondaryDown -= RotateByClick;
         Ref.Player.PlayerInput.InputPoint -= Drag;
-        Ref.Player.PlayerInput.InputRotate -= Rotate;
+        Ref.Player.PlayerInput.InputRotate -= DoRotate;
         Ref.Player.PlayerInput.InputCancel -= Cancel;
 
         Cancel();

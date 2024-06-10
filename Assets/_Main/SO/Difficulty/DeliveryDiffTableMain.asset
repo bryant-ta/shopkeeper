@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: DeliveryDiffTableMain
   m_EditorClassIdentifier: 
   table:
-  - Day: 0
-    numDeliveries: 0
+  - numDeliveries: 0
     maxColorIndex: 0
     deliveryBoxes: []
     basicMaxLength: 0
@@ -22,4 +21,4 @@ MonoBehaviour:
     basicChanceShapeExtension: 0
     basicOrderliness: 0
     irregularChance: 0
-    irregularShapes: []
+    irregularShapes: 
