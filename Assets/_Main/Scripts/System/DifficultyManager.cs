@@ -9,9 +9,6 @@ public class DifficultyManager : MonoBehaviour {
     [SerializeField] SO_DeliveriesDifficultyTable deliveryDiffTable;
     [SerializeField] SO_OrdersDifficultyTable orderDiffTable;
 
-    [SerializeField] SO_DeliveriesDifficultyTable deliveryDiffTableOverride;
-    [SerializeField] SO_OrdersDifficultyTable orderDiffTableOverride;
-
     public void ApplyDifficulty() {
         ApplyDeliveryDifficulty();
         ApplyOrderDifficulty();
@@ -29,43 +26,7 @@ public class DifficultyManager : MonoBehaviour {
             irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
         };
 
-        // Apply overrides if they exist for current Difficulty
-        if (deliveryDiffTableOverride.GetExact(entry => entry.numDeliveries, GameManager.Instance.Difficulty, out int o_numDeliveries)) {
-            ret.numDeliveries = o_numDeliveries;
-        }
-        if (deliveryDiffTableOverride.GetExact(entry => entry.maxColorIndex, GameManager.Instance.Difficulty, out int o_maxColorIndex)) {
-            ret.maxColorIndex = o_maxColorIndex;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.deliveryBoxPool, GameManager.Instance.Difficulty, out List<GameObject> o_deliveryBoxPool
-            )) {
-            ret.deliveryBoxPool = o_deliveryBoxPool;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.basicMaxShapeLength, GameManager.Instance.Difficulty, out int o_basicMaxShapeLength
-            )) {
-            ret.basicMaxShapeLength = o_basicMaxShapeLength;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.basicMaxShapeWidth, GameManager.Instance.Difficulty, out int o_basicMaxShapeWidth
-            )) {
-            ret.basicMaxShapeWidth = o_basicMaxShapeWidth;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.basicChanceShapeExtension, GameManager.Instance.Difficulty, out float o_basicChanceShapeExtension
-            )) {
-            ret.basicChanceShapeExtension = o_basicChanceShapeExtension;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.irregularChance, GameManager.Instance.Difficulty, out float o_irregularChance
-            )) {
-            ret.irregularChance = o_irregularChance;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.irregularShapePool, GameManager.Instance.Difficulty, out List<ShapeDataID> o_irregularShapes
-            )) {
-            ret.irregularShapePool = o_irregularShapes;
-        }
+        deliveryDiffTable.UseOverrides(ret, GameManager.Instance.Difficulty);
         
         Ref.Instance.DeliveryMngr.SetDifficultyOptions(ret);
     }
@@ -84,49 +45,6 @@ public class DifficultyManager : MonoBehaviour {
             moldShapePool = orderDiffTable.Filter(entry => entry.moldShapePool)
         };
 
-        // Apply overrides if they exist for current Difficulty
-        if (orderDiffTableOverride.GetExact(entry => entry.numActiveDocks, GameManager.Instance.Difficulty, out int o_numActiveDocks)) {
-            ret.numActiveDocks = o_numActiveDocks;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.baseOrderTime, GameManager.Instance.Difficulty, out int o_baseOrderTime)) {
-            ret.baseOrderTime = o_baseOrderTime;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.baseOrderValue, GameManager.Instance.Difficulty, out int o_baseOrderValue)) {
-            ret.baseOrderValue = o_baseOrderValue;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.reqMaxNum, GameManager.Instance.Difficulty, out int o_numReqs)) {
-            ret.reqMaxNum = o_numReqs;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.reqMaxQuantity, GameManager.Instance.Difficulty, out int o_quantity)) {
-            ret.reqMaxQuantity = o_quantity;
-        }
-        if (orderDiffTableOverride.GetExact(
-                entry => entry.reqChanceFromExisting, GameManager.Instance.Difficulty, out float o_chanceFromExisting
-            )) {
-            ret.reqChanceFromExisting = o_chanceFromExisting;
-        }
-        if (orderDiffTableOverride.GetExact(
-                entry => entry.reqChanceNeedsColor, GameManager.Instance.Difficulty, out float o_chanceNeedsColor
-            )) {
-            ret.reqChanceNeedsColor = o_chanceNeedsColor;
-        }
-        if (orderDiffTableOverride.GetExact(
-                entry => entry.reqChanceNeedsShape, GameManager.Instance.Difficulty, out float o_chanceNeedsShape
-            )) {
-            ret.reqChanceNeedsShape = o_chanceNeedsShape;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.reqShapePool, GameManager.Instance.Difficulty, out List<ShapeDataID> o_reqShapes)) {
-            ret.reqShapePool = o_reqShapes;
-        }
-        if (orderDiffTableOverride.GetExact(entry => entry.moldChance, GameManager.Instance.Difficulty, out float o_moldChance)) {
-            ret.moldChance = o_moldChance;
-        }
-        if (orderDiffTableOverride.GetExact(
-                entry => entry.moldShapePool, GameManager.Instance.Difficulty, out List<ShapeDataID> o_moldShapes
-            )) {
-            ret.moldShapePool = o_moldShapes;
-        }
-        
         Ref.Instance.OrderMngr.SetDifficultyOptions(ret);
     }
 }

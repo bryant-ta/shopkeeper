@@ -196,3 +196,8 @@ MonoBehaviour:
     basicChanceShapeExtension: 0
     irregularChance: 0
     irregularShapePool: 
+  useOverride: 1
+  overrides:
+  - day: 7
+    irregularChance: 1
+    irregularShapePool: 1e000000

@@ -26,4 +26,29 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         [Group("Irregular Delivery")] [ListDrawerSettings(AlwaysExpanded = true)]
         public List<ShapeDataID> irregularShapePool;
     }
+
+    // Overrides
+    // TEMP: think of a better way to do overrides
+    [SerializeField] bool useOverride;
+    [ShowIf(nameof(useOverride)), ListDrawerSettings(AlwaysExpanded = true)]
+    public List<OverrideEntry> overrides;
+    
+    [Serializable]
+    public struct OverrideEntry {
+        public int day;
+        public float irregularChance;
+        public List<ShapeDataID> irregularShapePool;
+    }
+    
+    public void UseOverrides(DeliveryDifficultyEntry diffEntry, int difficulty) {
+        if (!useOverride) return;
+        
+        for (var i = 0; i < overrides.Count; i++) {
+            OverrideEntry overrideEntry = overrides[i];
+            if (overrideEntry.day == difficulty) {
+                diffEntry.irregularChance = overrideEntry.irregularChance;
+                diffEntry.irregularShapePool = overrideEntry.irregularShapePool;
+            }
+        }
+    }
 }
