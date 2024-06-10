@@ -21,7 +21,7 @@ public class OrderManager : MonoBehaviour {
     [Title("Requirement Paramenters")]
     [SerializeField] MinMax reqQuantity;
     [Tooltip("Chance to generate a Requirement that pulls from available stock.")]
-    [SerializeField, Range(0.5f, 1f)] float reqChanceFromExisting = 0.5f;
+    [SerializeField, Range(0f, 1f)] float reqChanceFromExisting = 0.5f;
     [SerializeField, Range(0f, 1f)] float reqChanceNeedsColor;
     [SerializeField, Range(0f, 1f)] float reqChanceNeedsShape;
     [Tooltip("Difficulty Table for requested shapes in requirements.")]
@@ -280,8 +280,8 @@ public class OrderManager : MonoBehaviour {
         baseOrderTime = orderDiffEntry.baseOrderTime;
         baseOrderValue = orderDiffEntry.baseOrderValue;
 
-        numReqsPerOrder.Max = orderDiffEntry.numReqs;
-        reqQuantity.Max = orderDiffEntry.reqQuantity;
+        numReqsPerOrder.Max = orderDiffEntry.reqMaxNum;
+        reqQuantity.Max = orderDiffEntry.reqMaxQuantity;
         reqChanceFromExisting = orderDiffEntry.reqChanceFromExisting;
         reqChanceNeedsColor = orderDiffEntry.reqChanceNeedsColor;
         reqChanceNeedsShape = orderDiffEntry.reqChanceNeedsShape;

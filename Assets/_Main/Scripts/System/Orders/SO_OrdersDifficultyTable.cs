@@ -14,9 +14,9 @@ public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficul
         public int baseOrderValue;
 
         [Group("Requirements")]
-        public int numReqs;
+        public int reqMaxNum;
         [Group("Requirements")]
-        public int reqQuantity;
+        public int reqMaxQuantity;
         [Group("Requirements")] [Tooltip("reqChanceFromExisting")]
         [Range(0f, 1f)] public float reqChanceFromExisting;
         [Group("Requirements")] [Tooltip("reqChanceNeedsColor")]

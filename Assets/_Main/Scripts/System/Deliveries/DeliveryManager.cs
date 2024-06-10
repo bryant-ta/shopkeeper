@@ -28,7 +28,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int bulkDayInterval = 3;
 
     [Title("Irregular Delivery")]
-    [SerializeField] float irregularChance;
+    [SerializeField, Range(0f, 1f)] float irregularChance;
     [SerializeField] List<ShapeDataID> irregularShapePool;
 
     [Header("Deliverers")]

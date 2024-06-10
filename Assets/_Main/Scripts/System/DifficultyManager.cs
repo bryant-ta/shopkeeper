@@ -21,13 +21,13 @@ public class DifficultyManager : MonoBehaviour {
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
             numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
-            deliveryBoxPool = deliveryDiffTable.GetRandomUnder(entry => entry.deliveryBoxPool),
+            deliveryBoxPool = deliveryDiffTable.Filter(entry => entry.deliveryBoxPool),
             basicMaxShapeLength = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeLength),
             basicMaxShapeWidth = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeWidth),
-            basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension),
-            basicOrderliness = deliveryDiffTable.GetHigh(entry => entry.basicOrderliness),
-            irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance),
-            irregularShapePool = deliveryDiffTable.GetRandomUnder(entry => entry.irregularShapePool)
+            basicChanceShapeExtension = deliveryDiffTable.GetFloatLerp(entry => entry.basicChanceShapeExtension),
+            basicOrderliness = deliveryDiffTable.GetFloatLerp(entry => entry.basicOrderliness),
+            irregularChance = deliveryDiffTable.GetFloatLerp(entry => entry.irregularChance),
+            irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
         };
 
         // Apply overrides if they exist for current Difficulty
@@ -80,14 +80,14 @@ public class DifficultyManager : MonoBehaviour {
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
             baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
             baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
-            numReqs = orderDiffTable.GetHigh(entry => entry.numReqs),
-            reqQuantity = orderDiffTable.GetHigh(entry => entry.reqQuantity),
-            reqChanceFromExisting = orderDiffTable.GetHigh(entry => entry.reqChanceFromExisting),
-            reqChanceNeedsColor = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsColor),
-            reqChanceNeedsShape = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsShape),
-            reqShapePool = orderDiffTable.GetRandomUnder(entry => entry.reqShapePool),
-            moldChance = orderDiffTable.GetHigh(entry => entry.moldChance),
-            moldShapePool = orderDiffTable.GetRandomUnder(entry => entry.moldShapePool)
+            reqMaxNum = orderDiffTable.GetHigh(entry => entry.reqMaxNum),
+            reqMaxQuantity = orderDiffTable.GetHigh(entry => entry.reqMaxQuantity),
+            reqChanceFromExisting = orderDiffTable.GetFloatLerp(entry => entry.reqChanceFromExisting),
+            reqChanceNeedsColor = orderDiffTable.GetFloatLerp(entry => entry.reqChanceNeedsColor),
+            reqChanceNeedsShape = orderDiffTable.GetFloatLerp(entry => entry.reqChanceNeedsShape),
+            reqShapePool = orderDiffTable.Filter(entry => entry.reqShapePool),
+            moldChance = orderDiffTable.GetFloatLerp(entry => entry.moldChance),
+            moldShapePool = orderDiffTable.Filter(entry => entry.moldShapePool)
         };
 
         // Apply overrides if they exist for current Difficulty
@@ -100,11 +100,11 @@ public class DifficultyManager : MonoBehaviour {
         if (orderDiffTableOverride.GetExact(entry => entry.baseOrderValue, GameManager.Instance.Difficulty, out int o_baseOrderValue)) {
             ret.baseOrderValue = o_baseOrderValue;
         }
-        if (orderDiffTableOverride.GetExact(entry => entry.numReqs, GameManager.Instance.Difficulty, out int o_numReqs)) {
-            ret.numReqs = o_numReqs;
+        if (orderDiffTableOverride.GetExact(entry => entry.reqMaxNum, GameManager.Instance.Difficulty, out int o_numReqs)) {
+            ret.reqMaxNum = o_numReqs;
         }
-        if (orderDiffTableOverride.GetExact(entry => entry.reqQuantity, GameManager.Instance.Difficulty, out int o_quantity)) {
-            ret.reqQuantity = o_quantity;
+        if (orderDiffTableOverride.GetExact(entry => entry.reqMaxQuantity, GameManager.Instance.Difficulty, out int o_quantity)) {
+            ret.reqMaxQuantity = o_quantity;
         }
         if (orderDiffTableOverride.GetExact(
                 entry => entry.reqChanceFromExisting, GameManager.Instance.Difficulty, out float o_chanceFromExisting
@@ -238,7 +238,7 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
     /// Returns list of all Objs from days less than or equal to Difficulty (IEnumerable version).
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
-    public List<T> Filter<T>(Func<TEntry, IEnumerable<T>> selector) {
+    public List<T> Filter<T>(Func<TEntry, List<T>> selector) {
         return table
             .Where(entry => entry.day <= GameManager.Instance.Difficulty)
             .SelectMany(selector)
