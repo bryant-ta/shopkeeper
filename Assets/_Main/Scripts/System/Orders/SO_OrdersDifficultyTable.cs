@@ -30,12 +30,12 @@ public class SO_OrdersDifficultyTable : ScriptableObject {
         [Range(0f, 1f)] public float chanceNeedsShape;
         
         [ListDrawerSettings(AlwaysExpanded = true)] // moved out of group for better UI
-        public List<GameObject> reqShapes;
+        public List<ShapeDataID> reqShapes;
 
         [Group("Mold")]
         [Range(0f, 1f)] public float moldChance;
         [Group("Mold")] [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<GameObject> moldShapes;
+        public List<ShapeDataID> moldShapes;
     }
 
     /// <summary>

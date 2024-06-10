@@ -31,7 +31,7 @@ public class SO_DeliveriesDifficultyTable : ScriptableObject {
         [Group("Irregular Delivery")]
         [Range(0f, 1f)] public float irregularChance;
         [Group("Irregular Delivery")] [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<GameObject> irregularShapes;
+        public List<ShapeDataID> irregularShapes;
     }
 
     /// <summary>
