@@ -24,9 +24,8 @@ public class DifficultyManager : MonoBehaviour {
             deliveryBoxPool = deliveryDiffTable.Filter(entry => entry.deliveryBoxPool),
             basicMaxShapeLength = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeLength),
             basicMaxShapeWidth = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeWidth),
-            basicChanceShapeExtension = deliveryDiffTable.GetFloatLerp(entry => entry.basicChanceShapeExtension),
-            basicOrderliness = deliveryDiffTable.GetFloatLerp(entry => entry.basicOrderliness),
-            irregularChance = deliveryDiffTable.GetFloatLerp(entry => entry.irregularChance),
+            basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension),
+            irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance),
             irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
         };
 
@@ -56,11 +55,6 @@ public class DifficultyManager : MonoBehaviour {
                 entry => entry.basicChanceShapeExtension, GameManager.Instance.Difficulty, out float o_basicChanceShapeExtension
             )) {
             ret.basicChanceShapeExtension = o_basicChanceShapeExtension;
-        }
-        if (deliveryDiffTableOverride.GetExact(
-                entry => entry.basicOrderliness, GameManager.Instance.Difficulty, out float o_basicOrderliness
-            )) {
-            ret.basicOrderliness = o_basicOrderliness;
         }
         if (deliveryDiffTableOverride.GetExact(
                 entry => entry.irregularChance, GameManager.Instance.Difficulty, out float o_irregularChance
@@ -142,7 +136,7 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
     public List<TEntry> table;
 
     /// <summary>
-    /// Returns T of highest valid day less than or equal to Difficulty.
+    /// Returns T of highest valid day value less than or equal to Difficulty.
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
     public T GetHigh<T>(Func<TEntry, T> selector) {
@@ -177,6 +171,9 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
     public float GetFloatLerp(Func<TEntry, float> selector) {
+        
+        // TODO: Fix this. needs to detect some "default" float value, prob -1. 
+        
         // Entry exists for target day, no need to lerp.
         if (GetExact(selector, GameManager.Instance.Difficulty, out float output)) {
             return output;

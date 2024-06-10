@@ -244,7 +244,6 @@ public class DeliveryManager : MonoBehaviour {
         basicMaxShapeLength = deliveryDiffEntry.basicMaxShapeLength;
         basicMaxShapeWidth = deliveryDiffEntry.basicMaxShapeWidth;
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
-        basicOrderliness = deliveryDiffEntry.basicOrderliness;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
     }

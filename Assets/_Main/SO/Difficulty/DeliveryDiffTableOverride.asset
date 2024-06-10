@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e1b0611fa9f4384289fc55a15d4a961, type: 3}
+  m_Name: DeliveryDiffTableOverride
+  m_EditorClassIdentifier: 
+  table:
+  - <day>k__BackingField: 7
+    numDeliveries: 0
+    maxColorIndex: 0
+    deliveryBoxPool: []
+    basicMaxShapeLength: 0
+    basicMaxShapeWidth: 0
+    basicChanceShapeExtension: 0
+    irregularChance: 1
+    irregularShapePool: 1e000000

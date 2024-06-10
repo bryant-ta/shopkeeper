@@ -20,8 +20,6 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         public int basicMaxShapeWidth;
         [Group("Basic Delivery")] [Tooltip("basicChanceShapeExtension")]
         [Range(0f, 1f)] public float basicChanceShapeExtension;
-        [Group("Basic Delivery")]
-        [Range(0f, 1f)] public float basicOrderliness;
 
         [Group("Irregular Delivery")]
         [Range(0f, 1f)] public float irregularChance;
