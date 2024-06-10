@@ -7,7 +7,7 @@ using UnityEngine;
 public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry> {
     [Serializable]
     public class DeliveryDifficultyEntry : IDifficultyEntry {
-        public int day { get; set; }
+        [field: SerializeField] public int day { get; set; }
 
         public int numDeliveries;
         public int maxColorIndex;

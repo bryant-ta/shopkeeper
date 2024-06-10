@@ -1244,7 +1244,7 @@ MonoBehaviour:
   basicOrderliness: 1
   bulkDayInterval: 3
   irregularChance: 0
-  irregularShapes: 
+  irregularShapePool: 
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
   deliveryBoxPool:
@@ -8304,31 +8304,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numActiveOrders: 1
+  numActiveDocks: 0
   NextOrderDelay:
     Min: 0
     Max: 0
-  chanceMoldOrder: 0
   numReqsPerOrder:
     Min: 1
     Max: 1
-  minTimePerOrder: 5
-  timePerProduct: 6
+  baseOrderTime: 5
+  baseOrderValue: 5
+  timePerProduct: 5
   goldPerProduct: 5
-  ReqQuantity:
+  reqQuantity:
     Min: 1
-    Max: 3
-  chanceReqFromExisting: 1
-  chanceReqNeedsColor: 1
-  chanceReqNeedsShape: 1
+    Max: 1
+  reqChanceFromExisting: 1
+  reqChanceNeedsColor: 1
+  reqChanceNeedsShape: 1
+  reqShapePool: 
+  moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
+  moldChance: 0
+  moldShapePool: 
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
-  moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  reqShapeDifficultyPool:
-    outerList: []
-  moldShapeDifficultyPool:
-    outerList:
-    - innerList: 15000000
   <PerfectOrders>k__BackingField: 0
   <NumRemainingOrders>k__BackingField: 0
 --- !u!4 &1273376992
