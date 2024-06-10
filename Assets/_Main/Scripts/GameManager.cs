@@ -43,7 +43,7 @@ public class GameManager : Singleton<GameManager> {
     string closePhaseClockTime;
 
     [field: SerializeField] public int Day { get; private set; }
-    [SerializeField] int TotalDays = 1;
+    [field: SerializeField] public int TotalDays { get; private set; }
 
     public ClockTimer DayTimer { get; private set; }
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }

@@ -8,8 +8,9 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [Title("General")]
+    [SerializeField] int numDeliveries = 1;
     [Tooltip("Determines possible color choices for ALL delivery types.")]
-    [SerializeField] int maxIndexColorPalette;
+    [SerializeField] int maxColorIndex = 1;
     
     [Title("Basic Delivery")]
     [SerializeField] int basicMaxShapeLength;
@@ -119,7 +120,7 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );
@@ -155,7 +156,7 @@ public class DeliveryManager : MonoBehaviour {
         Grid grid = deliveryBox.Grid;
         Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
         Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
-        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)];
+        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)];
 
         for (int z = minBoundCoord.z; z <= maxBoundCoord.z; z += width) {
             for (int y = minBoundCoord.y; y <= maxBoundCoord.y; y++) {
@@ -179,7 +180,7 @@ public class DeliveryManager : MonoBehaviour {
         ShapeDataID id = Util.GetRandomFromList(irregularShapes);
         ShapeData shapeData = ShapeDataLookUp.LookUp(id);
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxIndexColorPalette)],
+            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
             Pattern.None, // TEMP: until implementing pattern
             shapeData
         );
@@ -235,4 +236,18 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     #endregion
+
+    public void SetDifficultyOptions(SO_DeliveriesDifficultyTable deliveryDiffTable, SO_DeliveriesDifficultyTable overrideTable) {
+        numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries);
+        maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex);
+        deliveryBoxPool = deliveryDiffTable.GetRandomUnder(entry => entry.deliveryBoxes);
+        basicMaxShapeLength = deliveryDiffTable.GetHigh(entry => entry.basicMaxLength);
+        basicMaxShapeWidth = deliveryDiffTable.GetHigh(entry => entry.basicMaxWidth);
+        basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension);
+        basicOrderliness = deliveryDiffTable.GetHigh(entry => entry.basicOrderliness);
+        irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance);
+        irregularShapes = deliveryDiffTable.GetRandomUnder(entry => entry.irregularShapes);
+        
+        
+    }
 }

@@ -45,6 +45,8 @@ public class OrderManager : MonoBehaviour {
     Dictionary<ProductID, int> availableStock = new();
 
     Util.ValueRef<bool> isOpenPhase;
+    
+    
 
     void Awake() {
         isOpenPhase = new Util.ValueRef<bool>(false);
