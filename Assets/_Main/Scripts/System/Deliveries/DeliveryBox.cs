@@ -73,9 +73,9 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         Grid.RemoveShapeCells(this, false);
 
         if (deliveryBoxType == DeliveryBoxType.Basic) {
-            Ref.Instance.DeliveryMngr.BasicDelivery(this);
+            Ref.DeliveryMngr.BasicDelivery(this);
         } else {
-            Ref.Instance.DeliveryMngr.BulkDelivery(this);
+            Ref.DeliveryMngr.BulkDelivery(this);
         }
         
         // TEMP: until box open animation

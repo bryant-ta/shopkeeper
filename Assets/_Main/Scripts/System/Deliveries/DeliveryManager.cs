@@ -43,24 +43,22 @@ public class DeliveryManager : MonoBehaviour {
 
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
-        GameManager.Instance.SM_dayPhase.OnStateEnter += StateTrigger;
+        GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
     }
 
-    void StateTrigger(IState<DayPhase> state) {
+    void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
-            ScaleDeliveryDifficulty(GameManager.Instance.Day);
+            DifficultyManager.Instance.ApplyDeliveryDifficulty();
             Deliver();
         }
     }
 
     void Deliver() {
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
-        // currently just one dock
-        CreateDeliverer(docks[0]);
-
-        // for (int i = 0; i < specialDeliverers.Count; i++) {
-        //     GenerateSpecialDelivery(specialDeliverers[i]);
-        // }
+        int count = Math.Min(numDeliveries, docks.Count);
+        for (int i = 0; i < count; i++) {
+            CreateDeliverer(docks[i]);
+        }
     }
 
     void CreateDeliverer(Dock openDock) {
@@ -190,10 +188,6 @@ public class DeliveryManager : MonoBehaviour {
         Ledger.AddStockedProduct(product);
 
         return product;
-    }
-
-    void ScaleDeliveryDifficulty(int day) {
-        // TODO: scale basic, bulk, irregular delivery
     }
 
     #region Delivery Orientation

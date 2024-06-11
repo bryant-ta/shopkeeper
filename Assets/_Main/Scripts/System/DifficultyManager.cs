@@ -5,16 +5,11 @@ using TriInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class DifficultyManager : MonoBehaviour {
+public class DifficultyManager : Singleton<DifficultyManager> {
     [SerializeField] SO_DeliveriesDifficultyTable deliveryDiffTable;
     [SerializeField] SO_OrdersDifficultyTable orderDiffTable;
 
-    public void ApplyDifficulty() {
-        ApplyDeliveryDifficulty();
-        ApplyOrderDifficulty();
-    }
-
-    void ApplyDeliveryDifficulty() {
+    public void ApplyDeliveryDifficulty() {
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
             numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
@@ -28,9 +23,10 @@ public class DifficultyManager : MonoBehaviour {
 
         deliveryDiffTable.UseOverrides(ret, GameManager.Instance.Difficulty);
         
-        Ref.Instance.DeliveryMngr.SetDifficultyOptions(ret);
+        Ref.DeliveryMngr.SetDifficultyOptions(ret);
     }
-    void ApplyOrderDifficulty() {
+    
+    public void ApplyOrderDifficulty() {
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
             baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
@@ -45,7 +41,7 @@ public class DifficultyManager : MonoBehaviour {
             moldShapePool = orderDiffTable.Filter(entry => entry.moldShapePool)
         };
 
-        Ref.Instance.OrderMngr.SetDifficultyOptions(ret);
+        Ref.OrderMngr.SetDifficultyOptions(ret);
     }
 }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orders;
+using Timers;
 using TriInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -17,6 +18,8 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int timePerProduct;
     [SerializeField] int baseOrderValue;
     [SerializeField] int valuePerProduct;
+    [SerializeField] int perfectOrdersBonus;
+    [field: SerializeField] public CountdownTimer OrderPhaseTimer { get; private set; }
 
     [Title("Requirement Paramenters")]
     [SerializeField] MinMax reqQuantity;
@@ -41,14 +44,14 @@ public class OrderManager : MonoBehaviour {
     [field: Title("ReadOnly")]
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
 
-    [field: SerializeField, ReadOnly] public int NumRemainingOrders { get; private set; }
-
     Dictionary<ProductID, int> availableStock = new();
 
-    Util.ValueRef<bool> isOpenPhase;
+    Util.ValueRef<bool> orderPhaseActive;
 
     void Awake() {
-        isOpenPhase = new Util.ValueRef<bool>(false);
+        orderPhaseActive = new Util.ValueRef<bool>(false);
+        
+        OrderPhaseTimer = new CountdownTimer(GameManager.Instance.OrderPhaseDuration);
 
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
@@ -57,16 +60,15 @@ public class OrderManager : MonoBehaviour {
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Open) {
-            isOpenPhase.Value = true;
-            ScaleOrderDifficulty(GameManager.Instance.Day);
+        if (state.ID == DayPhase.Order) {
+            DifficultyManager.Instance.ApplyOrderDifficulty();
+            orderPhaseActive.Value = true;
             StartOrders();
         }
     }
     void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Open) {
-            isOpenPhase.Value = false;
-            StopOrders();
+        if (state.ID == DayPhase.Order) {
+            OrderPhaseTimer.Reset();
         }
     }
 
@@ -78,23 +80,46 @@ public class OrderManager : MonoBehaviour {
 
         PerfectOrders = true;
 
+        // Start sending Orderers
         AssignNextOrderer(docks[0]); // always immediately activate first order
-        int activeOrders = Math.Min(numActiveDocks, docks.Count);
-        for (var i = 1; i < activeOrders; i++) {
+        int activeDocks = Math.Min(numActiveDocks, docks.Count);
+        for (var i = 1; i < activeDocks; i++) {
             AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
+        
+        // Start Order Phase timer
+        OrderPhaseTimer.Start();
+        OrderPhaseTimer.EndEvent += StopOrders;
     }
-    void StopOrders() { }
+    void StopOrders() {
+        orderPhaseActive.Value = false; // Stops delayed orders and order generation chain
+        TryTriggerOrderPhaseEnd();
+    }
+
+    void TryTriggerOrderPhaseEnd() {
+        if (orderPhaseActive.Value) return;
+        
+        // Can end Order phase when all docks no longer have active orderers
+        bool docksEmpty = true;
+        foreach (Dock dock in docks) {
+            if (dock.IsOccupied) {
+                docksEmpty = false;
+            }
+        }
+        if (!docksEmpty) return;
+
+        GameManager.Instance.NextPhase();
+    }
 
     #region Orderer Management
 
     void AssignNextOrdererDelayed(Dock openDock, float delay) {
-        Util.DoAfterSeconds(this, delay, () => AssignNextOrderer(openDock), isOpenPhase);
+        Util.DoAfterSeconds(this, delay, () => AssignNextOrderer(openDock), orderPhaseActive);
     }
     void AssignNextOrderer(Dock openDock) {
         // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
         // TODO: fix so this isnt needed
-        if (GameManager.Instance.CurDayPhase != DayPhase.Open) {
+        if (GameManager.Instance.CurDayPhase != DayPhase.Order) {
             return;
         }
 
@@ -122,18 +147,24 @@ public class OrderManager : MonoBehaviour {
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {
-        AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
-        NumRemainingOrders--;
+        if (orderPhaseActive.Value) {
+            AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
+        }
 
         if (orderer.Order.IsFulfilled) {
             GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
+            if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
+            
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
         } else {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
 
-        orderer.Docker.OnReachedEnd += () => Destroy(orderer.gameObject);
+        orderer.Docker.OnReachedEnd += () => {
+            TryTriggerOrderPhaseEnd();
+            Destroy(orderer.gameObject);
+        };
     }
 
     #endregion
@@ -261,15 +292,6 @@ public class OrderManager : MonoBehaviour {
 
         if (moldOrder.Requirements.Count == 0) return null;
         return moldOrder;
-    }
-
-    void ScaleOrderDifficulty(int day) {
-        if (day > 10) return;
-
-        // numTotalOrders = day / 2 + 3;
-        // NumRemainingOrders = numTotalOrders;
-
-        reqQuantity.Max++;
     }
 
     #endregion

@@ -1,57 +1,40 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Timers;
 using TriInspector;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
     [Title("Debug")]
     public bool DebugMode;
-    [SerializeField] bool useDebugDayClockTimes;
-    [SerializeField] DebugDayClockTimes debugDayClockTimes;
 
     [Title("General")]
-    [SerializeField, ReadOnly] bool isPaused;
-    public int Difficulty => Day;
     [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
+
+    public int Difficulty => Day;
+    [SerializeField, ReadOnly] bool isPaused;
 
     public bool IsPaused => isPaused;
     public event Action<bool> OnPause;
+
+    [Title("Time")]
+    [field: SerializeField] public int Day { get; private set; }
+
+    [field: SerializeField] public int TotalDays { get; private set; }
+
+    [Tooltip("Duration of Orders Phase")]
+    [field: SerializeField] public float OrderPhaseDuration { get; private set; }
+
+    public StateMachine<DayPhase> SM_dayPhase { get; private set; }
+    public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
+
+    public event Action OnDayEnd;
 
     [Title("World Grid")]
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
     static Grid _worldGrid;
-    public int GlobalGridHeight => globalGridHeight;
+
     [SerializeField] int globalGridHeight;
-
-    [Title("Time")]
-    [SerializeField] [Tooltip("Time on clock that day starts")]
-    string dayStartClockTime;
-    [SerializeField] [Tooltip("Time on clock that day ends")]
-    string dayEndClockTime;
-    [SerializeField] [Tooltip("Real-time duration until clock moves to next step (seconds)")]
-    float dayClockTickDurationSeconds;
-    [SerializeField] [Tooltip("Increment of time on clock that clock will move after tick duration (minutes)")]
-    int dayclockTickStepMinutes;
-    [SerializeField] [Tooltip("Time on clock Open Phase starts")]
-    string deliveryPhaseClockTime;
-    [SerializeField] [Tooltip("Time on clock Open Phase starts")]
-    string openPhaseClockTime;
-    [SerializeField] [Tooltip("Time on clock Close Phase starts")]
-    string closePhaseClockTime;
-
-    [field: SerializeField] public int Day { get; private set; }
-    [field: SerializeField] public int TotalDays { get; private set; }
-
-    public ClockTimer DayTimer { get; private set; }
-    public StateMachine<DayPhase> SM_dayPhase { get; private set; }
-    public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
-
-    List<string> phaseTriggerTimes = new();
-
-    public event Action OnDayEnd;
+    public int GlobalGridHeight => globalGridHeight;
 
     [Title("Gold")]
     [SerializeField] int initialGold;
@@ -64,20 +47,10 @@ public class GameManager : Singleton<GameManager> {
     void Awake() {
         if (DebugMode) AwakeDebugTasks();
 
-        // Required to reset every Play mode start because static
-        _worldGrid = worldGrid;
-
-        // Setup Day Cycle
-        DayTimer = new ClockTimer(-1, dayStartClockTime, dayEndClockTime, dayClockTickDurationSeconds, dayclockTickStepMinutes);
-        DayTimer.TickEvent += DayPhaseTrigger;
+        _worldGrid = worldGrid; // Required to reset every Play mode start because static
 
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
-
-        phaseTriggerTimes.Add(deliveryPhaseClockTime);
-        phaseTriggerTimes.Add(openPhaseClockTime);
-        phaseTriggerTimes.Add(closePhaseClockTime);
-        phaseTriggerTimes.Add(dayEndClockTime);
     }
 
     void Start() {
@@ -87,22 +60,10 @@ public class GameManager : Singleton<GameManager> {
         Util.DoAfterOneFrame(this, () => MainLoop());
     }
 
-    void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Close) DayEndTrigger();
-    }
+    void ExitStateTrigger(IState<DayPhase> state) { HandleLastState(state); }
 
     void AwakeDebugTasks() {
-        if (useDebugDayClockTimes) {
-            dayStartClockTime = debugDayClockTimes.DayStartClockTime;
-            dayEndClockTime = debugDayClockTimes.DayEndClockTime;
-            dayClockTickDurationSeconds = debugDayClockTimes.DayClockTickDurationSeconds;
-            dayclockTickStepMinutes = debugDayClockTimes.DayclockTickStepMinutes;
-            deliveryPhaseClockTime = debugDayClockTimes.DeliveryPhaseClockTime;
-            openPhaseClockTime = debugDayClockTimes.OpenPhaseClockTime;
-            closePhaseClockTime = debugDayClockTimes.ClosePhaseClockTime;
-        }
-
-        Util.DoAfterSeconds(this, 30, () => { GlobalClock.SetTimeScale(0f); });
+        // Util.DoAfterSeconds(this, 30, () => { GlobalClock.SetTimeScale(0f); });
     }
     void StartDebugTasks() { }
 
@@ -111,45 +72,24 @@ public class GameManager : Singleton<GameManager> {
     void MainLoop() {
         ModifyGold(initialGold);
 
-        DayTimer.Start();
+        SM_dayPhase.ExecuteNextState();
     }
 
     #endregion
 
     #region Time
 
-    void DayPhaseTrigger(string clockTime) {
-        // TODO: using clockTime mapped directly to phases
-        for (int i = 0; i < phaseTriggerTimes.Count; i++) {
-            if (Util.CompareTime(clockTime, phaseTriggerTimes[i]) == 0) {
-                SM_dayPhase.ExecuteNextState();
-
-                //TEMP: sound insert for now
-                if (SM_dayPhase.CurState == null) continue;
-                if (CurDayPhase == DayPhase.Open) {
-                    SoundManager.Instance.PlaySound(SoundID.EnterOpenPhase);
-                } else if (CurDayPhase == DayPhase.Close) {
-                    SoundManager.Instance.PlaySound(SoundID.EnterClosePhase);
-                }
-            }
+    void HandleLastState(IState<DayPhase> lastState) {
+        print("Last State: " + lastState.ID);
+        if (lastState.ID == DayPhase.Delivery) {
+            SoundManager.Instance.PlaySound(SoundID.EnterOrderPhase);
+        } else if (lastState.ID == DayPhase.Order) {
+            OnDayEnd?.Invoke();
+        } else if (lastState.ID == DayPhase.Close) {
+            // Start next day
+            Day++;
+            SoundManager.Instance.PlaySound(SoundID.EnterDeliveryPhase);
         }
-    }
-
-    // End of day trigger/actions, next day has not started yet
-    void DayEndTrigger() {
-        if (Ref.Instance.OrderMngr.PerfectOrders) {
-            ModifyGold(perfectOrdersGoldBonus);
-        }
-
-        OnDayEnd?.Invoke();
-    }
-
-    // actions for starting a new following day
-    public void StartNextDay() {
-        Day++;
-
-        DayTimer.Reset();
-        DayTimer.Start();
     }
 
     #endregion
@@ -169,16 +109,19 @@ public class GameManager : Singleton<GameManager> {
         }
     }
 
-    public void SkipToPhaseEnd() {
-        GlobalClock.SetTimeScale(10f);
+    public void NextPhase() { SM_dayPhase.ExecuteNextState(); }
 
-        void ResetTimeScaleDelegate(IState<DayPhase> state) {
-            GlobalClock.SetTimeScale(1f);
-            SM_dayPhase.OnStateEnter -= ResetTimeScaleDelegate;
-        }
-
-        SM_dayPhase.OnStateEnter += ResetTimeScaleDelegate;
-    }
+    // TODO: create func for skipping to Order Phase end, ideally with time skip like below
+    // public void SkipToPhaseEnd() {
+    //     GlobalClock.SetTimeScale(10f);
+    //
+    //     void ResetTimeScaleDelegate(IState<DayPhase> state) {
+    //         GlobalClock.SetTimeScale(1f);
+    //         SM_dayPhase.OnStateEnter -= ResetTimeScaleDelegate;
+    //     }
+    //
+    //     SM_dayPhase.OnStateEnter += ResetTimeScaleDelegate;
+    // }
 
     #endregion
 

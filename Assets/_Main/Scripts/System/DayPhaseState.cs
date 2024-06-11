@@ -8,7 +8,7 @@ public abstract class DayPhaseState : IState<DayPhase> {
 
 public enum DayPhase {
     Delivery = 0,
-    Open = 1,
+    Order = 1,
     Close = 2,
 }
 
@@ -17,13 +17,13 @@ public class DeliveryDayPhaseState : DayPhaseState {
 
     public DeliveryDayPhaseState() { ID = DayPhase.Delivery; }
 
-    public override IState<DayPhase> NextState() { return new OpenDayPhaseState(); }
+    public override IState<DayPhase> NextState() { return new OrderDayPhaseState(); }
 }
 
-public class OpenDayPhaseState : DayPhaseState {
+public class OrderDayPhaseState : DayPhaseState {
     public override DayPhase ID { get; }
 
-    public OpenDayPhaseState() { ID = DayPhase.Open; }
+    public OrderDayPhaseState() { ID = DayPhase.Order; }
 
     public override IState<DayPhase> NextState() { return new CloseDayPhaseState(); }
 }
@@ -33,5 +33,5 @@ public class CloseDayPhaseState : DayPhaseState {
 
     public CloseDayPhaseState() { ID = DayPhase.Close; }
 
-    public override IState<DayPhase> NextState() { return null; }
+    public override IState<DayPhase> NextState() { return new DeliveryDayPhaseState(); }
 }

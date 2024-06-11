@@ -17,13 +17,9 @@ public class DayNightLighting : MonoBehaviour {
 
     void Awake() { sunlight = GetComponent<Light>(); }
 
-    void Start() {
-        startTimeOffset = (float) (GameManager.Instance.DayTimer.StartClockTime.TimeOfDay / TimeSpan.FromDays(1));
-    }
-
     void Update() {
         // Get time of day as remaining percent, offset based on day clock start time
-        float timeOfDay = (GameManager.Instance.DayTimer.TimeElapsedSeconds / GameManager.Instance.DayTimer.Duration * (1 - startTimeOffset)) + startTimeOffset;
+        float timeOfDay = (Ref.OrderMngr.OrderPhaseTimer.TimeElapsedSeconds / Ref.OrderMngr.OrderPhaseTimer.Duration * (1 - startTimeOffset)) + startTimeOffset;
         
         // Update the intensity of the sunlight based on the time of day
         float lightIntensity = lightIntensityCurve.Evaluate(timeOfDay);

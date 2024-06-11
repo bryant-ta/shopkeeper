@@ -13,7 +13,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI perfectOrdersText;
     [SerializeField] TextMeshProUGUI productsUnlockedText;
-    [SerializeField] PhysicalButton nextDayButton;
+    [SerializeField] Button nextDayButton;
 
     [Title("Pause Menu")]
     [SerializeField] GameObject pauseMenuPanel;
@@ -24,7 +24,7 @@ public class UIManager : MonoBehaviour {
         gameMngr = GameManager.Instance;
 
         gameMngr.OnModifyMoney += UpdateMoneyText;
-        gameMngr.DayTimer.TickEvent += UpdateTimeText;
+        Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateTimeText;
         gameMngr.SM_dayPhase.OnStateEnter += UpdatePhaseText;
 
         gameMngr.OnDayEnd += UpdateNextDayPanel;
@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour {
 
     void UpdateMoneyText(DeltaArgs args) { goldCounter.SetValue(args.NewValue); }
 
-    void UpdateTimeText(string time) { timeText.text = time; }
+    void UpdateTimeText(float time) { timeText.text = $"{time}"; }
 
     void UpdatePhaseText(IState<DayPhase> phase) { phaseText.text = phase.ID.ToString().ToUpper(); }
 
@@ -42,7 +42,7 @@ public class UIManager : MonoBehaviour {
         nextDayPanel.SetActive(true);
 
         // Perfect Orders
-        if (Ref.Instance.OrderMngr.PerfectOrders) {
+        if (Ref.OrderMngr.PerfectOrders) {
             perfectOrdersText.text = "PERFECT!\n+100";
         } else {
             perfectOrdersText.text = "GOOD";

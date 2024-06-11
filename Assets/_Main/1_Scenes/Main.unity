@@ -3304,16 +3304,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DebugMode: 1
-  useDebugDayClockTimes: 1
-  debugDayClockTimes:
-    DayStartClockTime: 8:00AM
-    DayEndClockTime: 1:00PM
-    DayClockTickDurationSeconds: 1
-    DayclockTickStepMinutes: 10
-    DeliveryPhaseClockTime: 8:00AM
-    OpenPhaseClockTime: 8:00AM
-    ClosePhaseClockTime: 9:00AM
-  isPaused: 0
   <DifficultyCurve>k__BackingField:
     serializedVersion: 2
     m_Curve:
@@ -3338,17 +3328,12 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  isPaused: 0
+  <Day>k__BackingField: 1
+  <TotalDays>k__BackingField: 20
+  <OrderPhaseDuration>k__BackingField: 1
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
-  dayStartClockTime: 6:00AM
-  dayEndClockTime: 11:00PM
-  dayClockTickDurationSeconds: 1
-  dayclockTickStepMinutes: 10
-  deliveryPhaseClockTime: 6:30AM
-  openPhaseClockTime: 11:00AM
-  closePhaseClockTime: 8:00PM
-  <Day>k__BackingField: 1
-  <TotalDays>k__BackingField: 0
   initialGold: 5000
   gold: 0
   perfectOrdersGoldBonus: 100
@@ -3392,8 +3377,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 2107359966}
   upgradeMngr: {fileID: 360067977}
-  DeliveryMngr: {fileID: 235971276}
-  OrderMngr: {fileID: 1273376991}
+  deliveryMngr: {fileID: 235971276}
+  orderMngr: {fileID: 1273376991}
   Trash: {fileID: 1516677544}
   OffScreenSpawnTrs: {fileID: 963137538}
 --- !u!114 &525756794
@@ -3408,10 +3393,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d558619fd81c87449d4ae6e61c0a8a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deliveryDiffTable: {fileID: 0}
-  orderDiffTable: {fileID: 0}
-  deliveryDiffTableOverride: {fileID: 0}
-  orderDiffTableOverride: {fileID: 0}
+  deliveryDiffTable: {fileID: 11400000, guid: ba94f538dd4c5d24a9192dbfabc138f1, type: 2}
+  orderDiffTable: {fileID: 11400000, guid: e84a10b3e8e0a1044a79570e37d30229, type: 2}
 --- !u!1001 &546741877
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6321,7 +6304,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 525756789}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: SkipToPhaseEnd
+        m_MethodName: NextPhase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8306,22 +8289,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numActiveDocks: 0
   NextOrderDelay:
-    Min: 0
-    Max: 0
+    Min: 5
+    Max: 5
   numReqsPerOrder:
     Min: 1
     Max: 1
   baseOrderTime: 5
-  baseOrderValue: 5
   timePerProduct: 5
-  goldPerProduct: 5
+  baseOrderValue: 5
+  valuePerProduct: 0
+  perfectOrdersBonus: 0
   reqQuantity:
     Min: 1
     Max: 1
   reqChanceFromExisting: 1
   reqChanceNeedsColor: 1
   reqChanceNeedsShape: 1
-  reqShapePool: 
+  reqVirtualShapePool: 
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
   moldChance: 0
   moldShapePool: 
@@ -11074,7 +11058,7 @@ MonoBehaviour:
   nextDayPanel: {fileID: 1433320123}
   perfectOrdersText: {fileID: 1552752945}
   productsUnlockedText: {fileID: 485332560}
-  nextDayButton: {fileID: 0}
+  nextDayButton: {fileID: 1999943176}
   pauseMenuPanel: {fileID: 512864081}
 --- !u!1 &1785029936
 GameObject:
@@ -12624,7 +12608,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 525756789}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: StartNextDay
+        m_MethodName: NextPhase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

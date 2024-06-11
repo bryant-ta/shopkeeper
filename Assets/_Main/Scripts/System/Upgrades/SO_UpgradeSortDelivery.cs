@@ -7,6 +7,6 @@ public class SO_UpgradeSortDelivery : SO_Upgrade {
     [SerializeField] int maxGroupQuantity;
     
     public override void Apply() {
-        Ref.Instance.DeliveryMngr.SetMaxGroupQuantity(maxGroupQuantity);
+        Ref.DeliveryMngr.SetMaxGroupQuantity(maxGroupQuantity);
     }
 }

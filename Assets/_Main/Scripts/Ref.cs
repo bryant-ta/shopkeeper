@@ -11,8 +11,14 @@ public class Ref : Singleton<Ref> {
     public static UpgradeManager UpgradeMngr => _upgradeMngr;
     static UpgradeManager _upgradeMngr;
     
-    public DeliveryManager DeliveryMngr;
-    public OrderManager OrderMngr;
+    [SerializeField] DeliveryManager deliveryMngr;
+    public static DeliveryManager DeliveryMngr => _deliveryMngr;
+    static DeliveryManager _deliveryMngr;
+    
+    [SerializeField] OrderManager orderMngr;
+    public static OrderManager OrderMngr => _orderMngr;
+    static OrderManager _orderMngr;
+    
     public Trash Trash;
 
     public Transform OffScreenSpawnTrs;
@@ -20,5 +26,7 @@ public class Ref : Singleton<Ref> {
     void Awake() {
         _player = player;
         _upgradeMngr = upgradeMngr;
+        _deliveryMngr = deliveryMngr;
+        _orderMngr = orderMngr;
     }
 }

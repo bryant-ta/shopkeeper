@@ -149,7 +149,7 @@ public class Orderer : MonoBehaviour, IDocker {
         Docker.StartFollowing();
     }
     public void LeaveDock() {
-        Ref.Instance.OrderMngr.HandleFinishedOrderer(this);
+        Ref.OrderMngr.HandleFinishedOrderer(this);
         
         AssignedDock.RemoveDocker();
         AssignedDock = null;
