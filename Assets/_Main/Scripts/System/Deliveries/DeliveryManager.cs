@@ -11,7 +11,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numDeliveries = 1;
     [Tooltip("Determines possible color choices for ALL delivery types.")]
     [SerializeField] int maxColorIndex = 1;
-    
+
     [Title("Basic Delivery")]
     [SerializeField] int basicMaxShapeLength;
     [SerializeField] int basicMaxShapeWidth;
@@ -36,6 +36,8 @@ public class DeliveryManager : MonoBehaviour {
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
     [SerializeField] List<GameObject> deliveryBoxPool;
+    List<DeliveryBox> curDeliveryBoxes = new();
+    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0;
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
@@ -54,6 +56,8 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
+        curDeliveryBoxes.Clear();
+
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
         int count = Math.Min(numDeliveries, docks.Count);
         for (int i = 0; i < count; i++) {
@@ -71,25 +75,27 @@ public class DeliveryManager : MonoBehaviour {
             GameObject obj = Util.GetRandomFromList(deliveryBoxPool);
             DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Bulk);
-            
+
+            curDeliveryBoxes.Add(deliveryBox);
             cargoShape = deliveryBox;
-        } else if (Random.Range(0f, 1f) <= irregularChance) {   // Create irregular delivery
+        } else if (Random.Range(0f, 1f) <= irregularChance) { // Create irregular delivery
             cargoShape = GenerateIrregularDelivery();
-        } else {                                                // Create delivery box for basic delivery
+        } else { // Create delivery box for basic delivery
             GameObject obj = Util.GetRandomFromList(deliveryBoxPool);
             DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Basic);
 
+            curDeliveryBoxes.Add(deliveryBox);
             cargoShape = deliveryBox;
         }
-        
+
         // TEMP: scale deliverer floor grid, replaced after deliverer anim
         ShapeData cargoShapeData = cargoShape.ShapeData;
         deliverer.Grid.SetGridSize(cargoShapeData.Length, cargoShapeData.Height, cargoShapeData.Width);
         deliverer.transform.Find("Floor").transform.localScale = new Vector3(
             0.1f * cargoShapeData.Length + 0.05f, 1, 0.1f * cargoShapeData.Width + 0.05f
         );
-        
+
         // centers shape on deliverer grid origin
         Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
@@ -129,9 +135,15 @@ public class DeliveryManager : MonoBehaviour {
 
             Ledger.AddStockedProduct(product);
         }
+
+        curDeliveryBoxes.Remove(deliveryBox);
     }
 
-    // want either all of y level filled or many neat rows of width 1 shapes to fill, 1 layer deep always
+    /// <summary>
+    /// Fills delivery box using one basic shape type all aligned.
+    /// </summary>
+    /// <remarks>NOTE: assumes delivery box is only rectangular shape.</remarks>
+    /// <param name="deliveryBox"></param>
     public void BulkDelivery(DeliveryBox deliveryBox) {
         // Determine shape based on delivery box dimensions
         int length = deliveryBox.ShapeData.Length;
@@ -172,6 +184,8 @@ public class DeliveryManager : MonoBehaviour {
                 Ledger.AddStockedProduct(product);
             }
         }
+
+        curDeliveryBoxes.Remove(deliveryBox);
     }
 
     Product GenerateIrregularDelivery() {
@@ -184,7 +198,7 @@ public class DeliveryManager : MonoBehaviour {
         );
 
         Product product = ProductFactory.Instance.CreateProduct(productData, Ref.Instance.OffScreenSpawnTrs.position);
-        
+
         Ledger.AddStockedProduct(product);
 
         return product;
