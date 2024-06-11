@@ -22,10 +22,10 @@ public class DifficultyManager : Singleton<DifficultyManager> {
         };
 
         deliveryDiffTable.UseOverrides(ret, GameManager.Instance.Difficulty);
-        
+
         Ref.DeliveryMngr.SetDifficultyOptions(ret);
     }
-    
+
     public void ApplyOrderDifficulty() {
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
@@ -54,23 +54,19 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
     public T GetHigh<T>(Func<TEntry, T> selector) {
-        TEntry highestEntry = table
-            .Where(entry => entry.day <= GameManager.Instance.Difficulty)
-            .OrderByDescending(entry => entry.day)
-            .FirstOrDefault();
+        IEnumerable<TEntry> entries = table.Where(entry => entry.day <= GameManager.Instance.Difficulty);
+        TEntry highestEntry = entries.OrderByDescending(selector).FirstOrDefault();
 
         return highestEntry != null ? selector(highestEntry) : default;
     }
-    
+
     /// <summary>
     /// Returns T of highest valid day value less than or equal to Difficulty.
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
     public T GetLow<T>(Func<TEntry, T> selector) {
-        TEntry lowestEntry = table
-            .Where(entry => entry.day <= GameManager.Instance.Difficulty)
-            .OrderBy(entry => entry.day)
-            .FirstOrDefault();
+        IEnumerable<TEntry> entries = table.Where(entry => entry.day <= GameManager.Instance.Difficulty);
+        TEntry lowestEntry = entries.OrderBy(selector).FirstOrDefault();
 
         return lowestEntry != null ? selector(lowestEntry) : default;
     }
