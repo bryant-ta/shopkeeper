@@ -41,8 +41,9 @@ public class DeliveryManager : MonoBehaviour {
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
-        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceShapeExtension);
 
+        bulkDayInterval = GameManager.Instance.BulkDayInterval;
+        
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
@@ -254,6 +255,8 @@ public class DeliveryManager : MonoBehaviour {
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
+        
+        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceShapeExtension);
     }
 
 }

@@ -1281,7 +1281,7 @@ MonoBehaviour:
   basicMaxShapeLength: 2
   basicMaxShapeWidth: 1
   basicChanceShapeExtension: 1
-  basicOrderliness: 1
+  basicOrderliness: 0
   bulkDayInterval: 3
   irregularChance: 0
   irregularShapePool: 
@@ -3506,6 +3506,7 @@ MonoBehaviour:
   isPaused: 0
   <Day>k__BackingField: 1
   <TotalDays>k__BackingField: 20
+  <BulkDayInterval>k__BackingField: 3
   <OrderPhaseDuration>k__BackingField: 1
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
@@ -10942,9 +10943,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1781915943}
+      - m_Target: {fileID: 1781915948}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: 
+        m_MethodName: HandleOrderPhaseStartButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

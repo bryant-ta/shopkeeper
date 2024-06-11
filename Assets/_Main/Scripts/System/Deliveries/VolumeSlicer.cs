@@ -16,8 +16,8 @@ public class VolumeSlicer : MonoBehaviour {
     /// 2. random roll choose a valid neighbor/direction
     /// 3. random roll to add neighbor to group
     ///     success → repeat in same direction or until not valid direction
-    ///     fail → random roll orthogonal direction, random roll try add all adjacent cells to group in that direction 
-    ///     (to form a rectangle) (can fail if not all cells are open)
+    /// 4. random roll orthogonal direction, random roll try add all adjacent cells to group in that direction 
+    ///     (to form a rectangle) (fails if not all cells are open)
     /// </summary>
     /// <param name="minBounds">Min corner of volume.</param>
     /// <param name="maxBounds">Max corner of volume.</param>
@@ -76,7 +76,7 @@ public class VolumeSlicer : MonoBehaviour {
                     curShapeLength++;
                 }
 
-                //TODO: randomly roll rectangle
+                // 4
                 List<Direction2D> widthDirs = DirectionData.OrthogonalDirection(lengthDir);
                 Direction2D widthDir = widthDirs[Random.Range(0, widthDirs.Count)];
                 int curShapeWidth = 1;

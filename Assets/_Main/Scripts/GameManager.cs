@@ -17,17 +17,18 @@ public class GameManager : Singleton<GameManager> {
 
     [Title("Time")]
     [field: SerializeField] public int Day { get; private set; }
-
     [field: SerializeField] public int TotalDays { get; private set; }
-
-    [Tooltip("Duration of Orders Phase")]
-    [field: SerializeField] public float OrderPhaseDuration { get; private set; }
 
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
 
     public event Action OnDayEnd;
-
+    
+    [field: Title("Systems")]
+    [Tooltip("Sends only bulk delivery every X days.")]
+    [field: SerializeField] public int BulkDayInterval { get; private set; }
+    [field: SerializeField] public float OrderPhaseDuration { get; private set; }
+    
     [Title("World Grid")]
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
