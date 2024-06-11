@@ -18,6 +18,7 @@ public class Product : MonoBehaviour, IGridShape {
 
     [Title("Shape")]
     public string Name { get; private set; }
+
     public Grid Grid {
         get {
             if (ObjTransform.parent.TryGetComponent(out Grid grid)) {
@@ -44,10 +45,7 @@ public class Product : MonoBehaviour, IGridShape {
     #endregion
 
     void Awake() {
-        if (ProductData == null) {
-            // Debug.Log($"Product {gameObject.name} did not self-init.");
-            return;
-        }
+        if (ProductData == null) return;
 
         Init(ProductData);
     }
@@ -74,9 +72,7 @@ public class Product : MonoBehaviour, IGridShape {
 
         ShapeTags = new ShapeTags(ProductData.ShapeTagIDs);
     }
-    
-    public void SetOutline(Color color) {
-        Properties.outlineColor.SetValue(mat, color);
-    }
+
+    public void SetOutline(Color color) { Properties.outlineColor.SetValue(mat, color); }
     public void ResetOutline() { SetOutline(matOutlineOriginalColor); }
 }

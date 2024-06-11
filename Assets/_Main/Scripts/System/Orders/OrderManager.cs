@@ -117,12 +117,6 @@ public class OrderManager : MonoBehaviour {
         Util.DoAfterSeconds(this, delay, () => AssignNextOrderer(openDock), orderPhaseActive);
     }
     void AssignNextOrderer(Dock openDock) {
-        // Prevents delayed active orders from occuring at wrong phase, since ActivateNextOrderDelayed can keep counting after phase end
-        // TODO: fix so this isnt needed
-        if (GameManager.Instance.CurDayPhase != DayPhase.Order) {
-            return;
-        }
-
         if (openDock.IsOccupied) {
             Debug.LogError("Unable to assign next orderer: Dock is occupied.");
             return;
@@ -142,8 +136,6 @@ public class OrderManager : MonoBehaviour {
 
         orderer.SetOrder(order);
         orderer.OccupyDock(openDock);
-
-        // TODO: handle when no orders remain gracefully
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {

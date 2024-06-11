@@ -80,7 +80,6 @@ public class GameManager : Singleton<GameManager> {
     #region Time
 
     void HandleLastState(IState<DayPhase> lastState) {
-        print("Last State: " + lastState.ID);
         if (lastState.ID == DayPhase.Delivery) {
             SoundManager.Instance.PlaySound(SoundID.EnterOrderPhase);
         } else if (lastState.ID == DayPhase.Order) {

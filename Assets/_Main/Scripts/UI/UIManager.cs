@@ -2,17 +2,17 @@ using System.Collections.Generic;
 using TMPro;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
     [SerializeField] NumberCounter goldCounter;
-    [SerializeField] TextMeshProUGUI timeText;
-    [SerializeField] TextMeshProUGUI phaseText;
+    [SerializeField] GameObject orderPhaseTimer;
+    [SerializeField] Image orderPhaseTimeFill;
 
     [Title("Next Day")] // TEMP: until making better next day screen
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI perfectOrdersText;
-    [SerializeField] TextMeshProUGUI productsUnlockedText;
     [SerializeField] Button nextDayButton;
 
     [Title("Pause Menu")]
@@ -24,19 +24,30 @@ public class UIManager : MonoBehaviour {
         gameMngr = GameManager.Instance;
 
         gameMngr.OnModifyMoney += UpdateMoneyText;
-        Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateTimeText;
-        gameMngr.SM_dayPhase.OnStateEnter += UpdatePhaseText;
+        gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
+        gameMngr.SM_dayPhase.OnStateExit += ExitStateTrigger;
+        Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
+
 
         gameMngr.OnDayEnd += UpdateNextDayPanel;
-
         gameMngr.OnPause += TogglePauseMenu;
+    }
+
+    void EnterStateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Order) {
+            ToggleOrderPhaseTimer(true);
+        }
+    }
+    void ExitStateTrigger(IState<DayPhase> state) {
+        if (state.ID == DayPhase.Order) {
+            ToggleOrderPhaseTimer(false);
+        }
     }
 
     void UpdateMoneyText(DeltaArgs args) { goldCounter.SetValue(args.NewValue); }
 
-    void UpdateTimeText(float time) { timeText.text = $"{time}"; }
-
-    void UpdatePhaseText(IState<DayPhase> phase) { phaseText.text = phase.ID.ToString().ToUpper(); }
+    void UpdateOrderPhaseTimer(float time) { orderPhaseTimeFill.fillAmount = time; }
+    void ToggleOrderPhaseTimer(bool enable) { orderPhaseTimer.SetActive(enable); }
 
     void UpdateNextDayPanel() {
         nextDayPanel.SetActive(true);
@@ -51,9 +62,7 @@ public class UIManager : MonoBehaviour {
         // Next Day Button
         nextDayButton.gameObject.SetActive(true);
     }
-    public void NextDayTransition() {
-        nextDayPanel.SetActive(false);
-    }
+    public void NextDayTransition() { nextDayPanel.SetActive(false); }
 
     void TogglePauseMenu(bool isPaused) { pauseMenuPanel.SetActive(isPaused); }
 }
