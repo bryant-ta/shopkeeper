@@ -33,7 +33,7 @@ MonoBehaviour:
     reqMaxQuantity: 3
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 06000000070000000800000009000000
     moldChance: 0
     moldShapePool: 
@@ -45,7 +45,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: 1
     reqVirtualShapePool: 0a0000000b000000
     moldChance: 0
     moldShapePool: 
@@ -57,7 +57,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -69,7 +69,7 @@ MonoBehaviour:
     reqMaxQuantity: 4
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -81,7 +81,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -91,9 +91,9 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 5
-    reqChanceNeedsColor: 0.8
+    reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -105,7 +105,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -117,7 +117,7 @@ MonoBehaviour:
     reqMaxQuantity: 6
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -141,7 +141,7 @@ MonoBehaviour:
     reqMaxQuantity: 7
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -153,7 +153,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 0c0000000d000000
     moldChance: 0.35
     moldShapePool: 
@@ -165,7 +165,7 @@ MonoBehaviour:
     reqMaxQuantity: 8
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -177,7 +177,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 0e0000001600000018000000190000001a000000
     moldChance: 0
     moldShapePool: 
@@ -201,7 +201,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -213,7 +213,7 @@ MonoBehaviour:
     reqMaxQuantity: 10
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -225,7 +225,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -237,7 +237,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -249,7 +249,7 @@ MonoBehaviour:
     reqMaxQuantity: 0
     reqChanceNeedsColor: 0
     reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0
+    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 

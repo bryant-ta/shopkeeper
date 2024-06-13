@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Difficulty/SO_OrdersDifficultyTable")]
 public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficultyTable.OrderDifficultyEntry> {
@@ -19,12 +18,12 @@ public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficul
         [Group("Requirements")]
         public int reqMaxQuantity;
         [Group("Requirements")] [Tooltip("reqChanceNeedsColor")]
-        [Range(0f, 1f)] public float reqChanceNeedsColor;
+        [Range(0f, 1f)] public float reqChanceNeedsColor; // TEMP: keeping at 1 for now, consider removing from difficulty
         [Group("Requirements")] [Tooltip("reqChanceNeedsShape")]
-        [Range(0f, 1f)] public float reqChanceNeedsShape;
+        [Range(0f, 1f)] public float reqChanceNeedsShape; // TEMP: keeping at 1 for now, consider removing from difficulty
 
         [Group("Virtual Reqs")] [Tooltip("reqChanceFromExisting")]
-        [Range(0f, 1f)] public float reqChanceFromExisting;
+        [Range(-1f, 1f)] public float reqChanceFromExisting;
         [Group("Virtual Reqs")] [ListDrawerSettings(AlwaysExpanded = true)] // moved out of group for better UI
         public List<ShapeDataID> reqVirtualShapePool;
 

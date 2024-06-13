@@ -33,8 +33,8 @@ public class DifficultyManager : Singleton<DifficultyManager> {
             baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
             reqMaxNum = orderDiffTable.GetHigh(entry => entry.reqMaxNum),
             reqMaxQuantity = orderDiffTable.GetHigh(entry => entry.reqMaxQuantity),
-            reqChanceFromExisting = orderDiffTable.GetLow(entry => entry.reqChanceFromExisting),
-            reqChanceNeedsColor = orderDiffTable.GetLow(entry => entry.reqChanceNeedsColor),
+            reqChanceFromExisting = orderDiffTable.GetFloatLerp(entry => entry.reqChanceFromExisting),
+            reqChanceNeedsColor = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsColor),
             reqChanceNeedsShape = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsShape),
             reqVirtualShapePool = orderDiffTable.Filter(entry => entry.reqVirtualShapePool),
             moldChance = orderDiffTable.GetHigh(entry => entry.moldChance),
@@ -93,46 +93,43 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
     /// Returns lerped float between existing entry values using current Difficulty.
     /// </summary>
     /// <param name="selector">Example: (entry => entry.desiredVar)</param>
-    // public float GetFloatLerp(Func<TEntry, float> selector) {
-    //     
-    //     // TODO: Fix this. needs to detect some "default" float value, prob -1. 
-    //     
-    //     // Entry exists for target day, no need to lerp.
-    //     if (GetExact(selector, GameManager.Instance.Difficulty, out float output)) {
-    //         return output;
-    //     }
-    //
-    //     // Search min bound
-    //     int target = GameManager.Instance.Difficulty;
-    //     float minBound = float.MinValue;
-    //     int minDay;
-    //     for (minDay = target; minDay >= 0; minDay--) {
-    //         if (GetExact(selector, minDay, out float min)) {
-    //             minBound = min;
-    //             break;
-    //         }
-    //     }
-    //     if (Math.Abs(minBound - float.MinValue) < 0.1f) {
-    //         minBound = 0;
-    //     }
-    //
-    //     // Search max bound
-    //     float maxBound = float.MinValue;
-    //     int maxDay;
-    //     int totalDays = GameManager.Instance.TotalDays;
-    //     for (maxDay = target; maxDay <= totalDays; maxDay++) {
-    //         if (GetExact(selector, maxDay, out float max)) {
-    //             maxBound = max;
-    //             break;
-    //         }
-    //     }
-    //     if (Math.Abs(maxBound - float.MinValue) < 0.1f) {
-    //         maxBound = 1f;
-    //     }
-    //
-    //     // Determine where target stands relative to existing day entries' values
-    //     return Mathf.Lerp(minBound, maxBound, (float) (target - minDay) / (maxDay - minDay));
-    // }
+    public float GetFloatLerp(Func<TEntry, float> selector) {
+        // Entry exists for target day, no need to lerp. Checks against "default value": -1f
+        if (GetExact(selector, GameManager.Instance.Difficulty, out float output) && Math.Abs(output - (-1f)) > 0.001f) {
+            return output;
+        }
+
+        // Search min bound
+        int target = GameManager.Instance.Difficulty;
+        float minBound = float.MinValue;
+        int minDay;
+        for (minDay = target; minDay >= 1; minDay--) {
+            if (GetExact(selector, minDay, out float min) && Math.Abs(min - (-1f)) > 0.001f) {
+                minBound = min;
+                break;
+            }
+        }
+        if (Math.Abs(minBound - float.MinValue) < 0.001f) {
+            minBound = 0;
+        }
+    
+        // Search max bound
+        float maxBound = float.MinValue;
+        int maxDay;
+        int totalDays = GameManager.Instance.TotalDays;
+        for (maxDay = target; maxDay <= totalDays; maxDay++) {
+            if (GetExact(selector, maxDay, out float max) && Math.Abs(max - (-1f)) > 0.001f) {
+                maxBound = max;
+                break;
+            }
+        }
+        if (Math.Abs(maxBound - float.MinValue) < 0.1f) {
+            maxBound = 1f;
+        }
+    
+        // Determine where target stands relative to existing day entries' values
+        return Mathf.Lerp(minBound, maxBound, (float) (target - minDay) / (maxDay - minDay));
+    }
 
     /// <summary>
     /// Returns random T from Objs with day less than or equal to Difficulty.
