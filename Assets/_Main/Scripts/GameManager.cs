@@ -3,10 +3,7 @@ using TriInspector;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
-    [Title("Debug")]
-    public bool DebugMode;
-
-    [Title("General")]
+    [field: Title("General")]
     [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
 
     public int Difficulty => Day;
@@ -15,7 +12,7 @@ public class GameManager : Singleton<GameManager> {
     public bool IsPaused => isPaused;
     public event Action<bool> OnPause;
 
-    [Title("Time")]
+    [field: Title("Time")]
     [field: SerializeField] public int Day { get; private set; }
     [field: SerializeField] public int TotalDays { get; private set; }
 
@@ -46,7 +43,7 @@ public class GameManager : Singleton<GameManager> {
     public event Action<DeltaArgs> OnModifyMoney;
 
     void Awake() {
-        if (DebugMode) AwakeDebugTasks();
+        if (DebugManager.DebugMode) AwakeDebugTasks();
 
         _worldGrid = worldGrid; // Required to reset every Play mode start because static
 
@@ -55,7 +52,7 @@ public class GameManager : Singleton<GameManager> {
     }
 
     void Start() {
-        if (DebugMode) StartDebugTasks();
+        if (DebugManager.DebugMode) StartDebugTasks();
 
         // need to wait for all scripts' Start to finish before starting main loop
         Util.DoAfterOneFrame(this, () => MainLoop());

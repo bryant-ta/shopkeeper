@@ -43,7 +43,7 @@ public class DeliveryManager : MonoBehaviour {
         basicVs = GetComponent<VolumeSlicer>();
 
         bulkDayInterval = GameManager.Instance.BulkDayInterval;
-        
+
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
@@ -52,6 +52,10 @@ public class DeliveryManager : MonoBehaviour {
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
             DifficultyManager.Instance.ApplyDeliveryDifficulty();
+
+            // separate from SetDifficultyOptions for setting debug mode values
+            basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceShapeExtension);
+
             Deliver();
         }
     }
@@ -97,7 +101,7 @@ public class DeliveryManager : MonoBehaviour {
             0.1f * cargoShapeData.Length + 0.05f, 1, 0.1f * cargoShapeData.Width + 0.05f
         );
 
-        // centers shape on deliverer grid origin
+        // centers shape on deliverer grid origin by moving delivery box root to a corner
         Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, cargoShape);
@@ -255,8 +259,5 @@ public class DeliveryManager : MonoBehaviour {
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
-        
-        basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceShapeExtension);
     }
-
 }

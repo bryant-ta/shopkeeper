@@ -112,7 +112,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   grid: {fileID: 8644076557512064456}
   offset: {x: 0, y: 0}
-  minBounds: {x: -2, y: 0, z: -2}
+  minBounds: {x: -1, y: 0, z: -1}
   maxBounds: {x: 1, y: 0, z: 1}
 --- !u!1001 &9128529971294079134
 PrefabInstance:

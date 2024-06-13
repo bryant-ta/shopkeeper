@@ -10,9 +10,9 @@ public class ShapeData {
     [field: SerializeField, ReadOnly] public Vector3Int RootCoord { get; set; } // Shape's cell grid position, (0,0,0) in offset matches
     [ReadOnly] public List<Vector3Int> ShapeOffsets = new();
 
-    public int Length => ShapeOffsets.Max(offset => offset.x) + 1;
-    public int Height => ShapeOffsets.Max(offset => offset.y) + 1;
-    public int Width => ShapeOffsets.Max(offset => offset.z) + 1;
+    public int Length => Math.Abs(ShapeOffsets.Max(offset => offset.x) - ShapeOffsets.Min(offset => offset.x)) + 1;
+    public int Height => Math.Abs(ShapeOffsets.Max(offset => offset.y) - ShapeOffsets.Min(offset => offset.y)) + 1;
+    public int Width => Math.Abs(ShapeOffsets.Max(offset => offset.z) - ShapeOffsets.Min(offset => offset.z)) + 1;
     public int Size => ShapeOffsets?.Count ?? 0;
 
     public Vector3Int MinOffset => new(

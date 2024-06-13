@@ -8,7 +8,7 @@ public class GridVisualizer : MonoBehaviour {
     [ReadOnly] public Vector3 minBounds = new Vector3(-10f, 0f, -10f);
     [ReadOnly] public Vector3 maxBounds = new Vector3(10f, 0f, 10f);
 
-    void OnValidate() {
+    void OnGUI() {
         minBounds = new Vector3(grid.MinX, 0, grid.MinZ);
         maxBounds = new Vector3(grid.MaxX, 0, grid.MaxZ);
     }

@@ -1278,17 +1278,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numDeliveries: 1
   maxColorIndex: 1
-  basicMaxShapeLength: 2
-  basicMaxShapeWidth: 1
+  basicMaxShapeLength: 3
+  basicMaxShapeWidth: 2
   basicChanceShapeExtension: 1
-  basicOrderliness: 0
+  basicOrderliness: 1
   bulkDayInterval: 3
   irregularChance: 0
   irregularShapePool: 
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
   deliveryBoxPool:
-  - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+  - {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
 --- !u!4 &235971277
 Transform:
   m_ObjectHideFlags: 0
@@ -3435,6 +3435,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 525756788}
+  - component: {fileID: 525756795}
   - component: {fileID: 525756789}
   - component: {fileID: 525756794}
   - component: {fileID: 525756790}
@@ -3478,7 +3479,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1aaa4959d975da48b569fa2a72f5215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DebugMode: 1
   <DifficultyCurve>k__BackingField:
     serializedVersion: 2
     m_Curve:
@@ -3504,10 +3504,10 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   isPaused: 0
-  <Day>k__BackingField: 20
+  <Day>k__BackingField: 1
   <TotalDays>k__BackingField: 20
   <BulkDayInterval>k__BackingField: 3
-  <OrderPhaseDuration>k__BackingField: 1
+  <OrderPhaseDuration>k__BackingField: 120
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
   initialGold: 5000
@@ -3571,6 +3571,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deliveryDiffTable: {fileID: 11400000, guid: ba94f538dd4c5d24a9192dbfabc138f1, type: 2}
   orderDiffTable: {fileID: 11400000, guid: e84a10b3e8e0a1044a79570e37d30229, type: 2}
+--- !u!114 &525756795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525756786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugMode: 1
+  DoSetDifficulty: 0
+  Day: 1
 --- !u!1001 &546741877
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8328,10 +8343,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numActiveDocks: 0
+  numActiveDocks: 3
   NextOrderDelay:
-    Min: 5
-    Max: 5
+    Min: 1
+    Max: 1
   numReqsPerOrder:
     Min: 1
     Max: 1
@@ -8348,8 +8363,8 @@ MonoBehaviour:
   reqChanceNeedsShape: 1
   reqVirtualShapePool: 
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  moldChance: 0
-  moldShapePool: 
+  moldChance: 1
+  moldShapePool: 16000000
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
   <PerfectOrders>k__BackingField: 0

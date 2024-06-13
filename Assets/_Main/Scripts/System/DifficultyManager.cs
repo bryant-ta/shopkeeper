@@ -10,6 +10,8 @@ public class DifficultyManager : Singleton<DifficultyManager> {
     [SerializeField] SO_OrdersDifficultyTable orderDiffTable;
 
     public void ApplyDeliveryDifficulty() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
+        
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
             numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
@@ -27,6 +29,8 @@ public class DifficultyManager : Singleton<DifficultyManager> {
     }
 
     public void ApplyOrderDifficulty() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
+        
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
             baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
