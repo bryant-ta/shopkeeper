@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Difficulty/SO_DeliveriesDifficultyTable")]
 public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry> {
@@ -15,9 +16,9 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         public List<GameObject> deliveryBoxPool;
 
         [Group("Basic Delivery")] [Tooltip("length")]
-        public int basicMaxShapeLength;
+        public int basicFirstDimensionMax;
         [Group("Basic Delivery")] [Tooltip("width")]
-        public int basicMaxShapeWidth;
+        public int basicSecondDimensionMax;
         [Group("Basic Delivery")] [Tooltip("basicChanceShapeExtension")]
         [Range(0f, 1f)] public float basicChanceShapeExtension;
 

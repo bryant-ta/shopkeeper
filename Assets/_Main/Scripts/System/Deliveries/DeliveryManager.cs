@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(VolumeSlicer))]
@@ -13,8 +14,8 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int maxColorIndex = 1;
 
     [Title("Basic Delivery")]
-    [SerializeField] int basicMaxShapeLength;
-    [SerializeField] int basicMaxShapeWidth;
+    [SerializeField] int basicFirstDimensionMax;
+    [SerializeField] int basicSecondDimensionMax;
 
     [Tooltip("1 = shapes extended until hitting volume boundary, an existing shape, or reaching max length.")]
     [SerializeField, Range(0f, 1f)] float basicChanceShapeExtension;
@@ -54,7 +55,7 @@ public class DeliveryManager : MonoBehaviour {
             DifficultyManager.Instance.ApplyDeliveryDifficulty();
 
             // separate from SetDifficultyOptions for setting debug mode values
-            basicVs.SetOptions(basicMaxShapeLength, basicMaxShapeWidth, basicChanceShapeExtension);
+            basicVs.SetOptions(basicFirstDimensionMax, basicSecondDimensionMax, basicChanceShapeExtension);
 
             Deliver();
         }
@@ -223,7 +224,7 @@ public class DeliveryManager : MonoBehaviour {
             return DeliveryOrientation.All;
         }
 
-        // scaled weights based on orderliness
+        // scaled weights based on orderliness (if length == width, then favors NS)
         float nsWeight = Mathf.Lerp(0, 1, orderliness);
         float ewWeight = Mathf.Lerp(0, 1, orderliness);
         float allWeight = Mathf.Lerp(1, 0, orderliness);
@@ -254,8 +255,8 @@ public class DeliveryManager : MonoBehaviour {
         numDeliveries = deliveryDiffEntry.numDeliveries;
         maxColorIndex = deliveryDiffEntry.maxColorIndex;
         deliveryBoxPool = new List<GameObject>(deliveryDiffEntry.deliveryBoxPool);
-        basicMaxShapeLength = deliveryDiffEntry.basicMaxShapeLength;
-        basicMaxShapeWidth = deliveryDiffEntry.basicMaxShapeWidth;
+        basicFirstDimensionMax = deliveryDiffEntry.basicFirstDimensionMax;
+        basicSecondDimensionMax = deliveryDiffEntry.basicSecondDimensionMax;
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);

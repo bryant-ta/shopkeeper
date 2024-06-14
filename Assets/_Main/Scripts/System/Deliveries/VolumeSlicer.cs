@@ -5,8 +5,8 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class VolumeSlicer : MonoBehaviour {
-    int maxShapeLength;
-    int maxShapeWidth;
+    int firstDimensionMax;
+    int SecondDimensionMax;
     float chanceOfShapeExtension;
     
     const int maxIterations = 50;
@@ -66,7 +66,7 @@ public class VolumeSlicer : MonoBehaviour {
                 Vector2Int curOffset = Vector2Int.zero;
                 int curShapeLength = 1;
                 while (Random.Range(0, 1f) <= chanceOfShapeExtension && NeighborOpen(curValidLayerCells, curCoord, lengthDir)) {
-                    if (curShapeLength >= maxShapeLength) break;
+                    if (curShapeLength >= firstDimensionMax) break;
 
                     curOffset = GetNeighbor(curOffset, lengthDir);
                     shapeData.ShapeOffsets.Add(new Vector3Int(curOffset.x, 0, curOffset.y));
@@ -81,7 +81,7 @@ public class VolumeSlicer : MonoBehaviour {
                 Direction2D widthDir = widthDirs[Random.Range(0, widthDirs.Count)];
                 int curShapeWidth = 1;
                 while (Random.Range(0, 1f) <= chanceOfShapeExtension) {
-                    if (curShapeWidth >= maxShapeWidth) break;
+                    if (curShapeWidth >= SecondDimensionMax) break;
 
                     List<Vector2Int> shapeEdgeOffsets = GetEdgeCells(shapeData.ShapeOffsets, widthDir);
                     
@@ -176,8 +176,8 @@ public class VolumeSlicer : MonoBehaviour {
     }
 
     public void SetOptions(int maxShapeLength, int maxShapeWidth, float chanceOfShapeExtension) {
-        this.maxShapeLength = maxShapeLength;
-        this.maxShapeWidth = maxShapeWidth;
+        this.firstDimensionMax = maxShapeLength;
+        this.SecondDimensionMax = maxShapeWidth;
         this.chanceOfShapeExtension = chanceOfShapeExtension;
     }
 }

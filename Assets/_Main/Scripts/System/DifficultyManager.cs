@@ -16,8 +16,8 @@ public class DifficultyManager : Singleton<DifficultyManager> {
             numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
             deliveryBoxPool = deliveryDiffTable.Filter(entry => entry.deliveryBoxPool),
-            basicMaxShapeLength = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeLength),
-            basicMaxShapeWidth = deliveryDiffTable.GetHigh(entry => entry.basicMaxShapeWidth),
+            basicFirstDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicFirstDimensionMax),
+            basicSecondDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicSecondDimensionMax),
             basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension),
             irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance),
             irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
