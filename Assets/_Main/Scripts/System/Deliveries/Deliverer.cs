@@ -54,6 +54,8 @@ public class Deliverer : MonoBehaviour, IDocker {
         Docker.StartFollowing();
     }
     public void LeaveDock() {
+        Grid.IsLocked = false;
+        
         AssignedDock.RemoveDocker();
         AssignedDock = null;
 

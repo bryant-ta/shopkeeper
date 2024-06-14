@@ -8,26 +8,27 @@ using UnityEngine;
 public class Orderer : MonoBehaviour, IDocker {
     public Order Order { get; private set; }
     public Grid Grid { get; private set; }
-    
+
     public Dock AssignedDock { get; private set; }
     public SplineFollower Docker { get; private set; }
 
     List<Product> submittedProducts = new();
-    
+
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
     public event Action<Product> OnInvalidProductSet;
 
     void Awake() {
-        HoverEvent he = GetComponent<HoverEvent>();
-        he.OnHoverEnter += HoverEnter;
-        he.OnHoverExit += HoverExit;
-
         Grid = gameObject.GetComponentInChildren<Grid>();
-        if (Grid != null) {
+        if (Grid != null) { // is a bag orderer
+            Grid.IsLocked = true;
             Grid.OnPlaceShapes += DoTryFulfillOrderList;
             Grid.OnRemoveShapes += RemoveFromOrder;
         }
+
+        HoverEvent he = GetComponent<HoverEvent>();
+        he.OnHoverEnter += HoverEnter;
+        he.OnHoverExit += HoverExit;
 
         Docker = GetComponent<SplineFollower>();
     }
@@ -39,11 +40,13 @@ public class Orderer : MonoBehaviour, IDocker {
             Debug.LogError("Unable to start order: Order is not set.");
             return;
         }
-        
+
+        if (Grid != null) Grid.IsLocked = false;
+
         // Order.StartOrder(); // TEMP: currently no timer
         Order.OnOrderSucceeded += OrderSucceeded;
         Order.OnOrderFailed += OrderFailed;
-        
+
         OnOrderStarted?.Invoke(Order);
     }
 
@@ -91,17 +94,13 @@ public class Orderer : MonoBehaviour, IDocker {
         if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
             OnInvalidProductSet?.Invoke(invalidProduct);
 
-            if (Grid != null) {
-                Grid.IsLocked = true;
-            }
+            if (Grid != null) Grid.IsLocked = true;
         }
     }
     void HoverExit() {
         OnInvalidProductSet?.Invoke(null);
 
-        if (Grid != null) {
-            Grid.IsLocked = false;
-        }
+        if (Grid != null) Grid.IsLocked = false;
     }
     public bool CheckOrderInput(List<Product> products, out Product invalidProduct) {
         invalidProduct = null;
@@ -150,7 +149,9 @@ public class Orderer : MonoBehaviour, IDocker {
     }
     public void LeaveDock() {
         Ref.OrderMngr.HandleFinishedOrderer(this);
-        
+
+        if (Grid != null) Grid.IsLocked = true;
+
         AssignedDock.RemoveDocker();
         AssignedDock = null;
 
