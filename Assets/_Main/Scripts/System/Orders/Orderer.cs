@@ -12,7 +12,7 @@ public class Orderer : MonoBehaviour, IDocker {
     public Dock AssignedDock { get; private set; }
     public SplineFollower Docker { get; private set; }
 
-    List<Product> submittedProducts = new();
+    public List<Product> SubmittedProducts { get; private set; }
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
@@ -31,6 +31,7 @@ public class Orderer : MonoBehaviour, IDocker {
         he.OnHoverExit += HoverExit;
 
         Docker = GetComponent<SplineFollower>();
+        SubmittedProducts = new();
     }
 
     #region Order
@@ -60,7 +61,7 @@ public class Orderer : MonoBehaviour, IDocker {
 
         foreach (Product product in products) {
             if (Order.Fulfill(product.ID)) {
-                submittedProducts.Add(product);
+                SubmittedProducts.Add(product);
                 SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
             } else {
                 Debug.LogError("Invalid product given to Order when check should have prevented this!");
@@ -80,7 +81,7 @@ public class Orderer : MonoBehaviour, IDocker {
     public void RemoveFromOrder(List<IGridShape> shapes) {
         foreach (IGridShape shape in shapes) {
             if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-                submittedProducts.Remove(product);
+                SubmittedProducts.Remove(product);
                 Order.Remove(product.ID);
             }
         }
@@ -155,7 +156,7 @@ public class Orderer : MonoBehaviour, IDocker {
         AssignedDock.RemoveDocker();
         AssignedDock = null;
 
-        foreach (Product product in submittedProducts) {
+        foreach (Product product in SubmittedProducts) {
             Ledger.RemoveStockedProduct(product);
         }
 

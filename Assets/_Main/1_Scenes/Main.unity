@@ -3586,6 +3586,7 @@ MonoBehaviour:
   debugMode: 1
   DoSetDifficulty: 0
   Day: 1
+  OrderPhaseDuration: 9999
 --- !u!1001 &546741877
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8348,8 +8349,8 @@ MonoBehaviour:
     Min: 1
     Max: 1
   numReqsPerOrder:
-    Min: 2
-    Max: 2
+    Min: 1
+    Max: 1
   baseOrderTime: 5
   timePerProduct: 5
   baseOrderValue: 5
@@ -8361,7 +8362,7 @@ MonoBehaviour:
   reqChanceFromExisting: 0
   reqChanceNeedsColor: 1
   reqChanceNeedsShape: 1
-  reqVirtualShapePool: 1e000000
+  reqVirtualShapePool: 07000000
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
   moldChance: 0
   moldShapePool: 18000000

@@ -61,7 +61,8 @@ public class GameManager : Singleton<GameManager> {
     void ExitStateTrigger(IState<DayPhase> state) { HandleLastState(state); }
 
     void AwakeDebugTasks() {
-        // Util.DoAfterSeconds(this, 30, () => { GlobalClock.SetTimeScale(0f); });
+        Day = DebugManager.Instance.Day;
+        OrderPhaseDuration = DebugManager.Instance.OrderPhaseDuration;
     }
     void StartDebugTasks() { }
 

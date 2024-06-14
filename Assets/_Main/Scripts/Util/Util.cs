@@ -43,14 +43,22 @@ public class Util : MonoBehaviour {
         Array values = Enum.GetValues(typeof(T));
         return (T) values.GetValue(Random.Range(0, values.Length));
     }
-    
+
     public static T GetRandomFromList<T>(List<T> list) {
         if (list == null || list.Count == 0) {
             Debug.LogError("Unable to return random from list: list is null or empty.");
             return default;
         }
-        
+
         return list[Random.Range(0, list.Count)];
+    }
+
+    public static void DictIntAdd<T>(Dictionary<T, int> dict, T key, int value) {
+        if (dict.ContainsKey(key)) {
+            dict[key] += value;
+        } else {
+            dict[key] = value;
+        }
     }
 
     public class ValueRef<T> where T : struct {

@@ -37,9 +37,6 @@ public class DifficultyManager : Singleton<DifficultyManager> {
             baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
             reqMaxNum = orderDiffTable.GetHigh(entry => entry.reqMaxNum),
             reqMaxQuantity = orderDiffTable.GetHigh(entry => entry.reqMaxQuantity),
-            reqChanceFromExisting = orderDiffTable.GetFloatLerp(entry => entry.reqChanceFromExisting),
-            reqChanceNeedsColor = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsColor),
-            reqChanceNeedsShape = orderDiffTable.GetHigh(entry => entry.reqChanceNeedsShape),
             reqVirtualShapePool = orderDiffTable.Filter(entry => entry.reqVirtualShapePool),
             moldChance = orderDiffTable.GetHigh(entry => entry.moldChance),
             moldShapePool = orderDiffTable.Filter(entry => entry.moldShapePool)

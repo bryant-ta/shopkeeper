@@ -12,6 +12,7 @@ public class DebugManager : Singleton<DebugManager> {
 
     [Title("Values")]
     public int Day = 1;
+    public float OrderPhaseDuration = 1;
 
     void Awake() {
         DebugMode = debugMode;

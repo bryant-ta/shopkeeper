@@ -23,10 +23,6 @@ public class OrderManager : MonoBehaviour {
 
     [Title("Requirement Paramenters")]
     [SerializeField] MinMax reqQuantity;
-    [Tooltip("Chance to generate a Requirement that pulls from available stock.")]
-    [SerializeField, Range(0f, 1f)] float reqChanceFromExisting = 0.5f;
-    [SerializeField, Range(0f, 1f)] float reqChanceNeedsColor;
-    [SerializeField, Range(0f, 1f)] float reqChanceNeedsShape;
     [Tooltip("Difficulty Table for requested shapes in requirements. Only used in non-fromExisting orders")]
     [SerializeField] List<ShapeDataID> reqVirtualShapePool;
 
@@ -44,8 +40,7 @@ public class OrderManager : MonoBehaviour {
     [field: Title("ReadOnly")]
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
 
-    Dictionary<ProductID, int> availableStock = new();  // Count of different products by product ID
-    Dictionary<Color, int> availableColorCells = new(); // Count of cells by color
+    Dictionary<Color, int> availableColorStock = new();     // Count of cells by color
 
     Util.ValueRef<bool> orderPhaseActive;
 
@@ -74,10 +69,7 @@ public class OrderManager : MonoBehaviour {
     }
 
     void StartOrders() {
-        foreach (KeyValuePair<ProductID, List<Product>> kv in Ledger.StockedProducts) {
-            availableStock[kv.Key] = kv.Value.Count;
-        }
-        availableColorCells = new(Ledger.CellCountByColor);
+        availableColorStock = new(Ledger.CellCountByColor);
 
         PerfectOrders = true;
 
@@ -145,11 +137,53 @@ public class OrderManager : MonoBehaviour {
         }
 
         if (orderer.Order.IsFulfilled) {
+            // Catch up stock for color cell based orders, now that actual fulfillment shape is determined
+            // Resolve difference between actual submitted vs. reserved color cells for mold orders
+            if (orderer.Order is MoldOrder moldOrder) {
+                Dictionary<Color, int> orderColorStock = new();
+                foreach (Product product in orderer.SubmittedProducts) {
+                    Color c = product.ID.Color;
+                    ShapeDataID s = product.ID.ShapeDataID;
+                    Util.DictIntAdd(orderColorStock, c, ShapeDataLookUp.LookUp(s).Size);
+                }
+
+                foreach (Color color in orderColorStock.Keys.ToList()) {
+                    Util.DictIntAdd(
+                        availableColorStock, color,
+                        CalculateMoldMinColorCount(moldOrder.Mold.ShapeData.Size, moldOrder.Requirements.Count) - orderColorStock[color]
+                    );
+                }
+            }
+
             GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
             if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
 
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
         } else {
+            // Release color cells since order was not fulfilled
+            if (orderer.Order is MoldOrder moldOrder) {
+                foreach (Requirement req in moldOrder.Requirements) {
+                    if (req.Color == null) {
+                        Debug.LogError("Unable to release color stock: Expected mold order requirement to have color.");
+                        continue;
+                    }
+
+                    Color c = req.Color ?? Color.clear;
+                    Util.DictIntAdd(
+                        availableColorStock, c, CalculateMoldMinColorCount(moldOrder.Mold.ShapeData.Size, moldOrder.Requirements.Count)
+                    );
+                }
+            } else {
+                foreach (Requirement req in orderer.Order.Requirements) {
+                    // Req had no color, so color stock was not reserved before, nothing to do.
+                    if (req.Color == null || req.ShapeDataID == null) continue;
+                    Color c = req.Color ?? Color.clear;
+                    ShapeDataID s = req.ShapeDataID ?? ShapeDataID.Custom;
+
+                    Util.DictIntAdd(availableColorStock, c, req.TargetQuantity * ShapeDataLookUp.LookUp(s).Size);
+                }
+            }
+
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
@@ -166,29 +200,25 @@ public class OrderManager : MonoBehaviour {
 
     // Populates backlog of orders
     Order GenerateOrder() {
-        Order order = Random.Range(0f, 1f) <= moldChance ?
-            GenerateMoldOrder(availableStock, availableColorCells) :
-            GenerateBagOrder(availableStock, availableColorCells);
+        Order order = Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder(availableColorStock) : GenerateBagOrder(availableColorStock);
 
-        string a = "";
-        foreach (var kv in availableStock) {
-            a += $"{kv.Key} | {kv.Value}";
-        }
-        print(a);
+        // TEMP: remove after verifying color accounting errors
+        // string a = "";
+        // foreach (var kv in availableColorStock) {
+        //     a += $"{kv.Key} | {kv.Value}\n";
+        // }
+        // print(a);
 
         return order;
         // TODO: handle when no order can be generated?
     }
 
-    Order GenerateBagOrder(Dictionary<ProductID, int> shapeStock, Dictionary<Color, int> colorStock) {
+    Order GenerateBagOrder(Dictionary<Color, int> colorStock) {
         Order order = new Order(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
         for (int j = 0; j < numReqs; j++) {
-            Requirement req = Random.Range(0f, 1f) <= reqChanceFromExisting ?
-                MakeRequirementFromExisting(shapeStock, colorStock) :
-                MakeRequirementFromVirtual(shapeStock, colorStock);
-
+            Requirement req = MakeRequirementFromVirtual(colorStock);
             if (req != null) {
                 order.AddRequirement(req);
             }
@@ -198,7 +228,7 @@ public class OrderManager : MonoBehaviour {
         return order;
     }
 
-    Requirement MakeRequirementFromVirtual(Dictionary<ProductID, int> shapeStock, Dictionary<Color, int> colorStock) {
+    Requirement MakeRequirementFromVirtual(Dictionary<Color, int> colorStock) {
         ShapeDataID reqShapeDataID = Util.GetRandomFromList(reqVirtualShapePool);
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
@@ -210,9 +240,11 @@ public class OrderManager : MonoBehaviour {
         // If no colors have enough cells, scale back count of shape until some colors can support it.
         List<Color> availableColors = new();
         while (availableColors.Count == 0) {
-            if (quantity == 0) { // Not enough cells of any color to create req shape even once. Use requirement from existing as backup.
+            if (quantity == 0) { // Not enough cells of any color to create req shape even once. Use 1x1 as backup.
                 print("using backup");
-                return MakeRequirementFromExisting(shapeStock, colorStock);
+                Color c = Util.GetRandomFromList(colorStock.Keys.ToList());
+                quantity = Math.Min(colorStock[c], randomQuantity);
+                return new Requirement(c, null, ShapeDataID.O1, quantity);
             }
 
             availableColors = colorStock.Where(kv => kv.Value >= consumedCount).Select(kv => kv.Key)
@@ -229,68 +261,16 @@ public class OrderManager : MonoBehaviour {
 
         Requirement req = new Requirement(color, null, reqShapeDataID, quantity);
 
-        // Remove stock until enough cells of a color have been accounted for
-        List<ProductID> stockIDsOfColor = shapeStock.Where(kv => kv.Key.Color == req.Color).Select(kv => kv.Key).ToList();
-        while (consumedCount > 0) {
-            if (stockIDsOfColor.Count == 0) {
-                Debug.LogError("Expected stock to remove, but no stock remains.");
-                break;
-            }
-
-            ProductID productID = Util.GetRandomFromList(stockIDsOfColor);
-            shapeStock[productID]--;
-            consumedCount -= productID.ShapeData.Size;
-
-            if (shapeStock[productID] <= 0) {
-                shapeStock.Remove(productID);
-                stockIDsOfColor.Remove(productID);
-            }
-
-            colorStock[productID.Color] -= productID.ShapeData.Size;
-            if (colorStock[productID.Color] <= 0) {
-                colorStock.Remove(productID.Color);
-            }
+        colorStock[color] -= consumedCount;
+        if (colorStock[color] <= 0) {
+            colorStock.Remove(color);
         }
-
-        return req;
-    }
-    Requirement MakeRequirementFromExisting(Dictionary<ProductID, int> shapeStock, Dictionary<Color, int> colorStock) {
-        if (shapeStock.Count == 0) {
-            Debug.LogWarning("No available stock to generate orders from!");
-            return null;
-        }
-
-        ProductID productID = Util.GetRandomFromList(shapeStock.Keys.ToList());
-
-        int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
-        int quantity = Math.Min(randomQuantity, shapeStock[productID]);
-        if (quantity == 0) {
-            Debug.LogWarning("No available stock to generate orders from!");
-            return null;
-        }
-
-        Requirement req = new Requirement(productID.Color, productID.Pattern, productID.ShapeDataID, quantity);
-
-        // Equality check is flipped vs. MakeRequirement bc here we overwrite req values with null instead of filling them out
-        if (Random.Range(0f, 1f) > reqChanceNeedsColor) { req.Color = null; }
-
-        // if (Random.Range(0f, 1f) > 1) {
-        //     req.Pattern = Ledger.Instance.PatternPaletteData.Patterns[Random.Range(0, 2)];
-        // }
-        // Guarantee at least ShapeDataID is kept
-        if (Random.Range(0f, 1f) > reqChanceNeedsShape && (req.Color != null || req.Pattern != null)) { req.ShapeDataID = null; }
-
-        shapeStock[productID] -= quantity;
-        if (shapeStock[productID] == 0) shapeStock.Remove(productID);
-
-        colorStock[productID.Color] -= quantity * productID.ShapeData.Size;
-        if (colorStock[productID.Color] <= 0) colorStock.Remove(productID.Color);
 
         return req;
     }
 
     // Mold order requirement is only a color
-    MoldOrder GenerateMoldOrder(Dictionary<ProductID, int> shapeStock, Dictionary<Color, int> colorStock) {
+    MoldOrder GenerateMoldOrder(Dictionary<Color, int> colorStock) {
         MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
 
         // Generate mold shape
@@ -300,7 +280,7 @@ public class OrderManager : MonoBehaviour {
 
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
         // Remove rounding if want some orders to possibly be impossible with available stock
-        int minColorCount = Mathf.CeilToInt((float) moldShapeData.Size / numReqs);
+        int minColorCount = CalculateMoldMinColorCount(moldShapeData.Size, numReqs);
 
         for (int j = 0; j < numReqs; j++) {
             // Find available stock with enough quantity to fill mold
@@ -311,40 +291,22 @@ public class OrderManager : MonoBehaviour {
                 return null;
             }
 
-            Color reqColor = Util.GetRandomFromList(availableColors);
+            Color color = Util.GetRandomFromList(availableColors);
 
             // Add requirement
-            Requirement req = new Requirement(reqColor, null, null);
+            Requirement req = new Requirement(color, null, null);
             moldOrder.AddRequirement(req);
 
-            // Remove stock until enough cells of a color have been accounted for
-            int consumedCount = minColorCount;
-            List<ProductID> stockIDsOfColor = shapeStock.Where(kv => kv.Key.Color == req.Color).Select(kv => kv.Key).ToList();
-            while (consumedCount > 0) {
-                if (stockIDsOfColor.Count == 0) {
-                    Debug.LogError("Expected stock to remove, but no stock remains.");
-                    break;
-                }
-
-                ProductID productID = Util.GetRandomFromList(stockIDsOfColor);
-                shapeStock[productID]--;
-                consumedCount -= productID.ShapeData.Size;
-
-                if (shapeStock[productID] <= 0) {
-                    shapeStock.Remove(productID);
-                    stockIDsOfColor.Remove(productID);
-                }
-                
-                colorStock[productID.Color] -= productID.ShapeData.Size;
-                if (colorStock[productID.Color] <= 0) {
-                    colorStock.Remove(productID.Color);
-                }
+            colorStock[color] -= minColorCount;
+            if (colorStock[color] <= 0) {
+                colorStock.Remove(color);
             }
         }
 
         if (moldOrder.Requirements.Count == 0) return null;
         return moldOrder;
     }
+    int CalculateMoldMinColorCount(float moldSize, int numReqs) { return Mathf.CeilToInt(moldSize / numReqs); }
 
     #endregion
 
@@ -355,9 +317,6 @@ public class OrderManager : MonoBehaviour {
 
         numReqsPerOrder.Max = orderDiffEntry.reqMaxNum;
         reqQuantity.Max = orderDiffEntry.reqMaxQuantity;
-        reqChanceFromExisting = orderDiffEntry.reqChanceFromExisting;
-        reqChanceNeedsColor = orderDiffEntry.reqChanceNeedsColor;
-        reqChanceNeedsShape = orderDiffEntry.reqChanceNeedsShape;
         reqVirtualShapePool = new List<ShapeDataID>(orderDiffEntry.reqVirtualShapePool);
 
         moldChance = orderDiffEntry.moldChance;
