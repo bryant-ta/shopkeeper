@@ -43,7 +43,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     }
 
     void Grab(ClickInputArgs clickInputArgs) {
-        if (!DragGrid.IsEmpty()) return;
+        if (!DragGrid.IsAllEmpty()) return;
 
         GameObject clickedObj = clickInputArgs.TargetObj;
         IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
@@ -113,7 +113,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
-        if (DragGrid.IsEmpty()) return;
+        if (DragGrid.IsAllEmpty()) return;
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid == null) {
             List<IGridShape> heldShapes = DragGrid.AllShapes();
@@ -193,7 +193,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     bool isRotating = false;
     int numRotations = 0;
     void Rotate(bool clockwise, bool tween = true) {
-        if (DragGrid.IsEmpty()) return;
+        if (DragGrid.IsAllEmpty()) return;
         if (isRotating) return;
 
         isRotating = true;
@@ -265,7 +265,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void DoRotate(bool clockwise) { Rotate(true); }
 
     void Release(ClickInputArgs clickInputArgs) {
-        if (DragGrid.IsEmpty()) return;
+        if (DragGrid.IsAllEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
 
         // Non-grid releases
@@ -348,7 +348,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         OnRelease?.Invoke();
     }
     void Cancel() {
-        if (DragGrid.IsEmpty()) return;
+        if (DragGrid.IsAllEmpty()) return;
         List<IGridShape> heldShapes = DragGrid.AllShapes();
 
         // undo rotations during drag... like unwinding lol

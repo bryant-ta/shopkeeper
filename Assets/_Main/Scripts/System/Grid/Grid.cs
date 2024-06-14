@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using TriInspector;
+using UnityEditor.Search;
 using UnityEngine;
 
 public class Grid : MonoBehaviour {
@@ -29,6 +30,7 @@ public class Grid : MonoBehaviour {
 
     List<Zone> zones = new();
     HashSet<Vector2Int> validCells = new();
+    public HashSet<Vector2Int> ValidCells => validCells;
 
     public event Action<List<IGridShape>> OnPlaceShapes;  // triggered once per move of a STACK of shape on both origin and target grid
     public event Action<List<IGridShape>> OnRemoveShapes; // triggered once per move of a STACK of shape on both origin and target grid
@@ -532,7 +534,6 @@ public class Grid : MonoBehaviour {
 
     /// <summary>
     /// Adds a range of valid cells to grid (inclusive)
-    /// - Note: currently does not update length/width bc only used in initial grid setup
     /// </summary>
     public void AddValidCellsRange(Vector2Int startPos, Vector2Int endPos) {
         for (int x = startPos.x; x <= endPos.x; x++) {
@@ -540,6 +541,24 @@ public class Grid : MonoBehaviour {
                 validCells.Add(new Vector2Int(x, y));
             }
         }
+    }
+    /// <summary>
+    /// Removes a valid cell from grid
+    /// </summary>
+    public void RemoveValidCell(Vector2Int pos) {
+        if (!validCells.Contains(pos)) {
+            Debug.Log($"Unable to remove cell: {pos} does not exist in grid ({SearchUtils.GetHierarchyPath(gameObject)}");
+            return;
+        }
+
+        for (int y = 0; y <= MaxY; y++) {
+            if (!IsOpen(new Vector3Int(pos.x, y, pos.y))) {
+                Debug.Log($"Unable to remove cell: {pos} is occupied in grid ({SearchUtils.GetHierarchyPath(gameObject)}");
+                return;
+            }
+        }
+
+        validCells.Remove(pos);
     }
 
     bool xNudged; bool zNudged;
@@ -589,7 +608,7 @@ public class Grid : MonoBehaviour {
     bool IsInBoundsXZ(Vector3Int coord) { return validCells.Contains(new Vector2Int(coord.x, coord.z)); }
     bool IsInBoundsY(Vector3Int coord) { return coord.y >= MinY && coord.y <= MaxY; }
 
-    public bool IsEmpty() { return cells.Count == 0; }
+    public bool IsAllEmpty() { return cells.Count == 0; }
 
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();

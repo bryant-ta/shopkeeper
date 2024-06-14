@@ -25,7 +25,7 @@ public class Deliverer : MonoBehaviour, IDocker {
     // TEMP: placeholder until/if doing delivery boxes
     IGridShape lastShape;
     void CheckLastShapeMoved(List<IGridShape> shapes) {
-        if (!Grid.IsEmpty()) return;
+        if (!Grid.IsAllEmpty()) return;
 
         lastShape = shapes[0];
 
