@@ -8359,12 +8359,9 @@ MonoBehaviour:
   reqQuantity:
     Min: 1
     Max: 2
-  reqChanceFromExisting: 0
-  reqChanceNeedsColor: 1
-  reqChanceNeedsShape: 1
-  reqVirtualShapePool: 07000000
+  reqVirtualShapePool: 06000000
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  moldChance: 0
+  moldChance: 1
   moldShapePool: 18000000
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}

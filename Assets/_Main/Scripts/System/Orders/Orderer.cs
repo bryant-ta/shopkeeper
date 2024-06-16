@@ -68,8 +68,10 @@ public class Orderer : MonoBehaviour, IDocker {
             }
         }
 
-        if (Grid == null) { // Destroy fulfilled product for bag orders
-            Ref.Instance.Trash.TrashShapes(shapes, Ref.Player.PlayerDrag.DragGrid);
+        if (Grid == null) { // Destroy fulfilled product for bag orders (ledger removal occurs when orderer actually leaves dock
+            foreach (IGridShape shape in shapes) {
+                shape.Grid.DestroyShape(shape);
+            }
         }
 
         if (Order.IsFinished()) {

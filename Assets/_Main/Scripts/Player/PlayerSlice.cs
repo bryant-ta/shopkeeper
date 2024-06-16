@@ -42,7 +42,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Split targetShapeData into two shapes according to slicing selection
         List<Vector3Int> offsetsB = new();
-        List<Vector3Int> unvisitedOffsets = origShape.ShapeData.ShapeOffsets;
+        List<Vector3Int> unvisitedOffsets = new List<Vector3Int>(origShape.ShapeData.ShapeOffsets);
         Queue<Vector3Int> searchQueue = new();
         offsetsB.Add(rightCellOffset);
         unvisitedOffsets.Remove(rightCellOffset);

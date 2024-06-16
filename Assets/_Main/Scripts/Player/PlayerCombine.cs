@@ -27,6 +27,8 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
         Product selectedProduct = Util.GetProductFromShape(selectedShape);
         if (selectedProduct == null) return;
 
+        if (combinedProducts.Count <= 1) return;
+
         // Remove original shapes from grid
         foreach (Product product in combinedProducts) {
             targetGrid.RemoveShapeCells(product, false);

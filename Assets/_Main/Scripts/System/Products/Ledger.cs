@@ -6,7 +6,7 @@ using UnityEngine;
 public class Ledger : Singleton<Ledger> {
     [field: SerializeField] public SO_ColorPalette ColorPaletteData { get; private set; }
     [field: SerializeField] public SO_PatternPalette PatternPaletteData { get; private set; }
-    
+
     public static Dictionary<ProductID, List<Product>> StockedProducts { get; private set; }
     public static Dictionary<Color, int> CellCountByColor { get; private set; }
 
@@ -16,24 +16,25 @@ public class Ledger : Singleton<Ledger> {
     }
 
     public static void AddStockedProduct(Product product) {
-        // Don't record custom shapes
-        if (product.ID.ShapeDataID == ShapeDataID.Custom) { return; }
-        
-        if (StockedProducts.ContainsKey(product.ID)) {
-            StockedProducts[product.ID].Add(product);
-        } else {
-            StockedProducts[product.ID] = new List<Product> {product};
+        if (product.ID.ShapeDataID != ShapeDataID.Custom) {
+            if (StockedProducts.ContainsKey(product.ID)) {
+                StockedProducts[product.ID].Add(product);
+            } else {
+                StockedProducts[product.ID] = new List<Product> {product};
+            }
         }
 
         AddColorCellCount(product.ID.Color, product.ShapeData.Size);
     }
     public static void RemoveStockedProduct(Product product) {
-        if (StockedProducts.ContainsKey(product.ID)) {
-            StockedProducts[product.ID].Remove(product);
-            RemoveColorCellCount(product.ID.Color, product.ShapeData.Size);
+        if (product.ID.ShapeDataID != ShapeDataID.Custom) {
+            if (StockedProducts.ContainsKey(product.ID)) {
+                StockedProducts[product.ID].Remove(product);
+            }
         }
+
+        RemoveColorCellCount(product.ID.Color, product.ShapeData.Size);
     }
-    public static List<ProductID> GetStockedProductIDs() { return StockedProducts.Keys.ToList(); }
     public static Dictionary<ProductID, List<Product>> GetStockedProductsCopy() {
         Dictionary<ProductID, List<Product>> copy = new();
 
@@ -46,13 +47,7 @@ public class Ledger : Singleton<Ledger> {
         return copy;
     }
 
-    static void AddColorCellCount(Color color, int n) {
-        if (CellCountByColor.ContainsKey(color)) {
-            CellCountByColor[color] += n;
-        } else {
-            CellCountByColor[color] = n;
-        }
-    }
+    static void AddColorCellCount(Color color, int n) { Util.DictIntAdd(CellCountByColor, color, n); }
     static void RemoveColorCellCount(Color color, int n) {
         if (CellCountByColor.ContainsKey(color)) {
             CellCountByColor[color] -= n;
