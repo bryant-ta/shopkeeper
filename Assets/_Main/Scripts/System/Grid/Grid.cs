@@ -594,7 +594,13 @@ public class Grid : MonoBehaviour {
             zNudged = false;
         }
         
-        // TODO: Check if all of grid's shapes still fit in grid
+        List<IGridShape> shapes = AllShapes();
+        if (shapes.Count == 0) return;
+        
+        PlacementValidations pv = ValidateShapesPlacement(shapes[0].ShapeData.RootCoord, shapes, true);
+        if (!pv.IsValid) {
+            Debug.LogError("Shapes in grid no longer have valid placemnt after setting grid size!");
+        }
     }
 
     public void SetMaxHeight(int height) { this.height = height; }
