@@ -1276,7 +1276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numDeliveries: 5
+  numDeliveries: 1
   maxColorIndex: 1
   ColorPaletteData: {fileID: 11400000, guid: 85a7bb29bda9c4b42aa484577f0ea68a, type: 2}
   PatternPaletteData: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}

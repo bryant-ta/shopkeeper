@@ -2,9 +2,9 @@ Shader "GridLines" {
 
    Properties {
       _GridThickness ("Grid Thickness", Float) = 0.02
-      _WorldGridSpacing ("World Grid Spacing", Float) = 1.0 // Default to 1 unit size in Unity world
-      _HighlightColor ("Highlight Color", Color) = (0.5, 0.5, 1.0, 1.0)
-      _GridColor ("Grid Color", Color) = (0.0, 0.0, 0.0, 0.0)
+      _WorldGridSpacing ("World Grid Spacing", Float) = 1.0
+      _HighlightColor ("Highlight Color", Color) = (0.5, 0.5, 1.0, 1.0) // highlight color around mouse
+      _GridColor ("Grid Color", Color) = (0.0, 0.0, 0.0, 0.0) // base grid color
       _FadeDistance ("Fade Distance", Float) = 5.0
       [HideInInspector] _CursorHitPosition ("Cursor Intersection with Grid", Vector) = (0.0, 0.0, 0.0)
    }

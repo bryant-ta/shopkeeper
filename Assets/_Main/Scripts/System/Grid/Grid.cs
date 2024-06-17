@@ -80,6 +80,8 @@ public class Grid : MonoBehaviour {
             seq.Append(shape.ObjTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
             seq.Play().OnComplete(
                 () => {
+                    // this might work for null checking IGridShape in the future?
+                    // (UnityEngine.Object) shape == null
                     for (var i = 0; i < shape.Colliders.Count; i++) {
                         shape.Colliders[i].enabled = true;
                     }
