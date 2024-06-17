@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0e1b0611fa9f4384289fc55a15d4a961, type: 3}
-  m_Name: COPY_DeliveryDiffTableMain
+  m_Name: DeliveryDiffTableMain_10Color
   m_EditorClassIdentifier: 
   table:
   - <day>k__BackingField: 1

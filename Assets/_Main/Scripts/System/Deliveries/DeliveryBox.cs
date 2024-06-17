@@ -79,7 +79,7 @@ public class DeliveryBox : MonoBehaviour, IGridShape {
         }
         
         // TEMP: until box open animation
-        Destroy(ObjTransform.gameObject);
+        ((IGridShape)this).DestroyShape(ObjTransform.gameObject);
     }
 
     public void SetOutline(Color color) { Properties.outlineColor.SetValue(mat, color); }

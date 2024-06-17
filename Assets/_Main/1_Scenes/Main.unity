@@ -1278,6 +1278,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numDeliveries: 1
   maxColorIndex: 1
+  ColorPaletteData: {fileID: 11400000, guid: 85a7bb29bda9c4b42aa484577f0ea68a, type: 2}
+  PatternPaletteData: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
   basicFirstDimensionMax: 2
   basicSecondDimensionMax: 1
   basicChanceShapeExtension: 1
@@ -3584,8 +3586,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
-  DoSetDifficulty: 0
-  Day: 1
+  DoSetDifficulty: 1
+  Day: 20
   OrderPhaseDuration: 9999
 --- !u!1001 &546741877
 PrefabInstance:
@@ -13284,8 +13286,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d9367d9a3e214b43ac8d74953fcaa5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <ColorPaletteData>k__BackingField: {fileID: 11400000, guid: 3ecd5bdff42001d49b2b87246b8707dc, type: 2}
-  <PatternPaletteData>k__BackingField: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
 --- !u!1 &2071355733
 GameObject:
   m_ObjectHideFlags: 0
