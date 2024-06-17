@@ -54,14 +54,15 @@ public class Deliverer : MonoBehaviour, IDocker {
         Docker.StartFollowing();
     }
     public void LeaveDock() {
+        AssignedDock.RemoveDocker();
+        Ref.DeliveryMngr.HandleFinishedDeliverer(this);
+        
         Grid.IsLocked = false;
         
-        AssignedDock.RemoveDocker();
         AssignedDock = null;
 
         // TEMP: until leaving anim
         Docker.StartFollowing();
-        Docker.OnReachedEnd += () => Destroy(gameObject);
     }
 
     #endregion

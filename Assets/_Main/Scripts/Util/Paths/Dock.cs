@@ -23,7 +23,6 @@ public class Dock : MonoBehaviour {
         
         // Start listening for when docker arrives at dock
         Docker.OnReachedEnd += HandleArrival;
-        
         Docker.Spline = pathIn;
 
         return true;

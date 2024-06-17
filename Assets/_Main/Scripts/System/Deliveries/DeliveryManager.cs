@@ -39,7 +39,9 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] GameObject delivererObj;
     [SerializeField] List<GameObject> deliveryBoxPool;
     List<DeliveryBox> curDeliveryBoxes = new();
-    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0;
+    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curRemainingDeliveries == 0;
+
+    int curRemainingDeliveries;
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
@@ -66,6 +68,8 @@ public class DeliveryManager : MonoBehaviour {
         curDeliveryBoxes.Clear();
 
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
+        // TODO: deliverer queue
+        curRemainingDeliveries = numDeliveries;
         int count = Math.Min(numDeliveries, docks.Count);
         for (int i = 0; i < count; i++) {
             CreateDeliverer(docks[i]);
@@ -107,6 +111,18 @@ public class DeliveryManager : MonoBehaviour {
         Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, cargoShape);
+        
+        curRemainingDeliveries--;
+    }
+
+    public void HandleFinishedDeliverer(Deliverer deliverer) {
+        if (curRemainingDeliveries > 0) {
+            CreateDeliverer(deliverer.AssignedDock);
+        }
+        
+        deliverer.Docker.OnReachedEnd += () => {
+            Destroy(deliverer.gameObject);
+        };
     }
 
     /// <summary>
