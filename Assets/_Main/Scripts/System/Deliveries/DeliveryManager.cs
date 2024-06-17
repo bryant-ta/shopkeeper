@@ -198,10 +198,12 @@ public class DeliveryManager : MonoBehaviour {
     Product GenerateIrregularDelivery() {
         ShapeDataID id = Util.GetRandomFromList(irregularShapePool);
         ShapeData shapeData = ShapeDataLookUp.LookUp(id);
+        List<ShapeTagID> shapeTags = new List<ShapeTagID> {ShapeTagID.NoCombine, ShapeTagID.NoSlice, ShapeTagID.NoPlaceInTrash};
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
             ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
             Pattern.None, // TEMP: until implementing pattern
-            shapeData
+            shapeData,
+            shapeTags
         );
 
         Product product = ProductFactory.Instance.CreateProduct(productData, Ref.Instance.OffScreenSpawnTrs.position);

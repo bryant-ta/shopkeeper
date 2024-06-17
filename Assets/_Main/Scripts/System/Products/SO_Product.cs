@@ -5,9 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Products/SO_Product")]
 public class SO_Product : ScriptableObject {
     public ProductID ID;
-
     [SerializeField] ShapeData shapeData;
-
     public ShapeData ShapeData {
         get => shapeData;
         set {

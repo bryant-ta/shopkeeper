@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using MK.Toon;
 using UnityEngine;
 
@@ -53,12 +54,14 @@ public class ProductFactory : Singleton<ProductFactory> {
     /// Creates SO_Product instance from params.
     /// </summary>
     /// <remarks>NOTE: Automatically creates new instance of ShapeData to prevent Products sharing the same instance.</remarks>
-    public SO_Product CreateSOProduct(Color color, Pattern pattern, ShapeData shapeData) {
+    public SO_Product CreateSOProduct(Color color, Pattern pattern, ShapeData shapeData, List<ShapeTagID> shapeTags = null) {
         SO_Product productData = ScriptableObject.CreateInstance<SO_Product>();
 
         productData.ID = new ProductID(color, pattern, shapeData);
         productData.ShapeData = new ShapeData(shapeData);
-        productData.ShapeTagIDs = new();
+        if (shapeTags != null && shapeTags.Count != 0) {
+            productData.ShapeTagIDs = new(shapeTags);
+        }
 
         return productData;
     }
