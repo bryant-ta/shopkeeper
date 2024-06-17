@@ -3586,7 +3586,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
-  DoSetDifficulty: 1
+  DoSetDifficulty: 0
   Day: 20
   OrderPhaseDuration: 9999
 --- !u!1001 &546741877
@@ -8363,7 +8363,7 @@ MonoBehaviour:
     Max: 2
   reqVirtualShapePool: 06000000
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  moldChance: 0
+  moldChance: 1
   moldShapePool: 18000000
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}

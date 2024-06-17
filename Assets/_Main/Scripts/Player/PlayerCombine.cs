@@ -60,7 +60,7 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
     IGridShape lastSelectedShape;
     void CombinePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
-        if (targetGrid == null) {
+        if (targetGrid != GameManager.WorldGrid) {
             previewObj.SetActive(false);
             return;
         }

@@ -103,7 +103,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     bool lastIsZSlice;
     void SlicePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
-        if (targetGrid == null) {
+        if (targetGrid != GameManager.WorldGrid) {
             previewObj.SetActive(false);
             return;
         }
