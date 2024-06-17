@@ -40,7 +40,7 @@ public class OrderManager : MonoBehaviour {
     [field: Title("ReadOnly")]
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
 
-    Dictionary<Color, int> availableColorStock = new();     // Count of cells by color
+    Dictionary<Color, int> availableColorStock = new(); // Count of cells by color
 
     Util.ValueRef<bool> orderPhaseActive;
 
@@ -116,8 +116,11 @@ public class OrderManager : MonoBehaviour {
         }
 
         Order order = GenerateOrder();
+        if (order == null) {
+            return;
+        }
+        
         Orderer orderer;
-
         if (order is MoldOrder moldOrder) {
             // Setup MoldOrder Orderer
             orderer = Instantiate(moldOrdererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Orderer>();
@@ -198,19 +201,13 @@ public class OrderManager : MonoBehaviour {
 
     #region Order Generation
 
-    // Populates backlog of orders
     Order GenerateOrder() {
         Order order = Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder(availableColorStock) : GenerateBagOrder(availableColorStock);
-
-        // TEMP: remove after verifying color accounting errors
-        // string a = "";
-        // foreach (var kv in availableColorStock) {
-        //     a += $"{kv.Key} | {kv.Value}\n";
-        // }
-        // print(a);
+        if (order == null) {
+            Debug.Log("Did not generate order.");
+        }
 
         return order;
-        // TODO: handle when no order can be generated?
     }
 
     Order GenerateBagOrder(Dictionary<Color, int> colorStock) {
@@ -241,7 +238,11 @@ public class OrderManager : MonoBehaviour {
         List<Color> availableColors = new();
         while (availableColors.Count == 0) {
             if (quantity == 0) { // Not enough cells of any color to create req shape even once. Use 1x1 as backup.
-                print("using backup");
+                if (colorStock.Keys.Count == 0) {
+                    Debug.LogWarning("Unable to generate virtual requirement: out of stock.");
+                    return null;
+                }
+
                 Color c = Util.GetRandomFromList(colorStock.Keys.ToList());
                 quantity = Math.Min(colorStock[c], randomQuantity);
                 return new Requirement(c, null, ShapeDataID.O1, quantity);
