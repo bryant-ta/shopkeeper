@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
     [Tooltip("Point raycast detects this layer.")]
-    [SerializeField] LayerMask pointLayer;
+    [field: SerializeField] LayerMask pointLayer;
 
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
@@ -29,7 +29,7 @@ public class PlayerInput : MonoBehaviour {
 
     // uses Action Type "Button"
     public void OnPrimary(InputAction.CallbackContext ctx) {
-        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(ctx);
+        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
         if (clickInputArgs.TargetObj == null) return;
 
         if (ctx.performed) {
@@ -40,7 +40,7 @@ public class PlayerInput : MonoBehaviour {
     }
 
     public void OnSecondary(InputAction.CallbackContext ctx) {
-        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(ctx);
+        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
         if (clickInputArgs.TargetObj == null) return;
 
         if (ctx.performed) {
@@ -50,42 +50,32 @@ public class PlayerInput : MonoBehaviour {
         }
     }
 
-    ClickInputArgs ClickInputArgsRaycast(InputAction.CallbackContext ctx) {
-        ClickInputArgs clickInputArgs = new();
-        if (ctx.performed || ctx.canceled) {
-            Ray ray = mainCam.ScreenPointToRay(cursorPosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
-                if (hit.collider != null) {
-                    clickInputArgs.HitNormal = hit.normal;
-                    clickInputArgs.HitPoint = hit.point;
-                    clickInputArgs.TargetObj = hit.collider.gameObject;
-                }
-            }
-        }
-
-        return clickInputArgs;
-    }
-
     // Sends collision point from cursor raycast
+    Vector2 cursorPosition;
     public void OnPoint(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             cursorPosition = ctx.ReadValue<Vector2>();
         }
     }
 
-    Vector2 cursorPosition;
     void Update() {
-        Ray ray = mainCam.ScreenPointToRay(cursorPosition);
+        ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
+        InputPoint?.Invoke(clickInputArgs);
+    }
+
+    ClickInputArgs ClickInputArgsRaycast(Vector2 cursorPos) {
+        ClickInputArgs clickInputArgs = new();
+        Ray ray = mainCam.ScreenPointToRay(cursorPos);
         if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
             if (hit.collider != null) {
-                ClickInputArgs clickInputArgs = new ClickInputArgs {
-                    HitNormal = hit.normal,
-                    HitPoint = hit.point,
-                    TargetObj = hit.collider.gameObject,
-                };
-                InputPoint?.Invoke(clickInputArgs);
+                clickInputArgs.CursorPos = cursorPos;
+                clickInputArgs.HitNormal = hit.normal;
+                clickInputArgs.HitPoint = hit.point;
+                clickInputArgs.TargetObj = hit.collider.gameObject;
             }
         }
+
+        return clickInputArgs;
     }
 
     #endregion
@@ -101,7 +91,7 @@ public class PlayerInput : MonoBehaviour {
             InputDragTool?.Invoke();
         }
     }
-    
+
     public void OnSliceTool(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputSliceTool?.Invoke();
@@ -115,7 +105,7 @@ public class PlayerInput : MonoBehaviour {
     }
 
     #endregion
-    
+
     #region Camera
 
     public event Action<float> InputScroll;
@@ -192,7 +182,7 @@ public class PlayerInput : MonoBehaviour {
     }
 
     #endregion
-    
+
     public event Action InputCancel;
 
     public void OnPause(InputAction.CallbackContext ctx) {

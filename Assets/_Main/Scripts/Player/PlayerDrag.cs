@@ -75,6 +75,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             selectedShapeCellCoord = new Vector3Int(selectedShapeCellCoord.x, clickedShape.ShapeData.RootCoord.y, selectedShapeCellCoord.z);
         }
 
+        // Vector3 cellScreenPos = mainCam.WorldToScreenPoint(targetGrid.transform.TransformPoint(selectedShapeCellCoord));
+        // clickPointOffset = new Vector2(cellScreenPos.x, cellScreenPos.y) - clickInputArgs.CursorPos;
+
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
 
         previousShapePos = clickedShape.ShapeData.RootCoord;
@@ -102,6 +105,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         SetIsHolding(true);
         numRotations = 0;
 
+        grabCursorPos = clickInputArgs.CursorPos;
         // Cursor.visible = false;
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
@@ -112,9 +116,14 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void Update() { dragSelectorTrs.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
+    Vector2 grabCursorPos;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsAllEmpty()) return;
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
+
+        // Prevent shapes immediately jumping from raycast hitting cell behind shape, better dragging experience
+        if ((clickInputArgs.CursorPos - grabCursorPos).sqrMagnitude < 100f) return;
+
         if (targetGrid == null) {
             List<IGridShape> heldShapes = DragGrid.AllShapes();
             if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
