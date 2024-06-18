@@ -9,7 +9,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
 
-    [SerializeField] Transform dragSelectorTrs;
+    [SerializeField] Transform dragPivot;
     Vector3 pivotTargetRotation;
 
     [Title("Selected Shape Outline")]
@@ -31,7 +31,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     public event Action<Vector3> OnDrag;
     public event Action OnRelease;
 
-    void Awake() { pivotTargetRotation = dragSelectorTrs.rotation.eulerAngles; }
+    void Awake() { pivotTargetRotation = dragPivot.rotation.eulerAngles; }
 
     bool isHolding;
     void GrabRelease(ClickInputArgs clickInputArgs) {
@@ -105,13 +105,18 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         grabCursorPos = clickInputArgs.CursorPos;
         // Cursor.visible = false;
+        
+        // Do lift movement
+        string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+        DOTween.Kill(tweenID);
+        DragGrid.transform.DOMove(DragGrid.transform.position + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
 
         OnGrab?.Invoke(clickInputArgs.HitPoint);
     }
 
-    void Update() { dragSelectorTrs.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
+    void Update() { dragPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
     void Drag(ClickInputArgs clickInputArgs) {
@@ -192,12 +197,11 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
         string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(tweenID);
-        DragGrid.transform.DOMove(worldPos, TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
-        // DragGrid.transform.DORotateQuaternion(targetGrid.transform.rotation, 0.15f).SetEase(Ease.OutQuad);
+        DragGrid.transform.DOMove(worldPos + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
     }
 
-    bool isRotating = false;
-    int numRotations = 0;
+    bool isRotating;
+    int numRotations;
     void Rotate(bool clockwise, bool tween = true) {
         if (DragGrid.IsAllEmpty()) return;
         if (isRotating) return;
@@ -217,26 +221,25 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
          * The simple non-illusion way (no tweening) just requires logical rotation + instant physical rotation -> instant physical shift
          */
         foreach (IGridShape shape in dragShapes) {
-            shape.ObjTransform.SetParent(dragSelectorTrs);
+            shape.ObjTransform.SetParent(dragPivot);
         }
 
         // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
         string moveTweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(moveTweenID);
-        Vector3 worldPos;
-        worldPos = targetGrid ? targetGrid.transform.TransformPoint(selectedCellCoord) : dragSelectorTrs.transform.position;
+        Vector3 worldPos = targetGrid ? targetGrid.transform.TransformPoint(selectedCellCoord) : dragPivot.transform.position;
         worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
-        DragGrid.transform.position = worldPos;
+        DragGrid.transform.position = worldPos + new Vector3(0, hoverHeight, 0);
 
-        dragSelectorTrs.rotation = Quaternion.Euler(pivotTargetRotation);
-        pivotTargetRotation = dragSelectorTrs.rotation.eulerAngles;
+        dragPivot.rotation = Quaternion.Euler(pivotTargetRotation);
+        pivotTargetRotation = dragPivot.rotation.eulerAngles;
         pivotTargetRotation.y += clockwise ? 90f : -90f;
 
-        string rotateTweenID = dragSelectorTrs.transform.GetInstanceID() + TweenManager.DragRotateID;
+        string rotateTweenID = dragPivot.transform.GetInstanceID() + TweenManager.DragRotateID;
         DOTween.Kill(rotateTweenID);
 
         if (tween) {
-            dragSelectorTrs.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.InOutQuad)
+            dragPivot.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.InOutQuad)
                 .OnComplete(
                     () => {
                         foreach (IGridShape shape in dragShapes) {
@@ -256,7 +259,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                     }
                 );
         } else {
-            dragSelectorTrs.transform.rotation = Quaternion.Euler(pivotTargetRotation);
+            dragPivot.transform.rotation = Quaternion.Euler(pivotTargetRotation);
 
             foreach (IGridShape shape in dragShapes) {
                 shape.ObjTransform.SetParent(DragGrid.transform);
