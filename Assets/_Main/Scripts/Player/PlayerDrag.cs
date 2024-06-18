@@ -42,6 +42,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
     }
 
+    Vector2 grabCursorPos;
     void Grab(ClickInputArgs clickInputArgs) {
         if (!DragGrid.IsAllEmpty()) return;
 
@@ -74,9 +75,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             // NOTE: uses root as shortcut to lowest y level offset, assumes root is always on lowest y
             selectedShapeCellCoord = new Vector3Int(selectedShapeCellCoord.x, clickedShape.ShapeData.RootCoord.y, selectedShapeCellCoord.z);
         }
-
-        // Vector3 cellScreenPos = mainCam.WorldToScreenPoint(targetGrid.transform.TransformPoint(selectedShapeCellCoord));
-        // clickPointOffset = new Vector2(cellScreenPos.x, cellScreenPos.y) - clickInputArgs.CursorPos;
 
         selectedShapeCellOffset = selectedShapeCellCoord - clickedShape.ShapeData.RootCoord;
 
@@ -116,7 +114,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void Update() { dragSelectorTrs.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
-    Vector2 grabCursorPos;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsAllEmpty()) return;
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
@@ -139,7 +136,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             // Drag grid follows cursor directly
             string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
             DOTween.Kill(tweenID);
-            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID)
+            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0) - selectedShapeCellOffset, TweenManager.DragMoveDur).SetId(tweenID)
                 .SetEase(Ease.OutQuad);
 
             OnDrag?.Invoke(clickInputArgs.HitPoint);
@@ -239,7 +236,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         DOTween.Kill(rotateTweenID);
 
         if (tween) {
-            dragSelectorTrs.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.OutQuad)
+            dragSelectorTrs.transform.DORotate(pivotTargetRotation, TweenManager.DragRotateDur).SetId(rotateTweenID).SetEase(Ease.InOutQuad)
                 .OnComplete(
                     () => {
                         foreach (IGridShape shape in dragShapes) {
