@@ -3618,7 +3618,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 0
   Day: 20
   OrderPhaseDuration: 9999
@@ -11021,7 +11021,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1381232998
 Transform:
   m_ObjectHideFlags: 0
@@ -16194,7 +16194,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd1716bdd68e4a24e9d1ec24789f32e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pointLayer:
+  <PointLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 64
 --- !u!114 &2107359965

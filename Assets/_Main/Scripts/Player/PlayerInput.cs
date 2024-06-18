@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
     [Tooltip("Point raycast detects this layer.")]
-    [field: SerializeField] LayerMask pointLayer;
+    [field: SerializeField] public LayerMask PointLayer { get; private set; }
 
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
@@ -66,7 +66,7 @@ public class PlayerInput : MonoBehaviour {
     ClickInputArgs ClickInputArgsRaycast(Vector2 cursorPos) {
         ClickInputArgs clickInputArgs = new();
         Ray ray = mainCam.ScreenPointToRay(cursorPos);
-        if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, pointLayer, QueryTriggerInteraction.Ignore)) {
+        if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, PointLayer, QueryTriggerInteraction.Ignore)) {
             if (hit.collider != null) {
                 clickInputArgs.CursorPos = cursorPos;
                 clickInputArgs.HitNormal = hit.normal;

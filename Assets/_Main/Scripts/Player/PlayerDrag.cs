@@ -127,25 +127,36 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if ((clickInputArgs.CursorPos - grabCursorPos).sqrMagnitude < 100f) return;
 
         if (targetGrid == null) {
-            List<IGridShape> heldShapes = DragGrid.AllShapes();
-            if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
-                for (int i = 0; i < heldShapes.Count; i++) {
-                    heldShapes[i].SetOutline(selectedOutlineColor);
+            // Detect when cursor is not over grid but is over shape in a grid
+            if (clickInputArgs.TargetObj.layer == Ref.Player.PlayerInput.PointLayer) {
+                if (clickInputArgs.TargetObj.TryGetComponent(out IGridShape shape)) {
+                    targetGrid = shape.Grid;
                 }
-            } else { // Set invalid outline
-                for (int i = 0; i < heldShapes.Count; i++) {
-                    heldShapes[i].SetOutline(selectedInvalidOutlineColor);
+            } else { // Cursor is off a grid
+                List<IGridShape> heldShapes = DragGrid.AllShapes();
+                if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
+                    for (int i = 0; i < heldShapes.Count; i++) {
+                        heldShapes[i].SetOutline(selectedOutlineColor);
+                    }
+                } else { // Set invalid outline
+                    for (int i = 0; i < heldShapes.Count; i++) {
+                        heldShapes[i].SetOutline(selectedInvalidOutlineColor);
+                    }
                 }
+
+                // Drag grid follows cursor directly
+                string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
+                DOTween.Kill(tweenID);
+                DragGrid.transform.DOMove(
+                        clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0) - selectedShapeCellOffset, TweenManager.DragMoveDur
+                    ).SetId(tweenID)
+                    .SetEase(Ease.OutQuad);
+                
+                lastSelectedCellCoord.y = -1; // reset lastSelectedCellCoord
+
+                OnDrag?.Invoke(clickInputArgs.HitPoint);
+                return;
             }
-
-            // Drag grid follows cursor directly
-            string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
-            DOTween.Kill(tweenID);
-            DragGrid.transform.DOMove(clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0) - selectedShapeCellOffset, TweenManager.DragMoveDur).SetId(tweenID)
-                .SetEase(Ease.OutQuad);
-
-            OnDrag?.Invoke(clickInputArgs.HitPoint);
-            return;
         }
 
         // Formula for selecting cell adjacent to clicked face normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
@@ -159,6 +170,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         if (selectedCellCoord != lastSelectedCellCoord) {
+            print("B");
             lastSelectedCellCoord = selectedCellCoord;
             MoveDragGrid();
         }
