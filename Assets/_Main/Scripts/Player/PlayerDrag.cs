@@ -123,9 +123,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if (DragGrid.IsAllEmpty()) return;
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
 
-        // Prevent shapes immediately jumping from raycast hitting cell behind shape, better dragging experience
-        if ((clickInputArgs.CursorPos - grabCursorPos).sqrMagnitude < 100f) return;
-
         if (targetGrid == null) {
             // Detect when cursor is not over grid but is over shape in a grid
             if (clickInputArgs.TargetObj.layer == Ref.Player.PlayerInput.PointLayer) {
@@ -164,13 +161,15 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Vector3 localHitNormal = targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(clickInputArgs.HitNormal, 0.1f));
         selectedCellCoord = Vector3Int.FloorToInt(localHitPoint + localHitNormal + new Vector3(0.5f, 0, 0.5f));
 
+        // Prevent shapes immediately jumping from raycast hitting cell behind shape, better dragging experience
+        if ((clickInputArgs.CursorPos - grabCursorPos).sqrMagnitude < 100f) return;
+
         // Get lowest open grid cell
         if (targetGrid.SelectLowestOpenFromCell(selectedCellCoord, out int lowestOpenY)) {
             selectedCellCoord.y = lowestOpenY;
         }
 
         if (selectedCellCoord != lastSelectedCellCoord) {
-            print("B");
             lastSelectedCellCoord = selectedCellCoord;
             MoveDragGrid();
         }
