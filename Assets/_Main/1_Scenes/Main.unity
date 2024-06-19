@@ -3542,7 +3542,7 @@ MonoBehaviour:
   <Day>k__BackingField: 1
   <TotalDays>k__BackingField: 20
   <BulkDayInterval>k__BackingField: 3
-  <OrderPhaseDuration>k__BackingField: 120
+  <OrderPhaseDuration>k__BackingField: 30
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
   initialGold: 5000
@@ -3620,8 +3620,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugMode: 1
   DoSetDifficulty: 1
-  Day: 2
-  OrderPhaseDuration: 9999
+  Day: 1
+  OrderPhaseDuration: 30
 --- !u!1001 &546741877
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10310,6 +10310,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numNeedOrdersFulfilled: 0
+  numOrdersFulfilled: 0
   numActiveDocks: 1
   NextOrderDelay:
     Min: 1

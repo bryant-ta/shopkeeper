@@ -14,242 +14,202 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   table:
   - <day>k__BackingField: 1
+    numNeedOrdersFulfilled: 3
     numActiveDocks: 1
     baseOrderTime: 10
     baseOrderValue: 10
     reqMaxNum: 1
     reqMaxQuantity: 1
-    reqChanceNeedsColor: 1
-    reqChanceNeedsShape: 1
-    reqChanceFromExisting: 1
     reqVirtualShapePool: 01000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 2
+    numNeedOrdersFulfilled: 3
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 3
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
-    reqVirtualShapePool: 06000000070000000800000009000000
+    reqVirtualShapePool: 0600000007000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 3
+    numNeedOrdersFulfilled: 3
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 2
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: 1
-    reqVirtualShapePool: 0a0000000b000000
+    reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 4
+    numNeedOrdersFulfilled: 4
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 08000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 5
+    numNeedOrdersFulfilled: 5
     numActiveDocks: 2
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 4
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 09000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 6
+    numNeedOrdersFulfilled: 6
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 7
+    numNeedOrdersFulfilled: 7
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 5
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 0a000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 8
+    numNeedOrdersFulfilled: 8
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 3
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 9
+    numNeedOrdersFulfilled: 9
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 6
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 0b000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 10
+    numNeedOrdersFulfilled: 10
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0.75
     reqVirtualShapePool: 140000001500000017000000
     moldChance: 0.25
     moldShapePool: 0e0000001e000000190000001a00000011000000
   - <day>k__BackingField: 11
+    numNeedOrdersFulfilled: 11
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 7
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 12
+    numNeedOrdersFulfilled: 12
     numActiveDocks: 3
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 0c0000000d000000
     moldChance: 0.35
     moldShapePool: 
   - <day>k__BackingField: 13
+    numNeedOrdersFulfilled: 13
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 8
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 14
+    numNeedOrdersFulfilled: 14
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 0e0000001600000018000000190000001a000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 15
+    numNeedOrdersFulfilled: 15
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 9
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: 0.5
     reqVirtualShapePool: 1e000000
     moldChance: 0.5
     moldShapePool: 
   - <day>k__BackingField: 16
+    numNeedOrdersFulfilled: 16
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 17
+    numNeedOrdersFulfilled: 17
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 10
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 18
+    numNeedOrdersFulfilled: 18
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 19
+    numNeedOrdersFulfilled: 19
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 20
+    numNeedOrdersFulfilled: 20
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqChanceNeedsColor: 0
-    reqChanceNeedsShape: 0
-    reqChanceFromExisting: -1
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 

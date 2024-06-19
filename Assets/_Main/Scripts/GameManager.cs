@@ -85,7 +85,9 @@ public class GameManager : Singleton<GameManager> {
             OnDayEnd?.Invoke();
         } else if (lastState.ID == DayPhase.Close) {
             // Start next day
-            Day++;
+            if (Ref.OrderMngr.MetQuota) {
+                Day++;
+            }
             SoundManager.Instance.PlaySound(SoundID.EnterDeliveryPhase);
         }
     }

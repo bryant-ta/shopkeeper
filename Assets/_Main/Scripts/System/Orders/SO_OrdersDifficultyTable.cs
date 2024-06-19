@@ -9,6 +9,7 @@ public class SO_OrdersDifficultyTable : SO_DifficultyTableBase<SO_OrdersDifficul
     public class OrderDifficultyEntry : IDifficultyEntry {
         [field: SerializeField] public int day { get; set; }
 
+        public int numNeedOrdersFulfilled;
         public int numActiveDocks;
         public int baseOrderTime;
         public int baseOrderValue;

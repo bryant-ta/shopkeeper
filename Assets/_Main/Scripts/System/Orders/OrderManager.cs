@@ -8,6 +8,10 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
+    [SerializeField] int numNeedOrdersFulfilled;
+    [SerializeField] int numOrdersFulfilled;
+    public bool MetQuota => numOrdersFulfilled >= numNeedOrdersFulfilled;
+
     [Title("Order Queue")]
     [SerializeField] int numActiveDocks;
     [SerializeField] MinMax NextOrderDelay;
@@ -71,6 +75,7 @@ public class OrderManager : MonoBehaviour {
     void StartOrders() {
         availableColorStock = new(Ledger.CellCountByColor);
 
+        numOrdersFulfilled = 0;
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -160,6 +165,7 @@ public class OrderManager : MonoBehaviour {
 
             GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
             if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
+            numOrdersFulfilled++;
 
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
         } else {
@@ -312,6 +318,7 @@ public class OrderManager : MonoBehaviour {
     #endregion
 
     public void SetDifficultyOptions(SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry) {
+        numNeedOrdersFulfilled = orderDiffEntry.numNeedOrdersFulfilled;
         numActiveDocks = orderDiffEntry.numActiveDocks;
         baseOrderTime = orderDiffEntry.baseOrderTime;
         baseOrderValue = orderDiffEntry.baseOrderValue;

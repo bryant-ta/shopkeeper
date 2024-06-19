@@ -32,6 +32,7 @@ public class DifficultyManager : Singleton<DifficultyManager> {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
         
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
+            numNeedOrdersFulfilled = orderDiffTable.GetHigh(entry => entry.numNeedOrdersFulfilled),
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
             baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
             baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
