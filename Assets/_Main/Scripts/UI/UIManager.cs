@@ -1,19 +1,20 @@
-using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
+    [Title("Delivery Phase")]
+    [SerializeField] GameObject deliveryPhasePanel;
     [SerializeField] NumberCounter goldCounter;
 
     [Title("Order Phase")]
+    [SerializeField] GameObject orderPhasePanel;
+    [SerializeField] Image orderPhaseTimeFill;
+    [SerializeField] TextMeshProUGUI ordersFulfilledText;
     [SerializeField] GameObject orderPhaseStartPanel;
     [SerializeField] Button orderPhaseStartButton;
-    [SerializeField] GameObject orderPhaseTimer;
-    [SerializeField] Image orderPhaseTimeFill;
 
     [Title("Next Day")] // TEMP: until making better next day screen
     [SerializeField] GameObject nextDayPanel;
@@ -28,10 +29,12 @@ public class UIManager : MonoBehaviour {
     void Awake() {
         gameMngr = GameManager.Instance;
 
-        gameMngr.OnModifyMoney += UpdateMoneyText;
+        // gameMngr.OnModifyMoney += UpdateMoneyText;
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         gameMngr.SM_dayPhase.OnStateExit += ExitStateTrigger;
+        
         Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
+        Ref.OrderMngr.OnIncOrderFulfilled += UpdateOrdersFulfilled;
 
         gameMngr.OnDayEnd += UpdateNextDayPanel;
         gameMngr.OnPause += TogglePauseMenu;
@@ -56,6 +59,7 @@ public class UIManager : MonoBehaviour {
 
     #region OrderPhase
 
+    void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
     public void HandleOrderPhaseStartButton() {
         if (Ref.DeliveryMngr.AllDeliveriesOpened) {
             gameMngr.NextPhase();
@@ -68,10 +72,10 @@ public class UIManager : MonoBehaviour {
             );
         }
     }
-    void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
 
+    void ToggleOrderPhaseTimer(bool enable) { orderPhasePanel.SetActive(enable); }
     void UpdateOrderPhaseTimer(float time) { orderPhaseTimeFill.fillAmount = time; }
-    void ToggleOrderPhaseTimer(bool enable) { orderPhaseTimer.SetActive(enable); }
+    void UpdateOrdersFulfilled(int curVal, int thresholdVal) { ordersFulfilledText.text = $"{curVal}/{thresholdVal}"; }
 
     #endregion
 

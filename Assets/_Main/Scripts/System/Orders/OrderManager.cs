@@ -11,6 +11,7 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int numNeedOrdersFulfilled;
     [SerializeField] int numOrdersFulfilled;
     public bool MetQuota => numOrdersFulfilled >= numNeedOrdersFulfilled;
+    public event Action<int, int> OnIncOrderFulfilled;
 
     [Title("Order Queue")]
     [SerializeField] int numActiveDocks;
@@ -76,6 +77,8 @@ public class OrderManager : MonoBehaviour {
         availableColorStock = new(Ledger.CellCountByColor);
 
         numOrdersFulfilled = 0;
+        OnIncOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
+        
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -124,7 +127,7 @@ public class OrderManager : MonoBehaviour {
         if (order == null) {
             return;
         }
-        
+
         Orderer orderer;
         if (order is MoldOrder moldOrder) {
             // Setup MoldOrder Orderer
@@ -164,8 +167,11 @@ public class OrderManager : MonoBehaviour {
             }
 
             GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
+
             if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
+
             numOrdersFulfilled++;
+            OnIncOrderFulfilled?.Invoke(numOrdersFulfilled, numNeedOrdersFulfilled);
 
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
         } else {
@@ -251,10 +257,10 @@ public class OrderManager : MonoBehaviour {
 
                 Color c = Util.GetRandomFromList(colorStock.Keys.ToList());
                 quantity = Math.Min(colorStock[c], randomQuantity);
-                
+
                 colorStock[c] -= quantity;
                 if (colorStock[c] <= 0) { colorStock.Remove(c); }
-                
+
                 return new Requirement(c, null, ShapeDataID.O1, quantity);
             }
 
