@@ -245,6 +245,10 @@ public class OrderManager : MonoBehaviour {
 
                 Color c = Util.GetRandomFromList(colorStock.Keys.ToList());
                 quantity = Math.Min(colorStock[c], randomQuantity);
+                
+                colorStock[c] -= quantity;
+                if (colorStock[c] <= 0) { colorStock.Remove(c); }
+                
                 return new Requirement(c, null, ShapeDataID.O1, quantity);
             }
 
@@ -263,9 +267,7 @@ public class OrderManager : MonoBehaviour {
         Requirement req = new Requirement(color, null, reqShapeDataID, quantity);
 
         colorStock[color] -= consumedCount;
-        if (colorStock[color] <= 0) {
-            colorStock.Remove(color);
-        }
+        if (colorStock[color] <= 0) { colorStock.Remove(color); }
 
         return req;
     }
@@ -299,9 +301,7 @@ public class OrderManager : MonoBehaviour {
             moldOrder.AddRequirement(req);
 
             colorStock[color] -= minColorCount;
-            if (colorStock[color] <= 0) {
-                colorStock.Remove(color);
-            }
+            if (colorStock[color] <= 0) { colorStock.Remove(color); }
         }
 
         if (moldOrder.Requirements.Count == 0) return null;

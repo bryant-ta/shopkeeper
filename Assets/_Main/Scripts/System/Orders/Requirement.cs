@@ -10,6 +10,8 @@ public class Requirement {
     public bool IsFulfilled => QuantityUntilTarget() == 0;
 
     public Requirement(Color? color, Pattern? pattern, ShapeDataID? shapeDataID, int targetQuantity = -1) {
+        if (targetQuantity == 0) { Debug.LogError("Requirement should not be created with TargetQuantity = 0"); }
+
         Color = color;
         Pattern = pattern;
         ShapeDataID = shapeDataID;
