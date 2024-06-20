@@ -98,7 +98,7 @@ public class OrderManager : MonoBehaviour {
     }
 
     void TryTriggerOrderPhaseEnd() {
-        if (orderPhaseActive.Value) return;
+        if (orderPhaseActive.Value || GameManager.Instance.CurDayPhase != DayPhase.Order) return;
 
         // Can end Order phase when all docks no longer have active orderers
         bool docksEmpty = true;
