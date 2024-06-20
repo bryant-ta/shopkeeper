@@ -105,11 +105,13 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         grabCursorPos = clickInputArgs.CursorPos;
         // Cursor.visible = false;
-        
+
         // Do lift movement
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedShapeCellCoord - selectedShapeCellOffset);
         string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(tweenID);
-        DragGrid.transform.DOMove(DragGrid.transform.position + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
+        DragGrid.transform.DOMove(worldPos + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID)
+            .SetEase(Ease.OutQuad);
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
 
@@ -148,7 +150,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                         clickInputArgs.HitPoint + new Vector3(0, hoverHeight, 0) - selectedShapeCellOffset, TweenManager.DragMoveDur
                     ).SetId(tweenID)
                     .SetEase(Ease.OutQuad);
-                
+
                 lastSelectedCellCoord.y = -1; // reset lastSelectedCellCoord
 
                 OnDrag?.Invoke(clickInputArgs.HitPoint);
@@ -204,8 +206,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         // Do drag movement
-        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord); // cell coord to world position
-        worldPos -= selectedShapeCellOffset; // aligns drag grid with clicked shape cell, to drag from point of clicking
+        // aligned cell coord to world position
+        Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord - selectedShapeCellOffset);
         string tweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(tweenID);
         DragGrid.transform.DOMove(worldPos + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
@@ -238,8 +240,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         // Do instant drag grid shift (needs to be here to prevent occasional missed drag grid shift)
         string moveTweenID = DragGrid.transform.GetInstanceID() + TweenManager.DragMoveID;
         DOTween.Kill(moveTweenID);
-        Vector3 worldPos = targetGrid ? targetGrid.transform.TransformPoint(selectedCellCoord) : dragPivot.transform.position;
-        worldPos -= selectedShapeCellOffset; // aligns drag grid with new pos of clicked shape cell
+        Vector3 worldPos = targetGrid ?
+            targetGrid.transform.TransformPoint(selectedCellCoord - selectedShapeCellOffset) :
+            dragPivot.transform.position;
         DragGrid.transform.position = worldPos + new Vector3(0, hoverHeight, 0);
 
         dragPivot.rotation = Quaternion.Euler(pivotTargetRotation);
@@ -321,6 +324,10 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             return;
         }
 
+        // Force finish tweens on held shapes before placement
+        DOTween.Kill(DragGrid.transform, true);
+        DOTween.Kill(dragPivot.transform, true);
+
         // Try to place held shapes
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
@@ -353,10 +360,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     }
     void ReleaseReset(List<IGridShape> heldShapes) {
         for (int i = 0; i < heldShapes.Count; i++) {
-            foreach (Collider col in heldShapes[i].Colliders) {
-                col.enabled = true;
-            }
-
             heldShapes[i].ResetOutline();
         }
 

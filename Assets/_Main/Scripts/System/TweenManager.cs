@@ -20,13 +20,13 @@ public static class TweenManager {
     public const string DragMoveID = "_dragMove";
     public const string DragRotateID = "_dragRotate";
     const string InvalidShakeID = "_invalidShake";
-    
+
     public static void Shake(IGridShape shape) {
         string tweenID = shape.ObjTransform.GetInstanceID() + InvalidShakeID;
-        
+
         DOTween.Kill(tweenID); // Note: more efficient to replace with hash?
         shape.ObjTransform.localPosition = shape.ShapeData.RootCoord;
-        
+
         shape.ObjTransform.DOShakePosition(
             InvalidShake.Duration,
             new Vector3(1, 0, 1) * InvalidShake.Strength,
