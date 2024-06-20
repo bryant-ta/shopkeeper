@@ -33,7 +33,9 @@ public class UIManager : MonoBehaviour {
         // gameMngr.OnModifyMoney += UpdateMoneyText;
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         gameMngr.SM_dayPhase.OnStateExit += ExitStateTrigger;
-        
+
+        Ref.DeliveryMngr.OnDeliveryBoxOpened += HandleOrderPhaseStartButton;
+
         Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
         Ref.OrderMngr.OnIncOrderFulfilled += UpdateOrdersFulfilled;
 
@@ -42,16 +44,13 @@ public class UIManager : MonoBehaviour {
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Delivery) {
-            ToggleOrderPhaseStartButton(true);
-        } else if (state.ID == DayPhase.Order) {
+        if (state.ID == DayPhase.Order) {
+            ToggleOrderPhaseStartButton(false);
             ToggleOrderPhaseTimer(true);
         }
     }
     void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Delivery) {
-            ToggleOrderPhaseStartButton(false);
-        } else if (state.ID == DayPhase.Order) {
+        if (state.ID == DayPhase.Order) {
             ToggleOrderPhaseTimer(false);
         }
     }
@@ -63,14 +62,7 @@ public class UIManager : MonoBehaviour {
     void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
     public void HandleOrderPhaseStartButton() {
         if (Ref.DeliveryMngr.AllDeliveriesOpened) {
-            gameMngr.NextPhase();
-        } else {
-            Color origColor = orderPhaseStartButton.image.color;
-            DOTween.Kill(orderPhaseStartButton.image);
-            orderPhaseStartButton.image.DOColor(Color.red, 0.2f).OnComplete(
-                () =>
-                    orderPhaseStartButton.image.DOColor(origColor, 0.2f)
-            );
+            ToggleOrderPhaseStartButton(true);
         }
     }
 
@@ -90,9 +82,9 @@ public class UIManager : MonoBehaviour {
         } else {
             perfectOrdersText.text = "GOOD";
         }
-        
+
         if (Ref.OrderMngr.MetQuota) {
-            metQuotaText.text = $"PASSED DAY {gameMngr.Day}";
+            metQuotaText.text = $"FINISHED DAY {gameMngr.Day}";
             nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Day {gameMngr.Day + 1}";
         } else {
             metQuotaText.text = "TRY AGAIN D:";

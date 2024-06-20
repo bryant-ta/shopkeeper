@@ -38,7 +38,8 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] List<GameObject> deliveryBoxPool;
     List<DeliveryBox> curDeliveryBoxes = new();
     public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curRemainingDeliveries == 0;
-
+    public event Action OnDeliveryBoxOpened;
+    
     int curRemainingDeliveries;
 
     void Awake() {
@@ -158,6 +159,7 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         curDeliveryBoxes.Remove(deliveryBox);
+        OnDeliveryBoxOpened?.Invoke();
     }
 
     /// <summary>
@@ -207,6 +209,7 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         curDeliveryBoxes.Remove(deliveryBox);
+        OnDeliveryBoxOpened?.Invoke();
     }
 
     Product GenerateIrregularDelivery() {

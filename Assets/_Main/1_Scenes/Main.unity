@@ -2325,7 +2325,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: OPEN
+  m_text: START
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9564279a1724cd643a097786f9018346, type: 2}
   m_sharedMaterial: {fileID: -4867218509215611587, guid: 9564279a1724cd643a097786f9018346, type: 2}
@@ -3561,7 +3561,7 @@ MonoBehaviour:
   DoSetDifficulty: 1
   DoLevelInitialize: 0
   Day: 1
-  OrderPhaseDuration: 30
+  OrderPhaseDuration: 20
 --- !u!1001 &546741877
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7346,7 +7346,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PASSED DAY 1
+  m_text: FINISHED DAY 1
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 9564279a1724cd643a097786f9018346, type: 2}
   m_sharedMaterial: {fileID: -4867218509215611587, guid: 9564279a1724cd643a097786f9018346, type: 2}
@@ -10331,7 +10331,7 @@ MonoBehaviour:
   numActiveDocks: 1
   NextOrderDelay:
     Min: 1
-    Max: 5
+    Max: 4
   numReqsPerOrder:
     Min: 1
     Max: 1
@@ -13054,9 +13054,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1781915948}
-        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: HandleOrderPhaseStartButton
+      - m_Target: {fileID: 525756789}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: NextPhase
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
