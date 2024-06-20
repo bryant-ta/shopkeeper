@@ -24,23 +24,23 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 2
-    numNeedOrdersFulfilled: 3
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 3
-    reqVirtualShapePool: 0600000007000000
+    reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 3
-    numNeedOrdersFulfilled: 3
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 2
     reqMaxQuantity: 0
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 06000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 4
@@ -50,31 +50,31 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 08000000
+    reqVirtualShapePool: 07000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 5
-    numNeedOrdersFulfilled: 5
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 2
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 4
-    reqVirtualShapePool: 09000000
+    reqVirtualShapePool: 08000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 6
-    numNeedOrdersFulfilled: 6
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 09000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 7
-    numNeedOrdersFulfilled: 7
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -84,7 +84,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 8
-    numNeedOrdersFulfilled: 8
+    numNeedOrdersFulfilled: 5
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -94,7 +94,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 9
-    numNeedOrdersFulfilled: 9
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -104,7 +104,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 10
-    numNeedOrdersFulfilled: 10
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -114,7 +114,7 @@ MonoBehaviour:
     moldChance: 0.25
     moldShapePool: 0e0000001e000000190000001a00000011000000
   - <day>k__BackingField: 11
-    numNeedOrdersFulfilled: 11
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -124,7 +124,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 12
-    numNeedOrdersFulfilled: 12
+    numNeedOrdersFulfilled: 6
     numActiveDocks: 3
     baseOrderTime: 0
     baseOrderValue: 0
@@ -134,7 +134,7 @@ MonoBehaviour:
     moldChance: 0.35
     moldShapePool: 
   - <day>k__BackingField: 13
-    numNeedOrdersFulfilled: 13
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -144,7 +144,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 14
-    numNeedOrdersFulfilled: 14
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 15
-    numNeedOrdersFulfilled: 15
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -164,7 +164,7 @@ MonoBehaviour:
     moldChance: 0.5
     moldShapePool: 
   - <day>k__BackingField: 16
-    numNeedOrdersFulfilled: 16
+    numNeedOrdersFulfilled: 7
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -174,7 +174,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 17
-    numNeedOrdersFulfilled: 17
+    numNeedOrdersFulfilled: 0
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -184,7 +184,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 18
-    numNeedOrdersFulfilled: 18
+    numNeedOrdersFulfilled: 8
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -194,7 +194,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 19
-    numNeedOrdersFulfilled: 19
+    numNeedOrdersFulfilled: 9
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0
@@ -204,7 +204,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 20
-    numNeedOrdersFulfilled: 20
+    numNeedOrdersFulfilled: 10
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0

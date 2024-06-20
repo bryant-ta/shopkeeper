@@ -9,6 +9,7 @@ public class DebugManager : Singleton<DebugManager> {
     [Title("Flags")]
     [Tooltip("If true, uses current inspector values of Delivery/Order Manager, doesn't progress difficulty.")]
     public bool DoSetDifficulty;
+    public bool DoLevelInitialize;
 
     [Title("Values")]
     public int Day = 1;

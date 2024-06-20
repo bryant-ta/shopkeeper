@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour {
     [Title("Next Day")] // TEMP: until making better next day screen
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI perfectOrdersText;
+    [SerializeField] TextMeshProUGUI metQuotaText;
     [SerializeField] Button nextDayButton;
 
     [Title("Pause Menu")]
@@ -84,14 +85,20 @@ public class UIManager : MonoBehaviour {
     void UpdateNextDayPanel() {
         nextDayPanel.SetActive(true);
 
-        // Perfect Orders
         if (Ref.OrderMngr.PerfectOrders) {
             perfectOrdersText.text = "PERFECT!\n+100";
         } else {
             perfectOrdersText.text = "GOOD";
         }
+        
+        if (Ref.OrderMngr.MetQuota) {
+            metQuotaText.text = $"PASSED DAY {gameMngr.Day}";
+            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Day {gameMngr.Day + 1}";
+        } else {
+            metQuotaText.text = "TRY AGAIN D:";
+            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Day {gameMngr.Day}";
+        }
 
-        // Next Day Button
         nextDayButton.gameObject.SetActive(true);
     }
     public void NextDayTransition() { nextDayPanel.SetActive(false); }

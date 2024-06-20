@@ -9,6 +9,8 @@ public class LevelInitializer : MonoBehaviour {
     void Awake() { maxColorIndex = DifficultyManager.Instance.GetInitialMaxColorIndex(); }
 
     public void InitializeLevel() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoLevelInitialize) return;
+        
         // Place 1x1s randomly at start of level
         Grid grid = GameManager.WorldGrid;
         for (int i = 0; i < numStacks; i++) {
