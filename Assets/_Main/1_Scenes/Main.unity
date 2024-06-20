@@ -1278,8 +1278,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   numDeliveries: 1
   maxColorIndex: 1
-  ColorPaletteData: {fileID: 11400000, guid: 85a7bb29bda9c4b42aa484577f0ea68a, type: 2}
-  PatternPaletteData: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
   basicFirstDimensionMax: 2
   basicSecondDimensionMax: 1
   basicChanceShapeExtension: 1
@@ -2150,7 +2148,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 525756788}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &360067977
 MonoBehaviour:
@@ -3495,9 +3493,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2061717879}
   - {fileID: 360067976}
   - {fileID: 1075064628}
-  - {fileID: 2061717879}
   - {fileID: 1372580536}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -3618,7 +3616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 1
   Day: 1
   OrderPhaseDuration: 30
@@ -8250,7 +8248,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 525756788}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1075064629
 MonoBehaviour:
@@ -10391,8 +10389,8 @@ MonoBehaviour:
   numOrdersFulfilled: 0
   numActiveDocks: 1
   NextOrderDelay:
-    Min: 1
-    Max: 1
+    Min: 2
+    Max: 10
   numReqsPerOrder:
     Min: 1
     Max: 1
@@ -15460,8 +15458,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2061717879}
   - component: {fileID: 2061717880}
+  - component: {fileID: 2061717881}
   m_Layer: 0
-  m_Name: Ledger
+  m_Name: Subsystems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15480,7 +15479,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 525756788}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2061717880
 MonoBehaviour:
@@ -15494,6 +15493,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d9367d9a3e214b43ac8d74953fcaa5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <ColorPaletteData>k__BackingField: {fileID: 0}
+  <PatternPaletteData>k__BackingField: {fileID: 0}
+--- !u!114 &2061717881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061717878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  numStacks: 3
+  numCountPerStack:
+    Min: 1
+    Max: 3
 --- !u!1 &2071355733
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Difficulty/SO_DeliveriesDifficultyTable")]
 public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry> {
@@ -15,9 +14,9 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
         [ListDrawerSettings(AlwaysExpanded = true)]
         public List<GameObject> deliveryBoxPool;
 
-        [Group("Basic Delivery")] [Tooltip("length")]
+        [Group("Basic Delivery")] [Tooltip("First extension max length")]
         public int basicFirstDimensionMax;
-        [Group("Basic Delivery")] [Tooltip("width")]
+        [Group("Basic Delivery")] [Tooltip("Second extension (orthagonal) max length")]
         public int basicSecondDimensionMax;
         [Group("Basic Delivery")] [Tooltip("basicChanceShapeExtension")]
         [Range(0f, 1f)] public float basicChanceShapeExtension;
@@ -33,17 +32,17 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
     [SerializeField] bool useOverride;
     [ShowIf(nameof(useOverride)), ListDrawerSettings(AlwaysExpanded = true)]
     public List<OverrideEntry> overrides;
-    
+
     [Serializable]
     public struct OverrideEntry {
         public int day;
         public float irregularChance;
         public List<ShapeDataID> irregularShapePool;
     }
-    
+
     public void UseOverrides(DeliveryDifficultyEntry diffEntry, int difficulty) {
         if (!useOverride) return;
-        
+
         for (var i = 0; i < overrides.Count; i++) {
             OverrideEntry overrideEntry = overrides[i];
             if (overrideEntry.day == difficulty) {

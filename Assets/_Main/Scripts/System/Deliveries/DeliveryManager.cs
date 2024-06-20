@@ -11,8 +11,6 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] int numDeliveries = 1;
     [Tooltip("Determines possible color choices for ALL delivery types.")]
     [SerializeField] int maxColorIndex = 1;
-    [SerializeField] SO_ColorPalette ColorPaletteData;
-    [SerializeField] SO_PatternPalette PatternPaletteData;
 
     [Title("Basic Delivery")]
     [SerializeField] int basicFirstDimensionMax;
@@ -147,7 +145,7 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );
@@ -189,7 +187,7 @@ public class DeliveryManager : MonoBehaviour {
         Grid grid = deliveryBox.Grid;
         Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
         Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
-        Color color = ColorPaletteData.Colors[Random.Range(0, maxColorIndex)];
+        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)];
 
         for (int z = minBoundCoord.z; z <= maxBoundCoord.z; z += width) {
             for (int y = minBoundCoord.y; y <= maxBoundCoord.y; y++) {
@@ -216,7 +214,7 @@ public class DeliveryManager : MonoBehaviour {
         ShapeData shapeData = ShapeDataLookUp.LookUp(id);
         List<ShapeTagID> shapeTags = new List<ShapeTagID> {ShapeTagID.NoCombine, ShapeTagID.NoSlice, ShapeTagID.NoPlaceInTrash};
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
+            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
             Pattern.None, // TEMP: until implementing pattern
             shapeData,
             shapeTags

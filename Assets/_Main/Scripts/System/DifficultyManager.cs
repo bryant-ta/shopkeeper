@@ -45,6 +45,8 @@ public class DifficultyManager : Singleton<DifficultyManager> {
 
         Ref.OrderMngr.SetDifficultyOptions(ret);
     }
+
+    public int GetInitialMaxColorIndex() { return deliveryDiffTable.table[0].maxColorIndex; }
 }
 
 public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TEntry : class, IDifficultyEntry {

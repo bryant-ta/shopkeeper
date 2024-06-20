@@ -25,6 +25,7 @@ public class GameManager : Singleton<GameManager> {
     [Tooltip("Sends only bulk delivery every X days.")]
     [field: SerializeField] public int BulkDayInterval { get; private set; }
     [field: SerializeField] public float OrderPhaseDuration { get; private set; }
+    LevelInitializer levelInit;
     
     [Title("World Grid")]
     [SerializeField] Grid worldGrid;
@@ -46,6 +47,7 @@ public class GameManager : Singleton<GameManager> {
         if (DebugManager.DebugMode) AwakeDebugTasks();
 
         _worldGrid = worldGrid; // Required to reset every Play mode start because static
+        levelInit = GetComponentInChildren<LevelInitializer>();
 
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
@@ -69,6 +71,7 @@ public class GameManager : Singleton<GameManager> {
     #region Main
 
     void MainLoop() {
+        levelInit.InitializeLevel();
         ModifyGold(initialGold);
 
         SM_dayPhase.ExecuteNextState();
