@@ -7,20 +7,20 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cel
-  m_Shader: {fileID: 4800000, guid: 7633a2fd8a3bed44791c9e952ff86e5d, type: 3}
+  m_Name: TopGround
+  m_Shader: {fileID: 4800000, guid: 733fefdcde0d35f4b822d2935d5a22f4, type: 3}
   m_ValidKeywords:
   - _MK_ARTISTIC_ANIMATION_STUTTER
   - _MK_ARTISTIC_PROJECTION_SCREEN_SPACE
-  - _MK_DETAIL_BLEND_MIX
-  - _MK_ENVIRONMENT_REFLECTIONS_ADVANCED
-  - _MK_FRESNEL_HIGHLIGHTS
-  - _MK_LIGHT_CEL
+  - _MK_ENVIRONMENT_REFLECTIONS_AMBIENT
+  - _MK_LIGHT_BANDED
   - _MK_RECEIVE_SHADOWS
-  - _MK_SPECULAR_ISOTROPIC
   - _MK_WRAPPED_DIFFUSE
   m_InvalidKeywords:
   - _FRESNELHIGHLIGHTS_ON
+  - _MK_DETAIL_BLEND_MIX
+  - _MK_FRESNEL_HIGHLIGHTS
+  - _MK_LIGHT_TRANSMISSION_SUB_SURFACE_SCATTERING
   - _RECEIVESHADOWS_ON
   - _WRAPPEDLIGHTING_ON
   m_LightmapFlags: 4
@@ -189,7 +189,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _AddPrecomputedVelocity: 0
-    - _AdvancedTab: 0
+    - _AdvancedTab: 1
     - _AlbedoMapIntensity: 1
     - _AlembicMotionVectors: 0
     - _AlphaClipping: 0
@@ -223,7 +223,7 @@ Material:
     - _DrawnClampMin: 0
     - _DrawnMapScale: 1
     - _DstBlend: 0
-    - _EnvironmentReflections: 2
+    - _EnvironmentReflections: 1
     - _FresnelHighlights: 1
     - _GlossMapScale: 1
     - _Glossiness: 0
@@ -237,14 +237,14 @@ Material:
     - _IridescenceSize: 1
     - _IridescenceSmoothness: 0.5
     - _IridescenceThresholdOffset: 0
-    - _Light: 1
+    - _Light: 2
     - _LightBands: 4
-    - _LightBandsScale: 0.5
+    - _LightBandsScale: 0.369
     - _LightThreshold: 0.5
-    - _LightTransmission: 0
-    - _LightTransmissionDistortion: 0.25
-    - _LightTransmissionIntensity: 1
-    - _LightTransmissionSmoothness: 0.5
+    - _LightTransmission: 2
+    - _LightTransmissionDistortion: 0.769
+    - _LightTransmissionIntensity: 2.12
+    - _LightTransmissionSmoothness: 1
     - _LightTransmissionThresholdOffset: 0.25
     - _Metallic: 0
     - _Mode: 0
@@ -262,7 +262,7 @@ Material:
     - _OutlineTab: 1
     - _Parallax: 0.02
     - _ReceiveShadows: 1
-    - _RenderFace: 2
+    - _RenderFace: 0
     - _RenderPriority: 0
     - _Rim: 0
     - _RimSize: 1
@@ -273,7 +273,7 @@ Material:
     - _SketchMapScale: 1
     - _Smoothness: 0
     - _SmoothnessTextureChannel: 0
-    - _Specular: 1
+    - _Specular: 0
     - _SpecularHighlights: 1
     - _SpecularIntensity: 1
     - _SpecularSmoothness: 0
@@ -299,8 +299,8 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoColor: {r: 0.10097448, g: 0.4716981, b: 0.08098967, a: 1}
-    - _Color: {r: 0.10097448, g: 0.4716981, b: 0.08098967, a: 1}
+    - _AlbedoColor: {r: 0.79622644, g: 0.6119331, b: 0.4612104, a: 1}
+    - _Color: {r: 0.79622644, g: 0.6119331, b: 0.4612104, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _DissolveBorderColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
@@ -313,5 +313,5 @@ Material:
     - _RimColor: {r: 1, g: 1, b: 1, a: 1}
     - _RimDarkColor: {r: 0, g: 0, b: 0, a: 1}
     - _SpecularColor: {r: 0.20312497, g: 0.20312497, b: 0.20312497, a: 1}
-    - _VertexAnimationFrequency: {r: 2.5, g: 2.5, b: 2.5, a: 1}
+    - _VertexAnimationFrequency: {r: 0, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
