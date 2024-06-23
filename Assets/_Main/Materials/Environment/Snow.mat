@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CubeGodEyes
+  m_Name: Snow
   m_Shader: {fileID: 4800000, guid: 733fefdcde0d35f4b822d2935d5a22f4, type: 3}
   m_ValidKeywords:
   - _MK_ARTISTIC_ANIMATION_STUTTER
@@ -15,7 +15,6 @@ Material:
   - _MK_ENVIRONMENT_REFLECTIONS_AMBIENT
   - _MK_LIGHT_BANDED
   - _MK_RECEIVE_SHADOWS
-  - _MK_RIM_DEFAULT
   - _MK_WRAPPED_DIFFUSE
   m_InvalidKeywords:
   - _FRESNELHIGHLIGHTS_ON
@@ -239,8 +238,8 @@ Material:
     - _IridescenceSmoothness: 0.5
     - _IridescenceThresholdOffset: 0
     - _Light: 2
-    - _LightBands: 2
-    - _LightBandsScale: 0.428
+    - _LightBands: 4
+    - _LightBandsScale: 0.369
     - _LightThreshold: 0.5
     - _LightTransmission: 2
     - _LightTransmissionDistortion: 0.769
@@ -265,8 +264,8 @@ Material:
     - _ReceiveShadows: 1
     - _RenderFace: 0
     - _RenderPriority: 0
-    - _Rim: 1
-    - _RimSize: 0.36
+    - _Rim: 0
+    - _RimSize: 1
     - _RimSmoothness: 0.5
     - _RimThresholdOffset: 0.25
     - _Roughness: 0.5
@@ -300,8 +299,8 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoColor: {r: 0.17735851, g: 0.17735851, b: 0.17735851, a: 1}
-    - _Color: {r: 0.17735851, g: 0.17735851, b: 0.17735851, a: 1}
+    - _AlbedoColor: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _DissolveBorderColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
