@@ -201,7 +201,7 @@ Material:
     - _Brightness: 1
     - _BumpScale: 1
     - _ColorGrading: 2
-    - _Contrast: 0.95
+    - _Contrast: 0.85
     - _Cutoff: 0.5
     - _DetailBlend: 0
     - _DetailMix: 0.5

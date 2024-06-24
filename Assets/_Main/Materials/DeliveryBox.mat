@@ -233,7 +233,7 @@ Material:
     - _HatchingMapScale: 1
     - _IndirectFade: 1
     - _Initialized: 1
-    - _InputTab: 0
+    - _InputTab: 1
     - _Iridescence: 0
     - _IridescenceSize: 1
     - _IridescenceSmoothness: 0.5
@@ -288,7 +288,7 @@ Material:
     - _StencilRef: 0
     - _StencilWriteMask: 255
     - _StencilZFail: 0
-    - _StylizeTab: 1
+    - _StylizeTab: 0
     - _Surface: 0
     - _ThresholdMapScale: 1
     - _UVSec: 0
@@ -300,8 +300,8 @@ Material:
     - _ZTest: 4
     - _ZWrite: 1
     m_Colors:
-    - _AlbedoColor: {r: 0.6981132, g: 0.3679728, b: 0.13040222, a: 1}
-    - _Color: {r: 0.6981132, g: 0.3679728, b: 0.13040222, a: 1}
+    - _AlbedoColor: {r: 0.5924529, g: 0.33749315, b: 0.1553791, a: 1}
+    - _Color: {r: 0.5924529, g: 0.33749315, b: 0.1553791, a: 1}
     - _DetailColor: {r: 1, g: 1, b: 1, a: 1}
     - _DissolveBorderColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
