@@ -7,11 +7,10 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: HatchingPencilSS 1
+  m_Name: InterstingWood
   m_Shader: {fileID: 4800000, guid: 7633a2fd8a3bed44791c9e952ff86e5d, type: 3}
   m_ValidKeywords:
   - _MK_ARTISTIC_ANIMATION_STUTTER
-  - _MK_ARTISTIC_HATCHING
   - _MK_ARTISTIC_PROJECTION_SCREEN_SPACE
   - _MK_DETAIL_BLEND_MIX
   - _MK_FRESNEL_HIGHLIGHTS
@@ -19,6 +18,7 @@ Material:
   - _MK_OUTLINE_HULL_CLIP
   - _MK_RECEIVE_SHADOWS
   - _MK_SPECULAR_ISOTROPIC
+  - _MK_THRESHOLD_MAP
   m_InvalidKeywords:
   - _FRESNELHIGHLIGHTS_ON
   - _RECEIVESHADOWS_ON
@@ -58,7 +58,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DiffuseRamp:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: f3fa8cf211559454183b5ceb32fee6dd, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DissolveBorderRamp:
@@ -70,7 +70,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DrawnMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: fdee129c844a37f4baf59b2976e96f5e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -90,11 +90,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _HatchingBrightMap:
-        m_Texture: {fileID: 2800000, guid: bf0cfe47fb237ec4eb90305d8ce1eb86, type: 3}
+        m_Texture: {fileID: 2800000, guid: 70d2187724fd99b4f82f8b76f78d7a70, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _HatchingDarkMap:
-        m_Texture: {fileID: 2800000, guid: 3fe12e4fc2d8e63418243b1b0f086757, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6f99548aaa8653c4ea98f12998b0c351, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _HeightMap:
@@ -158,7 +158,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _SpecularRamp:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 892d7881872821e4c89c63c4d8fc2047, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ThicknessMap:
@@ -166,7 +166,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _ThresholdMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: d59ac504b0172f047aea1f37ed0b5228, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VertexAnimationMap:
@@ -194,7 +194,7 @@ Material:
     - _AlphaClipping: 0
     - _AlphaCutoff: 0.486
     - _Anisotropy: 0
-    - _Artistic: 2
+    - _Artistic: 0
     - _ArtisticFrequency: 1
     - _ArtisticProjection: 1
     - _Blend: 0
@@ -212,15 +212,15 @@ Material:
     - _DetailNormalMapIntensity: 1
     - _DetailNormalMapScale: 1
     - _Diffuse: 0
-    - _DiffuseSmoothness: 0
-    - _DiffuseThresholdOffset: 0.25
+    - _DiffuseSmoothness: 1
+    - _DiffuseThresholdOffset: 0.435
     - _Dissolve: 0
     - _DissolveAmount: 0.5
     - _DissolveBorderSize: 0.25
     - _DissolveMapScale: 1
     - _DrawnClampMax: 1
     - _DrawnClampMin: 0
-    - _DrawnMapScale: 1
+    - _DrawnMapScale: 8.3
     - _DstBlend: 0
     - _EnvironmentReflections: 0
     - _FresnelHighlights: 1
@@ -228,7 +228,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GoochRampIntensity: 0.5
-    - _HatchingMapScale: 0.1
+    - _HatchingMapScale: 5
     - _IndirectFade: 1
     - _Initialized: 1
     - _InputTab: 1
@@ -237,9 +237,9 @@ Material:
     - _IridescenceSmoothness: 0.5
     - _IridescenceThresholdOffset: 0.25
     - _Light: 2
-    - _LightBands: 4
-    - _LightBandsScale: 0.5
-    - _LightThreshold: 0.33
+    - _LightBands: 6
+    - _LightBandsScale: 0.639
+    - _LightThreshold: 0.22
     - _LightTransmission: 0
     - _LightTransmissionDistortion: 0.25
     - _LightTransmissionIntensity: 1
@@ -257,7 +257,7 @@ Material:
     - _OutlineFadeMax: 2
     - _OutlineFadeMin: 0.25
     - _OutlineNoise: 0
-    - _OutlineSize: 5
+    - _OutlineSize: 150
     - _OutlineTab: 1
     - _OverwriteBlend: 0
     - _Parallax: 0.02
@@ -271,13 +271,13 @@ Material:
     - _Roughness: 0.5
     - _Saturation: 1
     - _SketchMapScale: 1
-    - _Smoothness: 0
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _Specular: 1
     - _SpecularHighlights: 1
     - _SpecularIntensity: 10
-    - _SpecularSmoothness: 0
-    - _SpecularThresholdOffset: 0.25
+    - _SpecularSmoothness: 1
+    - _SpecularThresholdOffset: 0.75
     - _SrcBlend: 1
     - _Stencil: 1
     - _StencilComp: 8
@@ -289,7 +289,7 @@ Material:
     - _StencilZFail: 0
     - _StylizeTab: 1
     - _Surface: 0
-    - _ThresholdMapScale: 1
+    - _ThresholdMapScale: 5
     - _UVSec: 0
     - _VertexAnimation: 0
     - _VertexAnimationIntensity: 0.05
@@ -305,7 +305,7 @@ Material:
     - _DissolveBorderColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GoochBrightColor: {r: 1, g: 1, b: 1, a: 1}
-    - _GoochDarkColor: {r: 0.19245279, g: 0.19245279, b: 0.19245279, a: 1}
+    - _GoochDarkColor: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
     - _IridescenceColor: {r: 1, g: 1, b: 1, a: 0.5}
     - _LightTransmissionColor: {r: 1, g: 0.65, b: 0, a: 1}
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 1}
