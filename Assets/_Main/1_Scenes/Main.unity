@@ -2110,11 +2110,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 15
   boundX:
-    Min: -10
-    Max: 10
+    Min: -6
+    Max: 6
   boundZ:
-    Min: -10
-    Max: 10
+    Min: -6
+    Max: 6
 --- !u!4 &275505538 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4553687194473401084, guid: fc7510148de4e734bb16903ad2b492cb, type: 3}

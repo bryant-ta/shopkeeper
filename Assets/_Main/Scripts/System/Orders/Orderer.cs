@@ -149,8 +149,8 @@ public class Orderer : MonoBehaviour, IDocker {
             // TODO: prob remove null color
             TrailRenderer tr = trailRenderers[trailIndex];
             tr.gameObject.SetActive(true);
-            tr.startColor = (Color) req.Color;
-            tr.endColor = (Color) req.Color;
+            tr.startColor = req.Color;
+            tr.endColor = req.Color;
 
             trailIndex++;
             if (trailIndex == trailRenderers.Count) break;

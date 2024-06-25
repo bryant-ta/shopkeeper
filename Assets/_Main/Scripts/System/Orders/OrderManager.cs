@@ -78,7 +78,7 @@ public class OrderManager : MonoBehaviour {
 
         numOrdersFulfilled = 0;
         OnIncOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
-        
+
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -183,7 +183,7 @@ public class OrderManager : MonoBehaviour {
                         continue;
                     }
 
-                    Color c = req.Color ?? Color.clear;
+                    Color c = req.Color;
                     Util.DictIntAdd(
                         availableColorStock, c, CalculateMoldMinColorCount(moldOrder.Mold.ShapeData.Size, moldOrder.Requirements.Count)
                     );
@@ -192,7 +192,7 @@ public class OrderManager : MonoBehaviour {
                 foreach (Requirement req in orderer.Order.Requirements) {
                     // Req had no color, so color stock was not reserved before, nothing to do.
                     if (req.Color == null || req.ShapeDataID == null) continue;
-                    Color c = req.Color ?? Color.clear;
+                    Color c = req.Color;
                     ShapeDataID s = req.ShapeDataID ?? ShapeDataID.Custom;
 
                     Util.DictIntAdd(availableColorStock, c, req.TargetQuantity * ShapeDataLookUp.LookUp(s).Size);
@@ -227,7 +227,7 @@ public class OrderManager : MonoBehaviour {
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
         for (int j = 0; j < numReqs; j++) {
-            Requirement req = MakeRequirementFromVirtual(colorStock);
+            Requirement req = MakeRequirementFromVirtual(colorStock, order.GetColors());
             if (req != null) {
                 order.AddRequirement(req);
             }
@@ -237,13 +237,18 @@ public class OrderManager : MonoBehaviour {
         return order;
     }
 
-    Requirement MakeRequirementFromVirtual(Dictionary<Color, int> colorStock) {
+    Requirement MakeRequirementFromVirtual(Dictionary<Color, int> colorStock, List<Color> excludedColors) {
         ShapeDataID reqShapeDataID = Util.GetRandomFromList(reqVirtualShapePool);
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         int quantity = randomQuantity;
         int reqShapeSize = ShapeDataLookUp.LookUp(reqShapeDataID).Size;
         int consumedCount = randomQuantity * reqShapeSize;
+
+        // Remove excluded colors
+        HashSet<Color> filteredColors = colorStock.Keys.Except(excludedColors).ToHashSet();
+        colorStock = colorStock.Where(kv => filteredColors.Contains(kv.Key))
+            .ToDictionary(kv => kv.Key, kv => kv.Value);
 
         // Find colors with enough cell count to create chosen shape at chosen quantity.
         // If no colors have enough cells, scale back count of shape until some colors can support it.

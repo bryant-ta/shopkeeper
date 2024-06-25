@@ -134,6 +134,10 @@ public class Order {
         return Value;
     }
 
+    public List<Color> GetColors() {
+        return Requirements.Select(req => req.Color).ToList();
+    }
+
     public new string ToString() {
         string t = "";
 

@@ -26,13 +26,7 @@ public class RequirementsUI : MonoBehaviour {
             Requirement req = order.Requirements[i];
             
             // Extract requirement properties
-            Color color;
-            if (req.Color != null) {
-                color = req.Color ?? Color.clear;
-            } else {
-                color = Color.gray;
-            }
-
+            Color color = req.Color;
             ShapeData shapeData = null;
             if (req.ShapeDataID != null) {
                 ShapeDataID shapeDataID = req.ShapeDataID ?? ShapeDataID.Custom;
