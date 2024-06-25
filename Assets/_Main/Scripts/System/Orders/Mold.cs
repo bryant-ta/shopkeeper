@@ -13,19 +13,17 @@ public class Mold {
     // params only available when Orderer is ready, so must separate from constructor
     public void InitByOrderer(Grid grid, ShapeOutlineRenderer shapeOutlineRenderer) {
         Grid = grid;
-        
+
         int cwRandomRotationTimes = Random.Range(0, 4);
         for (int i = 0; i < cwRandomRotationTimes; i++) {
             ShapeData.RotateShape(true);
         }
 
         Grid.SetGridSize(ShapeData.Length, ShapeData.Height, ShapeData.Width); // NOTE: keep ahead of setting shape data root coord!
-        
+
         // TEMP: scale orderer floor grid, replaced after orderer prefabs for different sizes
-        Grid.transform.parent.Find("Floor").transform.localScale = new Vector3(
-            0.1f * ShapeData.Length + 0.05f, 1, 0.1f * ShapeData.Width + 0.05f
-        );
-        
+        Grid.transform.parent.Find("Floor").transform.localScale = new Vector3(0.1f * ShapeData.Length, 1, 0.1f * ShapeData.Width);
+
         switch (cwRandomRotationTimes) {
             case 0: // WS corner
                 ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
@@ -40,11 +38,11 @@ public class Mold {
                 ShapeData.RootCoord = new Vector3Int(grid.MaxX, grid.MinY, grid.MinZ);
                 break;
         }
-        
+
         // Remove grid cells to match shape data
         List<Vector2Int> moldCells = new();
         foreach (Vector3Int offset in ShapeData.ShapeOffsets) {
-            moldCells.Add(new Vector2Int(ShapeData.RootCoord.x, ShapeData.RootCoord.z) + new Vector2Int(offset.x, offset.z));    
+            moldCells.Add(new Vector2Int(ShapeData.RootCoord.x, ShapeData.RootCoord.z) + new Vector2Int(offset.x, offset.z));
         }
         List<Vector2Int> invertedMoldCells = Grid.ValidCells.Except(moldCells).ToList();
         foreach (Vector2Int coord in invertedMoldCells) {

@@ -326,6 +326,82 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _followSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.blend
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _motion.applyRotationX
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _motion.applyRotationY
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _motion.applyRotationZ
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _motion.velocityHandleMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].blend
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0]._centerEnd
+      value: 0.8999999761581421
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0]._featherEnd
+      value: 0.10000000149011612
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0]._centerStart
+      value: 0.10000000149011612
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_PreInfinity
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_PostInfinity
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_RotationOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_Curve.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_Curve.Array.data[1].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_Curve.Array.data[1].value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_Curve.Array.data[1].inSlope
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8530243432103034948, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: _sizeModifier.keys.Array.data[0].interpolation.m_Curve.Array.data[0].outSlope
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8578224492845874781, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
       propertyPath: m_IsActive
       value: 0

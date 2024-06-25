@@ -103,7 +103,7 @@ public class DeliveryManager : MonoBehaviour {
         ShapeData cargoShapeData = cargoShape.ShapeData;
         deliverer.Grid.SetGridSize(cargoShapeData.Length, cargoShapeData.Height, cargoShapeData.Width);
         deliverer.transform.Find("Floor").transform.localScale = new Vector3(
-            0.1f * cargoShapeData.Length + 0.05f, 1, 0.1f * cargoShapeData.Width + 0.05f
+            0.1f * cargoShapeData.Length, 1, 0.1f * cargoShapeData.Width
         );
 
         // centers shape on deliverer grid origin by moving delivery box root to a corner
