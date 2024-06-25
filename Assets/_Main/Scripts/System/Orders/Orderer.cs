@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dreamteck.Splines;
 using Orders;
 using UnityEngine;
@@ -13,6 +14,8 @@ public class Orderer : MonoBehaviour, IDocker {
     public SplineFollower Docker { get; private set; }
 
     public List<Product> SubmittedProducts { get; private set; }
+
+    List<TrailRenderer> trailRenderers = new();
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
@@ -32,6 +35,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
         Docker = GetComponent<SplineFollower>();
         SubmittedProducts = new();
+
+        trailRenderers = GetComponentsInChildren<TrailRenderer>(true).ToList();
     }
 
     #region Order
@@ -137,6 +142,19 @@ public class Orderer : MonoBehaviour, IDocker {
         }
 
         Order = order;
+        
+        // Set trail colors by Order requirements
+        int trailIndex = 0;
+        foreach (Requirement req in Order.Requirements) {
+            // TODO: prob remove null color
+            TrailRenderer tr = trailRenderers[trailIndex];
+            tr.gameObject.SetActive(true);
+            tr.startColor = (Color) req.Color;
+            tr.endColor = (Color) req.Color;
+
+            trailIndex++;
+            if (trailIndex == trailRenderers.Count) break;
+        }
     }
 
     #endregion
