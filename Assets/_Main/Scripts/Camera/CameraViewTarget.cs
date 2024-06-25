@@ -1,3 +1,4 @@
+using System;
 using EventManager;
 using TriInspector;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine;
 public class CameraViewTarget : MonoBehaviour {
     [Title("Move")]
     [SerializeField] float moveSpeed;
+    [SerializeField] MinMax boundX;
+    [SerializeField] MinMax boundZ;
     Vector3 forward;
     Vector3 right;
     Vector2 moveInput;
@@ -36,6 +39,11 @@ public class CameraViewTarget : MonoBehaviour {
                 transform.position.z + moveDir.z
             );
             transform.position = Vector3.Lerp(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            transform.position = new Vector3(
+                Math.Clamp(transform.position.x, boundX.Min, boundX.Max),
+                transform.position.y,
+                Math.Clamp(transform.position.z, boundZ.Min, boundZ.Max)
+            );
         }
     }
 
