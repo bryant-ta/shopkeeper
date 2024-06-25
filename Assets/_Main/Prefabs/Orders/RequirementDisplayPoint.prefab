@@ -330,7 +330,6 @@ GameObject:
   - component: {fileID: 7405966605754069253}
   - component: {fileID: 4820856314691883557}
   - component: {fileID: 7694443756385307601}
-  - component: {fileID: 2411311232557376891}
   m_Layer: 0
   m_Name: ShapelessDisplay
   m_TagString: Untagged
@@ -347,7 +346,7 @@ Transform:
   m_GameObject: {fileID: 3209816940353283665}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 6143361884805785950}
@@ -403,19 +402,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &2411311232557376891
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3209816940353283665}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4543350184840182321
 GameObject:
   m_ObjectHideFlags: 0
