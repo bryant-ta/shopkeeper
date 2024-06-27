@@ -330,7 +330,7 @@ GameObject:
   - component: {fileID: 7405966605754069253}
   - component: {fileID: 4820856314691883557}
   - component: {fileID: 7694443756385307601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ShapelessDisplay
   m_TagString: Untagged
   m_Icon: {fileID: 0}
