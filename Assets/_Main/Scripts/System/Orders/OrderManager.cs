@@ -214,7 +214,7 @@ public class OrderManager : MonoBehaviour {
     #region Order Generation
 
     Order GenerateOrder() {
-        Order order = Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder(availableColorStock) : GenerateBagOrder(availableColorStock);
+        Order order = Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder() : GenerateBagOrder();
         if (order == null) {
             Debug.Log("Did not generate order.");
         }
@@ -222,12 +222,12 @@ public class OrderManager : MonoBehaviour {
         return order;
     }
 
-    Order GenerateBagOrder(Dictionary<Color, int> colorStock) {
+    Order GenerateBagOrder() {
         Order order = new Order(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
 
         for (int j = 0; j < numReqs; j++) {
-            Requirement req = MakeRequirementFromVirtual(colorStock, order.GetColors());
+            Requirement req = MakeRequirementFromVirtual(order.GetColors());
             if (req != null) {
                 order.AddRequirement(req);
             }
@@ -237,7 +237,7 @@ public class OrderManager : MonoBehaviour {
         return order;
     }
 
-    Requirement MakeRequirementFromVirtual(Dictionary<Color, int> colorStock, List<Color> excludedColors) {
+    Requirement MakeRequirementFromVirtual(List<Color> excludedColors) {
         ShapeDataID reqShapeDataID = Util.GetRandomFromList(reqVirtualShapePool);
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
@@ -246,8 +246,8 @@ public class OrderManager : MonoBehaviour {
         int consumedCount = randomQuantity * reqShapeSize;
 
         // Remove excluded colors
-        HashSet<Color> filteredColors = colorStock.Keys.Except(excludedColors).ToHashSet();
-        colorStock = colorStock.Where(kv => filteredColors.Contains(kv.Key))
+        HashSet<Color> filteredColors = availableColorStock.Keys.Except(excludedColors).ToHashSet();
+        Dictionary<Color, int> colorStock = availableColorStock.Where(kv => filteredColors.Contains(kv.Key))
             .ToDictionary(kv => kv.Key, kv => kv.Value);
 
         // Find colors with enough cell count to create chosen shape at chosen quantity.
@@ -263,8 +263,8 @@ public class OrderManager : MonoBehaviour {
                 Color c = Util.GetRandomFromList(colorStock.Keys.ToList());
                 quantity = Math.Min(colorStock[c], randomQuantity);
 
-                colorStock[c] -= quantity;
-                if (colorStock[c] <= 0) { colorStock.Remove(c); }
+                availableColorStock[c] -= quantity;
+                if (availableColorStock[c] <= 0) { availableColorStock.Remove(c); }
 
                 return new Requirement(c, null, ShapeDataID.O1, quantity);
             }
@@ -283,14 +283,14 @@ public class OrderManager : MonoBehaviour {
 
         Requirement req = new Requirement(color, null, reqShapeDataID, quantity);
 
-        colorStock[color] -= consumedCount;
-        if (colorStock[color] <= 0) { colorStock.Remove(color); }
+        availableColorStock[color] -= consumedCount;
+        if (availableColorStock[color] <= 0) { availableColorStock.Remove(color); }
 
         return req;
     }
 
     // Mold order requirement is only a color
-    MoldOrder GenerateMoldOrder(Dictionary<Color, int> colorStock) {
+    MoldOrder GenerateMoldOrder() {
         MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
 
         // Generate mold shape
@@ -304,7 +304,7 @@ public class OrderManager : MonoBehaviour {
 
         for (int j = 0; j < numReqs; j++) {
             // Find available stock with enough quantity to fill mold
-            List<Color> availableColors = colorStock.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
+            List<Color> availableColors = availableColorStock.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
                 .ToList();
             if (availableColors.Count == 0) {
                 Debug.LogWarning("Not enough available stock to generate mold order.");
@@ -317,8 +317,8 @@ public class OrderManager : MonoBehaviour {
             Requirement req = new Requirement(color, null, null);
             moldOrder.AddRequirement(req);
 
-            colorStock[color] -= minColorCount;
-            if (colorStock[color] <= 0) { colorStock.Remove(color); }
+            availableColorStock[color] -= minColorCount;
+            if (availableColorStock[color] <= 0) { availableColorStock.Remove(color); }
         }
 
         if (moldOrder.Requirements.Count == 0) return null;
