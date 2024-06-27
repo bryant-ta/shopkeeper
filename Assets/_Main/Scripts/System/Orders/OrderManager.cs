@@ -301,15 +301,13 @@ public class OrderManager : MonoBehaviour {
         int numReqs = Random.Range(numReqsPerOrder.Min, numReqsPerOrder.Max);
         // Remove rounding if want some orders to possibly be impossible with available stock
         int minColorCount = CalculateMoldMinColorCount(moldShapeData.Size, numReqs);
-
+        
+        // Find available stock with enough quantity to fill mold
+        List<Color> availableColors = availableColorStock.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
+            .ToList();
+        
         for (int j = 0; j < numReqs; j++) {
-            // Find available stock with enough quantity to fill mold
-            List<Color> availableColors = availableColorStock.Where(kv => kv.Value > minColorCount).Select(kv => kv.Key)
-                .ToList();
-            if (availableColors.Count == 0) {
-                Debug.LogWarning("Not enough available stock to generate mold order.");
-                return null;
-            }
+            if (availableColors.Count == 0) break;
 
             Color color = Util.GetRandomFromList(availableColors);
 
@@ -317,11 +315,16 @@ public class OrderManager : MonoBehaviour {
             Requirement req = new Requirement(color, null, null);
             moldOrder.AddRequirement(req);
 
+            availableColors.Remove(color);
+            
             availableColorStock[color] -= minColorCount;
             if (availableColorStock[color] <= 0) { availableColorStock.Remove(color); }
         }
 
-        if (moldOrder.Requirements.Count == 0) return null;
+        if (moldOrder.Requirements.Count == 0) {
+            Debug.LogWarning("Not enough available stock to generate mold order.");
+            return null;
+        }
         return moldOrder;
     }
     int CalculateMoldMinColorCount(float moldSize, int numReqs) { return Mathf.CeilToInt(moldSize / numReqs); }

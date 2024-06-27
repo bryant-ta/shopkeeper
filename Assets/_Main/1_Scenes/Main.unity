@@ -10930,7 +10930,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 9.1835e-41, y: 1.1681478e-37, z: 9.78048e-39, w: NaN}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: NaN}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -14169,6 +14169,10 @@ PrefabInstance:
     - target: {fileID: 9175227905573436024, guid: ec43bd4500a734a40958f1e1639e9d8f, type: 3}
       propertyPath: m_Name
       value: Dock_5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9175227905573436025, guid: ec43bd4500a734a40958f1e1639e9d8f, type: 3}
+      propertyPath: <IsXAligned>k__BackingField
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9175227905573436026, guid: ec43bd4500a734a40958f1e1639e9d8f, type: 3}
       propertyPath: m_RootOrder
