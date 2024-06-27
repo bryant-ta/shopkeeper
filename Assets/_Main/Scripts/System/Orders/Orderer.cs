@@ -17,6 +17,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
     List<TrailRenderer> trailRenderers = new();
 
+    [SerializeField] Transform body;
+
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
     public event Action<Product> OnInvalidProductSet;
@@ -142,7 +144,7 @@ public class Orderer : MonoBehaviour, IDocker {
         }
 
         Order = order;
-        
+
         // Set trail colors by Order requirements
         int trailIndex = 0;
         foreach (Requirement req in Order.Requirements) {
@@ -165,6 +167,9 @@ public class Orderer : MonoBehaviour, IDocker {
         AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
         Docker.OnReachedEnd += StartOrder; // assumes single path from Occupy -> Dock
+
+        // TEMP: Rotate Orderer body to face correct dir based on dock (does not support curved path, fix if needed)
+        if (dock.IsXAligned) { body.Rotate(Vector3.up, 90); }
 
         Docker.StartFollowing();
     }

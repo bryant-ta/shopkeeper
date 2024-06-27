@@ -10,6 +10,8 @@ public class Dock : MonoBehaviour {
     public SplineFollower Docker { get; private set; }
     public bool IsOccupied => Docker != null;
 
+    [field:SerializeField] public bool IsXAligned { get; private set; }
+
     public event Action OnDockerArrived;
 
     public bool SetDocker(SplineFollower docker) {
