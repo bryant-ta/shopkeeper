@@ -17,6 +17,7 @@ public class SoundManager : Singleton<SoundManager> {
 
         // Add sound IDs that need to be checked for duplication frame by frame
         playedThisFrameBySoundID.Add(SoundID.ProductPlace, false);
+        playedThisFrameBySoundID.Add(SoundID.OrderProductFilled, false);
         keys = playedThisFrameBySoundID.Keys.ToArray();
     }
 

@@ -49,7 +49,8 @@ public class CameraController : MonoBehaviour {
         IsometricRight =  Vector3Int.RoundToInt(Quaternion.Euler(0, 45, 0) * transForwardXZ);
 
         Ref.Player.PlayerInput.InputScroll += ZoomView;
-        Ref.Player.PlayerInput.InputRotateCamera += RotateCamera;
+        Ref.Player.PlayerInput.InputRotateCameraDown += RotateCamera;
+        Ref.Player.PlayerInput.InputRotateCameraUp += UnRotateCamera;
     }
 
     void LateUpdate() {
@@ -72,7 +73,10 @@ public class CameraController : MonoBehaviour {
 
     void UpdateZoom() { cam.orthographicSize = Mathf.Lerp(cam.orthographicSize, targetZoom, zoomSpeed * Time.deltaTime); }
 
+    float lastRotateInput;
     void RotateCamera(float rotateCameraInput) {
+        lastRotateInput = rotateCameraInput;
+        
         // prevents rotation out of sync when attempting to rotate again during an active rotation
         transform.parent.rotation = Quaternion.Euler(targetRotation);
 
@@ -87,5 +91,8 @@ public class CameraController : MonoBehaviour {
                 OnCameraRotate?.Invoke(); 
             }
         );
+    }
+    void UnRotateCamera(float rotateCameraInput) {
+        RotateCamera(-lastRotateInput);
     }
 }

@@ -109,7 +109,8 @@ public class PlayerInput : MonoBehaviour {
     #region Camera
 
     public event Action<float> InputScroll;
-    public event Action<float> InputRotateCamera;
+    public event Action<float> InputRotateCameraDown;
+    public event Action<float> InputRotateCameraUp;
 
     public void OnZoom(InputAction.CallbackContext ctx) {
         float scrollInput = ctx.ReadValue<Vector2>().y;
@@ -123,7 +124,9 @@ public class PlayerInput : MonoBehaviour {
     public void OnRotateCamera(InputAction.CallbackContext ctx) {
         float rotateCameraInput = ctx.ReadValue<float>();
         if (ctx.performed) {
-            InputRotateCamera?.Invoke(rotateCameraInput);
+            InputRotateCameraDown?.Invoke(rotateCameraInput);
+        } else if (ctx.canceled) {
+            InputRotateCameraUp?.Invoke(rotateCameraInput);
         }
     }
 
