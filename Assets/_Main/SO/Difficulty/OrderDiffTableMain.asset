@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   table:
   - <day>k__BackingField: 1
-    numNeedOrdersFulfilled: 3
+    numNeedOrdersFulfilled: 2
     numActiveDocks: 1
     baseOrderTime: 10
     baseOrderValue: 10
@@ -34,7 +34,7 @@ MonoBehaviour:
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 3
-    numNeedOrdersFulfilled: 0
+    numNeedOrdersFulfilled: 3
     numActiveDocks: 0
     baseOrderTime: 0
     baseOrderValue: 0

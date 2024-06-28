@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class DebugOnly : MonoBehaviour {
+public class ShowInDebugOnly : MonoBehaviour {
     void Awake() {
         if (!DebugManager.DebugMode) {
             gameObject.SetActive(false);

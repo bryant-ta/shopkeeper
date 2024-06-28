@@ -24,7 +24,7 @@ MonoBehaviour:
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 2
-    numDeliveries: 0
+    numDeliveries: 2
     maxColorIndex: 0
     deliveryBoxPool: []
     basicFirstDimensionMax: 0
@@ -33,7 +33,7 @@ MonoBehaviour:
     irregularChance: 0
     irregularShapePool: 
   - <day>k__BackingField: 3
-    numDeliveries: 2
+    numDeliveries: 0
     maxColorIndex: 0
     deliveryBoxPool: []
     basicFirstDimensionMax: 2
