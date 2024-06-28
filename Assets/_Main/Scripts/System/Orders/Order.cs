@@ -76,10 +76,10 @@ public class Order {
     }
 
     // returns true if productID matches at least one requirement
-    public bool Check(ProductID productID) {
+    public bool Check(ProductID productID, int quantity) {
         for (int i = 0; i < Requirements.Count; i++) {
             Requirement req = Requirements[i];
-            if (req.Match(productID)) {
+            if (req.Match(productID) && (quantity <= req.QuantityUntilTarget() || req.TargetQuantity == -1)) {
                 return true;
             }
         }

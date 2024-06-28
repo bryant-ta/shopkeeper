@@ -21,7 +21,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
-    public event Action<Product> OnInvalidProductSet;
+    public event Action<ProductID> OnInvalidProductSet;
+    public event Action OnInvalidProductUnset;
 
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
@@ -62,7 +63,7 @@ public class Orderer : MonoBehaviour, IDocker {
     public bool TryFulfillOrder(List<IGridShape> shapes, bool skipCheck = false) {
         List<Product> products = Util.GetProductsFromShapes(shapes);
 
-        if (!skipCheck && !CheckOrderInput(products, out Product invalidProduct)) {
+        if (!skipCheck && !CheckOrderInput(products, out ProductID invalidProductID)) {
             return false;
         }
 
@@ -101,22 +102,29 @@ public class Orderer : MonoBehaviour, IDocker {
         List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
         if (heldProducts == null) return;
 
-        if (!CheckOrderInput(heldProducts, out Product invalidProduct)) {
-            OnInvalidProductSet?.Invoke(invalidProduct);
+        if (!CheckOrderInput(heldProducts, out ProductID invalidProductID)) {
+            OnInvalidProductSet?.Invoke(invalidProductID);
 
             if (Grid != null) Grid.IsLocked = true;
         }
     }
     void HoverExit() {
-        OnInvalidProductSet?.Invoke(null);
+        OnInvalidProductUnset?.Invoke();
 
         if (Grid != null) Grid.IsLocked = false;
     }
-    public bool CheckOrderInput(List<Product> products, out Product invalidProduct) {
-        invalidProduct = null;
+    public bool CheckOrderInput(List<Product> products, out ProductID invalidProductID) {
+        invalidProductID = new ProductID();
+
+        Dictionary<ProductID, int> productCounts = new();
         foreach (Product product in products) {
-            if (!Order.Check(product.ID)) {
-                invalidProduct = product;
+            Util.DictIntAdd(productCounts, product.ID, 1);
+        }
+
+        HashSet<ProductID> keys = productCounts.Keys.ToHashSet();
+        foreach (ProductID id in keys) {
+            if (!Order.Check(id, productCounts[id])) {
+                invalidProductID = id;
                 return false;
             }
         }

@@ -3715,7 +3715,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   DoSetDifficulty: 0
   DoLevelInitialize: 1
   Day: 20
