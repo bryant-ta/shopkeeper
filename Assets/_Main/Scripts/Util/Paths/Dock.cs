@@ -26,7 +26,7 @@ public class Dock : MonoBehaviour {
         // Start listening for when docker arrives at dock
         Docker.OnReachedEnd += HandleArrival;
         Docker.Spline = pathIn;
-
+        
         return true;
     }
     public void RemoveDocker() {
@@ -46,6 +46,9 @@ public class Dock : MonoBehaviour {
     }
 
     public Vector3 GetDockingPoint() {
-        return transform.position;
+        return pathIn.GetPoint(1).position;
+    }
+    public Vector3 GetStartPoint() {
+        return pathIn.GetPoint(0).position;
     }
 }

@@ -11,7 +11,7 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int numNeedOrdersFulfilled;
     [SerializeField] int numOrdersFulfilled;
     public bool MetQuota => numOrdersFulfilled >= numNeedOrdersFulfilled;
-    public event Action<int, int> OnIncOrderFulfilled;
+    public event Action<int, int> OnOrderFulfilled; // <current number fulfilled, number orders needed for level>
 
     [Title("Order Queue")]
     [SerializeField] int numActiveDocks;
@@ -51,9 +51,7 @@ public class OrderManager : MonoBehaviour {
 
     void Awake() {
         orderPhaseActive = new Util.ValueRef<bool>(false);
-
         OrderPhaseTimer = new CountdownTimer(GameManager.Instance.OrderPhaseDuration);
-
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
@@ -77,7 +75,7 @@ public class OrderManager : MonoBehaviour {
         availableColorStock = new(Ledger.CellCountByColor);
 
         numOrdersFulfilled = 0;
-        OnIncOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
+        OnOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
 
         PerfectOrders = true;
 
@@ -89,6 +87,7 @@ public class OrderManager : MonoBehaviour {
         }
 
         // Start Order Phase timer
+        OrderPhaseTimer.AddDuration(GameManager.Instance.OrderPhaseDurationGrowth);
         OrderPhaseTimer.Start();
         OrderPhaseTimer.EndEvent += StopOrders;
     }
@@ -131,11 +130,11 @@ public class OrderManager : MonoBehaviour {
         Orderer orderer;
         if (order is MoldOrder moldOrder) {
             // Setup MoldOrder Orderer
-            orderer = Instantiate(moldOrdererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Orderer>();
+            orderer = Instantiate(moldOrdererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
             ShapeOutlineRenderer shapeOutlineRenderer = orderer.GetComponentInChildren<ShapeOutlineRenderer>();
             moldOrder.Mold.InitByOrderer(orderer.Grid, shapeOutlineRenderer);
         } else {
-            orderer = Instantiate(ordererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Orderer>();
+            orderer = Instantiate(ordererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
         }
 
         orderer.SetOrder(order);
@@ -143,10 +142,6 @@ public class OrderManager : MonoBehaviour {
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {
-        if (orderPhaseActive.Value) {
-            AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
-        }
-
         if (orderer.Order.IsFulfilled) {
             // Catch up stock for color cell based orders, now that actual fulfillment shape is determined
             // Resolve difference between actual submitted vs. reserved color cells for mold orders
@@ -170,19 +165,18 @@ public class OrderManager : MonoBehaviour {
 
             if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
 
-            numOrdersFulfilled++;
-            OnIncOrderFulfilled?.Invoke(numOrdersFulfilled, numNeedOrdersFulfilled);
-
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
+
+            numOrdersFulfilled++;
+            OnOrderFulfilled?.Invoke(numOrdersFulfilled, numNeedOrdersFulfilled);
+            // TEMP: until finalizing level system
+            if (MetQuota) {
+                OrderPhaseTimer.End();
+            }
         } else {
             // Release color cells since order was not fulfilled
             if (orderer.Order is MoldOrder moldOrder) {
                 foreach (Requirement req in moldOrder.Requirements) {
-                    if (req.Color == null) {
-                        Debug.LogError("Unable to release color stock: Expected mold order requirement to have color.");
-                        continue;
-                    }
-
                     Color c = req.Color;
                     Util.DictIntAdd(
                         availableColorStock, c, CalculateMoldMinColorCount(moldOrder.Mold.ShapeData.Size, moldOrder.Requirements.Count)
@@ -202,10 +196,14 @@ public class OrderManager : MonoBehaviour {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
-
+        
+        if (orderPhaseActive.Value) {
+            AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
+        }
+        
         orderer.Docker.OnReachedEnd += () => {
-            TryTriggerOrderPhaseEnd();
             Destroy(orderer.gameObject);
+            TryTriggerOrderPhaseEnd();
         };
     }
 

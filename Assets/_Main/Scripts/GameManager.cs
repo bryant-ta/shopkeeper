@@ -3,8 +3,8 @@ using TriInspector;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
-    [field: Title("General")]
-    [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
+    // [field: Title("General")]
+    // [field: SerializeField] public AnimationCurve DifficultyCurve { get; private set; }
 
     public int Difficulty => Day;
     [SerializeField, ReadOnly] bool isPaused;
@@ -25,6 +25,7 @@ public class GameManager : Singleton<GameManager> {
     [Tooltip("Sends only bulk delivery every X days.")]
     [field: SerializeField] public int BulkDayInterval { get; private set; }
     [field: SerializeField] public float OrderPhaseDuration { get; private set; }
+    [field: SerializeField] public float OrderPhaseDurationGrowth { get; private set; }
     LevelInitializer levelInit;
     
     [Title("World Grid")]

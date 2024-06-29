@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Timers {
 public abstract class TimerBase {
-    public float Duration { get; }
+    public float Duration { get; protected set; }
     public bool IsTicking { get; protected set; }
 
     public abstract float TimeElapsedSeconds { get; }
@@ -71,6 +71,8 @@ public class CountdownTimer : TimerBase {
         timer = Duration;
         Stop();
     }
+
+    public void AddDuration(float value) { Duration += value; }
 }
 
 public class StageTimer : TimerBase {
@@ -118,7 +120,7 @@ public class ClockTimer : TimerBase {
 
     public string ClockTime => parsedClockTime.ToString("h:mm tt");
     DateTime parsedClockTime;
-    
+
     float clockTickTimer = 0f;
 
     public event Action<string> TickEvent;
@@ -127,8 +129,12 @@ public class ClockTimer : TimerBase {
     /// duration input is ignored, will be calculated from other inputs
     /// </remarks>
     public ClockTimer(float duration, string startClockTime, string endClockTime, float clockTickDurationSeconds,
-        int clockTickStepMinutes) : base(CalculateRealTimeDuration(startClockTime, endClockTime, clockTickDurationSeconds,
-        clockTickStepMinutes)) {
+        int clockTickStepMinutes) : base(
+        CalculateRealTimeDuration(
+            startClockTime, endClockTime, clockTickDurationSeconds,
+            clockTickStepMinutes
+        )
+    ) {
         if (!DateTime.TryParse(startClockTime, out StartClockTime)) {
             Debug.LogError("Unable to parse start time string.");
             return;

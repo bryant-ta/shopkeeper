@@ -29,7 +29,7 @@ MonoBehaviour:
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 0
-    reqMaxQuantity: 3
+    reqMaxQuantity: 2
     reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
@@ -39,7 +39,7 @@ MonoBehaviour:
     baseOrderTime: 0
     baseOrderValue: 0
     reqMaxNum: 2
-    reqMaxQuantity: 0
+    reqMaxQuantity: 3
     reqVirtualShapePool: 06000000
     moldChance: 0
     moldShapePool: 

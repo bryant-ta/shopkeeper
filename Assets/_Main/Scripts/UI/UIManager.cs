@@ -34,10 +34,10 @@ public class UIManager : MonoBehaviour {
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         gameMngr.SM_dayPhase.OnStateExit += ExitStateTrigger;
 
-        Ref.DeliveryMngr.OnDeliveryBoxOpened += HandleOrderPhaseStartButton;
+        Ref.DeliveryMngr.OnDeliveriesOpenedCheck += HandleOrderPhaseStartButton;
 
         Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
-        Ref.OrderMngr.OnIncOrderFulfilled += UpdateOrdersFulfilled;
+        Ref.OrderMngr.OnOrderFulfilled += UpdateOrdersFulfilled;
 
         gameMngr.OnDayEnd += UpdateNextDayPanel;
         gameMngr.OnPause += TogglePauseMenu;
@@ -68,7 +68,14 @@ public class UIManager : MonoBehaviour {
 
     void ToggleOrderPhaseTimer(bool enable) { orderPhasePanel.SetActive(enable); }
     void UpdateOrderPhaseTimer(float time) { orderPhaseTimeFill.fillAmount = time; }
-    void UpdateOrdersFulfilled(int curVal, int thresholdVal) { ordersFulfilledText.text = $"{curVal}/{thresholdVal}"; }
+    void UpdateOrdersFulfilled(int curVal, int thresholdVal) {
+        ordersFulfilledText.text = $"{curVal}/{thresholdVal}";
+        if (curVal >= thresholdVal) {
+            ordersFulfilledText.color = Color.green;
+        } else {
+            ordersFulfilledText.color = Color.black;
+        }
+    }
 
     #endregion
 

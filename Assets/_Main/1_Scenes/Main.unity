@@ -3611,35 +3611,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1aaa4959d975da48b569fa2a72f5215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DifficultyCurve>k__BackingField:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 1
-      tangentMode: 34
-      weightedMode: 0
-      inWeight: 0
-      outWeight: 0
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
   isPaused: 0
   <Day>k__BackingField: 1
   <TotalDays>k__BackingField: 20
   <BulkDayInterval>k__BackingField: 3
   <OrderPhaseDuration>k__BackingField: 25
+  <OrderPhaseDurationGrowth>k__BackingField: 5
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
   initialGold: 5000
@@ -3715,7 +3692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 0
   DoLevelInitialize: 1
   Day: 20
@@ -8835,7 +8812,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: fc8da59340ede2a4dbe6b342da85e3b7, type: 3}
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_Volume: 0.15
   m_Pitch: 1
   Loop: 1
@@ -10579,9 +10556,9 @@ MonoBehaviour:
   numActiveDocks: 3
   NextOrderDelay:
     Min: 1
-    Max: 4
+    Max: 1
   numReqsPerOrder:
-    Min: 3
+    Min: 1
     Max: 3
   baseOrderTime: 5
   timePerProduct: 5
@@ -16296,6 +16273,8 @@ MonoBehaviour:
   <PointLayer>k__BackingField:
     serializedVersion: 2
     m_Bits: 64
+  graphicRaycaster: {fileID: 1781915944}
+  eventSystem: {fileID: 1516144618}
 --- !u!114 &2107359965
 MonoBehaviour:
   m_ObjectHideFlags: 0

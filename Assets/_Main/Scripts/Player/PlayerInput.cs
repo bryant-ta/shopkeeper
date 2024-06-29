@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Player))]
 public class PlayerInput : MonoBehaviour {
@@ -9,11 +12,15 @@ public class PlayerInput : MonoBehaviour {
 
     int playerID; // TEMP: gonna need somewhere to differentiate players in local multiplayer, eventually passed w/ inputs
     Camera mainCam;
+    EventSystem eventSystem;
+    [SerializeField] GraphicRaycaster graphicRaycaster;
 
     UnityEngine.InputSystem.PlayerInput playerInput; // TEMP: change for local multiplayer
 
     void Awake() {
         mainCam = Camera.main;
+        eventSystem = FindObjectOfType<EventSystem>();
+
         playerInput = GetComponent<UnityEngine.InputSystem.PlayerInput>();
 
         SetActionMap(Constants.ActionMapNamePlayer);
@@ -60,11 +67,17 @@ public class PlayerInput : MonoBehaviour {
 
     void Update() {
         ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
+        if (clickInputArgs.TargetObj == null) return;
+        
         InputPoint?.Invoke(clickInputArgs);
     }
 
     ClickInputArgs ClickInputArgsRaycast(Vector2 cursorPos) {
         ClickInputArgs clickInputArgs = new();
+
+        // Ignore click if cursor is over UI 
+        if (IsPointerOverUIElement(cursorPos)) { return clickInputArgs; }
+
         Ray ray = mainCam.ScreenPointToRay(cursorPos);
         if (Physics.Raycast(ray, out RaycastHit hit, 100.0f, PointLayer, QueryTriggerInteraction.Ignore)) {
             if (hit.collider != null) {
@@ -76,6 +89,15 @@ public class PlayerInput : MonoBehaviour {
         }
 
         return clickInputArgs;
+    }
+    bool IsPointerOverUIElement(Vector2 cursorPos) {
+        PointerEventData pointerEventData = new PointerEventData(eventSystem);
+        pointerEventData.position = cursorPos;
+
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        graphicRaycaster.Raycast(pointerEventData, raycastResults);
+
+        return raycastResults.Count > 0;
     }
 
     #endregion
