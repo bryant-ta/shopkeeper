@@ -239,8 +239,8 @@ public class OrderManager : MonoBehaviour {
         ShapeDataID reqShapeDataID = Util.GetRandomFromList(reqVirtualShapePool);
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
-        int quantity = randomQuantity;
         int reqShapeSize = ShapeDataLookUp.LookUp(reqShapeDataID).Size;
+        int quantity = randomQuantity / reqShapeSize + 1;
         int consumedCount = randomQuantity * reqShapeSize;
 
         // Remove excluded colors
