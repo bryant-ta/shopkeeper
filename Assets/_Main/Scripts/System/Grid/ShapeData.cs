@@ -18,6 +18,7 @@ public class ShapeData {
     public Vector3Int MinOffset => new(
         ShapeOffsets.Min(offset => offset.x), ShapeOffsets.Min(offset => offset.y), ShapeOffsets.Min(offset => offset.z)
     );
+
     public Vector3Int MaxOffset => new(
         ShapeOffsets.Max(offset => offset.x), ShapeOffsets.Max(offset => offset.y), ShapeOffsets.Max(offset => offset.z)
     );
@@ -91,6 +92,17 @@ public class ShapeData {
         if (shapeOffsets == null || shapeOffsets.Count == 0) {
             Debug.LogError("Unable to match shape data ID: ShapeOffset is not set.");
             return ShapeDataID.None;
+        }
+
+        // Recenter shapeOffsets
+        Vector3Int lowestOffset = new Vector3Int(Int32.MaxValue, 0, Int32.MaxValue);
+        for (int i = 0; i < shapeOffsets.Count; i++) {
+            if (shapeOffsets[i].x < lowestOffset.x) lowestOffset.x = shapeOffsets[i].x;
+            if (shapeOffsets[i].z < lowestOffset.z) lowestOffset.z = shapeOffsets[i].z;
+        }
+        shapeOffsets = new List<Vector3Int>(shapeOffsets);
+        for (int i = 0; i < shapeOffsets.Count; i++) {
+            shapeOffsets[i] -= lowestOffset;
         }
 
         foreach (KeyValuePair<ShapeDataID, ShapeData> kv in ShapeDataLookUp.ShapeDataByID) {

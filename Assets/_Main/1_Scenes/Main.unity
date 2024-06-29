@@ -3692,7 +3692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 0
   DoLevelInitialize: 1
   Day: 1
@@ -8062,7 +8062,7 @@ MonoBehaviour:
   zoomSpeed: 20
   zoomStep: 1
   zoomMin: 6
-  zoomMax: 9
+  zoomMax: 10
   rotationDuration: 0.2
 --- !u!114 &963194231
 MonoBehaviour:
