@@ -9,10 +9,9 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
     public class DeliveryDifficultyEntry : IDifficultyEntry {
         [field: SerializeField] public int day { get; set; }
 
-        public int numDeliveries;
         public int maxColorIndex;
         [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<GameObject> deliveryBoxPool;
+        public List<GameObject> deliveries;
 
         [Group("Basic Delivery")] [Tooltip("First extension max length")]
         public int basicFirstDimensionMax;

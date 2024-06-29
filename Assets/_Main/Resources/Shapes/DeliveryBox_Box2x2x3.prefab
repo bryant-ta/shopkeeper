@@ -9,19 +9,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4032146802622527018, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
       propertyPath: m_LocalScale.z
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4032146802622527018, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 1.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5623551284657415883, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
       propertyPath: <ShapeData>k__BackingField.ID
-      value: 82
+      value: 81
       objectReference: {fileID: 0}
     - target: {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
       propertyPath: m_Name
-      value: DeliveryBox_Box2x2x4
+      value: DeliveryBox_Box2x2x3
       objectReference: {fileID: 0}
     - target: {fileID: 6494341235392573769, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
       propertyPath: m_RootOrder

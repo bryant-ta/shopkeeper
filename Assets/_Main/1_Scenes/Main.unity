@@ -1752,7 +1752,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numDeliveries: 1
   maxColorIndex: 1
   basicFirstDimensionMax: 2
   basicSecondDimensionMax: 1
@@ -1763,8 +1762,7 @@ MonoBehaviour:
   irregularShapePool: 0b000000
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  deliveryBoxPool:
-  - {fileID: 6494341235392573768, guid: f4e5512cfdf920f438820a7d663ac573, type: 3}
+  deliveries: []
 --- !u!4 &235971277
 Transform:
   m_ObjectHideFlags: 0
@@ -3692,10 +3690,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
-  DoSetDifficulty: 0
+  debugMode: 1
+  DoSetDifficulty: 1
   DoLevelInitialize: 1
-  Day: 1
+  Day: 20
   OrderPhaseDuration: 20
 --- !u!1 &550499586
 GameObject:
@@ -8812,7 +8810,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: fc8da59340ede2a4dbe6b342da85e3b7, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 0.15
   m_Pitch: 1
   Loop: 1

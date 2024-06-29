@@ -13,15 +13,19 @@ public class DifficultyManager : Singleton<DifficultyManager> {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
         
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
-            numDeliveries = deliveryDiffTable.GetHigh(entry => entry.numDeliveries),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
-            deliveryBoxPool = deliveryDiffTable.Filter(entry => entry.deliveryBoxPool),
             basicFirstDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicFirstDimensionMax),
             basicSecondDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicSecondDimensionMax),
             basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension),
             irregularChance = deliveryDiffTable.GetHigh(entry => entry.irregularChance),
             irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
         };
+
+        if (deliveryDiffTable.GetExact(entry => entry.deliveries, GameManager.Instance.Difficulty, out List<GameObject> output)) {
+            ret.deliveries = output;
+        } else {
+            Debug.LogError($"Missing deliveries list for difficulty {GameManager.Instance.Difficulty}.");
+        }
 
         deliveryDiffTable.UseOverrides(ret, GameManager.Instance.Difficulty);
 

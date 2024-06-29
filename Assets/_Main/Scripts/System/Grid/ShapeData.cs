@@ -156,7 +156,13 @@ public enum ShapeDataID {
     Box2x2x2 = 80,
     Box2x2x3 = 81,
     Box2x2x4 = 82,
-    Box2x2x5 = 83,
+    // Box2x2x5 = 83,
+    // Box3x2x3 = 84,
+    // Box3x2x4 = 85,
+    // Box3x2x5 = 86,
+    // Box4x2x4 = 87,
+    // Box4x2x5 = 88,
+    // Box5x2x5 = 89,
     Box3x3x3 = 90,
     Custom = 100,
 }
@@ -462,6 +468,14 @@ public static class ShapeDataLookUp {
                 ShapeOffsets = new List<Vector3Int>() {
                     new(0, 0, 0), new(1, 0, 0), new(0, 0, 1), new(1, 0, 1),
                     new(0, 1, 0), new(1, 1, 0), new(0, 1, 1), new(1, 1, 1),
+                }
+            }
+        }, {
+            ShapeDataID.Box2x2x3, new ShapeData() {
+                ID = ShapeDataID.Box2x2x3,
+                ShapeOffsets = new List<Vector3Int>() {
+                    new(0, 0, 0), new(1, 0, 0), new(0, 0, 1), new(1, 0, 1), new(0, 0, 2), new(1, 0, 2),
+                    new(0, 1, 0), new(1, 1, 0), new(0, 1, 1), new(1, 1, 1), new(0, 1, 2), new(1, 1, 2),
                 }
             }
         }, {

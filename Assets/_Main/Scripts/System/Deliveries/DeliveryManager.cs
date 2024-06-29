@@ -8,7 +8,6 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [Title("General")]
-    [SerializeField] int numDeliveries = 1;
     [Tooltip("Determines possible color choices for ALL delivery types.")]
     [SerializeField] int maxColorIndex = 1;
 
@@ -35,12 +34,12 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] List<GameObject> deliveryBoxPool;
+    [SerializeField] List<GameObject> deliveries;
     List<DeliveryBox> curDeliveryBoxes = new();
-    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curRemainingDeliveries == 0;
+    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curDeliveryIndex == deliveries.Count;
     public event Action OnDeliveriesOpenedCheck;
-    
-    int curRemainingDeliveries;
+
+    int curDeliveryIndex;
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
@@ -68,22 +67,26 @@ public class DeliveryManager : MonoBehaviour {
 
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
         // TODO: deliverer queue
-        curRemainingDeliveries = numDeliveries;
-        int count = Math.Min(numDeliveries, docks.Count);
+        int count = Math.Min(deliveries.Count, docks.Count);
+        curDeliveryIndex = count;
         for (int i = 0; i < count; i++) {
-            CreateDeliverer(docks[i]);
+            CreateDeliverer(docks[i], deliveries[i]);
         }
     }
 
-    void CreateDeliverer(Dock openDock) {
+    void CreateDeliverer(Dock openDock, GameObject deliveryBoxObj) {
+        if (deliveries == null || deliveries.Count == 0) {
+            Debug.LogError("Deliveries list is empty.");
+            return;
+        }
+
         // Setup deliverer
         Deliverer deliverer = Instantiate(delivererObj, Ref.Instance.OffScreenSpawnTrs).GetComponent<Deliverer>();
         deliverer.OccupyDock(openDock);
 
         IGridShape cargoShape;
         if (GameManager.Instance.Day % bulkDayInterval == 0) { // Create delivery box for bulk delivery
-            GameObject obj = Util.GetRandomFromList(deliveryBoxPool);
-            DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+            DeliveryBox deliveryBox = Instantiate(deliveryBoxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Bulk);
 
             curDeliveryBoxes.Add(deliveryBox);
@@ -91,8 +94,7 @@ public class DeliveryManager : MonoBehaviour {
         } else if (Random.Range(0f, 1f) <= irregularChance) { // Create irregular delivery
             cargoShape = GenerateIrregularDelivery();
         } else { // Create delivery box for basic delivery
-            GameObject obj = Util.GetRandomFromList(deliveryBoxPool);
-            DeliveryBox deliveryBox = Instantiate(obj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
+            DeliveryBox deliveryBox = Instantiate(deliveryBoxObj, deliverer.Grid.transform).GetComponentInChildren<DeliveryBox>();
             deliveryBox.SetDeliveryBoxType(DeliveryBox.DeliveryBoxType.Basic);
 
             curDeliveryBoxes.Add(deliveryBox);
@@ -102,23 +104,20 @@ public class DeliveryManager : MonoBehaviour {
         // TEMP: scale deliverer floor grid, replaced after deliverer anim
         ShapeData cargoShapeData = cargoShape.ShapeData;
         deliverer.Grid.SetGridSize(cargoShapeData.Length, cargoShapeData.Height, cargoShapeData.Width);
-        deliverer.transform.Find("Floor").transform.localScale = new Vector3(
-            0.1f * cargoShapeData.Length, 1, 0.1f * cargoShapeData.Width
-        );
+        deliverer.transform.Find("Floor").transform.localScale = new Vector3(0.1f * cargoShapeData.Length, 1, 0.1f * cargoShapeData.Width);
 
         // centers shape on deliverer grid origin by moving delivery box root to a corner
         Vector3Int targetCoord = new Vector3Int(-cargoShapeData.Length / 2, 0, -cargoShapeData.Width / 2);
 
         deliverer.Grid.PlaceShapeNoValidate(targetCoord, cargoShape);
-        
-        curRemainingDeliveries--;
     }
 
     public void HandleFinishedDeliverer(Deliverer deliverer) {
-        if (curRemainingDeliveries > 0) {
-            CreateDeliverer(deliverer.AssignedDock);
+        if (curDeliveryIndex < deliveries.Count) {
+            CreateDeliverer(deliverer.AssignedDock, deliveries[curDeliveryIndex]);
+            curDeliveryIndex++;
         }
-        
+
         deliverer.Docker.OnReachedEnd += () => {
             Destroy(deliverer.gameObject);
             OnDeliveriesOpenedCheck?.Invoke();
@@ -134,7 +133,7 @@ public class DeliveryManager : MonoBehaviour {
         Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
         Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
 
-        DeliveryOrientation orientation = SelectOrientation(basicOrderliness);
+        DeliveryOrientation orientation = OrderlinessToOrientation(basicOrderliness);
         List<Direction2D> extensionDirs = orientation switch {
             DeliveryOrientation.All => new() {Direction2D.North, Direction2D.East, Direction2D.South, Direction2D.West},
             DeliveryOrientation.NS => new() {Direction2D.North, Direction2D.South},
@@ -170,9 +169,11 @@ public class DeliveryManager : MonoBehaviour {
     /// <param name="deliveryBox"></param>
     public void BulkDelivery(DeliveryBox deliveryBox) {
         // Determine shape based on delivery box dimensions
-        int length = deliveryBox.ShapeData.Length;
-        int width = 1; // TODO: any width that fits evenly into delivery box
+        // TODO: any length/width that fits evenly into delivery box
+        int length = 1;
+        int width = deliveryBox.ShapeData.Width;
 
+        // Build shape data for bulk
         List<Vector3Int> shapeOffsets = new();
         for (int x = 0; x < length; x++) {
             for (int z = 0; z < width; z++) {
@@ -180,11 +181,8 @@ public class DeliveryManager : MonoBehaviour {
             }
         }
 
-        // Build shape data for bulk
         ShapeDataID id = ShapeData.DetermineID(shapeOffsets);
-        ShapeData shapeData = id == ShapeDataID.Custom ?
-            new ShapeData(ShapeDataID.Custom, Vector3Int.zero, shapeOffsets) :
-            ShapeDataLookUp.LookUp(id);
+        ShapeData shapeData = new ShapeData(id, Vector3Int.zero, shapeOffsets);
 
         // Create shape in bulk to fill delivery box volume
         Grid grid = deliveryBox.Grid;
@@ -192,7 +190,7 @@ public class DeliveryManager : MonoBehaviour {
         Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
         Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)];
 
-        for (int z = minBoundCoord.z; z <= maxBoundCoord.z; z += width) {
+        for (int x = minBoundCoord.x; x <= maxBoundCoord.x; x += length) {
             for (int y = minBoundCoord.y; y <= maxBoundCoord.y; y++) {
                 SO_Product productData = ProductFactory.Instance.CreateSOProduct(
                     color,
@@ -200,7 +198,7 @@ public class DeliveryManager : MonoBehaviour {
                     shapeData
                 );
 
-                Vector3Int deliveryCoord = new Vector3Int(minBoundCoord.x, y, z);
+                Vector3Int deliveryCoord = new Vector3Int(x, y, minBoundCoord.z);
                 Product product = ProductFactory.Instance.CreateProduct(productData, grid.transform.position + deliveryCoord);
 
                 deliveryBox.Grid.PlaceShapeNoValidate(deliveryCoord, product);
@@ -239,7 +237,7 @@ public class DeliveryManager : MonoBehaviour {
         EW = 2, // East West
     }
 
-    DeliveryOrientation SelectOrientation(float orderliness) {
+    DeliveryOrientation OrderlinessToOrientation(float orderliness) {
         if (orderliness < 0 || 1f < orderliness) {
             Debug.LogError("Unable to determine delivery orientation: orderliness is not between 0 and 1");
             return DeliveryOrientation.All;
@@ -273,9 +271,8 @@ public class DeliveryManager : MonoBehaviour {
     #endregion
 
     public void SetDifficultyOptions(SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry) {
-        numDeliveries = deliveryDiffEntry.numDeliveries;
         maxColorIndex = deliveryDiffEntry.maxColorIndex;
-        deliveryBoxPool = new List<GameObject>(deliveryDiffEntry.deliveryBoxPool);
+        deliveries = new List<GameObject>(deliveryDiffEntry.deliveries);
         basicFirstDimensionMax = deliveryDiffEntry.basicFirstDimensionMax;
         basicSecondDimensionMax = deliveryDiffEntry.basicSecondDimensionMax;
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
