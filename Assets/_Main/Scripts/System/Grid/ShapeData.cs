@@ -98,13 +98,13 @@ public class ShapeData {
             if (shapeOffsets.Count != kv.Value.ShapeOffsets.Count) continue;
 
             // match offsets considering rotation
-            ShapeData sd = new ShapeData {ShapeOffsets = new List<Vector3Int>(shapeOffsets)};
+            ShapeData potentialMatchShapeData = ShapeDataLookUp.LookUp(kv.Key);
             for (int i = 0; i < 4; i++) {
-                if (shapeOffsets.All(sd.ShapeOffsets.Contains)) {
+                if (shapeOffsets.All(potentialMatchShapeData.ShapeOffsets.Contains)) {
                     return kv.Key;
                 }
 
-                sd.RotateShape(true);
+                potentialMatchShapeData.RotateShape(true);
             }
         }
 
