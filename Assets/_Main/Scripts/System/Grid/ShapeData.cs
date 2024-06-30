@@ -120,7 +120,6 @@ public class ShapeData {
             }
         }
 
-        Debug.Log("Did not match shape data to any shape data ID.");
         return ShapeDataID.Custom;
     }
 }

@@ -70,7 +70,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 09000000
+    reqVirtualShapePool: 
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 7
@@ -130,7 +130,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 0c0000000d000000
+    reqVirtualShapePool: 0c000000
     moldChance: 0.35
     moldShapePool: 
   - <day>k__BackingField: 13

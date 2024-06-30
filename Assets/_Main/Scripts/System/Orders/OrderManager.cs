@@ -46,10 +46,13 @@ public class OrderManager : MonoBehaviour {
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
 
     Dictionary<Color, int> availableColorStock = new(); // Count of cells by color
+    int numDocksWithOrders;
 
     Util.ValueRef<bool> orderPhaseActive;
 
     void Awake() {
+        if (!DebugManager.DebugMode) reqQuantity.Min = 1; // TEMP: debug
+        
         orderPhaseActive = new Util.ValueRef<bool>(false);
         OrderPhaseTimer = new CountdownTimer(GameManager.Instance.OrderPhaseDuration);
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
@@ -76,7 +79,7 @@ public class OrderManager : MonoBehaviour {
 
         numOrdersFulfilled = 0;
         OnOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
-
+        numDocksWithOrders = 1;
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -84,6 +87,7 @@ public class OrderManager : MonoBehaviour {
         int activeDocks = Math.Min(numActiveDocks, docks.Count);
         for (var i = 1; i < activeDocks; i++) {
             AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
+            numDocksWithOrders++;
         }
 
         // Start Order Phase timer
@@ -196,8 +200,10 @@ public class OrderManager : MonoBehaviour {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
-        
-        if (orderPhaseActive.Value) {
+
+        if (numDocksWithOrders > numNeedOrdersFulfilled - numOrdersFulfilled) {
+            numDocksWithOrders--;
+        } else if (orderPhaseActive.Value) {
             AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
         
@@ -240,7 +246,7 @@ public class OrderManager : MonoBehaviour {
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         int reqShapeSize = ShapeDataLookUp.LookUp(reqShapeDataID).Size;
-        int quantity = randomQuantity / reqShapeSize + 1;
+        int quantity = Math.Max(randomQuantity / (reqShapeSize / 2), 1);
         int consumedCount = randomQuantity * reqShapeSize;
 
         // Remove excluded colors

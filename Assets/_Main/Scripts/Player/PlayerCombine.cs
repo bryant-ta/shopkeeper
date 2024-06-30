@@ -94,7 +94,8 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             for (int i = 0; i < 4; i++) {
                 IGridShape adjacentShape = targetGrid.SelectPosition(selectedRoot + offset + DirectionData.DirectionVectorsInt[i]);
 
-                if (adjacentShape != null && adjacentShape != selectedShape && !combinedProducts.Contains(adjacentShape)) {
+                if (adjacentShape != null && adjacentShape != selectedShape && !combinedProducts.Contains(adjacentShape) &&
+                    !adjacentShape.ShapeTags.Contains(ShapeTagID.NoCombine)) {
                     Product adjacentProduct = Util.GetProductFromShape(adjacentShape);
                     if (adjacentProduct == null) return;
 

@@ -1762,7 +1762,8 @@ MonoBehaviour:
   irregularShapePool: 0b000000
   docksContainer: {fileID: 738998993}
   delivererObj: {fileID: 6107107185768956133, guid: ba501a0cb9b32cf4eaeee5ac10cac093, type: 3}
-  deliveries: []
+  deliveries:
+  - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
 --- !u!4 &235971277
 Transform:
   m_ObjectHideFlags: 0
@@ -3693,7 +3694,7 @@ MonoBehaviour:
   debugMode: 1
   DoSetDifficulty: 1
   DoLevelInitialize: 1
-  Day: 20
+  Day: 7
   OrderPhaseDuration: 20
 --- !u!1 &550499586
 GameObject:
@@ -10565,7 +10566,7 @@ MonoBehaviour:
   perfectOrdersBonus: 0
   reqQuantity:
     Min: 1
-    Max: 2
+    Max: 10
   reqVirtualShapePool: 0a000000
   moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
   moldChance: 0
