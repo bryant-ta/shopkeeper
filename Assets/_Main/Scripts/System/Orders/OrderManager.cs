@@ -153,8 +153,7 @@ public class OrderManager : MonoBehaviour {
                 Dictionary<Color, int> orderColorStock = new();
                 foreach (Product product in orderer.SubmittedProducts) {
                     Color c = product.ID.Color;
-                    ShapeDataID s = product.ID.ShapeDataID;
-                    Util.DictIntAdd(orderColorStock, c, ShapeDataLookUp.LookUp(s).Size);
+                    Util.DictIntAdd(orderColorStock, c, product.ShapeData.Size);
                 }
 
                 foreach (Color color in orderColorStock.Keys.ToList()) {
@@ -189,7 +188,7 @@ public class OrderManager : MonoBehaviour {
             } else {
                 foreach (Requirement req in orderer.Order.Requirements) {
                     // Req had no color, so color stock was not reserved before, nothing to do.
-                    if (req.Color == null || req.ShapeDataID == null) continue;
+                    if (req.ShapeDataID == null) continue;
                     Color c = req.Color;
                     ShapeDataID s = req.ShapeDataID ?? ShapeDataID.Custom;
 
