@@ -246,7 +246,7 @@ public class OrderManager : MonoBehaviour {
 
         int randomQuantity = Random.Range(reqQuantity.Min, reqQuantity.Max + 1);
         int reqShapeSize = ShapeDataLookUp.LookUp(reqShapeDataID).Size;
-        int quantity = Math.Max(randomQuantity / (reqShapeSize / 2), 1);
+        int quantity = Math.Max(randomQuantity / Math.Max(reqShapeSize / 2, 1), 1);
         int consumedCount = randomQuantity * reqShapeSize;
 
         // Remove excluded colors

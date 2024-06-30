@@ -35,6 +35,7 @@ MonoBehaviour:
     maxColorIndex: 0
     deliveries:
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     basicFirstDimensionMax: 2
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0.5
@@ -81,8 +82,8 @@ MonoBehaviour:
   - <day>k__BackingField: 8
     maxColorIndex: 0
     deliveries:
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
+    - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
@@ -91,6 +92,7 @@ MonoBehaviour:
   - <day>k__BackingField: 9
     maxColorIndex: 0
     deliveries:
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
@@ -120,6 +122,7 @@ MonoBehaviour:
   - <day>k__BackingField: 12
     maxColorIndex: 0
     deliveries:
+    - {fileID: 512234017327778671, guid: aa0dc031d11af4240a933d8c1e21eb89, type: 3}
     - {fileID: 512234017327778671, guid: aa0dc031d11af4240a933d8c1e21eb89, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
@@ -159,7 +162,7 @@ MonoBehaviour:
   - <day>k__BackingField: 16
     maxColorIndex: 0
     deliveries:
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
