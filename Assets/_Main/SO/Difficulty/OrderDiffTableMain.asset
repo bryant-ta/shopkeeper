@@ -60,7 +60,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 4
-    reqVirtualShapePool: 08000000
+    reqVirtualShapePool: 0a000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 6
@@ -70,9 +70,9 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 
-    moldChance: 0
-    moldShapePool: 
+    reqVirtualShapePool: 14000000
+    moldChance: 0.25
+    moldShapePool: 0a0000000e000000
   - <day>k__BackingField: 7
     numNeedOrdersFulfilled: 0
     numActiveDocks: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 5
-    reqVirtualShapePool: 0a000000
+    reqVirtualShapePool: 1500000017000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 8
@@ -90,9 +90,9 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 3
     reqMaxQuantity: 0
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 19000000
     moldChance: 0
-    moldShapePool: 
+    moldShapePool: 0b0000000c000000
   - <day>k__BackingField: 9
     numNeedOrdersFulfilled: 0
     numActiveDocks: 0
@@ -110,9 +110,9 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 140000001500000017000000
-    moldChance: 0.25
-    moldShapePool: 0e0000001e000000190000001a00000011000000
+    reqVirtualShapePool: 
+    moldChance: 0.5
+    moldShapePool: 1e000000190000001a00000011000000
   - <day>k__BackingField: 11
     numNeedOrdersFulfilled: 0
     numActiveDocks: 0
@@ -120,7 +120,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 7
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 0e000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 12
@@ -131,7 +131,7 @@ MonoBehaviour:
     reqMaxNum: 0
     reqMaxQuantity: 0
     reqVirtualShapePool: 0c000000
-    moldChance: 0.35
+    moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 13
     numNeedOrdersFulfilled: 0
@@ -140,7 +140,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 8
-    reqVirtualShapePool: 
+    reqVirtualShapePool: 1e000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 14
@@ -150,7 +150,7 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 0
-    reqVirtualShapePool: 0e0000001600000018000000190000001a000000
+    reqVirtualShapePool: 16000000180000001a000000
     moldChance: 0
     moldShapePool: 
   - <day>k__BackingField: 15
@@ -160,8 +160,8 @@ MonoBehaviour:
     baseOrderValue: 0
     reqMaxNum: 0
     reqMaxQuantity: 9
-    reqVirtualShapePool: 1e000000
-    moldChance: 0.5
+    reqVirtualShapePool: 
+    moldChance: 0.75
     moldShapePool: 
   - <day>k__BackingField: 16
     numNeedOrdersFulfilled: 7

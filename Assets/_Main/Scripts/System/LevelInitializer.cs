@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class LevelInitializer : MonoBehaviour {
     [SerializeField] int numStacks;
@@ -15,7 +17,7 @@ public class LevelInitializer : MonoBehaviour {
         Grid grid = GameManager.WorldGrid;
         for (int i = 0; i < numStacks; i++) {
             Vector3Int stackPos = new Vector3Int(Random.Range(grid.MinX, grid.MaxX), grid.MinY, Random.Range(grid.MinZ, grid.MaxZ));
-            int stackCount = Random.Range(numCountPerStack.Min, numCountPerStack.Max + 1);
+            int stackCount = Math.Min(Random.Range(numCountPerStack.Min, numCountPerStack.Max + 1), grid.Height);
 
             for (int y = 0; y < stackCount; y++) {
                 SO_Product productData = ProductFactory.Instance.CreateSOProduct(
@@ -26,9 +28,14 @@ public class LevelInitializer : MonoBehaviour {
 
                 Product product = ProductFactory.Instance.CreateProduct(productData, stackPos + new Vector3Int(0, y, 0));
 
-                grid.PlaceShapeNoValidate(stackPos + new Vector3Int(0, y, 0), product);
+                for (int tries = 3; tries > 0; tries--) {
+                    if (grid.PlaceShape(stackPos + new Vector3Int(0, y, 0), product)) {
+                        Ledger.AddStockedProduct(product);
+                        break;
+                    }
 
-                Ledger.AddStockedProduct(product);
+                    stackPos = new Vector3Int(Random.Range(grid.MinX, grid.MaxX), grid.MinY, Random.Range(grid.MinZ, grid.MaxZ));
+                }
             }
         }
     }

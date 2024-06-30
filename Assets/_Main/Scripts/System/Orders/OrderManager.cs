@@ -221,6 +221,13 @@ public class OrderManager : MonoBehaviour {
         Order order = Random.Range(0f, 1f) <= moldChance ? GenerateMoldOrder() : GenerateBagOrder();
         if (order == null) {
             Debug.Log("Did not generate order.");
+            
+            // TEMP: until after playtest, skip this level if running out of stock
+            numDocksWithOrders--;
+            if (numDocksWithOrders == 0 && !MetQuota) {
+                numOrdersFulfilled = numNeedOrdersFulfilled;
+                OrderPhaseTimer.End();
+            }
         }
 
         return order;

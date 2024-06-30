@@ -26,6 +26,7 @@ MonoBehaviour:
     maxColorIndex: 0
     deliveries:
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
@@ -34,7 +35,6 @@ MonoBehaviour:
   - <day>k__BackingField: 3
     maxColorIndex: 0
     deliveries:
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     basicFirstDimensionMax: 2
     basicSecondDimensionMax: 0
@@ -77,7 +77,7 @@ MonoBehaviour:
     basicFirstDimensionMax: 4
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
-    irregularChance: 0.1
+    irregularChance: 0
     irregularShapePool: 0f000000100000001100000012000000
   - <day>k__BackingField: 8
     maxColorIndex: 0
@@ -92,10 +92,7 @@ MonoBehaviour:
   - <day>k__BackingField: 9
     maxColorIndex: 0
     deliveries:
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
@@ -104,16 +101,21 @@ MonoBehaviour:
   - <day>k__BackingField: 10
     maxColorIndex: 6
     deliveries:
-    - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 2
     basicChanceShapeExtension: 0.8
-    irregularChance: 0.2
+    irregularChance: 0
     irregularShapePool: 1500000016000000170000001800000018000000
   - <day>k__BackingField: 11
     maxColorIndex: 0
     deliveries:
-    - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
+    - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
     basicChanceShapeExtension: 0
@@ -122,6 +124,7 @@ MonoBehaviour:
   - <day>k__BackingField: 12
     maxColorIndex: 0
     deliveries:
+    - {fileID: 512234017327778671, guid: aa0dc031d11af4240a933d8c1e21eb89, type: 3}
     - {fileID: 512234017327778671, guid: aa0dc031d11af4240a933d8c1e21eb89, type: 3}
     - {fileID: 512234017327778671, guid: aa0dc031d11af4240a933d8c1e21eb89, type: 3}
     basicFirstDimensionMax: 0
@@ -134,6 +137,7 @@ MonoBehaviour:
     deliveries:
     - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
+    - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 3
     basicChanceShapeExtension: 0
@@ -142,6 +146,7 @@ MonoBehaviour:
   - <day>k__BackingField: 14
     maxColorIndex: 0
     deliveries:
+    - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     - {fileID: 512234017327778671, guid: c7886f2e067fffc468f5290270ec5ea1, type: 3}
     basicFirstDimensionMax: 0
@@ -162,6 +167,7 @@ MonoBehaviour:
   - <day>k__BackingField: 16
     maxColorIndex: 0
     deliveries:
+    - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
     - {fileID: 512234017327778671, guid: f33c220dd3bc8604dbfc4803a1c6c6ac, type: 3}
     basicFirstDimensionMax: 0
     basicSecondDimensionMax: 0
@@ -209,8 +215,5 @@ MonoBehaviour:
     basicChanceShapeExtension: 0
     irregularChance: 0
     irregularShapePool: 
-  useOverride: 1
-  overrides:
-  - day: 7
-    irregularChance: 1
-    irregularShapePool: 1e000000
+  useOverride: 0
+  overrides: []

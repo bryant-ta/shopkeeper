@@ -3613,9 +3613,9 @@ MonoBehaviour:
   isPaused: 0
   <Day>k__BackingField: 1
   <TotalDays>k__BackingField: 20
-  <BulkDayInterval>k__BackingField: 3
-  <OrderPhaseDuration>k__BackingField: 25
-  <OrderPhaseDurationGrowth>k__BackingField: 5
+  <BulkDayInterval>k__BackingField: 2
+  <OrderPhaseDuration>k__BackingField: 20
+  <OrderPhaseDurationGrowth>k__BackingField: 4
   worldGrid: {fileID: 976189241}
   globalGridHeight: 3
   initialGold: 5000
@@ -3691,7 +3691,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 1
   DoLevelInitialize: 1
   Day: 7
@@ -5259,7 +5259,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_BoundingSphereOverride: {x: 1.3563156e-19, y: 41975936, z: 0.014920094, w: 7.1547156e+22}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -10906,7 +10906,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: NaN}
+  m_BoundingSphereOverride: {x: 5.3750233e-11, y: 7.317312e+28, z: 1.6019658e-19, w: 7.317312e+28}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -15385,7 +15385,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numStacks: 5
+  numStacks: 10
   numCountPerStack:
     Min: 1
     Max: 3

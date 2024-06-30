@@ -95,28 +95,35 @@ public class ShapeData {
         }
 
         // Recenter shapeOffsets
-        Vector3Int lowestOffset = new Vector3Int(Int32.MaxValue, 0, Int32.MaxValue);
-        for (int i = 0; i < shapeOffsets.Count; i++) {
-            if (shapeOffsets[i].x < lowestOffset.x) lowestOffset.x = shapeOffsets[i].x;
-            if (shapeOffsets[i].z < lowestOffset.z) lowestOffset.z = shapeOffsets[i].z;
-        }
-        shapeOffsets = new List<Vector3Int>(shapeOffsets);
-        for (int i = 0; i < shapeOffsets.Count; i++) {
-            shapeOffsets[i] -= lowestOffset;
-        }
+        Vector3Int lowestOffset = new Vector3Int(
+            shapeOffsets.Min(offset => offset.x),
+            0,
+            shapeOffsets.Min(offset => offset.z)
+        );
+        List<Vector3Int> centeredOffsets = shapeOffsets.Select(offset => offset - lowestOffset).ToList();
 
         foreach (KeyValuePair<ShapeDataID, ShapeData> kv in ShapeDataLookUp.ShapeDataByID) {
             // First match offsets length
-            if (shapeOffsets.Count != kv.Value.ShapeOffsets.Count) continue;
+            if (centeredOffsets.Count != kv.Value.ShapeOffsets.Count) continue;
 
             // match offsets considering rotation
             ShapeData potentialMatchShapeData = ShapeDataLookUp.LookUp(kv.Key);
+            ShapeData potentialMatchCentered = ShapeDataLookUp.LookUp(kv.Key);
             for (int i = 0; i < 4; i++) {
-                if (shapeOffsets.All(potentialMatchShapeData.ShapeOffsets.Contains)) {
+                // center lookup offsets
+                List<Vector3Int> centeredPotentialOffsets = potentialMatchCentered.ShapeOffsets;
+                Vector3Int centeredPotentialLowestOffset = new Vector3Int(
+                    centeredPotentialOffsets.Min(offset => offset.x),
+                    centeredPotentialOffsets.Min(offset => offset.y),
+                    centeredPotentialOffsets.Min(offset => offset.z)
+                );
+                centeredPotentialOffsets = potentialMatchCentered.ShapeOffsets.Select(offset => offset - centeredPotentialLowestOffset).ToList();
+                
+                if (centeredOffsets.All(centeredPotentialOffsets.Contains)) {
                     return kv.Key;
                 }
-
-                potentialMatchShapeData.RotateShape(true);
+                
+                potentialMatchCentered.RotateShape(true);
             }
         }
 
