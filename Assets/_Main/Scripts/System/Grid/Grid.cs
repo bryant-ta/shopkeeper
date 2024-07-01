@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using TriInspector;
-using UnityEditor.Search;
 using UnityEngine;
 
 public class Grid : MonoBehaviour {
@@ -549,13 +548,13 @@ public class Grid : MonoBehaviour {
     /// </summary>
     public void RemoveValidCell(Vector2Int pos) {
         if (!validCells.Contains(pos)) {
-            Debug.Log($"Unable to remove cell: {pos} does not exist in grid ({SearchUtils.GetHierarchyPath(gameObject)}");
+            Debug.Log($"Unable to remove cell: {pos} does not exist in grid {gameObject.name}");
             return;
         }
 
         for (int y = 0; y <= MaxY; y++) {
             if (!IsOpen(new Vector3Int(pos.x, y, pos.y))) {
-                Debug.Log($"Unable to remove cell: {pos} is occupied in grid ({SearchUtils.GetHierarchyPath(gameObject)}");
+                Debug.Log($"Unable to remove cell: {pos} is occupied in grid {gameObject.name}");
                 return;
             }
         }

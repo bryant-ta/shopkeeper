@@ -40,6 +40,8 @@ public class Orderer : MonoBehaviour, IDocker {
         SubmittedProducts = new();
 
         trailRenderers = GetComponentsInChildren<TrailRenderer>(true).ToList();
+
+        Ref.OrderMngr.OrderPhaseTimer.EndEvent += OrderFailed;
     }
 
     #region Order
@@ -52,7 +54,6 @@ public class Orderer : MonoBehaviour, IDocker {
 
         if (Grid != null) Grid.IsLocked = false;
 
-        // Order.StartOrder(); // TEMP: currently no timer
         Order.OnOrderSucceeded += OrderSucceeded;
         Order.OnOrderFailed += OrderFailed;
 
@@ -133,14 +134,13 @@ public class Orderer : MonoBehaviour, IDocker {
     }
 
     void OrderSucceeded() {
-        // TODO: some visual for fulfill vs. fail
+        Ref.OrderMngr.OrderPhaseTimer.EndEvent -= OrderFailed;
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
     void OrderFailed() {
         // TODO: game effects of failing an order
 
-        // TODO: some visual for fulfill vs. fail
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }

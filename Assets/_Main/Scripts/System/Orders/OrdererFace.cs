@@ -1,8 +1,10 @@
+using System.Collections.Generic;
 using Orders;
 using UnityEngine;
 
 public class OrdererFace : MonoBehaviour {
-    [SerializeField] Sprite successFace;
+    [SerializeField] List<Sprite> successFaces;
+    [SerializeField] List<Sprite> failFaces;
     SpriteRenderer face;
 
     void Awake() {
@@ -13,7 +15,9 @@ public class OrdererFace : MonoBehaviour {
 
     void SetFaceSuccess(Order order) {
         if (order.IsFulfilled) {
-            face.sprite = successFace;
+            face.sprite = Util.GetRandomFromList(successFaces);
+        } else {
+            face.sprite = Util.GetRandomFromList(failFaces);
         }
     }
 }

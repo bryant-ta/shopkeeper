@@ -621,7 +621,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c6f3ba80ba70494aaedb389024bc6e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  successFace: {fileID: 21300000, guid: 0a963139a23e4f24d9176f802d083449, type: 3}
+  successFaces:
+  - {fileID: 21300000, guid: 0a963139a23e4f24d9176f802d083449, type: 3}
+  - {fileID: 21300000, guid: 498702583437fdc4ca7ce64c527db4a2, type: 3}
+  failFaces:
+  - {fileID: 21300000, guid: 83c5ada855d971e4eadccf28d04c103d, type: 3}
+  - {fileID: 21300000, guid: 706a286e31a0f1b46a5c6c6a9803406f, type: 3}
 --- !u!1 &2867945078178389223
 GameObject:
   m_ObjectHideFlags: 0
