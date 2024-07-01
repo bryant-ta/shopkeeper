@@ -3691,11 +3691,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   DoSetDifficulty: 1
   DoLevelInitialize: 1
-  Day: 7
-  OrderPhaseDuration: 20
+  Day: 19
+  OrderPhaseDuration: 1
 --- !u!1 &550499586
 GameObject:
   m_ObjectHideFlags: 0
@@ -15372,7 +15372,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d9367d9a3e214b43ac8d74953fcaa5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <ColorPaletteData>k__BackingField: {fileID: 11400000, guid: 85a7bb29bda9c4b42aa484577f0ea68a, type: 2}
+  <ColorPaletteData>k__BackingField: {fileID: 11400000, guid: afcddc565e73fbc428eef47e400376ac, type: 2}
   <PatternPaletteData>k__BackingField: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
 --- !u!114 &2061717881
 MonoBehaviour:
