@@ -11,7 +11,8 @@ public class UIManager : MonoBehaviour {
 
     [Title("Order Phase")]
     [SerializeField] GameObject orderPhasePanel;
-    [SerializeField] Image orderPhaseTimeFill;
+    [SerializeField] Image orderPhaseTimerFill;
+    [SerializeField] TextMeshProUGUI orderPhaseTimerText;
     [SerializeField] TextMeshProUGUI ordersFulfilledText;
     [SerializeField] GameObject orderPhaseStartPanel;
     [SerializeField] Button orderPhaseStartButton;
@@ -37,6 +38,7 @@ public class UIManager : MonoBehaviour {
         Ref.DeliveryMngr.OnDeliveriesOpenedCheck += HandleOrderPhaseStartButton;
 
         Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
+        Ref.OrderMngr.OrderPhaseTimer.EndEvent += UpdateOrderPhaseTimerEnd;
         Ref.OrderMngr.OnOrderFulfilled += UpdateOrdersFulfilled;
 
         gameMngr.OnDayEnd += UpdateNextDayPanel;
@@ -67,7 +69,14 @@ public class UIManager : MonoBehaviour {
     }
 
     void ToggleOrderPhaseTimer(bool enable) { orderPhasePanel.SetActive(enable); }
-    void UpdateOrderPhaseTimer(float time) { orderPhaseTimeFill.fillAmount = time; }
+    void UpdateOrderPhaseTimer(float time) {
+        orderPhaseTimerFill.fillAmount = time;
+        orderPhaseTimerText.text = Ref.OrderMngr.OrderPhaseTimer.ToStringMinuteSeconds();
+    }
+    void UpdateOrderPhaseTimerEnd() {
+        orderPhaseTimerText.text = "0:00";
+    }
+
     void UpdateOrdersFulfilled(int curVal, int thresholdVal) {
         ordersFulfilledText.text = $"{curVal}/{thresholdVal}";
         if (curVal >= thresholdVal) {

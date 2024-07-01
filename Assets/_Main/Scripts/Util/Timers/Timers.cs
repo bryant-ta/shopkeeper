@@ -73,6 +73,13 @@ public class CountdownTimer : TimerBase {
     }
 
     public void AddDuration(float value) { Duration += value; }
+
+    public string ToStringMinuteSeconds() {
+        int t = (int) timer + 1;
+        int minutes = t / 60;
+        int seconds = t % 60;
+        return $"{minutes}:{seconds:D2}";
+    }
 }
 
 public class StageTimer : TimerBase {
