@@ -37,6 +37,8 @@ public class OrderManager : MonoBehaviour {
     [Tooltip("Difficulty Table for mold shapes.")]
     [SerializeField] List<ShapeDataID> moldShapePool;
 
+    List<SO_OrderLayout> orderLayouts = new();
+
     [Title("Orderers")]
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
@@ -52,6 +54,8 @@ public class OrderManager : MonoBehaviour {
 
     void Awake() {
         if (!DebugManager.DebugMode) reqQuantity.Min = 1; // TEMP: debug
+
+        LoadOrderLayouts();
         
         orderPhaseActive = new Util.ValueRef<bool>(false);
         OrderPhaseTimer = new CountdownTimer(GameManager.Instance.OrderPhaseDuration);
@@ -298,6 +302,8 @@ public class OrderManager : MonoBehaviour {
 
         return req;
     }
+    
+    
 
     // Mold order requirement is only a color
     MoldOrder GenerateMoldOrder() {
@@ -353,6 +359,16 @@ public class OrderManager : MonoBehaviour {
 
         moldChance = orderDiffEntry.moldChance;
         moldShapePool = new List<ShapeDataID>(orderDiffEntry.moldShapePool);
+    }
+    
+    void LoadOrderLayouts() {
+        SO_OrderLayout[] loadedLayouts = Resources.LoadAll<SO_OrderLayout>("OrderLayouts/");
+
+        if (loadedLayouts.Length > 0) {
+            orderLayouts.AddRange(loadedLayouts);
+        } else {
+            Debug.LogError("No order layouts found in Resources.");
+        }
     }
 }
 

@@ -9,13 +9,9 @@ public class OrderLayoutExporter : MonoBehaviour {
     [SerializeField] Tilemap tilemap;
     [SerializeField] List<TileBase> tiles;
 
-    public void ExportToScriptableObject(string filePath) {
-        // Extract directory and base file name from the provided file path
+    public void ExportToScriptableObject(string filePath, int difficultyRating) {
         string directory = Path.GetDirectoryName(filePath);
-        string baseFileName = Path.GetFileNameWithoutExtension(filePath);
-        string extension = Path.GetExtension(filePath);
-
-        // Search for existing files with the same base file name
+        string baseFileName = "OrderLayout";
         string[] existingFiles = Directory.GetFiles(directory, baseFileName + "_*.asset");
 
         // Determine the next available number suffix
@@ -34,14 +30,14 @@ public class OrderLayoutExporter : MonoBehaviour {
         }
 
         // Construct the new file name with incremented number
-        string newFileName = baseFileName + "_" + nextNumber + extension;
+        string newFileName = baseFileName + "_" + nextNumber + ".asset";
         string newFilePath = Path.Combine(directory, newFileName);
 
+        // Extract data to scriptable object
         BoundsInt bounds = tilemap.cellBounds;
         TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
-
+        
         List<SO_OrderLayout.TileData> tileDataList = new List<SO_OrderLayout.TileData>();
-
         for (int y = bounds.yMin; y < bounds.yMax; y++) {
             for (int x = bounds.xMin; x < bounds.xMax; x++) {
                 TileBase tile = allTiles[x - bounds.xMin + (y - bounds.yMin) * bounds.size.x];
@@ -60,7 +56,8 @@ public class OrderLayoutExporter : MonoBehaviour {
         }
 
         SO_OrderLayout orderLayoutData = ScriptableObject.CreateInstance<SO_OrderLayout>();
-        orderLayoutData.tiles = tileDataList.ToArray();
+        orderLayoutData.Tiles = tileDataList.ToArray();
+        orderLayoutData.DifficultyRating = difficultyRating;
 
         AssetDatabase.CreateAsset(orderLayoutData, newFilePath);
         AssetDatabase.SaveAssets();
