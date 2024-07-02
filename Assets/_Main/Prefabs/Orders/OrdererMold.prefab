@@ -246,6 +246,10 @@ PrefabInstance:
       propertyPath: m_RootOrder
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 7792300833620461061, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+      propertyPath: gridCellObj
+      value: 
+      objectReference: {fileID: 2830143327655662967, guid: a4a03ed8883ab4646a0476beca0bef08, type: 3}
     - target: {fileID: 7792300833620461062, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
       propertyPath: m_RootOrder
       value: 0

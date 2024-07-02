@@ -10,6 +10,7 @@ public class DebugManager : Singleton<DebugManager> {
     [Tooltip("If true, uses current inspector values of Delivery/Order Manager, doesn't progress difficulty.")]
     public bool DoSetDifficulty;
     public bool DoLevelInitialize;
+    public float PauseTimerAfterSeconds;
 
     [Title("Values")]
     public int Day = 1;
@@ -17,5 +18,9 @@ public class DebugManager : Singleton<DebugManager> {
 
     void Awake() {
         DebugMode = debugMode;
+
+        if (PauseTimerAfterSeconds > 0) {
+            Util.DoAfterSeconds(this, PauseTimerAfterSeconds, () => GlobalClock.SetTimeScale(0f));
+        }
     }
 }

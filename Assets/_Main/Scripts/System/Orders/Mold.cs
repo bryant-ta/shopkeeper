@@ -3,27 +3,39 @@ using System.Linq;
 using UnityEngine;
 
 public class Mold {
+    public SO_OrderLayout OrderLayoutData { get; private set; }
+    
     public ShapeData ShapeData { get; private set; }
     public Grid Grid { get; private set; }
-    ShapeOutlineRenderer shapeOutlineRenderer;
+
+    public Dictionary<Vector3Int, Color> GridColorRequirements { get; private set; }
 
     // NOTE: Mold is not Monobehavior to faciliate generating Mold data before Mold gameObject exists (in Orderer)
-    public Mold(ShapeData shapeData) { ShapeData = shapeData; }
+    public Mold(SO_OrderLayout orderLayoutData) {
+        OrderLayoutData = orderLayoutData;
+        ShapeData = orderLayoutData.GetShapeData();
+
+        Dictionary<Vector3Int, int> d = orderLayoutData.GetTilesDict();
+        GridColorRequirements = new();
+        foreach (KeyValuePair<Vector3Int,int> kv in d) {
+            GridColorRequirements.Add(kv.Key, Ledger.Instance.ColorPaletteData.Colors[kv.Value]);
+        }
+    }
 
     // params only available when Orderer is ready, so must separate from constructor
-    public void InitByOrderer(Grid grid, ShapeOutlineRenderer shapeOutlineRenderer) {
+    public void InitByOrderer(Grid grid) {
         Grid = grid;
 
         int cwRandomRotationTimes = Random.Range(0, 4);
-        for (int i = 0; i < cwRandomRotationTimes; i++) {
-            ShapeData.RotateShape(true);
-        }
+        // for (int i = 0; i < cwRandomRotationTimes; i++) {
+        //     ShapeData.RotateShape(true);
+        // }
 
         Grid.SetGridSize(ShapeData.Length, ShapeData.Height, ShapeData.Width); // NOTE: keep ahead of setting shape data root coord!
 
         // TEMP: scale orderer floor grid, replaced after orderer prefabs for different sizes
         Grid.transform.parent.Find("Floor").transform.localScale = new Vector3(0.1f * ShapeData.Length, 1, 0.1f * ShapeData.Width);
-
+        
         switch (cwRandomRotationTimes) {
             case 0: // WS corner
                 ShapeData.RootCoord = new Vector3Int(grid.MinX, grid.MinY, grid.MinZ);
@@ -48,9 +60,6 @@ public class Mold {
         foreach (Vector2Int coord in invertedMoldCells) {
             Grid.RemoveValidCell(coord);
         }
-
-        this.shapeOutlineRenderer = shapeOutlineRenderer;
-        this.shapeOutlineRenderer.Render(ShapeData);
     }
 
     public bool IsFullyOccupied() {

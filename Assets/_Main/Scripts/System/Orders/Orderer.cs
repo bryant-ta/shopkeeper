@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dreamteck.Splines;
+using MK.Toon;
 using Orders;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ public class Orderer : MonoBehaviour, IDocker {
     List<TrailRenderer> trailRenderers = new();
 
     [SerializeField] Transform body;
+    [SerializeField] Transform gridFloor;
+    [SerializeField] GameObject gridCellObj;
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
@@ -152,11 +155,20 @@ public class Orderer : MonoBehaviour, IDocker {
         }
 
         Order = order;
+        
+        // Place grid cell objects according to order layout
+        MoldOrder moldOrder = order as MoldOrder;
+        if (moldOrder != null) {
+            foreach (Vector3Int offset in moldOrder.Mold.ShapeData.ShapeOffsets) {
+                MeshRenderer mr = Instantiate(gridCellObj, gridFloor).GetComponent<MeshRenderer>();
+                mr.transform.localPosition = offset;
+                Properties.albedoColor.SetValue(mr.material, moldOrder.Mold.GridColorRequirements[offset]);
+            }
+        }
 
         // Set trail colors by Order requirements
         int trailIndex = 0;
         foreach (Requirement req in Order.Requirements) {
-            // TODO: prob remove null color
             TrailRenderer tr = trailRenderers[trailIndex];
             tr.gameObject.SetActive(true);
             tr.startColor = req.Color;
