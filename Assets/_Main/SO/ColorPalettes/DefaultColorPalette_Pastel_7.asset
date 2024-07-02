@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: df277b7c20009e94aac10fda7bba85cd, type: 3}
-  m_Name: DefaultColorPalette_Pastel
+  m_Name: DefaultColorPalette_Pastel_7
   m_EditorClassIdentifier: 
   Colors:
   - {r: 0.9843138, g: 0.9725491, b: 0.8000001, a: 1}
