@@ -616,6 +616,7 @@ public class Grid : MonoBehaviour {
     bool IsInBoundsY(Vector3Int coord) { return coord.y >= MinY && coord.y <= MaxY; }
 
     public bool IsAllEmpty() { return cells.Count == 0; }
+    public bool IsAllFull() { return cells.Count == validCells.Count; }
 
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();

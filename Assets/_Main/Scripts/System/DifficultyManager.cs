@@ -11,7 +11,7 @@ public class DifficultyManager : Singleton<DifficultyManager> {
 
     public void ApplyDeliveryDifficulty() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
-        
+
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
             basicFirstDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicFirstDimensionMax),
@@ -34,17 +34,13 @@ public class DifficultyManager : Singleton<DifficultyManager> {
 
     public void ApplyOrderDifficulty() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
-        
+
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
             numNeedOrdersFulfilled = orderDiffTable.GetHigh(entry => entry.numNeedOrdersFulfilled),
+            layoutDifficulty = orderDiffTable.GetHigh(entry => entry.layoutDifficulty),
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
             baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
             baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
-            reqMaxNum = orderDiffTable.GetHigh(entry => entry.reqMaxNum),
-            reqMaxQuantity = orderDiffTable.GetHigh(entry => entry.reqMaxQuantity),
-            reqVirtualShapePool = orderDiffTable.Filter(entry => entry.reqVirtualShapePool),
-            moldChance = orderDiffTable.GetHigh(entry => entry.moldChance),
-            moldShapePool = orderDiffTable.Filter(entry => entry.moldShapePool)
         };
 
         Ref.OrderMngr.SetDifficultyOptions(ret);
@@ -120,7 +116,7 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
         if (Math.Abs(minBound - float.MinValue) < 0.001f) {
             minBound = 0;
         }
-    
+
         // Search max bound
         float maxBound = float.MinValue;
         int maxDay;
@@ -134,7 +130,7 @@ public abstract class SO_DifficultyTableBase<TEntry> : ScriptableObject where TE
         if (Math.Abs(maxBound - float.MinValue) < 0.1f) {
             maxBound = 1f;
         }
-    
+
         // Determine where target stands relative to existing day entries' values
         return Mathf.Lerp(minBound, maxBound, (float) (target - minDay) / (maxDay - minDay));
     }

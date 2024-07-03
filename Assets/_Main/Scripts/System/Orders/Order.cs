@@ -1,31 +1,43 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Timers;
 using UnityEngine;
 
 namespace Orders {
 public class Order {
+    public SO_OrderLayout OrderLayoutData { get; private set; }
+
+    public ShapeData ShapeData { get; private set; }
+    public Dictionary<Vector3Int, Color> GridColors;
+
     // TEMP: timer is unused until implementing time mode
     public float TimeToComplete { get; private set; }
     public CountdownTimer Timer { get; private set; }
 
-    public List<Requirement> Requirements { get; private set; }
-
-    int Value;
-    
     int timePerProduct;
     int baseOrderValue;
     int valuePerProduct;
 
     public bool IsFulfilled { get; private set; }
 
-    public event Action<int, int> OnProductFulfilled; // requirement index, quantity remaining until target
+    public event Action OnProductFulfilled; // requirement index, quantity remaining until target
     public event Action OnOrderSucceeded;
     public event Action OnOrderFailed;
 
-    public Order(int minTimePerOrder, int timePerProduct, int baseOrderValue, int valuePerProduct) {
-        Requirements = new();
+    public Order(SO_OrderLayout orderLayoutData, int minTimePerOrder, int timePerProduct, int baseOrderValue, int valuePerProduct) {
+        OrderLayoutData = orderLayoutData;
+        ShapeData = orderLayoutData.GetColorShapeData();
+
+        Dictionary<Vector3Int, int> d = orderLayoutData.GetTilesDict();
+        GridColors = new();
+        foreach (KeyValuePair<Vector3Int, int> kv in d) {
+            if (kv.Value == 0) {
+                GridColors.Add(kv.Key, Ledger.Instance.WildColor);
+            } else {
+                GridColors.Add(kv.Key, Ledger.Instance.ColorPaletteData.Colors[kv.Value - 1]);
+            }
+        }
+
         this.timePerProduct = timePerProduct;
         this.baseOrderValue = baseOrderValue;
         this.valuePerProduct = valuePerProduct;
@@ -49,143 +61,42 @@ public class Order {
     }
 
     public bool Fulfill(ProductID productID) {
-        // Match submitted productID
-        bool acceptedSubmit = false;
-        for (int i = 0; i < Requirements.Count; i++) {
-            Requirement req = Requirements[i];
-            if (req.Match(productID)) {
-                req.CurQuantity++;
-                OnProductFulfilled?.Invoke(i, req.QuantityUntilTarget());
-                acceptedSubmit = true;
-                break;
-            }
-        }
-
-        return acceptedSubmit;
-    }
-
-    public void Remove(ProductID productID) {
-        for (int i = 0; i < Requirements.Count; i++) {
-            Requirement req = Requirements[i];
-            if (req.Match(productID)) {
-                req.CurQuantity--;
-                OnProductFulfilled?.Invoke(i, req.QuantityUntilTarget());
-                break;
-            }
-        }
-    }
-
-    // returns true if productID matches at least one requirement
-    public bool Check(ProductID productID, int quantity) {
-        for (int i = 0; i < Requirements.Count; i++) {
-            Requirement req = Requirements[i];
-            if (req.Match(productID) && (quantity <= req.QuantityUntilTarget() || req.TargetQuantity == -1)) {
-                return true;
-            }
-        }
-
-        return false;
+        // TODO: determine if more needs to be done here... input should always be check before this call? or during it too
+        OnProductFulfilled?.Invoke();
+        return true;
     }
 
     #region Submission
-
-    public virtual bool IsFinished() {
-        foreach (Requirement req in Requirements) {
-            if (!req.IsFulfilled) {
-                return false;
-            }
-        }
-
-        return true;
-    }
 
     public void Succeed() {
         StopOrder();
         IsFulfilled = true;
         OnOrderSucceeded?.Invoke();
     }
-    void Fail() { 
+    void Fail() {
         StopOrder();
-        OnOrderFailed?.Invoke(); 
+        OnOrderFailed?.Invoke();
     }
 
     #endregion
 
     #region Helper
 
-    // requirement input should have everything set, including target quantity
-    public void AddRequirement(Requirement requirement) {
-        if (Requirements.Contains(requirement)) {
-            Debug.LogError("Unable to add requirement: Requirement already exists.");
-            return;
-        }
-
-        Requirements.Add(requirement);
-
-        TimeToComplete += timePerProduct * requirement.TargetQuantity;
-    }
-
     public int TotalValue() {
-        int total = baseOrderValue;
-        foreach (Requirement req in Requirements) {
-            total += req.TargetQuantity * valuePerProduct;
+        // TODO: formula for order value
+
+        return baseOrderValue;
+    }
+
+    public HashSet<Color> GetColors() {
+        HashSet<Color> colors = new();
+        foreach (Color color in GridColors.Values) {
+            colors.Add(color);
         }
-
-        return Value;
+        return colors;
     }
 
-    public List<Color> GetColors() {
-        return Requirements.Select(req => req.Color).ToList();
-    }
-
-    public new string ToString() {
-        string t = "";
-
-        foreach (Requirement req in Requirements) {
-            t += $"{req.Color}_{req.Pattern}_{req.ShapeDataID}x{req.QuantityUntilTarget()}\n";
-        }
-
-        if (t.Length > 0) t = t.Remove(t.Length - 1, 1);
-
-        return t;
-    }
-
-    #endregion
-}
-
-public class MoldOrder : Order {
-    public Mold Mold { get; private set; }
-
-    public MoldOrder(int minTimePerOrder, int timePerProduct, int baseOrderValue, int valuePerProduct) :
-        base(minTimePerOrder, timePerProduct, baseOrderValue, valuePerProduct) {
-    }
-
-    public void AddMold(Mold mold) { Mold = mold; }
-
-    #region Submission
-
-    public override bool IsFinished() {
-        if (Mold == null) return true;
-
-        // Mold must be fully occupied
-        if (!Mold.IsFullyOccupied()) return false;
-
-        // Mold must hold at least one shape that fits every requirement
-        List<IGridShape> shapes = Mold.Grid.AllShapes();
-        bool[] reqsPassed = new bool[Requirements.Count];
-        for (int i = 0; i < Requirements.Count; i++) {
-            foreach (IGridShape shape in shapes) {
-                if (shape.ColliderTransform.TryGetComponent(out Product product)) {
-                    if (Requirements[i].Match(product.ID)) {
-                        reqsPassed[i] = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        return reqsPassed.All(x => x);
-    }
+    public new string ToString() { return OrderLayoutData.name; }
 
     #endregion
 }

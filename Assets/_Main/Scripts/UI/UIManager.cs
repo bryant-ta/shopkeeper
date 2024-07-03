@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour {
         if (curVal >= thresholdVal) {
             ordersFulfilledText.color = Color.green;
         } else {
-            ordersFulfilledText.color = Color.black;
+            ordersFulfilledText.color = Color.white;
         }
     }
 

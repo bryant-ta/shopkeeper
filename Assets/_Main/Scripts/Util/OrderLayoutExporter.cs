@@ -38,7 +38,6 @@ public class OrderLayoutExporter : MonoBehaviour {
         TileBase[] allTiles = tilemap.GetTilesBlock(bounds);
         
         List<SO_OrderLayout.TileData> tileDataList = new List<SO_OrderLayout.TileData>();
-        Dictionary<int, int> colorIDCounts = new();
         for (int y = bounds.yMin; y < bounds.yMax; y++) {
             for (int x = bounds.xMin; x < bounds.xMax; x++) {
                 TileBase tile = allTiles[x - bounds.xMin + (y - bounds.yMin) * bounds.size.x];
@@ -53,8 +52,6 @@ public class OrderLayoutExporter : MonoBehaviour {
                             colorID = tileBaseIndex
                         }
                     );
-
-                    Util.DictIntAdd(colorIDCounts, tileBaseIndex, 1);
                 }
             }
         }
@@ -62,7 +59,6 @@ public class OrderLayoutExporter : MonoBehaviour {
         SO_OrderLayout orderLayoutData = ScriptableObject.CreateInstance<SO_OrderLayout>();
         orderLayoutData.Tiles = tileDataList.ToArray();
         orderLayoutData.DifficultyRating = difficultyRating;
-        orderLayoutData.ColorIDCounts = colorIDCounts;
 
         AssetDatabase.CreateAsset(orderLayoutData, newFilePath);
         AssetDatabase.SaveAssets();

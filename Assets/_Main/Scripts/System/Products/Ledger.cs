@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Ledger : Singleton<Ledger> {
     [field: SerializeField] public SO_ColorPalette ColorPaletteData { get; private set; }
-    [field: SerializeField] public SO_PatternPalette PatternPaletteData { get; private set; }
+    [field: SerializeField] public Color WildColor { get; private set; }
 
     public static Dictionary<ProductID, List<Product>> StockedProducts { get; private set; }
     public static Dictionary<Color, int> CellCountByColor { get; private set; }

@@ -3691,10 +3691,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 1
+  debugMode: 0
   DoSetDifficulty: 0
   DoLevelInitialize: 1
-  Day: 1
+  DoOrderPhaseImmediately: 1
+  PauseTimerAfterSeconds: 0
+  Day: 15
   OrderPhaseDuration: 20
 --- !u!1 &550499586
 GameObject:
@@ -5259,7 +5261,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.3563156e-19, y: 41975936, z: 0.014920094, w: 7.1547156e+22}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 0.037554175}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -5688,7 +5690,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &736233909
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10679,24 +10681,16 @@ MonoBehaviour:
   NextOrderDelay:
     Min: 1
     Max: 1
-  numReqsPerOrder:
-    Min: 1
-    Max: 3
   baseOrderTime: 5
   timePerProduct: 5
   baseOrderValue: 5
   valuePerProduct: 0
   perfectOrdersBonus: 0
-  reqQuantity:
-    Min: 1
-    Max: 10
-  reqVirtualShapePool: 0a000000
-  moldOrdererObj: {fileID: 1336687240043040409, guid: f20b65fa4a226504798710b1932ca501, type: 3}
-  moldChance: 1
-  moldShapePool: 0a000000
+  orderLayouts:
+  - {fileID: 11400000, guid: 2a57b40773436804fb1ab67ca7982d30, type: 2}
   layoutDifficulty: 1
   docksContainer: {fileID: 993655843}
-  ordererObj: {fileID: 7792300833620461063, guid: 470b59cbed51a9e4fa1a7c2d5fcf2517, type: 3}
+  ordererObj: {fileID: 6174597201231931841, guid: 8bf99ccea1e474145b7173e3a4351e2a, type: 3}
   <PerfectOrders>k__BackingField: 0
 --- !u!4 &1273376992
 Transform:
@@ -11030,7 +11024,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 5.3750233e-11, y: 7.317312e+28, z: 1.6019658e-19, w: 7.317312e+28}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 0.037554175}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -15340,7 +15334,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <ColorPaletteData>k__BackingField: {fileID: 11400000, guid: afcddc565e73fbc428eef47e400376ac, type: 2}
-  <PatternPaletteData>k__BackingField: {fileID: 11400000, guid: 90c7a3f5a0f14dd4ca310d46691fee85, type: 2}
+  <WildColor>k__BackingField: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &2061717881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15356,7 +15350,7 @@ MonoBehaviour:
   numStacks: 10
   numCountPerStack:
     Min: 1
-    Max: 3
+    Max: 1
 --- !u!1 &2071355733
 GameObject:
   m_ObjectHideFlags: 0

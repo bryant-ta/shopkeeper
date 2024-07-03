@@ -133,14 +133,10 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                 }
             } else { // Cursor is off a grid
                 List<IGridShape> heldShapes = DragGrid.AllShapes();
-                if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) { // Set valid outline when over an orderer bag
-                    for (int i = 0; i < heldShapes.Count; i++) {
-                        heldShapes[i].SetOutline(selectedOutlineColor);
-                    }
-                } else { // Set invalid outline
-                    for (int i = 0; i < heldShapes.Count; i++) {
-                        heldShapes[i].SetOutline(selectedInvalidOutlineColor);
-                    }
+                
+                // Set invalid outline
+                for (int i = 0; i < heldShapes.Count; i++) {
+                    heldShapes[i].SetOutline(selectedInvalidOutlineColor);
                 }
 
                 // Drag grid follows cursor directly
@@ -292,22 +288,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         List<IGridShape> heldShapes = DragGrid.AllShapes();
 
         // Non-grid releases
-        if (clickInputArgs.TargetObj.TryGetComponent(out OrderBag bag)) {
-            if (ShapeTags.CheckTags(heldShapes, ShapeTagID.NoPlaceInOrder)) {
-                TweenManager.Shake(heldShapes);
-                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-                return;
-            }
-
-            if (bag.orderer.TryFulfillOrder(heldShapes)) {
-                SetIsHolding(false);
-            } else {
-                TweenManager.Shake(heldShapes);
-                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            }
-
-            return;
-        } else if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) {
+        if (clickInputArgs.TargetObj.TryGetComponent(out Trash trash)) {
             if (ShapeTags.CheckTags(heldShapes, ShapeTagID.NoPlaceInTrash)) {
                 TweenManager.Shake(heldShapes);
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
@@ -323,13 +304,28 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if (targetGrid == null) {
             return;
         }
+        
+        // Orderer release - check is valid placement
+        Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
+        if (targetGrid.CompareTag("Order")) {
+            Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
+            if (!orderer.CheckOrderInput(heldShapes, localCoord, out IGridShape invalidShape)) {
+                foreach (IGridShape shape in heldShapes) {
+                    if (shape.ShapeData.RootCoord.y >= invalidShape.ShapeData.RootCoord.y) {
+                        TweenManager.Shake(shape);
+                    }
+                }
+                
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+                return;
+            }
+        }
 
         // Force finish tweens on held shapes before placement
         DOTween.Kill(DragGrid.transform, true);
         DOTween.Kill(dragPivot.transform, true);
 
         // Try to place held shapes
-        Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (!DragGrid.MoveShapes(targetGrid, localCoord, heldShapes)) {
             bool outOfHeightBounds = false;
             for (int i = 0; i < heldShapes.Count; i++) {

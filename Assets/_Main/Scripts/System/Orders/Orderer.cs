@@ -5,6 +5,7 @@ using Dreamteck.Splines;
 using MK.Toon;
 using Orders;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(HoverEvent), typeof(SplineFollower))]
 public class Orderer : MonoBehaviour, IDocker {
@@ -20,20 +21,18 @@ public class Orderer : MonoBehaviour, IDocker {
 
     [SerializeField] Transform body;
     [SerializeField] Transform gridFloor;
+    [SerializeField] Transform gridCellObjContainer;
+
     [SerializeField] GameObject gridCellObj;
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
-    public event Action<ProductID> OnInvalidProductSet;
-    public event Action OnInvalidProductUnset;
 
     void Awake() {
         Grid = gameObject.GetComponentInChildren<Grid>();
-        if (Grid != null) { // is a bag orderer
-            Grid.IsLocked = true;
-            Grid.OnPlaceShapes += DoTryFulfillOrderList;
-            Grid.OnRemoveShapes += RemoveFromOrder;
-        }
+        Grid.IsLocked = true;
+        Grid.OnPlaceShapes += DoFulfillOrder;
+        Grid.OnRemoveShapes += RemoveFromOrder;
 
         HoverEvent he = GetComponent<HoverEvent>();
         he.OnHoverEnter += HoverEnter;
@@ -46,6 +45,11 @@ public class Orderer : MonoBehaviour, IDocker {
 
         Ref.OrderMngr.OrderPhaseTimer.EndEvent += OrderFailed;
     }
+    
+    public void HoverEnter() {
+        // TODO: reveal grid floor objects effect
+    }
+    void HoverExit() { }
 
     #region Order
 
@@ -55,21 +59,14 @@ public class Orderer : MonoBehaviour, IDocker {
             return;
         }
 
-        if (Grid != null) Grid.IsLocked = false;
-
-        Order.OnOrderSucceeded += OrderSucceeded;
-        Order.OnOrderFailed += OrderFailed;
+        Grid.IsLocked = false;
 
         OnOrderStarted?.Invoke(Order);
     }
 
-    void DoTryFulfillOrderList(List<IGridShape> shapes) { TryFulfillOrder(shapes, true); } // checked already in HoverEnter()
-    public bool TryFulfillOrder(List<IGridShape> shapes, bool skipCheck = false) {
+    void DoFulfillOrder(List<IGridShape> shapes) { FulfillOrder(shapes, true); } // checked already in HoverEnter()
+    public void FulfillOrder(List<IGridShape> shapes, bool skipCheck = false) {
         List<Product> products = Util.GetProductsFromShapes(shapes);
-
-        if (!skipCheck && !CheckOrderInput(products, out ProductID invalidProductID)) {
-            return false;
-        }
 
         foreach (Product product in products) {
             if (Order.Fulfill(product.ID)) {
@@ -80,55 +77,46 @@ public class Orderer : MonoBehaviour, IDocker {
             }
         }
 
-        if (Grid == null) { // Destroy fulfilled product for bag orders (ledger removal occurs when orderer actually leaves dock
-            foreach (IGridShape shape in shapes) {
-                shape.Grid.DestroyShape(shape);
-            }
-        }
-
-        if (Order.IsFinished()) {
+        if (Grid.IsAllFull()) {
             Order.Succeed();
+            OrderSucceeded();
         }
-
-        return true;
     }
     public void RemoveFromOrder(List<IGridShape> shapes) {
         foreach (IGridShape shape in shapes) {
             if (shape.ColliderTransform.TryGetComponent(out Product product)) {
                 SubmittedProducts.Remove(product);
-                Order.Remove(product.ID);
             }
         }
     }
 
-    public void HoverEnter() {
-        List<IGridShape> heldShapes = Ref.Player.PlayerDrag.DragGrid.AllShapes();
-        List<Product> heldProducts = Util.GetProductsFromShapes(heldShapes);
-        if (heldProducts == null) return;
-
-        if (!CheckOrderInput(heldProducts, out ProductID invalidProductID)) {
-            OnInvalidProductSet?.Invoke(invalidProductID);
-
-            if (Grid != null) Grid.IsLocked = true;
+    public bool CheckOrderInput(List<IGridShape> shapes, Vector3Int coord, out IGridShape invalidShape) {
+        if (shapes == null || shapes.Count == 0) {
+            Debug.LogError("Unable to check order input: shapes input is null or empty.");
+            invalidShape = null;
+            return false;
         }
-    }
-    void HoverExit() {
-        OnInvalidProductUnset?.Invoke();
 
-        if (Grid != null) Grid.IsLocked = false;
-    }
-    public bool CheckOrderInput(List<Product> products, out ProductID invalidProductID) {
-        invalidProductID = new ProductID();
+        invalidShape = shapes[0];
 
-        Dictionary<ProductID, int> productCounts = new();
+        if (coord.y > 0) return false;
+        foreach (IGridShape shape in shapes) {
+            if (shape.ShapeData.RootCoord.y > 0) {
+                invalidShape = shape;
+                return false;
+            }
+        }
+
+        // Check input shape offsets/colors at placed coords in orderer grid
+        List<Product> products = Util.GetProductsFromShapes(shapes);
         foreach (Product product in products) {
-            Util.DictIntAdd(productCounts, product.ID, 1);
-        }
-
-        HashSet<ProductID> keys = productCounts.Keys.ToHashSet();
-        foreach (ProductID id in keys) {
-            if (!Order.Check(id, productCounts[id])) {
-                invalidProductID = id;
+            foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
+                Vector3Int curCoord = coord + product.ShapeData.RootCoord + offset;
+                if (Order.GridColors.TryGetValue(curCoord, out Color color) && 
+                    (product.ID.Color == color || color == Ledger.Instance.WildColor)) {
+                    continue;
+                }
+                invalidShape = product;
                 return false;
             }
         }
@@ -144,35 +132,62 @@ public class Orderer : MonoBehaviour, IDocker {
     void OrderFailed() {
         // TODO: game effects of failing an order
 
+        Ref.OrderMngr.OrderPhaseTimer.EndEvent -= OrderFailed;
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
 
-    public void SetOrder(Order order) {
+    public void AssignOrder(Order order) {
         if (Order != null) {
             Debug.LogError("Unable to set Order: Order is already set.");
             return;
         }
 
         Order = order;
-        
+        ShapeData orderShapeData = Order.ShapeData;
+
+        // Rotate order layout randomly
+        int cwRandomRotationTimes = Random.Range(0, 4);
+        List<Vector3Int> oldShapeOffsets = orderShapeData.ShapeOffsets;
+        for (int i = 0; i < cwRandomRotationTimes; i++) {
+            orderShapeData.RotateShape(true);
+        }
+        Dictionary<Vector3Int, Color> rotatedGridColors = new();
+        for (int i = 0; i < orderShapeData.ShapeOffsets.Count; i++) {
+            rotatedGridColors.Add(orderShapeData.ShapeOffsets[i], Order.GridColors[oldShapeOffsets[i]]);
+        }
+        Order.GridColors = rotatedGridColors;
+
         // Place grid cell objects according to order layout
-        MoldOrder moldOrder = order as MoldOrder;
-        if (moldOrder != null) {
-            foreach (Vector3Int offset in moldOrder.Mold.ShapeData.ShapeOffsets) {
-                MeshRenderer mr = Instantiate(gridCellObj, gridFloor).GetComponent<MeshRenderer>();
-                mr.transform.localPosition = offset;
-                Properties.albedoColor.SetValue(mr.material, moldOrder.Mold.GridColorRequirements[offset]);
-            }
+        foreach (Vector3Int offset in Order.ShapeData.ShapeOffsets) {
+            MeshRenderer mr = Instantiate(gridCellObj, gridCellObjContainer).GetComponent<MeshRenderer>();
+            mr.transform.localPosition = offset;
+            Properties.albedoColor.SetValue(mr.material, Order.GridColors[offset]);
+        }
+
+        // NOTE: keep ahead of setting shape data root coord!
+        Grid.SetGridSize(orderShapeData.Length, orderShapeData.Height, orderShapeData.Width);
+        // TEMP: scale orderer floor grid, replaced after orderer prefabs for different sizes
+        gridFloor.localScale = new Vector3(orderShapeData.Length, orderShapeData.Width, 1);
+
+        // Remove grid cells to match shape data
+        List<Vector2Int> cells = new();
+        foreach (Vector3Int offset in orderShapeData.ShapeOffsets) {
+            cells.Add(new Vector2Int(orderShapeData.RootCoord.x, orderShapeData.RootCoord.z) + new Vector2Int(offset.x, offset.z));
+        }
+        List<Vector2Int> invertedcells = Grid.ValidCells.Except(cells).ToList();
+        foreach (Vector2Int coord in invertedcells) {
+            Grid.RemoveValidCell(coord);
         }
 
         // Set trail colors by Order requirements
         int trailIndex = 0;
-        foreach (Requirement req in Order.Requirements) {
+        HashSet<Color> orderColors = Order.GetColors();
+        foreach (Color color in orderColors) {
             TrailRenderer tr = trailRenderers[trailIndex];
             tr.gameObject.SetActive(true);
-            tr.startColor = req.Color;
-            tr.endColor = req.Color;
+            tr.startColor = color;
+            tr.endColor = color;
 
             trailIndex++;
             if (trailIndex == trailRenderers.Count) break;
@@ -208,13 +223,6 @@ public class Orderer : MonoBehaviour, IDocker {
         // TODO: leaving anim
         Docker.StartFollowing();
     }
-
-    #endregion
-
-    #region Helper
-
-    public void Enable() { gameObject.SetActive(true); }
-    public void Disable() { gameObject.SetActive(false); }
 
     #endregion
 }

@@ -18,7 +18,6 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] MinMax NextOrderDelay;
 
     [Title("Order Parameters")]
-    [SerializeField] MinMax numReqsPerOrder;
     [SerializeField] int baseOrderTime;
     [SerializeField] int timePerProduct;
     [SerializeField] int baseOrderValue;
@@ -26,18 +25,8 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int perfectOrdersBonus;
     [field: SerializeField] public CountdownTimer OrderPhaseTimer { get; private set; }
 
-    [Title("Requirement Paramenters")]
-    [SerializeField] MinMax reqQuantity;
-    [Tooltip("Difficulty Table for requested shapes in requirements. Only used in non-fromExisting orders")]
-    [SerializeField] List<ShapeDataID> reqVirtualShapePool;
-
-    [Title("Mold Orders")]
-    [SerializeField] GameObject moldOrdererObj;
-    [SerializeField, Range(0f, 1f)] float moldChance;
-    [Tooltip("Difficulty Table for mold shapes.")]
-    [SerializeField] List<ShapeDataID> moldShapePool;
-
-    List<SO_OrderLayout> orderLayouts = new();
+    [Title("Order Layouts")]
+    [SerializeField] List<SO_OrderLayout> orderLayouts = new();
     [SerializeField] int layoutDifficulty;
 
     [Title("Orderers")]
@@ -51,8 +40,6 @@ public class OrderManager : MonoBehaviour {
     Util.ValueRef<bool> orderPhaseActive;
 
     void Awake() {
-        if (!DebugManager.DebugMode) reqQuantity.Min = 1; // TEMP: debug
-
         LoadOrderLayouts();
         
         orderPhaseActive = new Util.ValueRef<bool>(false);
@@ -125,16 +112,29 @@ public class OrderManager : MonoBehaviour {
         }
 
         // Generate Order and Orderer
-        MoldOrder order = GenerateOrder();
+        Order order = GenerateOrder();
         if (order == null) {
             return;
         }
 
-        Orderer orderer = Instantiate(moldOrdererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
-        order.Mold.InitByOrderer(orderer.Grid);
-
-        orderer.SetOrder(order);
+        Orderer orderer = Instantiate(ordererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
+        orderer.AssignOrder(order);
         orderer.OccupyDock(openDock);
+    }
+
+    Order GenerateOrder() {
+        // Filter for valid order layouts
+        List<SO_OrderLayout> diffFilteredLayoutData = orderLayouts.Where(entry => entry.DifficultyRating <= layoutDifficulty).ToList();
+        if (diffFilteredLayoutData.Count == 0) {
+            Debug.LogError("Unable to generate order: out of stock.");
+            return null;
+        }
+        
+        // TODO: weighted random nice bell curve favoring current difficulty (but still allowing some of below difficulties)
+        SO_OrderLayout selectedOrderLayout = Util.GetRandomFromList(diffFilteredLayoutData).Copy();
+        Order order = new Order(selectedOrderLayout, baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
+        
+        return order;
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {
@@ -167,53 +167,18 @@ public class OrderManager : MonoBehaviour {
 
     #endregion
 
-    #region Order Generation
-
-    MoldOrder GenerateOrder() {
-        MoldOrder order = GenerateMoldOrder();
-        if (order == null) {
-            Debug.Log("Did not generate order.");
-        }
-
-        return order;
-    }
-
-    // Mold order requirement is only a color
-    MoldOrder GenerateMoldOrder() {
-        MoldOrder moldOrder = new MoldOrder(baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
-
-        // Filter 
-        List<SO_OrderLayout> diffFilteredLayoutData = orderLayouts.Where(entry => entry.DifficultyRating <= layoutDifficulty).ToList();
-
-        if (diffFilteredLayoutData.Count == 0) {
-            Debug.LogError("Unable to generate order: out of stock.");
-            return null;
-        }
-        
-        // TODO: weighted random nice bell curve favoring current difficulty (but still allowing some of below difficulties)
-        moldOrder.AddMold(new Mold(Util.GetRandomFromList(diffFilteredLayoutData)));
-        
-        return moldOrder;
-    }
-    int CalculateMoldMinColorCount(float moldSize, int numReqs) { return Mathf.CeilToInt(moldSize / numReqs); }
-
-    #endregion
-
     public void SetDifficultyOptions(SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry) {
         numNeedOrdersFulfilled = orderDiffEntry.numNeedOrdersFulfilled;
+        layoutDifficulty = orderDiffEntry.layoutDifficulty;
         numActiveDocks = orderDiffEntry.numActiveDocks;
         baseOrderTime = orderDiffEntry.baseOrderTime;
         baseOrderValue = orderDiffEntry.baseOrderValue;
-
-        numReqsPerOrder.Max = orderDiffEntry.reqMaxNum;
-        reqQuantity.Max = orderDiffEntry.reqMaxQuantity;
-        reqVirtualShapePool = new List<ShapeDataID>(orderDiffEntry.reqVirtualShapePool);
-
-        moldChance = orderDiffEntry.moldChance;
-        moldShapePool = new List<ShapeDataID>(orderDiffEntry.moldShapePool);
     }
     
     void LoadOrderLayouts() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
+
+        orderLayouts.Clear();
         SO_OrderLayout[] loadedLayouts = Resources.LoadAll<SO_OrderLayout>("OrderLayouts/");
 
         if (loadedLayouts.Length > 0) {
@@ -222,11 +187,4 @@ public class OrderManager : MonoBehaviour {
             Debug.LogError("No order layouts found in Resources.");
         }
     }
-}
-
-public struct ActiveOrderChangedArgs {
-    public int ActiveOrderIndex;
-    public int NumRemainingOrders;
-    public Order NewOrder;
-    public bool LastOrderFulfilled;
 }
