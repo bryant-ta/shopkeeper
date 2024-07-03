@@ -4,10 +4,13 @@ using DG.Tweening;
 using TriInspector;
 using UnityEngine;
 
+// TODO: turn this whole thing into state machine... one day
 [RequireComponent(typeof(PlayerInteract))]
 public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
+
+    [SerializeField] [Tooltip("in units of cells")] int multiSelectCapacity;
 
     [SerializeField] Transform dragPivot;
     Vector3 pivotTargetRotation;
@@ -35,9 +38,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     bool isHolding;
     void GrabRelease(ClickInputArgs clickInputArgs) {
-        if (isHolding) {
-            Release(clickInputArgs);
-        } else {
+        if (!isHolding) {
             Grab(clickInputArgs);
         }
     }
@@ -46,21 +47,20 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void Grab(ClickInputArgs clickInputArgs) {
         if (!DragGrid.IsAllEmpty()) return;
 
-        GameObject clickedObj = clickInputArgs.TargetObj;
-        IGridShape clickedShape = clickedObj.GetComponent<IGridShape>();
+        IGridShape clickedShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
-
-        // TODO: add tag or something for objects that should be moveable
 
         // Try to pick up stack of shapes
         targetGrid = clickedShape.Grid;
-        List<IGridShape> heldShapes = targetGrid.SelectStackedShapes(clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape);
-        if (heldShapes == null) {
+        List<IGridShape> stackedShapes = targetGrid.SelectStackedShapes(
+            clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape
+        );
+        if (stackedShapes == null) {
             TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-        if (heldShapes.Count == 0) { // keep separate from null check for debugging
+        if (stackedShapes.Count == 0) { // keep separate from null check for debugging
             Debug.LogError("Clicked shape not registered in targetGrid. (Did you forget to initialize it with its grid?)");
             return;
         }
@@ -84,20 +84,20 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
         DragGrid.transform.position = clickedShape.ObjTransform.position;
 
-        if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, heldShapes)) {
-            TweenManager.Shake(heldShapes);
+        if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, stackedShapes)) {
+            TweenManager.Shake(stackedShapes);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            heldShapes.Clear();
+            stackedShapes.Clear();
             return;
         }
 
-        for (int i = 0; i < heldShapes.Count; i++) {
-            foreach (Collider col in heldShapes[i].Colliders) {
+        for (int i = 0; i < stackedShapes.Count; i++) {
+            foreach (Collider col in stackedShapes[i].Colliders) {
                 col.enabled = false;
             }
 
             // Outline selected effect
-            heldShapes[i].SetOutline(selectedOutlineColor);
+            stackedShapes[i].SetOutline(selectedOutlineColor);
         }
 
         SetIsHolding(true);
@@ -121,6 +121,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     void Update() { dragPivot.transform.position = DragGrid.transform.position + selectedShapeCellOffset; }
 
     Vector3Int lastSelectedCellCoord;
+    bool isDragging;
     void Drag(ClickInputArgs clickInputArgs) {
         if (DragGrid.IsAllEmpty()) return;
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
@@ -133,7 +134,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                 }
             } else { // Cursor is off a grid
                 List<IGridShape> heldShapes = DragGrid.AllShapes();
-                
+
                 // Set invalid outline
                 for (int i = 0; i < heldShapes.Count; i++) {
                     heldShapes[i].SetOutline(selectedInvalidOutlineColor);
@@ -161,6 +162,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         // Prevent shapes immediately jumping from raycast hitting cell behind shape, better dragging experience
         if ((clickInputArgs.CursorPos - grabCursorPos).sqrMagnitude < 100f) return;
+        isDragging = true;
 
         // Get lowest open grid cell
         if (targetGrid.SelectLowestOpenFromCell(selectedCellCoord, out int lowestOpenY)) {
@@ -201,6 +203,22 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             }
         }
 
+        // For orders, check grid cell color
+        // Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
+        if (targetGrid.CompareTag("Order")) {
+            Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
+            if (!orderer.CheckOrderInput(heldShapes, selectedCellCoord - selectedShapeCellOffset, out List<IGridShape> invalidShapes)) {
+                foreach (IGridShape invalidShape in invalidShapes) {
+                    foreach (IGridShape heldShape in heldShapes) {
+                        if (invalidShape == heldShape) {
+                            heldShape.SetOutline(selectedInvalidOutlineColor);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // Do drag movement
         // aligned cell coord to world position
         Vector3 worldPos = targetGrid.transform.TransformPoint(selectedCellCoord - selectedShapeCellOffset);
@@ -208,6 +226,63 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         DOTween.Kill(tweenID);
         DragGrid.transform.DOMove(worldPos + new Vector3(0, hoverHeight, 0), TweenManager.DragMoveDur).SetId(tweenID).SetEase(Ease.OutQuad);
     }
+
+    IGridShape lastMultiSelectShape;
+    void MultiSelect(ClickInputArgs clickInputArgs) {
+        IGridShape hoveredShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
+        if (hoveredShape == null || hoveredShape == lastMultiSelectShape) return;
+
+        lastMultiSelectShape = hoveredShape;
+
+        if (hoveredShape.ShapeData.IsMultiY) {
+            TweenManager.Shake(hoveredShape);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            return;
+        }
+        
+        // Try to pick up stack of shapes
+        List<IGridShape> stackedShapes = hoveredShape.Grid.SelectStackedShapes(hoveredShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape);
+        if (stackedShapes == null || stackedShapes.Count == 0) {
+            TweenManager.Shake(outOfFootprintShape);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            return;
+        }
+        
+        // Check multiselect capacity
+        int stackedShapesSize = 0;
+        foreach (IGridShape shape in stackedShapes) {
+            stackedShapesSize += shape.ShapeData.Size;
+        }
+        if (DragGrid.AllShapesSize() + stackedShapesSize > multiSelectCapacity) {
+            TweenManager.Shake(stackedShapes);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            return;
+        }
+
+        // Move shapes to drag grid, in place
+        Vector3Int worldPos = Vector3Int.RoundToInt(targetGrid.transform.TransformPoint(hoveredShape.ShapeData.RootCoord));
+        Vector3Int dragGridCoord = Vector3Int.RoundToInt(DragGrid.transform.InverseTransformPoint(worldPos));
+        if (!targetGrid.MoveShapes(DragGrid, dragGridCoord, stackedShapes)) {
+            TweenManager.Shake(stackedShapes);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            stackedShapes.Clear();
+            return;
+        }
+
+        for (int i = 0; i < stackedShapes.Count; i++) {
+            foreach (Collider col in stackedShapes[i].Colliders) {
+                col.enabled = false;
+            }
+
+            // Outline selected effect
+            stackedShapes[i].SetOutline(selectedOutlineColor);
+        }
+
+        grabCursorPos = clickInputArgs.CursorPos;
+
+        SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
+    }
+    void FinishMultiSelect(ClickInputArgs clickInputArgs) { MultiSelectMode(false); }
 
     bool isRotating;
     int numRotations;
@@ -259,12 +334,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
                         DragGrid.RotateShapes(dragShapes, clockwise);
                         if (targetGrid) MoveDragGrid(); // to validate new rotated shapes' position + raise if needed
 
-                        if (clockwise) {
-                            numRotations++;
-                        } else {
-                            numRotations--;
-                        }
-
+                        numRotations += clockwise ? 1 : -1;
                         isRotating = false;
                     }
                 );
@@ -304,18 +374,16 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         if (targetGrid == null) {
             return;
         }
-        
+
         // Orderer release - check is valid placement
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (targetGrid.CompareTag("Order")) {
             Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
-            if (!orderer.CheckOrderInput(heldShapes, localCoord, out IGridShape invalidShape)) {
-                foreach (IGridShape shape in heldShapes) {
-                    if (shape.ShapeData.RootCoord.y >= invalidShape.ShapeData.RootCoord.y) {
-                        TweenManager.Shake(shape);
-                    }
+            if (!orderer.CheckOrderInput(heldShapes, localCoord, out List<IGridShape> invalidShape)) {
+                foreach (IGridShape shape in invalidShape) {
+                    TweenManager.Shake(shape);
                 }
-                
+
                 SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
                 return;
             }
@@ -361,6 +429,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         SetIsHolding(false);
         numRotations = 0;
+        isDragging = false;
+        lastMultiSelectShape = null;
 
         // Cursor.visible = true;
 
@@ -407,25 +477,50 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     #endregion
 
+    void MultiSelectMode(bool enable) {
+        if (isDragging) return;
+
+        if (enable) {
+            DefaultMode(false);
+
+            Ref.Player.PlayerInput.InputPoint += MultiSelect;
+            Ref.Player.PlayerInput.InputPrimaryUp += FinishMultiSelect;
+        } else {
+            DefaultMode(true);
+
+            Ref.Player.PlayerInput.InputPoint -= MultiSelect;
+            Ref.Player.PlayerInput.InputPrimaryUp -= FinishMultiSelect;
+        }
+    }
+
     public void Equip() {
-        Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
-        Ref.Player.PlayerInput.InputPrimaryUp += Release;
-        Ref.Player.PlayerInput.InputSecondaryDown += RotateByClick;
-        Ref.Player.PlayerInput.InputPoint += Drag;
-        Ref.Player.PlayerInput.InputRotate += DoRotate;
-        Ref.Player.PlayerInput.InputCancel += Cancel;
+        DefaultMode(true);
+        Ref.Player.PlayerInput.InputPrimaryHeldStart += () => MultiSelectMode(true);
 
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
     public void Unequip() {
-        Ref.Player.PlayerInput.InputPrimaryDown -= GrabRelease;
-        Ref.Player.PlayerInput.InputPrimaryUp -= Release;
-        Ref.Player.PlayerInput.InputSecondaryDown -= RotateByClick;
-        Ref.Player.PlayerInput.InputPoint -= Drag;
-        Ref.Player.PlayerInput.InputRotate -= DoRotate;
-        Ref.Player.PlayerInput.InputCancel -= Cancel;
+        DefaultMode(false);
 
         Cancel();
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
+    }
+
+    void DefaultMode(bool enable) {
+        if (enable) {
+            Ref.Player.PlayerInput.InputPrimaryDown += GrabRelease;
+            Ref.Player.PlayerInput.InputPrimaryUp += Release;
+            Ref.Player.PlayerInput.InputSecondaryDown += RotateByClick;
+            Ref.Player.PlayerInput.InputPoint += Drag;
+            Ref.Player.PlayerInput.InputRotate += DoRotate;
+            Ref.Player.PlayerInput.InputCancel += Cancel;
+        } else {
+            Ref.Player.PlayerInput.InputPrimaryDown -= GrabRelease;
+            Ref.Player.PlayerInput.InputPrimaryUp -= Release;
+            Ref.Player.PlayerInput.InputSecondaryDown -= RotateByClick;
+            Ref.Player.PlayerInput.InputPoint -= Drag;
+            Ref.Player.PlayerInput.InputRotate -= DoRotate;
+            Ref.Player.PlayerInput.InputCancel -= Cancel;
+        }
     }
 }

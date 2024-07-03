@@ -3691,11 +3691,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   DoSetDifficulty: 0
   DoLevelInitialize: 1
   DoOrderPhaseImmediately: 1
-  PauseTimerAfterSeconds: 0
+  PauseTimerAfterSeconds: 10
   Day: 15
   OrderPhaseDuration: 20
 --- !u!1 &550499586
@@ -5261,7 +5261,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 0.037554175}
+  m_BoundingSphereOverride: {x: 4.1003012e-19, y: 2.2e-44, z: -2.4405384e-30, w: 9.188e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -11024,7 +11024,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 0.037554175}
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 3e-45}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -16249,6 +16249,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hoverHeight: 0.2
   <DragGrid>k__BackingField: {fileID: 827863211}
+  multiSelectCapacity: 3
   dragPivot: {fileID: 1244452520}
   selectedOutlineColor: {r: 0.1672837, g: 0.6981132, b: 0.6950798, a: 1}
   selectedInvalidOutlineColor: {r: 0.96981126, g: 0.07868272, b: 0.08385574, a: 1}

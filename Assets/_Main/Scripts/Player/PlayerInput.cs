@@ -30,6 +30,8 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action<ClickInputArgs> InputPrimaryDown;
     public event Action<ClickInputArgs> InputPrimaryUp;
+    public event Action InputPrimaryHeldStart;
+    public event Action InputPrimaryHeldEnd;
     public event Action<ClickInputArgs> InputSecondaryDown;
     public event Action<ClickInputArgs> InputSecondaryUp;
     public event Action<ClickInputArgs> InputPoint;
@@ -39,10 +41,13 @@ public class PlayerInput : MonoBehaviour {
         ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
         if (clickInputArgs.TargetObj == null) return;
 
-        if (ctx.performed) {
+        if (ctx.started) {
             InputPrimaryDown?.Invoke(clickInputArgs);
+        } else if (ctx.performed) {
+            InputPrimaryHeldStart?.Invoke();
         } else if (ctx.canceled) {
             InputPrimaryUp?.Invoke(clickInputArgs);
+            InputPrimaryHeldEnd?.Invoke();
         }
     }
 

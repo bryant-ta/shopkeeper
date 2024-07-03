@@ -90,22 +90,22 @@ public class Orderer : MonoBehaviour, IDocker {
         }
     }
 
-    public bool CheckOrderInput(List<IGridShape> shapes, Vector3Int coord, out IGridShape invalidShape) {
+    public bool CheckOrderInput(List<IGridShape> shapes, Vector3Int coord, out List<IGridShape> invalidShapes) {
         if (shapes == null || shapes.Count == 0) {
             Debug.LogError("Unable to check order input: shapes input is null or empty.");
-            invalidShape = null;
+            invalidShapes = null;
             return false;
         }
 
-        invalidShape = shapes[0];
+        invalidShapes = new List<IGridShape>();
 
         if (coord.y > 0) return false;
         foreach (IGridShape shape in shapes) {
             if (shape.ShapeData.RootCoord.y > 0) {
-                invalidShape = shape;
-                return false;
+                invalidShapes.Add(shape);
             }
         }
+        if (invalidShapes.Count > 0) return false;
 
         // Check input shape offsets/colors at placed coords in orderer grid
         List<Product> products = Util.GetProductsFromShapes(shapes);
@@ -116,10 +116,10 @@ public class Orderer : MonoBehaviour, IDocker {
                     (product.ID.Color == color || color == Ledger.Instance.WildColor)) {
                     continue;
                 }
-                invalidShape = product;
-                return false;
+                invalidShapes.Add(product);
             }
         }
+        if (invalidShapes.Count > 0) return false;
 
         return true;
     }

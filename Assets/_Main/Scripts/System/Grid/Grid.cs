@@ -76,7 +76,7 @@ public class Grid : MonoBehaviour {
             }
 
             Sequence seq = DOTween.Sequence().SetId(shape.ObjTransform.GetInstanceID() + TweenManager.PlaceShapeID);
-            seq.Append(shape.ObjTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur));
+            seq.Append(shape.ObjTransform.DOLocalMove(targetCoord, TweenManager.PlaceShapeDur).SetEase(Ease.OutQuad));
             seq.Play().OnComplete(
                 () => {
                     // this might work for null checking IGridShape in the future?
@@ -101,9 +101,15 @@ public class Grid : MonoBehaviour {
         if (!ValidateShapesPlacement(targetCoord, shapes, ignoreZone).IsValid) return false;
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
-        // TODO: move if actually has performance impact
-        shapes.Sort((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y));
-
+        // First element should always be lowest y and root coord == (0,0,0)
+        // TODO: move if actually has performance impact, already done in AllShapes()
+        int originIndex = shapes.FindIndex(shape => shape.ShapeData.RootCoord == Vector3Int.zero);
+        if (originIndex != -1) {
+            // Swap the shape at (0,0,0) to be first
+            (shapes[0], shapes[originIndex]) = (shapes[originIndex], shapes[0]);
+        }
+        shapes.Sort(1, shapes.Count - 1, Comparer<IGridShape>.Create((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y)));
+        
         Vector3Int lastShapeRootCoord = shapes[0].ShapeData.RootCoord;
         foreach (IGridShape shape in shapes) {
             targetCoord += shape.ShapeData.RootCoord - lastShapeRootCoord;
@@ -404,8 +410,14 @@ public class Grid : MonoBehaviour {
         if (shapes.Count == 0) return validations;
 
         // Shapes must be sorted by y value or targetCoord offset calculation will add in the wrong direction!
-        // NOTE: move if actually has performance impact
-        shapes.Sort((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y));
+        // First element should always be lowest y and root coord == (0,0,0)
+        // TODO: move if actually has performance impact, already done in AllShapes()
+        int originIndex = shapes.FindIndex(shape => shape.ShapeData.RootCoord == Vector3Int.zero);
+        if (originIndex != -1) {
+            // Swap the shape at (0,0,0) to be first
+            (shapes[0], shapes[originIndex]) = (shapes[originIndex], shapes[0]);
+        }
+        shapes.Sort(1, shapes.Count - 1, Comparer<IGridShape>.Create((a, b) => a.ShapeData.RootCoord.y.CompareTo(b.ShapeData.RootCoord.y)));
 
         Vector3Int lastShapeRootCoord = shapes[0].ShapeData.RootCoord;
         foreach (IGridShape shape in shapes) {
@@ -448,48 +460,8 @@ public class Grid : MonoBehaviour {
         Overlap = 1 << 2,
         ZoneRule = 1 << 3,
         ShapeTagRule = 1 << 4,
+        GridColorRule = 1 << 5,
     }
-
-    // bool ValidateShapeRotate(IGridShape shape, bool clockwise, bool ignoreZone = false) {
-    //     if (shape == null) {
-    //         Debug.LogError("Cannot validate shape placement: shape is null");
-    //         return false;
-    //     }
-    //     
-    //     ShapeData rotatedShapeData = shape.GetShapeDataRotated(clockwise);
-    //     
-    //     foreach (Vector3Int offset in rotatedShapeData.ShapeOffsets) {
-    //         Vector3Int checkPos = new Vector3Int(shape.RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
-    //         if (!IsValidPlacement(checkPos, ignoreZone)) {
-    //             return false;
-    //         }
-    //     }
-    //
-    //     return true;
-    // }
-    // bool ValidateShapesRotate(List<IGridShape> shapes, bool clockwise, bool ignoreZone = false) {
-    //     if (shapes == null || shapes.Count == 0) {
-    //         Debug.LogError("Cannot validate shapes rotated placement: shapes is null/empty");
-    //         return false;
-    //     }
-    //
-    //     List<ShapeData> rotatedShapesData = new();
-    //     for (int i = 0; i < shapes.Count; i++) {
-    //         rotatedShapesData.Add(shapes[i].GetShapeDataRotated(clockwise));
-    //     }
-    //
-    //     for (int i = 0; i < rotatedShapesData.Count; i++) {
-    //         foreach (Vector3Int offset in rotatedShapesData[i].ShapeOffsets) {
-    //             Vector3Int checkPos = new Vector3Int(shapes[i].RootCoord.x + offset.x, shape.RootCoord.y + offset.y, shape.RootCoord.z + offset.z);
-    //             if (!IsValidPlacement(checkPos, ignoreZone)) {
-    //                 return false;
-    //             }
-    //         }
-    //         
-    //     }
-    //
-    //     return true;
-    // }
 
     #endregion
 
@@ -617,6 +589,7 @@ public class Grid : MonoBehaviour {
 
     public bool IsAllEmpty() { return cells.Count == 0; }
     public bool IsAllFull() { return cells.Count == validCells.Count; }
+    public int AllShapesSize() { return cells.Count; }
 
     public List<IGridShape> AllShapes() {
         List<IGridShape> shapes = new();
@@ -630,19 +603,7 @@ public class Grid : MonoBehaviour {
 
         return shapes;
     }
+    
 
     #endregion
-
-    // TEMP: prob, until think of better way with shaders to do invalid/overlap feedbakc
-    public void ChangeColorAllShapes(Color color) {
-        List<IGridShape> shapes = AllShapes();
-        for (int i = 0; i < shapes.Count; i++) {
-            // Ensure the object has a renderer
-            if (shapes[i].ColliderTransform.TryGetComponent(out Renderer rd)) {
-                rd.material.SetColor("_BaseColor", color);
-            } else {
-                Debug.LogError("Shape is missing a renderer.");
-            }
-        }
-    }
 }
