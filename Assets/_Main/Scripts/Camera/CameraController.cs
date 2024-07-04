@@ -48,7 +48,8 @@ public class CameraController : MonoBehaviour {
         IsometricForward = Vector3Int.RoundToInt(Quaternion.Euler(0, -45, 0) * transForwardXZ);
         IsometricRight =  Vector3Int.RoundToInt(Quaternion.Euler(0, 45, 0) * transForwardXZ);
 
-        Ref.Player.PlayerInput.InputScroll += ZoomView;
+        // TODO: zoom using on screen buttons
+        // Ref.Player.PlayerInput.InputScroll += ZoomView;
         Ref.Player.PlayerInput.InputRotateCameraDown += RotateCamera;
         Ref.Player.PlayerInput.InputRotateCameraUp += UnRotateCamera;
     }

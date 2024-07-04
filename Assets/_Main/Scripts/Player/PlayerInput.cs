@@ -107,10 +107,20 @@ public class PlayerInput : MonoBehaviour {
 
     #region Tools
 
+    public event Action<float> InputScroll;
     public event Action InputDragTool;
     public event Action InputSliceTool;
     public event Action InputCompactTool;
 
+    public void OnScroll(InputAction.CallbackContext ctx) {
+        float scrollInput = ctx.ReadValue<Vector2>().y;
+        scrollInput /= Math.Abs(scrollInput); // normalize scroll value for easier usage later
+
+        if (ctx.performed) {
+            InputScroll?.Invoke(scrollInput);
+        }
+    }
+    
     public void OnDragTool(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputDragTool?.Invoke();
@@ -133,7 +143,6 @@ public class PlayerInput : MonoBehaviour {
 
     #region Camera
 
-    public event Action<float> InputScroll;
     public event Action<float> InputRotateCameraDown;
     public event Action<float> InputRotateCameraUp;
 
@@ -223,13 +232,11 @@ public class PlayerInput : MonoBehaviour {
     #region Helper
 
     // TEMP: make more robust if more than two action maps
-    public void SetActionMap(string mapName) {
+    void SetActionMap(string mapName) {
         if (mapName == Constants.ActionMapNamePlayer) {
-            playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Disable();
             playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Enable();
-        } else if (mapName == Constants.ActionMapNameVehicle) {
-            playerInput.actions.FindActionMap(Constants.ActionMapNamePlayer).Disable();
-            playerInput.actions.FindActionMap(Constants.ActionMapNameVehicle).Enable();
+        } else {
+            Debug.LogError("Invalid action map name.");
         }
     }
 

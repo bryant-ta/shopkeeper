@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInput))]
@@ -9,34 +11,57 @@ public class Player : MonoBehaviour {
     [field: SerializeField] public PlayerSlice PlayerSlice { get; private set; }
     [field: SerializeField] public PlayerCombine PlayerCombine { get; private set; }
 
-    IPlayerTool curTool;
+    int curToolIndex;
+    List<IPlayerTool> tools;
+    IPlayerTool curTool => tools[curToolIndex];
+
+    public event Action<int> OnToolSwitch;
 
     void Awake() {
+        PlayerInput.InputScroll += SwitchTool;
         PlayerInput.InputDragTool += SelectDragTool;
         PlayerInput.InputSliceTool += SelectSliceTool;
-        PlayerInput.InputCompactTool += SelectCompactTool;
+        PlayerInput.InputCompactTool += SelectCombineTool;
+        
+        tools = new List<IPlayerTool> {PlayerDrag, PlayerSlice, PlayerCombine};
         
         // Default tool mode: Drag
-        curTool = PlayerDrag;
+        curToolIndex = 0;
         if (PlayerDrag != null) {
             PlayerDrag.Equip();
         }
     }
 
-    void SelectDragTool() {
-        curTool.Unequip();
-        curTool = PlayerDrag;
-        PlayerDrag.Equip();
+    void SwitchTool(float scrollInput) {
+        if (!curTool.Unequip()) return;
+        
+        if (scrollInput > 0) {
+            curToolIndex = (curToolIndex - 1 + tools.Count) % tools.Count;
+        } else if (scrollInput < 0) {
+            curToolIndex = (curToolIndex + 1) % tools.Count;
+        }
+        
+        curTool.Equip();
+        OnToolSwitch?.Invoke(curToolIndex);
     }
-    void SelectSliceTool() {
-        curTool.Unequip();
-        curTool = PlayerSlice;
-        PlayerSlice.Equip();
+
+    public void SelectDragTool() {
+        if (!curTool.Unequip()) return;
+        curToolIndex = 0;
+        curTool.Equip();
+        OnToolSwitch?.Invoke(curToolIndex);
     }
-    void SelectCompactTool() {
-        curTool.Unequip();
-        curTool = PlayerCombine;
-        PlayerCombine.Equip();
+    public void SelectSliceTool() {
+        if (!curTool.Unequip()) return;
+        curToolIndex = 1;
+        curTool.Equip();
+        OnToolSwitch?.Invoke(curToolIndex);
+    }
+    public void SelectCombineTool() {
+        if (!curTool.Unequip()) return;
+        curToolIndex = 2;
+        curTool.Equip();
+        OnToolSwitch?.Invoke(curToolIndex);
     }
 
     #region Helper
@@ -65,5 +90,5 @@ public class Player : MonoBehaviour {
 
 public interface IPlayerTool {
     public void Equip();
-    public void Unequip();
+    public bool Unequip();
 }

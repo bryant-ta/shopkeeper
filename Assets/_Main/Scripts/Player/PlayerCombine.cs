@@ -127,9 +127,10 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPrimaryDown += Combine;
         Ref.Player.PlayerInput.InputPoint += CombinePreview;
     }
-    public void Unequip() {
+    public bool Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= Combine;
         Ref.Player.PlayerInput.InputPoint -= CombinePreview;
         previewObj.SetActive(false);
+        return true;
     }
 }

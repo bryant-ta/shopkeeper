@@ -225,9 +225,10 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPrimaryDown += Slice;
         Ref.Player.PlayerInput.InputPoint += SlicePreview;
     }
-    public void Unequip() {
+    public bool Unequip() {
         Ref.Player.PlayerInput.InputPrimaryDown -= Slice;
         Ref.Player.PlayerInput.InputPoint -= SlicePreview;
         previewObj.SetActive(false);
+        return true;
     }
 }

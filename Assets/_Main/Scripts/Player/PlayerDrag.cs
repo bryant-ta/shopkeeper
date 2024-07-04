@@ -502,10 +502,12 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     #endregion
 
+    bool isMultiSelecting;
     void MultiSelectMode(bool enable) {
         if (isDragging) return;
 
         if (enable) {
+            isMultiSelecting = true;
             DefaultMode(false);
 
             Ref.Player.PlayerInput.InputPoint += MultiSelect;
@@ -514,6 +516,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             // TEMP: until custom cursor, render multiselect cell outline
             cor.Render(new ShapeData(ShapeDataID.None, Vector3Int.zero, DragGrid.Cells.Keys.ToList()));
         } else {
+            isMultiSelecting = false;
             DefaultMode(true);
 
             Ref.Player.PlayerInput.InputPoint -= MultiSelect;
@@ -529,12 +532,16 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
-    public void Unequip() {
+    public bool Unequip() {
+        if (isMultiSelecting) return false;
+        
         DefaultMode(false);
         Ref.Player.PlayerInput.InputPrimaryHeld -= MultiSelectMode;
 
         Cancel();
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
+
+        return true;
     }
 
     void DefaultMode(bool enable) {
