@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
 using TriInspector;
 using UnityEngine;
@@ -10,7 +11,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
 
-    [SerializeField] [Tooltip("in units of cells")] int multiSelectCapacity;
+    [SerializeField] [Tooltip("in units of cells")]
+    int multiSelectCapacity;
 
     [SerializeField] Transform dragPivot;
     Vector3 pivotTargetRotation;
@@ -29,12 +31,16 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
+    CellOutlineRenderer cor;
 
     public event Action<Vector3> OnGrab;
     public event Action<Vector3> OnDrag;
     public event Action OnRelease;
 
-    void Awake() { pivotTargetRotation = dragPivot.rotation.eulerAngles; }
+    void Awake() {
+        pivotTargetRotation = dragPivot.rotation.eulerAngles;
+        cor = DragGrid.GetComponentInChildren<CellOutlineRenderer>();
+    }
 
     bool isHolding;
     void GrabRelease(ClickInputArgs clickInputArgs) {
@@ -234,20 +240,38 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         lastMultiSelectShape = hoveredShape;
 
-        if (hoveredShape.ShapeData.IsMultiY) {
+        // Check is not multi Y shape and hoveredShape is same Y
+        if (hoveredShape.ShapeData.IsMultiY || hoveredShape.ShapeData.RootCoord.y != Mathf.RoundToInt(DragGrid.transform.position.y)) {
             TweenManager.Shake(hoveredShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-        
-        // Try to pick up stack of shapes
-        List<IGridShape> stackedShapes = hoveredShape.Grid.SelectStackedShapes(hoveredShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape);
+
+        // Check adjacent to current multiselected
+        Vector3Int worldPos = Vector3Int.RoundToInt(targetGrid.transform.TransformPoint(hoveredShape.ShapeData.RootCoord));
+        Vector3Int dragGridCoord = Vector3Int.RoundToInt(DragGrid.transform.InverseTransformPoint(worldPos));
+        List<Vector3Int> hoveredInDragGrid = new();
+        bool isAdjacentToDragGrid = hoveredShape.ShapeData.ShapeOffsets.Any(
+            offset => Enumerable.Range(0, 4).Any(
+                d => DragGrid.SelectPosition(dragGridCoord + offset + DirectionData.DirectionVectorsInt[d]) != null
+            )
+        );
+        if (!isAdjacentToDragGrid) {
+            TweenManager.Shake(hoveredShape);
+            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+            return;
+        }
+
+        // Check/Try to pick up stack of shapes
+        List<IGridShape> stackedShapes = hoveredShape.Grid.SelectStackedShapes(
+            hoveredShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape
+        );
         if (stackedShapes == null || stackedShapes.Count == 0) {
             TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-        
+
         // Check multiselect capacity
         int stackedShapesSize = 0;
         foreach (IGridShape shape in stackedShapes) {
@@ -260,8 +284,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         // Move shapes to drag grid, in place
-        Vector3Int worldPos = Vector3Int.RoundToInt(targetGrid.transform.TransformPoint(hoveredShape.ShapeData.RootCoord));
-        Vector3Int dragGridCoord = Vector3Int.RoundToInt(DragGrid.transform.InverseTransformPoint(worldPos));
         if (!targetGrid.MoveShapes(DragGrid, dragGridCoord, stackedShapes)) {
             TweenManager.Shake(stackedShapes);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
@@ -269,14 +291,17 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             return;
         }
 
+        // Manage colliders and outlines
         for (int i = 0; i < stackedShapes.Count; i++) {
             foreach (Collider col in stackedShapes[i].Colliders) {
                 col.enabled = false;
             }
 
-            // Outline selected effect
             stackedShapes[i].SetOutline(selectedOutlineColor);
         }
+
+        // TEMP: until custom cursor, render multiselect cell outline
+        cor.Render(new ShapeData(ShapeDataID.None, Vector3Int.zero, DragGrid.Cells.Keys.ToList()));
 
         grabCursorPos = clickInputArgs.CursorPos;
 
@@ -485,22 +510,28 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
             Ref.Player.PlayerInput.InputPoint += MultiSelect;
             Ref.Player.PlayerInput.InputPrimaryUp += FinishMultiSelect;
+
+            // TEMP: until custom cursor, render multiselect cell outline
+            cor.Render(new ShapeData(ShapeDataID.None, Vector3Int.zero, DragGrid.Cells.Keys.ToList()));
         } else {
             DefaultMode(true);
 
             Ref.Player.PlayerInput.InputPoint -= MultiSelect;
             Ref.Player.PlayerInput.InputPrimaryUp -= FinishMultiSelect;
+
+            cor.Clear();
         }
     }
 
     public void Equip() {
         DefaultMode(true);
-        Ref.Player.PlayerInput.InputPrimaryHeldStart += () => MultiSelectMode(true);
+        Ref.Player.PlayerInput.InputPrimaryHeld += MultiSelectMode;
 
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
     public void Unequip() {
         DefaultMode(false);
+        Ref.Player.PlayerInput.InputPrimaryHeld -= MultiSelectMode;
 
         Cancel();
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
