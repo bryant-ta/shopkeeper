@@ -85,6 +85,17 @@ public class ShapeData {
         };
     }
 
+    public bool IsAdjacentToCoords(List<Vector3Int> checkCoords) {
+        for (int i = 0; i < ShapeOffsets.Count; i++) {
+            for (int d = 0; d < 4; d++) {
+                if (checkCoords.Contains(RootCoord + ShapeOffsets[i] + DirectionData.DirectionVectorsInt[d])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /// <summary>
     /// Get ShapeDataID from ShapeOffsets, including if ShapeOffsets is rotated
     /// </summary>
@@ -117,12 +128,13 @@ public class ShapeData {
                     centeredPotentialOffsets.Min(offset => offset.y),
                     centeredPotentialOffsets.Min(offset => offset.z)
                 );
-                centeredPotentialOffsets = potentialMatchCentered.ShapeOffsets.Select(offset => offset - centeredPotentialLowestOffset).ToList();
-                
+                centeredPotentialOffsets =
+                    potentialMatchCentered.ShapeOffsets.Select(offset => offset - centeredPotentialLowestOffset).ToList();
+
                 if (centeredOffsets.All(centeredPotentialOffsets.Contains)) {
                     return kv.Key;
                 }
-                
+
                 potentialMatchCentered.RotateShape(true);
             }
         }

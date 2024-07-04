@@ -12,7 +12,7 @@ public class LevelInitializer : MonoBehaviour {
 
     public void InitializeLevel() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoLevelInitialize) return;
-        
+
         // Place 1x1s randomly at start of level
         Grid grid = GameManager.WorldGrid;
         for (int i = 0; i < numStacks; i++) {
@@ -20,16 +20,16 @@ public class LevelInitializer : MonoBehaviour {
             int stackCount = Math.Min(Random.Range(numCountPerStack.Min, numCountPerStack.Max + 1), grid.Height);
 
             for (int y = 0; y < stackCount; y++) {
-                SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                    Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
-                    Pattern.None, // TEMP: until implementing pattern
-                    ShapeDataLookUp.LookUp(ShapeDataID.O1)
-                );
-
-                Product product = ProductFactory.Instance.CreateProduct(productData, stackPos + new Vector3Int(0, y, 0));
-
                 for (int tries = 3; tries > 0; tries--) {
-                    if (grid.PlaceShape(stackPos + new Vector3Int(0, y, 0), product)) {
+                    if (grid.IsOpen(stackPos)) {
+                        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+                            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
+                            Pattern.None, // TEMP: until implementing pattern
+                            ShapeDataLookUp.LookUp(ShapeDataID.O1)
+                        );
+                        Product product = ProductFactory.Instance.CreateProduct(productData, stackPos + new Vector3Int(0, y, 0));
+
+                        grid.PlaceShapeNoValidate(stackPos + new Vector3Int(0, y, 0), product);
                         Ledger.AddStockedProduct(product);
                         break;
                     }

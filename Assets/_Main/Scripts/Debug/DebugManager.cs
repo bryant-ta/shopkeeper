@@ -24,6 +24,8 @@ public class DebugManager : Singleton<DebugManager> {
             if (PauseTimerAfterSeconds > 0) {
                 Util.DoAfterSeconds(this, PauseTimerAfterSeconds, () => GlobalClock.SetTimeScale(0f));
             }
+            
+            Application.targetFrameRate = 60;
         }
     }
 

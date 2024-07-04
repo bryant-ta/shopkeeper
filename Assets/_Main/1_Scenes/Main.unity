@@ -5231,7 +5231,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9175227905573436024, guid: fa6dad0fe183d9042906f5331ff29207, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9175227905573436026, guid: fa6dad0fe183d9042906f5331ff29207, type: 3}
       propertyPath: m_RootOrder
@@ -6033,13 +6033,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2107359958}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2107359966}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: SelectSliceTool
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -7188,7 +7188,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.48235294}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8570,7 +8570,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 6
+  orthographic size: 8.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -8594,7 +8594,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.36839613, y: 0.35094368, z: -0.15259466, w: 0.847253}
-  m_LocalPosition: {x: -10, y: 15.5, z: -10}
+  m_LocalPosition: {x: -10, y: 14, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10706,7 +10706,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9175227905573436024, guid: fa6dad0fe183d9042906f5331ff29207, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9175227905573436026, guid: fa6dad0fe183d9042906f5331ff29207, type: 3}
       propertyPath: m_RootOrder
@@ -11121,13 +11121,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2107359958}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2107359966}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: SelectDragTool
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -12295,13 +12295,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2107359958}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 2107359966}
+        m_TargetAssemblyTypeName: Player, Assembly-CSharp
+        m_MethodName: SelectCombineTool
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -14002,7 +14002,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -16307,7 +16307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numStacks: 10
+  numStacks: 50
   numCountPerStack:
     Min: 1
     Max: 1
@@ -17224,6 +17224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   previewObj: {fileID: 1177697809}
+  cooldown: 0.17
 --- !u!114 &2107359969
 MonoBehaviour:
   m_ObjectHideFlags: 0
