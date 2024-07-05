@@ -83,13 +83,13 @@ public class OrderManager : MonoBehaviour {
         if (orderPhaseActive.Value || GameManager.Instance.CurDayPhase != DayPhase.Order) return;
 
         // Can end Order phase when all docks no longer have active orderers
-        bool docksEmpty = true;
-        foreach (Dock dock in docks) {
-            if (dock.IsOccupied) {
-                docksEmpty = false;
-            }
-        }
-        if (!docksEmpty) return;
+        // bool docksEmpty = true;
+        // foreach (Dock dock in docks) {
+        //     if (dock.IsOccupied) {
+        //         docksEmpty = false;
+        //     }
+        // }
+        // if (!docksEmpty) return;
 
         GameManager.Instance.NextPhase();
     }
@@ -134,7 +134,7 @@ public class OrderManager : MonoBehaviour {
     }
 
     public void HandleFinishedOrderer(Orderer orderer) {
-        if (orderer.Order.IsFulfilled) {
+        if (orderer.Order.State == OrderState.Fulfilled) {
             // GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
             // if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
 
@@ -148,7 +148,7 @@ public class OrderManager : MonoBehaviour {
             if (MetQuota) {
                 StopOrders();
             }
-        } else {
+        } else if (orderer.Order.State == OrderState.Failed) {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }

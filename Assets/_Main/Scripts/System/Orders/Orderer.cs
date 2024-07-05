@@ -136,6 +136,10 @@ public class Orderer : MonoBehaviour, IDocker {
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
+    public void OrderSkipped() {
+        GameManager.Instance.RunTimer.EndEvent -= OrderFailed;
+        LeaveDock();
+    }
 
     public void AssignOrder(Order order) {
         if (Order != null) {

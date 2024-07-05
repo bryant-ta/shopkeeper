@@ -14,9 +14,9 @@ public class OrdererFace : MonoBehaviour {
     }
 
     void SetFaceSuccess(Order order) {
-        if (order.IsFulfilled) {
+        if (order.State == OrderState.Fulfilled) {
             face.sprite = Util.GetRandomFromList(successFaces);
-        } else {
+        } else if (order.State == OrderState.Failed) {
             face.sprite = Util.GetRandomFromList(failFaces);
         }
     }

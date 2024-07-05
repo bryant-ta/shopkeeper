@@ -18,7 +18,7 @@ public class Order {
     int baseOrderValue;
     int valuePerProduct;
 
-    public bool IsFulfilled { get; private set; }
+    public OrderState State { get; private set; }
 
     public event Action OnProductFulfilled; // requirement index, quantity remaining until target
     public event Action OnOrderSucceeded;
@@ -70,12 +70,17 @@ public class Order {
 
     public void Succeed() {
         StopOrder();
-        IsFulfilled = true;
+        State = OrderState.Fulfilled;
         OnOrderSucceeded?.Invoke();
     }
-    void Fail() {
+    public void Fail() {
         StopOrder();
+        State = OrderState.Failed;
         OnOrderFailed?.Invoke();
+    }
+    public void Skip() {
+        StopOrder();
+        State = OrderState.Skipped;
     }
 
     #endregion
@@ -99,5 +104,12 @@ public class Order {
     public new string ToString() { return OrderLayoutData.name; }
 
     #endregion
+}
+
+public enum OrderState {
+    Ready = 0,
+    Fulfilled = 1,
+    Failed = 2,
+    Skipped = 3,
 }
 }

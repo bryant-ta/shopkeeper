@@ -10,17 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c012c8da23424b342a30aefd9e28abc7, type: 3}
-  m_Name: OrderLayout_2
+  m_Name: OrderLayout_13
   m_EditorClassIdentifier: 
   DifficultyRating: 1
   Tiles:
+  - coord: {x: -1, y: -1}
+    colorID: 0
   - coord: {x: 0, y: -1}
     colorID: 0
   - coord: {x: -1, y: 0}
     colorID: 0
-  - coord: {x: 0, y: 0}
-    colorID: 0
   - coord: {x: 1, y: 0}
     colorID: 0
   - coord: {x: 0, y: 1}
+    colorID: 0
+  - coord: {x: 1, y: 1}
     colorID: 0

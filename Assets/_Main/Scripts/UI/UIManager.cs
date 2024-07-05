@@ -32,7 +32,6 @@ public class UIManager : MonoBehaviour {
     // NOTE: calls here should really only toggle panels
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Order) {
-            ToggleOrderPhaseStartButton(false);
         }
     }
     void ExitStateTrigger(IState<DayPhase> state) {
@@ -46,7 +45,7 @@ public class UIManager : MonoBehaviour {
             ToggleOrderPhaseStartButton(true);
         }
     }
-    void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
+    public void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
 
     #region NextDay
 
