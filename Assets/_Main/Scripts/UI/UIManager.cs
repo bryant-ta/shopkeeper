@@ -4,18 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
-    [SerializeField] NumberCounter goldCounter;
-
-    [SerializeField] GameObject orderPhaseStartPanel;
+    [SerializeField] [Required] GameObject orderPhaseStartPanel;
 
     [Title("Next Day Panel")] // TEMP: until making better next day screen
-    [SerializeField] GameObject nextDayPanel;
-    [SerializeField] TextMeshProUGUI perfectOrdersText;
-    [SerializeField] TextMeshProUGUI metQuotaText;
-    [SerializeField] Button nextDayButton;
+    [SerializeField] [Required] GameObject nextDayPanel;
+    [SerializeField] [Required] TextMeshProUGUI perfectOrdersText;
+    [SerializeField] [Required] TextMeshProUGUI metQuotaText;
+    [SerializeField] [Required] Button nextDayButton;
 
     [Title("Pause Menu")]
-    [SerializeField] GameObject pauseMenuPanel;
+    [SerializeField] [Required] GameObject pauseMenuPanel;
 
     GameManager gameMngr;
 
@@ -42,8 +40,6 @@ public class UIManager : MonoBehaviour {
             UpdateNextDayPanel();
         }
     }
-
-    void UpdateMoneyText(DeltaArgs args) { goldCounter.SetValue(args.NewValue); }
 
     public void HandleOrderPhaseStartButton() {
         if (Ref.DeliveryMngr.AllDeliveriesOpened) {

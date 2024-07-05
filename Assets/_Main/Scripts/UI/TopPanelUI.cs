@@ -1,15 +1,21 @@
 using TMPro;
+using TriInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TopPanelUI : MonoBehaviour {
-    [SerializeField] Image runTimerFill;
-    [SerializeField] TextMeshProUGUI runTimerText;
-    [SerializeField] GameObject ordersTargetPanel;
-    [SerializeField] TextMeshProUGUI ordersTargetText;
-    [SerializeField] GameObject ordersFulfilledPanel;
-    [SerializeField] TextMeshProUGUI ordersFulfilledText;
-    [SerializeField] TextMeshProUGUI roundText;
+    [SerializeField] [Required] Image runTimerFill;
+    [SerializeField] [Required] TextMeshProUGUI runTimerText;
+    
+    [SerializeField] [Required] GameObject ordersTargetPanel;
+    [SerializeField] [Required] TextMeshProUGUI ordersTargetText;
+    
+    [SerializeField] [Required] GameObject ordersFulfilledPanel;
+    [SerializeField] [Required] TextMeshProUGUI ordersFulfilledText;
+    
+    [SerializeField] [Required] NumberCounter scoreCounter;
+    
+    [SerializeField] [Required] TextMeshProUGUI roundText;
 
     GameManager gameMngr;
 
@@ -21,7 +27,10 @@ public class TopPanelUI : MonoBehaviour {
 
         gameMngr.RunTimer.TickEvent += UpdateOrderPhaseTimer;
         gameMngr.RunTimer.EndEvent += UpdateOrderPhaseTimerEnd;
+        
         gameMngr.OnDayEnd += UpdateRoundText;
+
+        gameMngr.OnModifyScore += UpdateScoreCounter;
         
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
     }
@@ -55,6 +64,8 @@ public class TopPanelUI : MonoBehaviour {
             ordersFulfilledText.color = Color.white;
         }
     }
+    
+    void UpdateScoreCounter(DeltaArgs args) { scoreCounter.SetValue(args.NewValue); }
 
     void UpdateRoundText(int val) { roundText.text = $"Round {val}"; }
 }

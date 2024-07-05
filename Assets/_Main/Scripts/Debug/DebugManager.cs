@@ -1,6 +1,7 @@
 using System;
 using TriInspector;
 using UnityEngine;
+using Random = System.Random;
 
 public class DebugManager : Singleton<DebugManager> {
     [SerializeField] bool debugMode;
@@ -40,5 +41,11 @@ public class DebugManager : Singleton<DebugManager> {
                 GameManager.Instance.NextPhase();
             }
         }
+    }
+
+    public void ForceFulfillRandomOrder() {
+        Orderer o = Util.GetRandomFromList(Ref.OrderMngr.ActiveOrderers);
+        o.Order.Succeed();
+        o.OrderSucceeded();
     }
 }

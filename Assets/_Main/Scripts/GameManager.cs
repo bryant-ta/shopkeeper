@@ -2,6 +2,7 @@ using System;
 using Timers;
 using TriInspector;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameManager : Singleton<GameManager> {
     // [field: Title("General")]
@@ -49,6 +50,10 @@ public class GameManager : Singleton<GameManager> {
     [SerializeField] int perfectOrdersGoldBonus;
 
     public event Action<DeltaArgs> OnModifyMoney;
+
+    [Title("Score")]
+    [field:SerializeField] public int Score { get; private set; }
+    public event Action<DeltaArgs> OnModifyScore;
 
     void Awake() {
         if (DebugManager.DebugMode) AwakeDebugTasks();
@@ -154,8 +159,6 @@ public class GameManager : Singleton<GameManager> {
 
     #endregion
 
-    #region Gold
-
     /// <summary>
     /// Applies delta to current coin value. 
     /// </summary>
@@ -171,6 +174,18 @@ public class GameManager : Singleton<GameManager> {
 
         return true;
     }
+    
+    /// <summary>
+    /// Applies delta to current score value. 
+    /// </summary>
+    /// <param name="delta">(+/-)</param>
+    public bool ModifyScore(int delta) {
+        int newVal = Score + delta;
+        if (newVal < 0) return false;
 
-    #endregion
+        Score = newVal;
+        OnModifyScore?.Invoke(new DeltaArgs {NewValue = newVal, DeltaValue = delta});
+
+        return true;
+    }
 }

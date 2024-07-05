@@ -124,7 +124,7 @@ public class Orderer : MonoBehaviour, IDocker {
         return true;
     }
 
-    void OrderSucceeded() {
+    public void OrderSucceeded() {
         GameManager.Instance.RunTimer.EndEvent -= OrderFailed;
         OnOrderFinished?.Invoke(Order);
         LeaveDock();

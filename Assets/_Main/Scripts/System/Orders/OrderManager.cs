@@ -36,6 +36,7 @@ public class OrderManager : MonoBehaviour {
     [field: SerializeField, ReadOnly] public bool PerfectOrders { get; private set; } // true if all orders for the day are fulfilled
 
     Util.ValueRef<bool> orderPhaseActive;
+    public List<Orderer> ActiveOrderers { get; private set; }
 
     public event Action<int> OnQuotaUpdated;
 
@@ -44,6 +45,7 @@ public class OrderManager : MonoBehaviour {
 
         orderPhaseActive = new Util.ValueRef<bool>(false);
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
+        ActiveOrderers = new();
         
         GameManager.Instance.RunTimer.EndEvent += StopOrders;
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
@@ -112,6 +114,8 @@ public class OrderManager : MonoBehaviour {
         Orderer orderer = Instantiate(ordererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
         orderer.AssignOrder(order);
         orderer.OccupyDock(openDock);
+        
+        ActiveOrderers.Add(orderer);
     }
 
     Order GenerateOrder() {
@@ -131,8 +135,10 @@ public class OrderManager : MonoBehaviour {
 
     public void HandleFinishedOrderer(Orderer orderer) {
         if (orderer.Order.IsFulfilled) {
-            GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
-            if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
+            // GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
+            // if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
+
+            GameManager.Instance.ModifyScore(orderer.Order.TotalValue());
 
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
 
@@ -146,6 +152,8 @@ public class OrderManager : MonoBehaviour {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
         }
+
+        ActiveOrderers.Remove(orderer);
 
         if (orderPhaseActive.Value) {
             AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));

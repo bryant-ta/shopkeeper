@@ -85,7 +85,7 @@ public class Order {
     public int TotalValue() {
         // TODO: formula for order value
 
-        return baseOrderValue;
+        return ShapeData.Size;
     }
 
     public HashSet<Color> GetColors() {
