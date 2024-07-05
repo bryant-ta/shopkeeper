@@ -59,11 +59,11 @@ public class UIManager : MonoBehaviour {
         }
 
         if (Ref.OrderMngr.MetQuota) {
-            metQuotaText.text = $"FINISHED DAY {gameMngr.Day}";
-            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Day {gameMngr.Day + 1}";
+            metQuotaText.text = "FINISHED ROUND";
+            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Round {gameMngr.Day + 1}";
         } else {
             metQuotaText.text = "TRY AGAIN D:";
-            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Day {gameMngr.Day}";
+            nextDayButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Start Round {gameMngr.Day}";
         }
 
         nextDayButton.gameObject.SetActive(true);

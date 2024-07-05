@@ -9,11 +9,10 @@ public class DifficultyManager : Singleton<DifficultyManager> {
     [SerializeField] SO_DeliveriesDifficultyTable deliveryDiffTable;
     [SerializeField] SO_OrdersDifficultyTable orderDiffTable;
 
-    public void ApplyDeliveryDifficulty() {
-        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
-
+    public SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ApplyDeliveryDifficulty() {
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
+            deliveriesPool = deliveryDiffTable.Filter(entry => entry.deliveriesPool),
             basicFirstDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicFirstDimensionMax),
             basicSecondDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicSecondDimensionMax),
             basicChanceShapeExtension = deliveryDiffTable.GetHigh(entry => entry.basicChanceShapeExtension),
@@ -21,29 +20,18 @@ public class DifficultyManager : Singleton<DifficultyManager> {
             irregularShapePool = deliveryDiffTable.Filter(entry => entry.irregularShapePool)
         };
 
-        if (deliveryDiffTable.GetExact(entry => entry.deliveries, GameManager.Instance.Difficulty, out List<GameObject> output)) {
-            ret.deliveries = output;
-        } else {
-            Debug.LogError($"Missing deliveries list for difficulty {GameManager.Instance.Difficulty}.");
-        }
-
         deliveryDiffTable.UseOverrides(ret, GameManager.Instance.Difficulty);
 
-        Ref.DeliveryMngr.SetDifficultyOptions(ret);
+        return ret;
     }
 
-    public void ApplyOrderDifficulty() {
-        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
-
+    public SO_OrdersDifficultyTable.OrderDifficultyEntry ApplyOrderDifficulty() {
         SO_OrdersDifficultyTable.OrderDifficultyEntry ret = new() {
-            numNeedOrdersFulfilled = orderDiffTable.GetHigh(entry => entry.numNeedOrdersFulfilled),
             layoutDifficulty = orderDiffTable.GetHigh(entry => entry.layoutDifficulty),
             numActiveDocks = orderDiffTable.GetHigh(entry => entry.numActiveDocks),
-            baseOrderTime = orderDiffTable.GetHigh(entry => entry.baseOrderTime),
-            baseOrderValue = orderDiffTable.GetHigh(entry => entry.baseOrderValue),
         };
 
-        Ref.OrderMngr.SetDifficultyOptions(ret);
+        return ret;
     }
 
     public int GetInitialMaxColorIndex() { return deliveryDiffTable.table[0].maxColorIndex; }

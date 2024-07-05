@@ -15,121 +15,16 @@ MonoBehaviour:
   table:
   - <day>k__BackingField: 1
     layoutDifficulty: 1
-    numNeedOrdersFulfilled: 2
     numActiveDocks: 1
-    baseOrderTime: 10
-    baseOrderValue: 10
-  - <day>k__BackingField: 2
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 3
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 3
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 4
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 4
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 5
-    layoutDifficulty: 2
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 2
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 6
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 7
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 8
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 5
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 9
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
   - <day>k__BackingField: 10
-    layoutDifficulty: 3
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 11
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 12
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 6
-    numActiveDocks: 3
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 13
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 14
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 15
-    layoutDifficulty: 4
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 16
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 7
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 17
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 0
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 18
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 8
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
-  - <day>k__BackingField: 19
-    layoutDifficulty: 0
-    numNeedOrdersFulfilled: 9
-    numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
+    layoutDifficulty: 2
+    numActiveDocks: 2
   - <day>k__BackingField: 20
-    layoutDifficulty: 5
-    numNeedOrdersFulfilled: 10
+    layoutDifficulty: 3
+    numActiveDocks: 3
+  - <day>k__BackingField: 30
+    layoutDifficulty: 4
     numActiveDocks: 0
-    baseOrderTime: 0
-    baseOrderValue: 0
+  - <day>k__BackingField: 40
+    layoutDifficulty: 5
+    numActiveDocks: 0

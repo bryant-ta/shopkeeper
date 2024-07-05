@@ -8,6 +8,12 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [Title("General")]
+    [SerializeField] int numDeliveriesBase = 1;
+    [SerializeField] int numDeliveriesMod = 0;
+    int numDeliveriesTotal => numDeliveriesBase + numDeliveriesMod;
+    int curDeliveryIndex;
+    [SerializeField] List<GameObject> deliveriesPool;
+    
     [Tooltip("Determines possible color choices for ALL delivery types.")]
     [SerializeField] int maxColorIndex = 1;
 
@@ -34,12 +40,9 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] Transform docksContainer;
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
-    [SerializeField] List<GameObject> deliveries;
     List<DeliveryBox> curDeliveryBoxes = new();
-    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curDeliveryIndex == deliveries.Count;
+    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curDeliveryIndex == numDeliveriesTotal;
     public event Action OnDeliveryOpened;
-
-    int curDeliveryIndex;
 
     void Awake() {
         basicVs = GetComponent<VolumeSlicer>();
@@ -53,7 +56,7 @@ public class DeliveryManager : MonoBehaviour {
 
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
-            DifficultyManager.Instance.ApplyDeliveryDifficulty();
+            SetDifficultyOptions();
 
             // separate from SetDifficultyOptions for setting debug mode values
             basicVs.SetOptions(basicFirstDimensionMax, basicSecondDimensionMax, basicChanceShapeExtension);
@@ -67,16 +70,16 @@ public class DeliveryManager : MonoBehaviour {
 
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
         // TODO: deliverer queue
-        int count = Math.Min(deliveries.Count, docks.Count);
+        int count = Math.Min(numDeliveriesTotal, docks.Count);
         curDeliveryIndex = count;
         for (int i = 0; i < count; i++) {
-            CreateDeliverer(docks[i], deliveries[i]);
+            CreateDeliverer(docks[i], Util.GetRandomFromList(deliveriesPool));
         }
     }
 
     void CreateDeliverer(Dock openDock, GameObject deliveryBoxObj) {
-        if (deliveries == null || deliveries.Count == 0) {
-            Debug.LogError("Deliveries list is empty.");
+        if (deliveriesPool == null || deliveriesPool.Count == 0) {
+            Debug.LogError("Deliveries pool is empty.");
             return;
         }
 
@@ -113,8 +116,8 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     public void HandleFinishedDeliverer(Deliverer deliverer) {
-        if (curDeliveryIndex < deliveries.Count) {
-            CreateDeliverer(deliverer.AssignedDock, deliveries[curDeliveryIndex]);
+        if (curDeliveryIndex < numDeliveriesTotal) {
+            CreateDeliverer(deliverer.AssignedDock, Util.GetRandomFromList(deliveriesPool));
             curDeliveryIndex++;
         }
 
@@ -271,13 +274,23 @@ public class DeliveryManager : MonoBehaviour {
 
     #endregion
 
-    public void SetDifficultyOptions(SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry) {
+    public void SetDifficultyOptions() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
+        
+        SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry = DifficultyManager.Instance.ApplyDeliveryDifficulty();
+        
         maxColorIndex = deliveryDiffEntry.maxColorIndex;
-        deliveries = new List<GameObject>(deliveryDiffEntry.deliveries);
+        deliveriesPool = new List<GameObject>(deliveryDiffEntry.deliveriesPool);
         basicFirstDimensionMax = deliveryDiffEntry.basicFirstDimensionMax;
         basicSecondDimensionMax = deliveryDiffEntry.basicSecondDimensionMax;
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
+
+        if (GameManager.Instance.Difficulty % 10 == 0) {
+            numDeliveriesBase++;
+        }
     }
+
+    public void SetNumDeliveriesModifier(int val) { numDeliveriesMod = val; }
 }

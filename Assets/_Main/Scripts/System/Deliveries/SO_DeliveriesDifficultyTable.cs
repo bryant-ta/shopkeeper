@@ -11,7 +11,7 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
 
         public int maxColorIndex;
         [ListDrawerSettings(AlwaysExpanded = true)]
-        public List<GameObject> deliveries;
+        public List<GameObject> deliveriesPool;
 
         [Group("Basic Delivery")] [Tooltip("First extension max length")]
         public int basicFirstDimensionMax;

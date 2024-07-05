@@ -113,10 +113,7 @@ public class GameManager : Singleton<GameManager> {
                 RunTimer.Stop();
                 break;
             case DayPhase.Close: { // Start next day
-                float timeAdd = runTimerRecoverDur - 0.1f;
-                if (RunTimer.RemainingTimeSeconds + timeAdd > runTimerMaxDur)
-                    timeAdd = runTimerMaxDur - RunTimer.RemainingTimeSeconds;
-                RunTimer.AddTime(timeAdd);
+                AddRunTime(runTimerRecoverDur);
 
                 Day++;
                 OnDayEnd?.Invoke(Day);
@@ -144,6 +141,14 @@ public class GameManager : Singleton<GameManager> {
     }
 
     public void NextPhase() { SM_dayPhase.ExecuteNextState(); }
+
+    public void AddRunTime(float val) {
+        float timeAdd = val - 0.1f;
+        if (RunTimer.RemainingTimeSeconds + timeAdd > runTimerMaxDur) {
+            timeAdd = runTimerMaxDur - RunTimer.RemainingTimeSeconds;
+        }
+        RunTimer.AddTime(timeAdd);
+    }
 
     // TODO: create func for skipping to Order Phase end, ideally with time skip like below
     // public void SkipToPhaseEnd() {

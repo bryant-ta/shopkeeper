@@ -7,10 +7,15 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
-    [SerializeField] int quota;
+    [Title("Quota")]
+    [SerializeField] int quotaBase;
+    [SerializeField] int quotaMod;
+    int quotaTotal => quotaBase + quotaMod;
     [SerializeField] int numFulfilled;
-    public bool MetQuota => numFulfilled >= quota;
+    public bool MetQuota => numFulfilled >= quotaTotal;
     public event Action<int, int> OnOrderFulfilled; // <current number fulfilled, number orders needed for level>
+
+    [SerializeField] float quotaScoreMult = 1;
 
     [Title("Order Queue")]
     [SerializeField] int numActiveDocks;
@@ -21,7 +26,6 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int timePerProduct;
     [SerializeField] int baseOrderValue;
     [SerializeField] int valuePerProduct;
-    [SerializeField] int perfectOrdersBonus;
 
     [Title("Order Layouts")]
     [SerializeField] List<SO_OrderLayout> orderLayouts = new();
@@ -46,15 +50,14 @@ public class OrderManager : MonoBehaviour {
         orderPhaseActive = new Util.ValueRef<bool>(false);
         docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
         ActiveOrderers = new();
-        
+
         GameManager.Instance.RunTimer.EndEvent += StopOrders;
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Delivery) {
-            DifficultyManager.Instance.ApplyOrderDifficulty();
-            OnQuotaUpdated?.Invoke(quota);
+            SetDifficultyOptions();
         }
         if (state.ID == DayPhase.Order) {
             orderPhaseActive.Value = true;
@@ -64,7 +67,7 @@ public class OrderManager : MonoBehaviour {
 
     void StartOrders() {
         numFulfilled = 0;
-        OnOrderFulfilled?.Invoke(0, quota);
+        OnOrderFulfilled?.Invoke(0, quotaTotal);
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -76,21 +79,19 @@ public class OrderManager : MonoBehaviour {
     }
     void StopOrders() {
         orderPhaseActive.Value = false; // Stops delayed orders and order generation chain
+
+        foreach (Orderer orderer in ActiveOrderers) {
+            if (orderer.Order.State == OrderState.Ready) {
+                orderer.Order.Skip();
+                orderer.OrderSkipped();
+            }
+        }
+
         TryTriggerOrderPhaseEnd();
     }
 
     void TryTriggerOrderPhaseEnd() {
-        if (orderPhaseActive.Value || GameManager.Instance.CurDayPhase != DayPhase.Order) return;
-
-        // Can end Order phase when all docks no longer have active orderers
-        // bool docksEmpty = true;
-        // foreach (Dock dock in docks) {
-        //     if (dock.IsOccupied) {
-        //         docksEmpty = false;
-        //     }
-        // }
-        // if (!docksEmpty) return;
-
+        if (orderPhaseActive.Value) return;
         GameManager.Instance.NextPhase();
     }
 
@@ -114,7 +115,7 @@ public class OrderManager : MonoBehaviour {
         Orderer orderer = Instantiate(ordererObj, openDock.GetStartPoint(), Quaternion.identity).GetComponent<Orderer>();
         orderer.AssignOrder(order);
         orderer.OccupyDock(openDock);
-        
+
         ActiveOrderers.Add(orderer);
     }
 
@@ -138,16 +139,17 @@ public class OrderManager : MonoBehaviour {
             // GameManager.Instance.ModifyGold(orderer.Order.TotalValue());
             // if (PerfectOrders) GameManager.Instance.ModifyGold(perfectOrdersBonus);
 
-            GameManager.Instance.ModifyScore(orderer.Order.TotalValue());
-
-            SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
-
             numFulfilled++;
-            OnOrderFulfilled?.Invoke(numFulfilled, quota);
+            OnOrderFulfilled?.Invoke(numFulfilled, quotaTotal);
             // TEMP: until finalizing level system
             if (MetQuota) {
                 StopOrders();
             }
+
+            GameManager.Instance.ModifyScore((int) (orderer.Order.TotalValue() * quotaScoreMult));
+            GameManager.Instance.AddRunTime(orderer.Order.TotalValue()); // TEMP: until determining calculation
+            
+            SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
         } else if (orderer.Order.State == OrderState.Failed) {
             PerfectOrders = false;
             SoundManager.Instance.PlaySound(SoundID.OrderFailed);
@@ -161,18 +163,51 @@ public class OrderManager : MonoBehaviour {
 
         orderer.Docker.OnReachedEnd += () => {
             Destroy(orderer.gameObject);
-            TryTriggerOrderPhaseEnd();
         };
     }
 
     #endregion
 
-    public void SetDifficultyOptions(SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry) {
-        quota = orderDiffEntry.numNeedOrdersFulfilled;
+    public void SetDifficultyOptions() {
+        if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
+
+        SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry = DifficultyManager.Instance.ApplyOrderDifficulty();
+
         layoutDifficulty = orderDiffEntry.layoutDifficulty;
         numActiveDocks = orderDiffEntry.numActiveDocks;
-        baseOrderTime = orderDiffEntry.baseOrderTime;
-        baseOrderValue = orderDiffEntry.baseOrderValue;
+
+        if (GameManager.Instance.Difficulty % 10 == 0) {
+            quotaBase++;
+            OnQuotaUpdated?.Invoke(quotaTotal);
+        }
+    }
+
+    public void SetQuotaModifier(float val) {
+        int i = Mathf.RoundToInt(val);
+        switch (i) {
+            case 0:
+                quotaMod = 0;
+                quotaScoreMult = 1;
+                Ref.DeliveryMngr.SetNumDeliveriesModifier(0);
+                break;
+            case 1:
+                quotaMod = 1;
+                quotaScoreMult = 2;
+                Ref.DeliveryMngr.SetNumDeliveriesModifier(1);
+                break;
+            case 2:
+                quotaMod = 3;
+                quotaScoreMult = 4;
+                Ref.DeliveryMngr.SetNumDeliveriesModifier(2);
+                break;
+            case 3:
+                quotaMod = 6;
+                quotaScoreMult = 6;
+                Ref.DeliveryMngr.SetNumDeliveriesModifier(3);
+                break;
+        }
+        
+        OnQuotaUpdated?.Invoke(quotaTotal);
     }
 
     void LoadOrderLayouts() {
