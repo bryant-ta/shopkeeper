@@ -37,7 +37,7 @@ public class DeliveryManager : MonoBehaviour {
     [SerializeField] List<GameObject> deliveries;
     List<DeliveryBox> curDeliveryBoxes = new();
     public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curDeliveryIndex == deliveries.Count;
-    public event Action OnDeliveriesOpenedCheck;
+    public event Action OnDeliveryOpened;
 
     int curDeliveryIndex;
 
@@ -120,7 +120,7 @@ public class DeliveryManager : MonoBehaviour {
 
         deliverer.Docker.OnReachedEnd += () => {
             Destroy(deliverer.gameObject);
-            OnDeliveriesOpenedCheck?.Invoke();
+            OnDeliveryOpened?.Invoke();
         };
     }
 
@@ -159,7 +159,7 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         curDeliveryBoxes.Remove(deliveryBox);
-        OnDeliveriesOpenedCheck?.Invoke();
+        OnDeliveryOpened?.Invoke();
     }
 
     /// <summary>
@@ -208,7 +208,7 @@ public class DeliveryManager : MonoBehaviour {
         }
 
         curDeliveryBoxes.Remove(deliveryBox);
-        OnDeliveriesOpenedCheck?.Invoke();
+        OnDeliveryOpened?.Invoke();
     }
 
     Product GenerateIrregularDelivery() {

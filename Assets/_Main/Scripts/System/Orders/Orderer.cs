@@ -43,7 +43,7 @@ public class Orderer : MonoBehaviour, IDocker {
 
         trailRenderers = GetComponentsInChildren<TrailRenderer>(true).ToList();
 
-        Ref.OrderMngr.OrderPhaseTimer.EndEvent += OrderFailed;
+        GameManager.Instance.RunTimer.EndEvent += OrderFailed;
     }
     
     public void HoverEnter() {
@@ -125,14 +125,14 @@ public class Orderer : MonoBehaviour, IDocker {
     }
 
     void OrderSucceeded() {
-        Ref.OrderMngr.OrderPhaseTimer.EndEvent -= OrderFailed;
+        GameManager.Instance.RunTimer.EndEvent -= OrderFailed;
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }
     void OrderFailed() {
         // TODO: game effects of failing an order
 
-        Ref.OrderMngr.OrderPhaseTimer.EndEvent -= OrderFailed;
+        GameManager.Instance.RunTimer.EndEvent -= OrderFailed;
         OnOrderFinished?.Invoke(Order);
         LeaveDock();
     }

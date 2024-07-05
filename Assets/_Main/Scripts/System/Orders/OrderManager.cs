@@ -2,15 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orders;
-using Timers;
 using TriInspector;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class OrderManager : MonoBehaviour {
-    [SerializeField] int numNeedOrdersFulfilled;
-    [SerializeField] int numOrdersFulfilled;
-    public bool MetQuota => numOrdersFulfilled >= numNeedOrdersFulfilled;
+    [SerializeField] int quota;
+    [SerializeField] int numFulfilled;
+    public bool MetQuota => numFulfilled >= quota;
     public event Action<int, int> OnOrderFulfilled; // <current number fulfilled, number orders needed for level>
 
     [Title("Order Queue")]
@@ -23,7 +22,6 @@ public class OrderManager : MonoBehaviour {
     [SerializeField] int baseOrderValue;
     [SerializeField] int valuePerProduct;
     [SerializeField] int perfectOrdersBonus;
-    [field: SerializeField] public CountdownTimer OrderPhaseTimer { get; private set; }
 
     [Title("Order Layouts")]
     [SerializeField] List<SO_OrderLayout> orderLayouts = new();
@@ -39,33 +37,32 @@ public class OrderManager : MonoBehaviour {
 
     Util.ValueRef<bool> orderPhaseActive;
 
+    public event Action<int> OnQuotaUpdated;
+
     void Awake() {
         LoadOrderLayouts();
-        
-        orderPhaseActive = new Util.ValueRef<bool>(false);
-        OrderPhaseTimer = new CountdownTimer(GameManager.Instance.OrderPhaseDuration);
-        docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
 
+        orderPhaseActive = new Util.ValueRef<bool>(false);
+        docks = docksContainer.GetComponentsInChildren<Dock>().ToList();
+        
+        GameManager.Instance.RunTimer.EndEvent += StopOrders;
         GameManager.Instance.SM_dayPhase.OnStateEnter += EnterStateTrigger;
-        GameManager.Instance.SM_dayPhase.OnStateExit += ExitStateTrigger;
     }
 
     void EnterStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Order) {
+        if (state.ID == DayPhase.Delivery) {
             DifficultyManager.Instance.ApplyOrderDifficulty();
+            OnQuotaUpdated?.Invoke(quota);
+        }
+        if (state.ID == DayPhase.Order) {
             orderPhaseActive.Value = true;
             StartOrders();
         }
     }
-    void ExitStateTrigger(IState<DayPhase> state) {
-        if (state.ID == DayPhase.Order) {
-            OrderPhaseTimer.Reset();
-        }
-    }
 
     void StartOrders() {
-        numOrdersFulfilled = 0;
-        OnOrderFulfilled?.Invoke(0, numNeedOrdersFulfilled);
+        numFulfilled = 0;
+        OnOrderFulfilled?.Invoke(0, quota);
         PerfectOrders = true;
 
         // Start sending Orderers
@@ -74,11 +71,6 @@ public class OrderManager : MonoBehaviour {
         for (var i = 1; i < activeDocks; i++) {
             AssignNextOrdererDelayed(docks[i], Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
-
-        // Start Order Phase timer
-        OrderPhaseTimer.AddDuration(GameManager.Instance.OrderPhaseDurationGrowth);
-        OrderPhaseTimer.Start();
-        OrderPhaseTimer.EndEvent += StopOrders;
     }
     void StopOrders() {
         orderPhaseActive.Value = false; // Stops delayed orders and order generation chain
@@ -129,11 +121,11 @@ public class OrderManager : MonoBehaviour {
             Debug.LogError("Unable to generate order: out of stock.");
             return null;
         }
-        
+
         // TODO: weighted random nice bell curve favoring current difficulty (but still allowing some of below difficulties)
         SO_OrderLayout selectedOrderLayout = Util.GetRandomFromList(diffFilteredLayoutData).Copy();
         Order order = new Order(selectedOrderLayout, baseOrderTime, timePerProduct, baseOrderValue, valuePerProduct);
-        
+
         return order;
     }
 
@@ -144,11 +136,11 @@ public class OrderManager : MonoBehaviour {
 
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);
 
-            numOrdersFulfilled++;
-            OnOrderFulfilled?.Invoke(numOrdersFulfilled, numNeedOrdersFulfilled);
+            numFulfilled++;
+            OnOrderFulfilled?.Invoke(numFulfilled, quota);
             // TEMP: until finalizing level system
             if (MetQuota) {
-                OrderPhaseTimer.End();
+                StopOrders();
             }
         } else {
             PerfectOrders = false;
@@ -158,7 +150,7 @@ public class OrderManager : MonoBehaviour {
         if (orderPhaseActive.Value) {
             AssignNextOrdererDelayed(orderer.AssignedDock, Random.Range(NextOrderDelay.Min, NextOrderDelay.Max));
         }
-        
+
         orderer.Docker.OnReachedEnd += () => {
             Destroy(orderer.gameObject);
             TryTriggerOrderPhaseEnd();
@@ -168,13 +160,13 @@ public class OrderManager : MonoBehaviour {
     #endregion
 
     public void SetDifficultyOptions(SO_OrdersDifficultyTable.OrderDifficultyEntry orderDiffEntry) {
-        numNeedOrdersFulfilled = orderDiffEntry.numNeedOrdersFulfilled;
+        quota = orderDiffEntry.numNeedOrdersFulfilled;
         layoutDifficulty = orderDiffEntry.layoutDifficulty;
         numActiveDocks = orderDiffEntry.numActiveDocks;
         baseOrderTime = orderDiffEntry.baseOrderTime;
         baseOrderValue = orderDiffEntry.baseOrderValue;
     }
-    
+
     void LoadOrderLayouts() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
 

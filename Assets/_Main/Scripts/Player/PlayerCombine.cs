@@ -48,9 +48,7 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
     }
 
     void ContinueCombine(ClickInputArgs clickInputArgs) {
-        print("A - " + cooldownTimer.IsTicking);
         if (combinedProduct == null || cooldownTimer.IsTicking) return;
-        print("B - " + cooldownTimer.IsTicking);
         
         if (!clickInputArgs.TargetObj.TryGetComponent(out Product hoveredProduct)) {
             return;

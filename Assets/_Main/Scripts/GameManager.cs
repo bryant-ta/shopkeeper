@@ -1,4 +1,5 @@
 using System;
+using Timers;
 using TriInspector;
 using UnityEngine;
 
@@ -14,20 +15,25 @@ public class GameManager : Singleton<GameManager> {
 
     [field: Title("Time")]
     [field: SerializeField] public int Day { get; private set; }
+
     [field: SerializeField] public int TotalDays { get; private set; }
 
     public StateMachine<DayPhase> SM_dayPhase { get; private set; }
     public DayPhase CurDayPhase => SM_dayPhase.CurState.ID;
 
-    public event Action OnDayEnd;
-    
+    [SerializeField] float runTimerInitDur;
+    [SerializeField] float runTimerMaxDur;
+    [SerializeField] float runTimerRecoverDur;
+    public CountdownTimer RunTimer { get; private set; }
+
+    public event Action<int> OnDayEnd;
+
     [field: Title("Systems")]
     [Tooltip("Sends only bulk delivery every X days.")]
     [field: SerializeField] public int BulkDayInterval { get; private set; }
-    [field: SerializeField] public float OrderPhaseDuration { get; private set; }
-    [field: SerializeField] public float OrderPhaseDurationGrowth { get; private set; }
+
     LevelInitializer levelInit;
-    
+
     [Title("World Grid")]
     [SerializeField] Grid worldGrid;
     public static Grid WorldGrid => _worldGrid;
@@ -50,12 +56,18 @@ public class GameManager : Singleton<GameManager> {
         _worldGrid = worldGrid; // Required to reset every Play mode start because static
         levelInit = GetComponentInChildren<LevelInitializer>();
 
+        RunTimer = new CountdownTimer(runTimerMaxDur - 0.1f); // offset for showing time UI correctly
+        RunTimer.EndEvent += Lose;
+
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
     }
 
     void Start() {
         if (DebugManager.DebugMode) StartDebugTasks();
+
+        RunTimer.SetTime(runTimerInitDur - 0.1f);
+        OnDayEnd?.Invoke(Day);
 
         // need to wait for all scripts' Start to finish before starting main loop
         Util.DoAfterOneFrame(this, () => MainLoop());
@@ -64,8 +76,10 @@ public class GameManager : Singleton<GameManager> {
     void ExitStateTrigger(IState<DayPhase> state) { HandleLastState(state); }
 
     void AwakeDebugTasks() {
-        Day = DebugManager.Instance.Day;
-        OrderPhaseDuration = DebugManager.Instance.OrderPhaseDuration;
+        if (DebugManager.Instance.UseValues) {
+            Day = DebugManager.Instance.Day;
+            runTimerInitDur = DebugManager.Instance.OrderPhaseDuration;
+        }
     }
     void StartDebugTasks() { }
 
@@ -78,21 +92,32 @@ public class GameManager : Singleton<GameManager> {
         SM_dayPhase.ExecuteNextState();
     }
 
+    void Lose() { print("u lose"); }
+
     #endregion
 
     #region Time
 
     void HandleLastState(IState<DayPhase> lastState) {
-        if (lastState.ID == DayPhase.Delivery) {
-            SoundManager.Instance.PlaySound(SoundID.EnterOrderPhase);
-        } else if (lastState.ID == DayPhase.Order) {
-            OnDayEnd?.Invoke();
-        } else if (lastState.ID == DayPhase.Close) {
-            // Start next day
-            if (Ref.OrderMngr.MetQuota) {
+        switch (lastState.ID) {
+            case DayPhase.Delivery:
+                RunTimer.Start();
+                SoundManager.Instance.PlaySound(SoundID.EnterOrderPhase);
+                break;
+            case DayPhase.Order:
+                RunTimer.Stop();
+                break;
+            case DayPhase.Close: { // Start next day
+                float timeAdd = runTimerRecoverDur - 0.1f;
+                if (RunTimer.RemainingTimeSeconds + timeAdd > runTimerMaxDur)
+                    timeAdd = runTimerMaxDur - RunTimer.RemainingTimeSeconds;
+                RunTimer.AddTime(timeAdd);
+
                 Day++;
+                OnDayEnd?.Invoke(Day);
+                SoundManager.Instance.PlaySound(SoundID.EnterDeliveryPhase);
+                break;
             }
-            SoundManager.Instance.PlaySound(SoundID.EnterDeliveryPhase);
         }
     }
 

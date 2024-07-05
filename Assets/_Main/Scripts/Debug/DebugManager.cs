@@ -14,6 +14,7 @@ public class DebugManager : Singleton<DebugManager> {
     public float PauseTimerAfterSeconds;
 
     [Title("Values")]
+    public bool UseValues;
     public int Day = 1;
     public float OrderPhaseDuration = 1;
 

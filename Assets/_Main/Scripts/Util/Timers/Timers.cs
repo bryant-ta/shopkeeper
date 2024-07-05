@@ -15,7 +15,10 @@ public abstract class TimerBase {
 
     protected float timer = 0f;
 
-    protected TimerBase(float duration) { Duration = duration; }
+    protected TimerBase(float duration) {
+        Duration = duration;
+        timer = duration;
+    }
 
     public virtual void Start() {
         if (IsTicking) {
@@ -51,7 +54,6 @@ public class CountdownTimer : TimerBase {
 
     public override void Start() {
         base.Start();
-        timer = Duration;
         TickEvent?.Invoke(RemainingTimePercent);
     }
 
@@ -69,10 +71,18 @@ public class CountdownTimer : TimerBase {
 
     public void Reset() {
         timer = Duration;
+        TickEvent?.Invoke(RemainingTimePercent);
         Stop();
     }
 
-    public void AddDuration(float value) { Duration += value; }
+    public void AddTime(float value) {
+        timer += value;
+        TickEvent?.Invoke(RemainingTimePercent);
+    }
+    public void SetTime(float value) {
+        timer = value;
+        TickEvent?.Invoke(RemainingTimePercent);
+    }
 
     public string ToStringMinuteSeconds() {
         int t = (int) timer + 1;

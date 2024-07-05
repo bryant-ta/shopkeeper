@@ -1,23 +1,14 @@
-using DG.Tweening;
 using TMPro;
 using TriInspector;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
-    [Title("Delivery Phase")]
-    [SerializeField] GameObject deliveryPhasePanel;
     [SerializeField] NumberCounter goldCounter;
 
-    [Title("Order Phase")]
-    [SerializeField] GameObject orderPhasePanel;
-    [SerializeField] Image orderPhaseTimerFill;
-    [SerializeField] TextMeshProUGUI orderPhaseTimerText;
-    [SerializeField] TextMeshProUGUI ordersFulfilledText;
     [SerializeField] GameObject orderPhaseStartPanel;
-    [SerializeField] Button orderPhaseStartButton;
 
-    [Title("Next Day")] // TEMP: until making better next day screen
+    [Title("Next Day Panel")] // TEMP: until making better next day screen
     [SerializeField] GameObject nextDayPanel;
     [SerializeField] TextMeshProUGUI perfectOrdersText;
     [SerializeField] TextMeshProUGUI metQuotaText;
@@ -31,62 +22,35 @@ public class UIManager : MonoBehaviour {
     void Awake() {
         gameMngr = GameManager.Instance;
 
+        Ref.DeliveryMngr.OnDeliveryOpened += HandleOrderPhaseStartButton;
+
+        gameMngr.OnPause += TogglePauseMenu;
         // gameMngr.OnModifyMoney += UpdateMoneyText;
+
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
         gameMngr.SM_dayPhase.OnStateExit += ExitStateTrigger;
-
-        Ref.DeliveryMngr.OnDeliveriesOpenedCheck += HandleOrderPhaseStartButton;
-
-        Ref.OrderMngr.OrderPhaseTimer.TickEvent += UpdateOrderPhaseTimer;
-        Ref.OrderMngr.OrderPhaseTimer.EndEvent += UpdateOrderPhaseTimerEnd;
-        Ref.OrderMngr.OnOrderFulfilled += UpdateOrdersFulfilled;
-
-        gameMngr.OnDayEnd += UpdateNextDayPanel;
-        gameMngr.OnPause += TogglePauseMenu;
     }
 
+    // NOTE: calls here should really only toggle panels
     void EnterStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Order) {
             ToggleOrderPhaseStartButton(false);
-            ToggleOrderPhaseTimer(true);
         }
     }
     void ExitStateTrigger(IState<DayPhase> state) {
         if (state.ID == DayPhase.Order) {
-            ToggleOrderPhaseTimer(false);
+            UpdateNextDayPanel();
         }
     }
 
     void UpdateMoneyText(DeltaArgs args) { goldCounter.SetValue(args.NewValue); }
 
-    #region OrderPhase
-
-    void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
     public void HandleOrderPhaseStartButton() {
         if (Ref.DeliveryMngr.AllDeliveriesOpened) {
             ToggleOrderPhaseStartButton(true);
         }
     }
-
-    void ToggleOrderPhaseTimer(bool enable) { orderPhasePanel.SetActive(enable); }
-    void UpdateOrderPhaseTimer(float time) {
-        orderPhaseTimerFill.fillAmount = time;
-        orderPhaseTimerText.text = Ref.OrderMngr.OrderPhaseTimer.ToStringMinuteSeconds();
-    }
-    void UpdateOrderPhaseTimerEnd() {
-        orderPhaseTimerText.text = "0:00";
-    }
-
-    void UpdateOrdersFulfilled(int curVal, int thresholdVal) {
-        ordersFulfilledText.text = $"{curVal}/{thresholdVal}";
-        if (curVal >= thresholdVal) {
-            ordersFulfilledText.color = Color.green;
-        } else {
-            ordersFulfilledText.color = Color.white;
-        }
-    }
-
-    #endregion
+    void ToggleOrderPhaseStartButton(bool enable) { orderPhaseStartPanel.SetActive(enable); }
 
     #region NextDay
 
