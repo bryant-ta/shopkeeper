@@ -47,6 +47,8 @@ public class SplineFollower : SplineTracer {
         }
     }
 
+    public float initialFollowSpeed;
+    
     public override Spline.Direction direction {
         get { return base.direction; }
         set {
@@ -108,6 +110,8 @@ public class SplineFollower : SplineTracer {
         if (isFollowing && autoStartPosition) {
             SetPercent(Spline.Project(GetTransform().position).percent);
         }
+
+        initialFollowSpeed = followSpeed;
     }
 
     protected override void LateRun() {

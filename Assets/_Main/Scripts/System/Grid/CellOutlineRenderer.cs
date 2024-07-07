@@ -12,7 +12,9 @@ public class CellOutlineRenderer : MonoBehaviour {
         Clear();
 
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
-            MakeOutline(shapeData, offset);
+            if (offset.y == 0) {
+                MakeOutline(shapeData, offset);
+            }
         }
     }
 

@@ -534,7 +534,7 @@ public class Grid : MonoBehaviour {
         validCells.Remove(pos);
     }
 
-    // bool xNudged; bool zNudged;
+    bool xNudged; bool zNudged;
     public void SetGridSize(int l, int h, int w) {
         validCells.Clear();
 

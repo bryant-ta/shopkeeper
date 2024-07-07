@@ -370,10 +370,10 @@ MonoBehaviour:
       _type: 0
       position: {x: 0, y: 0, z: 0}
       color: {r: 1, g: 1, b: 1, a: 1}
-      normal: {x: -0.00000008963869, y: 0.9999899, z: -0.004494578}
+      normal: {x: -0.00000009010435, y: 0.9999899, z: -0.004494578}
       size: 1
-      tangent: {x: 0.0000021904707, y: -0.0000005281596, z: -7.804698}
-      tangent2: {x: -0.00000028312206, y: 0.0000005393037, z: 7.8046975}
+      tangent: {x: 0.0000021904707, y: -0.0000005318849, z: -7.804699}
+      tangent2: {x: -0.00000028312206, y: 0.00000054302905, z: 7.8046985}
   - invertTangents: 0
     _pointIndex: 0
     _computer: {fileID: 8835007523106791687}
@@ -381,10 +381,10 @@ MonoBehaviour:
       _type: 0
       position: {x: 0, y: 0, z: 0}
       color: {r: 1, g: 1, b: 1, a: 1}
-      normal: {x: -0.00000008963869, y: 0.9999899, z: -0.004494578}
+      normal: {x: -0.00000009010435, y: 0.9999899, z: -0.004494578}
       size: 1
-      tangent: {x: 0.0000021904707, y: -0.0000005281596, z: -7.804698}
-      tangent2: {x: -0.00000028312206, y: 0.0000005393037, z: 7.8046975}
+      tangent: {x: 0.0000021904707, y: -0.0000005318849, z: -7.804699}
+      tangent2: {x: -0.00000028312206, y: 0.00000054302905, z: 7.8046985}
   _transformSize: 1
   _transformNormals: 1
   _transformTangents: 1
@@ -468,3 +468,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pathIn: {fileID: 8747733615990530381}
   pathOut: {fileID: 8835007523106791687}
+  <IsXAligned>k__BackingField: 0

@@ -408,6 +408,30 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         ReleaseReset(heldShapes);
     }
 
+
+    bool isMultiSelecting;
+    void MultiSelectMode(bool enable) {
+        if (isDragging) return;
+
+        if (enable) {
+            isMultiSelecting = true;
+            DefaultMode(false);
+
+            Ref.Player.PlayerInput.InputPoint += MultiSelect;
+            Ref.Player.PlayerInput.InputPrimaryUp += FinishMultiSelect;
+
+            // TEMP: until custom cursor, render multiselect cell outline
+            cor.Render(new ShapeData(ShapeDataID.None, Vector3Int.zero, DragGrid.Cells.Keys.ToList()));
+        } else {
+            isMultiSelecting = false;
+            DefaultMode(true);
+
+            Ref.Player.PlayerInput.InputPoint -= MultiSelect;
+            Ref.Player.PlayerInput.InputPrimaryUp -= FinishMultiSelect;
+
+            cor.Clear();
+        }
+    }
     IGridShape lastMultiSelectShape;
     void MultiSelect(ClickInputArgs clickInputArgs) {
         IGridShape hoveredShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
@@ -482,30 +506,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
     }
     void FinishMultiSelect(ClickInputArgs clickInputArgs) { MultiSelectMode(false); }
-
-    bool isMultiSelecting;
-    void MultiSelectMode(bool enable) {
-        if (isDragging) return;
-
-        if (enable) {
-            isMultiSelecting = true;
-            DefaultMode(false);
-
-            Ref.Player.PlayerInput.InputPoint += MultiSelect;
-            Ref.Player.PlayerInput.InputPrimaryUp += FinishMultiSelect;
-
-            // TEMP: until custom cursor, render multiselect cell outline
-            cor.Render(new ShapeData(ShapeDataID.None, Vector3Int.zero, DragGrid.Cells.Keys.ToList()));
-        } else {
-            isMultiSelecting = false;
-            DefaultMode(true);
-
-            Ref.Player.PlayerInput.InputPoint -= MultiSelect;
-            Ref.Player.PlayerInput.InputPrimaryUp -= FinishMultiSelect;
-
-            cor.Clear();
-        }
-    }
 
     void SetIsHolding(bool enable) {
         if (enable) {

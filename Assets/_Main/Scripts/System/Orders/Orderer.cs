@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
 using Dreamteck.Splines;
 using MK.Toon;
 using Orders;
@@ -45,7 +47,7 @@ public class Orderer : MonoBehaviour, IDocker {
 
         GameManager.Instance.RunTimer.EndEvent += OrderFailed;
     }
-    
+
     public void HoverEnter() {
         // TODO: reveal grid floor objects effect
     }
@@ -112,7 +114,7 @@ public class Orderer : MonoBehaviour, IDocker {
         foreach (Product product in products) {
             foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
                 Vector3Int curCoord = coord + product.ShapeData.RootCoord + offset;
-                if (Order.GridColors.TryGetValue(curCoord, out Color color) && 
+                if (Order.GridColors.TryGetValue(curCoord, out Color color) &&
                     (product.ID.Color == color || color == Ledger.Instance.WildColor)) {
                     continue;
                 }
@@ -201,7 +203,7 @@ public class Orderer : MonoBehaviour, IDocker {
     #endregion
 
     #region Dock
-
+    
     public void OccupyDock(Dock dock) {
         AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
@@ -210,6 +212,8 @@ public class Orderer : MonoBehaviour, IDocker {
         // TEMP: Rotate Orderer body to face correct dir based on dock (does not support curved path, fix if needed)
         if (dock.IsXAligned) { body.Rotate(Vector3.up, 90); }
 
+        // Dock Movement
+        StartCoroutine(SmoothSpeed(0.8f, 1f, 0.01f));
         Docker.StartFollowing();
     }
     public void LeaveDock() {
@@ -224,8 +228,24 @@ public class Orderer : MonoBehaviour, IDocker {
             Ledger.RemoveStockedProduct(product);
         }
 
-        // TODO: leaving anim
+        // Dock Movement
+        StartCoroutine(SmoothSpeed(0, 0.2f, Docker.initialFollowSpeed));
         Docker.StartFollowing();
+    }
+
+    IEnumerator SmoothSpeed(float startPercent, float endPercent, float targetSpeed) {
+        float initialSpeed = Docker.followSpeed;
+
+        while (Docker.GetPercent() < endPercent) {
+            float currentPercent = (float) Docker.GetPercent();
+
+            if (currentPercent > startPercent) {
+                float t = (currentPercent - startPercent) / (endPercent - startPercent);
+                Docker.followSpeed = Mathf.Lerp(initialSpeed, targetSpeed, t);
+            }
+
+            yield return null;
+        }
     }
 
     #endregion
