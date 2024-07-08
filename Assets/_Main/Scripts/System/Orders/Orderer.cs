@@ -213,7 +213,7 @@ public class Orderer : MonoBehaviour, IDocker {
         if (dock.IsXAligned) { body.Rotate(Vector3.up, 90); }
 
         // Dock Movement
-        StartCoroutine(SmoothSpeed(0.8f, 1f, 0.01f));
+        StartCoroutine(SmoothSpeed(0.8f, 1f, 0.1f));
         Docker.StartFollowing();
     }
     public void LeaveDock() {

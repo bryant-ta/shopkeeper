@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Dreamteck.Splines;
 using UnityEngine;
@@ -50,6 +51,7 @@ public class Deliverer : MonoBehaviour, IDocker {
         AssignedDock.SetDocker(Docker);
         Docker.OnReachedEnd += AllowInteraction; // assumes single path from Occupy -> Dock
 
+        StartCoroutine(SmoothSpeed(0.8f, 1f, 1f));
         Docker.StartFollowing();
     }
     public void LeaveDock() {
@@ -60,8 +62,23 @@ public class Deliverer : MonoBehaviour, IDocker {
         
         AssignedDock = null;
 
-        // TEMP: until leaving anim
+        StartCoroutine(SmoothSpeed(0, 0.2f, Docker.initialFollowSpeed));
         Docker.StartFollowing();
+    }
+    
+    IEnumerator SmoothSpeed(float startPercent, float endPercent, float targetSpeed) {
+        float initialSpeed = Docker.followSpeed;
+
+        while (Docker.GetPercent() < endPercent) {
+            float currentPercent = (float) Docker.GetPercent();
+
+            if (currentPercent > startPercent) {
+                float t = (currentPercent - startPercent) / (endPercent - startPercent);
+                Docker.followSpeed = Mathf.Lerp(initialSpeed, targetSpeed, t);
+            }
+
+            yield return null;
+        }
     }
 
     #endregion

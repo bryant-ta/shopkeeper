@@ -4181,7 +4181,7 @@ MonoBehaviour:
   debugMode: 1
   DoSetDifficulty: 1
   DoLevelInitialize: 1
-  DoOrderPhaseImmediately: 1
+  DoOrderPhaseImmediately: 0
   PauseTimerAfterSeconds: 0
   UseValues: 1
   Day: 1
@@ -17923,7 +17923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numStacks: 2
+  numStacks: 20
   numCountPerStack:
     Min: 1
     Max: 1
