@@ -1166,7 +1166,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 17df0c9930dc8c24d8be5117804c2d52, type: 3}
       propertyPath: m_RootOrder
-      value: 18
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 17df0c9930dc8c24d8be5117804c2d52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3511,13 +3511,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440271078}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 827863212}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &440271080
 MonoBehaviour:
@@ -5878,7 +5878,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: -4.1934952e-27, z: 8.72e-43, w: 3.6e-43}
+  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 6.6813406e-31}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -7546,7 +7546,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 440271079}
   - {fileID: 1926304326}
   m_Father: {fileID: 0}
   m_RootOrder: 12
@@ -9192,7 +9191,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
@@ -9788,7 +9787,7 @@ Transform:
   - {fileID: 1774910607}
   - {fileID: 306718328}
   m_Father: {fileID: 0}
-  m_RootOrder: 20
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1033436897
 PrefabInstance:
@@ -12083,7 +12082,7 @@ Transform:
   m_Children:
   - {fileID: 339627098}
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1247931783
 GameObject:
@@ -12786,7 +12785,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 6.6813406e-31}
+  m_BoundingSphereOverride: {x: NaN, y: NaN, z: NaN, w: NaN}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -14746,7 +14745,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 16
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1575506304 stripped
 Transform:
@@ -16483,7 +16482,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 19
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1843504537
 GameObject:
@@ -16542,7 +16541,7 @@ Transform:
   - {fileID: 1033436898}
   - {fileID: 455188026}
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1845279473 stripped
 Transform:
@@ -16606,7 +16605,7 @@ Transform:
   - {fileID: 275505538}
   - {fileID: 1223923249}
   m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1877508468
 GameObject:
@@ -17924,7 +17923,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numStacks: 20
+  numStacks: 2
   numCountPerStack:
     Min: 1
     Max: 1
@@ -18667,8 +18666,24 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 853eab95-fc1a-4bfc-876a-0959b97b5f69
     m_ActionName: Player/Scroll[/Mouse/scroll]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2107359962}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: OnModifier
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2eba00e2-d145-43ae-9c41-6d6c5d59b777
+    m_ActionName: Player/Cancel1[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
+  m_DefaultControlScheme: Keyboard&Mouse
   m_DefaultActionMap: Global
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 963194227}
@@ -18718,10 +18733,12 @@ MonoBehaviour:
   hoverHeight: 0.2
   <DragGrid>k__BackingField: {fileID: 827863211}
   multiSelectCapacity: 9
+  multiSelectRange: 1
   dragPivot: {fileID: 1244452520}
   selectedOutlineColor: {r: 0.1672837, g: 0.6981132, b: 0.6950798, a: 1}
   selectedInvalidOutlineColor: {r: 0.96981126, g: 0.07868272, b: 0.08385574, a: 1}
   releaseDraggedPs: {fileID: 1926304328}
+  cor: {fileID: 440271080}
 --- !u!114 &2107359966
 MonoBehaviour:
   m_ObjectHideFlags: 0

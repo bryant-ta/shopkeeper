@@ -30,7 +30,7 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action<ClickInputArgs> InputPrimaryDown;
     public event Action<ClickInputArgs> InputPrimaryUp;
-    public event Action<bool> InputPrimaryHeld;
+    public event Action<bool> InputPrimaryDownMod;
     public event Action<ClickInputArgs> InputSecondaryDown;
     public event Action<ClickInputArgs> InputSecondaryUp;
     public event Action<ClickInputArgs> InputPoint;
@@ -40,10 +40,11 @@ public class PlayerInput : MonoBehaviour {
         ClickInputArgs clickInputArgs = ClickInputArgsRaycast(cursorPosition);
         if (clickInputArgs.TargetObj == null) return;
 
-        if (ctx.started) {
+        if (ctx.performed) {
             InputPrimaryDown?.Invoke(clickInputArgs);
-        } else if (ctx.performed) {
-            InputPrimaryHeld?.Invoke(true);
+            if (modifierIsHeld) {
+                InputPrimaryDownMod?.Invoke(true);
+            }
         } else if (ctx.canceled) {
             InputPrimaryUp?.Invoke(clickInputArgs);
         }
@@ -111,6 +112,7 @@ public class PlayerInput : MonoBehaviour {
     public event Action InputDragTool;
     public event Action InputSliceTool;
     public event Action InputCompactTool;
+    bool modifierIsHeld;
 
     public void OnScroll(InputAction.CallbackContext ctx) {
         float scrollInput = ctx.ReadValue<Vector2>().y;
@@ -136,6 +138,14 @@ public class PlayerInput : MonoBehaviour {
     public void OnCompactTool(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
             InputCompactTool?.Invoke();
+        }
+    }
+    
+    public void OnModifier(InputAction.CallbackContext ctx) {
+        if (ctx.performed) {
+            modifierIsHeld = true;
+        } else if (ctx.canceled) {
+            modifierIsHeld = false;
         }
     }
 
