@@ -302,6 +302,19 @@ public class Grid : MonoBehaviour {
         return false;
     }
 
+    public bool SelectLowestOccupied(Vector3Int startCell, out IGridShape lowestShape) {
+        lowestShape = null;
+        for (int y = 0; y <= MaxY; y++) {
+            Vector3Int coord = new Vector3Int(startCell.x, y, startCell.z);
+            lowestShape = SelectPosition(coord);
+            if (lowestShape != null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     #endregion
 
     #region Falling

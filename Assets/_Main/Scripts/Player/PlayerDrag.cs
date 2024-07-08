@@ -436,7 +436,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     IGridShape lastMultiSelectShape;
     void MultiSelect(ClickInputArgs clickInputArgs) {
         IGridShape hoveredShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
-        if (hoveredShape == null || hoveredShape == lastMultiSelectShape) return;
+        if (hoveredShape == null || hoveredShape == lastMultiSelectShape ||
+            hoveredShape.ShapeData.RootCoord.y != previousShapePos.y) return;
 
         lastMultiSelectShape = hoveredShape;
 
