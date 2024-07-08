@@ -30,7 +30,7 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action<ClickInputArgs> InputPrimaryDown;
     public event Action<ClickInputArgs> InputPrimaryUp;
-    public event Action<bool> InputPrimaryDownMod;
+    public event Action<ClickInputArgs> InputPrimaryDownMod;
     public event Action<ClickInputArgs> InputSecondaryDown;
     public event Action<ClickInputArgs> InputSecondaryUp;
     public event Action<ClickInputArgs> InputPoint;
@@ -43,7 +43,7 @@ public class PlayerInput : MonoBehaviour {
         if (ctx.performed) {
             InputPrimaryDown?.Invoke(clickInputArgs);
             if (modifierIsHeld) {
-                InputPrimaryDownMod?.Invoke(true);
+                InputPrimaryDownMod?.Invoke(clickInputArgs);
             }
         } else if (ctx.canceled) {
             InputPrimaryUp?.Invoke(clickInputArgs);

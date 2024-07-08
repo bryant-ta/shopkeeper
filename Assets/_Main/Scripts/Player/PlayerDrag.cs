@@ -11,8 +11,10 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     [SerializeField] float hoverHeight;
     [field: SerializeField] public Grid DragGrid { get; private set; }
 
-    [SerializeField] [Tooltip("in units of cells")] int multiSelectCapacity;
-    [SerializeField] [Tooltip("in units of cells")] int multiSelectRange;
+    [SerializeField] [Tooltip("in units of cells")]
+    int multiSelectCapacity;
+    [SerializeField] [Tooltip("in units of cells")]
+    int multiSelectRange;
 
     [SerializeField] Transform dragPivot;
     Vector3 pivotTargetRotation;
@@ -37,9 +39,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     public event Action<Vector3> OnDrag;
     public event Action OnRelease;
 
-    void Awake() {
-        pivotTargetRotation = dragPivot.rotation.eulerAngles;
-    }
+    void Awake() { pivotTargetRotation = dragPivot.rotation.eulerAngles; }
 
     bool isHolding;
     void GrabRelease(ClickInputArgs clickInputArgs) {
@@ -406,38 +406,47 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         ReleaseReset(heldShapes);
     }
-    
+
     bool isMultiSelecting;
-    void MultiSelectMode(bool enable) {
+    Vector3Int grabbedMultiSelectCoord;
+    void EnableMultiSelect(ClickInputArgs clickInputArgs) {
         if (isDragging) return;
 
-        if (enable) {
-            isMultiSelecting = true;
-            DefaultMode(false);
+        isMultiSelecting = true;
+        DefaultMode(false);
 
-            Ref.Player.PlayerInput.InputPoint += MultiSelect;
-            Ref.Player.PlayerInput.InputPrimaryUp += FinishMultiSelect;
+        Ref.Player.PlayerInput.InputPoint += MultiSelect;
+        Ref.Player.PlayerInput.InputPrimaryUp += DisableMultiSelect;
 
-            // TEMP: until custom cursor, render multiselect cell outline
-            Vector3Int cellOutlinePos = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
-            cellOutlinePos.y = 0;
-            cor.Render(cellOutlinePos, multiSelectRange);
-        } else {
-            isMultiSelecting = false;
-            DefaultMode(true);
+        // TEMP: until custom cursor, render multiselect cell outline
+        // formula for selecting cell adjacent to clicked face anti-normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
+        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
+        Vector3 localHitAntiNormal =
+            targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
+        grabbedMultiSelectCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
 
-            Ref.Player.PlayerInput.InputPoint -= MultiSelect;
-            Ref.Player.PlayerInput.InputPrimaryUp -= FinishMultiSelect;
+        Vector3Int cellOutlinePos = grabbedMultiSelectCoord;
+        cellOutlinePos.y = 0;
+        cor.Render(cellOutlinePos, multiSelectRange);
+    }
+    void DisableMultiSelect(ClickInputArgs clickInputArgs) {
+        if (isDragging) return;
 
-            cor.Clear();
-            isDragging = true; // NOTE: needed to prevent reactivating multi select mode after first time before releasing again
-        }
+        isMultiSelecting = false;
+        DefaultMode(true);
+
+        Ref.Player.PlayerInput.InputPoint -= MultiSelect;
+        Ref.Player.PlayerInput.InputPrimaryUp -= DisableMultiSelect;
+
+        cor.Clear();
+        isDragging = true; // NOTE: needed to prevent reactivating multi select mode after first time before releasing again
     }
     IGridShape lastMultiSelectShape;
     void MultiSelect(ClickInputArgs clickInputArgs) {
         IGridShape hoveredShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
         if (hoveredShape == null || hoveredShape == lastMultiSelectShape ||
-            hoveredShape.ShapeData.RootCoord.y != previousShapePos.y) return;
+            hoveredShape.ShapeData.RootCoord.y != grabbedMultiSelectCoord.y)
+            return;
 
         lastMultiSelectShape = hoveredShape;
 
@@ -459,15 +468,32 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
         //     return;
         // }
-        
+
         // Check is in max range of initial grab shape
-        Vector3Int distance = hoveredShape.ShapeData.RootCoord - previousShapePos;
-        distance = new Vector3Int(Math.Abs(distance.x), 0, Math.Abs(distance.z));
-        if (distance.x > multiSelectRange || distance.z > multiSelectRange) {
-            TweenManager.Shake(hoveredShape);
-            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            return;
-        }
+        // Vector3Int distance = hoveredShape.ShapeData.RootCoord - grabbedMultiSelectCoord;
+        // distance = new Vector3Int(Math.Abs(distance.x), 0, Math.Abs(distance.z));
+        // if (distance.x > multiSelectRange || distance.z > multiSelectRange) {
+        //     TweenManager.Shake(hoveredShape);
+        //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+        //     return;
+        // }
+        //
+        // // Check shape fits within range
+        // List<Vector3Int> rangeCoords = new();
+        // for (int x = -multiSelectRange; x <= multiSelectRange; x++) {
+        //     for (int z = -multiSelectRange; z <= multiSelectRange; z++) {
+        //         rangeCoords.Add(grabbedMultiSelectCoord + new Vector3Int(x, 0, z));
+        //     }
+        // }
+        // List<Vector3Int> hoveredCoords = hoveredShape.ShapeData.ShapeOffsets;
+        // for (int i = 0; i < hoveredCoords.Count; i++) {
+        //     hoveredCoords[i] += hoveredShape.ShapeData.RootCoord;
+        // }
+        // if (!Util.IsSubsetOf(hoveredCoords, rangeCoords)) {
+        //     TweenManager.Shake(hoveredShape);
+        //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+        //     return;
+        // }
 
         // Check/Try to pick up stack of shapes
         List<IGridShape> stackedShapes = hoveredShape.Grid.SelectStackedShapes(
@@ -513,7 +539,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         SoundManager.Instance.PlaySound(SoundID.ProductPickUp);
     }
-    void FinishMultiSelect(ClickInputArgs clickInputArgs) { MultiSelectMode(false); }
 
     void SetIsHolding(bool enable) {
         if (enable) {
@@ -535,15 +560,15 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     public void Equip() {
         DefaultMode(true);
-        Ref.Player.PlayerInput.InputPrimaryDownMod += MultiSelectMode;
+        Ref.Player.PlayerInput.InputPrimaryDownMod += EnableMultiSelect;
 
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);
     }
     public bool Unequip() {
         if (isMultiSelecting) return false;
-        
+
         DefaultMode(false);
-        Ref.Player.PlayerInput.InputPrimaryDownMod -= MultiSelectMode;
+        Ref.Player.PlayerInput.InputPrimaryDownMod -= EnableMultiSelect;
 
         Cancel();
         Ref.Player.PlayerInput.SetAction(Constants.ActionMapNamePlayer, "Cancel", false);

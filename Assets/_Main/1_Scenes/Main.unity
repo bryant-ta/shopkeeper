@@ -4179,9 +4179,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   debugMode: 1
-  DoSetDifficulty: 1
+  DoSetDifficulty: 0
   DoLevelInitialize: 1
-  DoOrderPhaseImmediately: 0
+  DoOrderPhaseImmediately: 1
   PauseTimerAfterSeconds: 0
   UseValues: 1
   Day: 1
@@ -5877,7 +5877,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 1.02e-43, y: 0, z: 0, w: 6.6813406e-31}
+  m_BoundingSphereOverride: {x: 1.3883536e+31, y: 2.7373535e+20, z: 9.1710086e-33, w: 1.3563156e-19}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -7529,8 +7529,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad5a201725b9f7943ad22a5ed213e628, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  length: 15
-  width: 15
+  length: 9
+  width: 9
   smoothPlaceMovement: 0
   IsLocked: 0
 --- !u!4 &827863212
@@ -12447,7 +12447,7 @@ MonoBehaviour:
   baseOrderValue: 5
   valuePerProduct: 0
   orderLayouts:
-  - {fileID: 11400000, guid: 2a57b40773436804fb1ab67ca7982d30, type: 2}
+  - {fileID: 11400000, guid: 6bc991052172c9e49a9e47c742fdf937, type: 2}
   layoutDifficulty: 1
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 6174597201231931841, guid: 8bf99ccea1e474145b7173e3a4351e2a, type: 3}
@@ -12784,7 +12784,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: NaN, y: NaN, z: NaN, w: NaN}
+  m_BoundingSphereOverride: {x: 8.042604e+20, y: 6.742516e+22, z: 1e-45, w: 1.2643e-41}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0

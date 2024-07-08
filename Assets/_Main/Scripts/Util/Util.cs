@@ -61,6 +61,18 @@ public class Util : MonoBehaviour {
         }
     }
 
+    public static bool IsSubsetOf(List<Vector3Int> subset, List<Vector3Int> superset) {
+        if (subset.Count > superset.Count) return false;
+        
+        HashSet<Vector3Int> supersetSet = new HashSet<Vector3Int>(superset);
+        for (int i = 0; i < subset.Count; i++) {
+            if (!supersetSet.Contains(subset[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public class ValueRef<T> where T : struct {
         public T Value { get; set; }
         public ValueRef(T value) { Value = value; }

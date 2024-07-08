@@ -563,22 +563,21 @@ public class Grid : MonoBehaviour {
         }
         
         // Need to nudge even grids to keep everything aligned.
-        // NOTE: Unsure if this affects any other grid functionality.... test
         // prob want to keep grid length and width equal
-        // if (!xNudged && length % 2 == 0) {
-        //     gameObject.transform.position += new Vector3(0.5f, 0, 0);
-        //     xNudged = true;
-        // } else if (xNudged && length % 2 == 1) {
-        //     gameObject.transform.position -= new Vector3(0.5f, 0, 0);
-        //     xNudged = false;
-        // }
-        // if (!zNudged && width % 2 == 0) {
-        //     gameObject.transform.position += new Vector3(0, 0, 0.5f);
-        //     zNudged = true;
-        // } else if (zNudged && width % 2 == 1) {
-        //     gameObject.transform.position -= new Vector3(0, 0, 0.5f);
-        //     zNudged = false;
-        // }
+        if (!xNudged && length % 2 == 0) {
+            gameObject.transform.position += new Vector3(0.5f, 0, 0);
+            xNudged = true;
+        } else if (xNudged && length % 2 == 1) {
+            gameObject.transform.position -= new Vector3(0.5f, 0, 0);
+            xNudged = false;
+        }
+        if (!zNudged && width % 2 == 0) {
+            gameObject.transform.position += new Vector3(0, 0, 0.5f);
+            zNudged = true;
+        } else if (zNudged && width % 2 == 1) {
+            gameObject.transform.position -= new Vector3(0, 0, 0.5f);
+            zNudged = false;
+        }
         
         List<IGridShape> shapes = AllShapes();
         if (shapes.Count == 0) return;
