@@ -470,14 +470,16 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         }
 
         // Check multiselect capacity
-        int stackedShapesSize = 0;
-        foreach (IGridShape shape in stackedShapes) {
-            stackedShapesSize += shape.ShapeData.Size;
-        }
-        if (DragGrid.AllShapesSize() + stackedShapesSize > multiSelectCapacity) {
-            TweenManager.Shake(stackedShapes);
-            SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-            return;
+        if (multiSelectCapacity != -1) {
+            int stackedShapesSize = 0;
+            foreach (IGridShape shape in stackedShapes) {
+                stackedShapesSize += shape.ShapeData.Size;
+            }
+            if (DragGrid.AllShapesSize() + stackedShapesSize > multiSelectCapacity) {
+                TweenManager.Shake(stackedShapes);
+                SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
+                return;
+            }
         }
 
         // Move shapes to drag grid, in place

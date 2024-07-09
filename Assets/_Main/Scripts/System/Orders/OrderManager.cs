@@ -9,8 +9,7 @@ using Random = UnityEngine.Random;
 public class OrderManager : MonoBehaviour {
     [Title("Quota")]
     [SerializeField] int quotaBase;
-    [SerializeField] int quotaMod;
-    int quotaTotal => quotaBase + quotaMod;
+    int quotaTotal => quotaBase;
     [SerializeField] int numFulfilled;
     public bool MetQuota => numFulfilled >= quotaTotal;
     public event Action<int, int> OnOrderFulfilled; // <current number fulfilled, number orders needed for level>
@@ -178,33 +177,6 @@ public class OrderManager : MonoBehaviour {
 
         if (GameManager.Instance.Difficulty % 10 == 0) {
             quotaBase++;
-            OnQuotaUpdated?.Invoke(quotaTotal);
-        }
-    }
-
-    public void SetQuotaModifier(float val) {
-        int i = Mathf.RoundToInt(val);
-        switch (i) {
-            case 0:
-                quotaMod = 0;
-                quotaScoreMult = 1;
-                Ref.DeliveryMngr.SetNumDeliveriesModifier(0);
-                break;
-            case 1:
-                quotaMod = 1;
-                quotaScoreMult = 2;
-                Ref.DeliveryMngr.SetNumDeliveriesModifier(1);
-                break;
-            case 2:
-                quotaMod = 3;
-                quotaScoreMult = 4;
-                Ref.DeliveryMngr.SetNumDeliveriesModifier(2);
-                break;
-            case 3:
-                quotaMod = 6;
-                quotaScoreMult = 6;
-                Ref.DeliveryMngr.SetNumDeliveriesModifier(3);
-                break;
         }
         
         OnQuotaUpdated?.Invoke(quotaTotal);
