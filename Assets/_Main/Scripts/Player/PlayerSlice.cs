@@ -101,10 +101,12 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
     // works in target grid local space, positions preview in world space!
     Vector3 lastSelectedShapeCellCoord;
     bool lastIsZSlice;
+    bool lastIsValidSlice;
     void SlicePreview(ClickInputArgs clickInputArgs) {
         targetGrid = Ref.Player.SelectTargetGrid(clickInputArgs);
         if (targetGrid != GameManager.WorldGrid) {
             previewObj.SetActive(false);
+            lastIsValidSlice = false;
             return;
         }
 
@@ -117,6 +119,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         IGridShape selectedShape = targetGrid.SelectPosition(selectedShapeCellCoord);
         if (selectedShape == null || selectedShape.ShapeTags.Contains(ShapeTagID.NoSlice)) {
             previewObj.SetActive(false);
+            lastIsValidSlice = false;
             origShape = null;
             return;
         }
@@ -128,6 +131,9 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
 
         // Cutoff for not repeating on same slice position
         if (selectedShapeCellCoord == lastSelectedShapeCellCoord && isZSlice == lastIsZSlice) {
+            if (lastIsValidSlice) {
+                previewObj.SetActive(true);
+            }
             return;
         }
 
@@ -154,6 +160,7 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         IGridShape rightShape = targetGrid.SelectPosition(rightCellCoord);
         if (leftShape == null || rightShape == null || leftShape != rightShape) {
             previewObj.SetActive(false);
+            lastIsValidSlice = false;
             return;
         }
 
@@ -219,6 +226,8 @@ public class PlayerSlice : MonoBehaviour, IPlayerTool {
         previewLineRenderers[3].SetPosition(0, worldVertices[2]);
         previewLineRenderers[3].SetPosition(1, worldVertices[0]);
         previewObj.SetActive(true);
+
+        lastIsValidSlice = true;
     }
 
     public void Equip() {
