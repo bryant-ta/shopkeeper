@@ -17821,7 +17821,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79e1819c30da5dc4fb598cb77ac06697, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numStacks: 20
+  numStacks: 40
   numCountPerStack:
     Min: 1
     Max: 1
@@ -18631,7 +18631,6 @@ MonoBehaviour:
   hoverHeight: 0.2
   <DragGrid>k__BackingField: {fileID: 827863211}
   multiSelectCapacity: 9
-  multiSelectRange: 1
   dragPivot: {fileID: 1244452520}
   selectedOutlineColor: {r: 0.1672837, g: 0.6981132, b: 0.6950798, a: 1}
   selectedInvalidOutlineColor: {r: 0.96981126, g: 0.07868272, b: 0.08385574, a: 1}

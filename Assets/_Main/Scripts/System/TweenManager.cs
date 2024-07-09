@@ -23,8 +23,8 @@ public static class TweenManager {
 
     public static void Shake(IGridShape shape) {
         string tweenID = shape.ObjTransform.GetInstanceID() + InvalidShakeID;
-
-        DOTween.Kill(tweenID); // Note: more efficient to replace with hash?
+        if (DOTween.IsTweening(tweenID)) return;
+        
         shape.ObjTransform.localPosition = shape.ShapeData.RootCoord;
         
         shape.ObjTransform.DOShakePosition(

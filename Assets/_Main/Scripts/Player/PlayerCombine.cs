@@ -6,14 +6,14 @@ using UnityEngine;
 public class PlayerCombine : MonoBehaviour, IPlayerTool {
     [SerializeField] GameObject previewObj; // a obj with ShapeOutlineRenderer component
     ShapeOutlineRenderer previewRenderer;
-    
-    [SerializeField] float cooldown;
-    CountdownTimer cooldownTimer;
 
     Grid targetGrid;
 
-    Product combinedProduct;
+    Product startProduct;
     Product lastSelectedProduct;
+
+    ShapeData combinedShapeData;
+    List<Product> oldProducts = new();
 
     void Awake() {
         previewRenderer = previewObj.GetComponent<ShapeOutlineRenderer>();
@@ -21,104 +21,102 @@ public class PlayerCombine : MonoBehaviour, IPlayerTool {
             Debug.LogError("Combine preview obj is missing ShapeOutlineRenderer component.");
             return;
         }
-
-        cooldownTimer = new CountdownTimer(cooldown);
     }
 
     void StartCombine(ClickInputArgs clickInputArgs) {
-        if (!clickInputArgs.TargetObj.TryGetComponent(out Product startProduct)) {
+        if (!clickInputArgs.TargetObj.TryGetComponent(out Product product)) {
             return;
         }
 
-        if (startProduct.Grid != GameManager.WorldGrid || startProduct.ShapeTags.Contains(ShapeTagID.NoCombine)) {
-            TweenManager.Shake(startProduct);
+        if (product.Grid != GameManager.WorldGrid || product.ShapeTags.Contains(ShapeTagID.NoCombine)) {
+            TweenManager.Shake(product);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
 
-        targetGrid = startProduct.Grid;
-        combinedProduct = startProduct;
-        lastSelectedProduct = combinedProduct;
+        targetGrid = product.Grid;
+        startProduct = product;
+        lastSelectedProduct = startProduct;
+        
+        combinedShapeData = new ShapeData(startProduct.ShapeData);
+        oldProducts.Add(startProduct);
 
         // Draw shape outline for combined shape
-        previewRenderer.Render(combinedProduct.ShapeData);
+        previewRenderer.Render(combinedShapeData);
         previewObj.SetActive(true);
-        
-        cooldownTimer.Start();
     }
 
     void ContinueCombine(ClickInputArgs clickInputArgs) {
-        if (combinedProduct == null || cooldownTimer.IsTicking) return;
+        if (startProduct == null) return;
         
         if (!clickInputArgs.TargetObj.TryGetComponent(out Product hoveredProduct)) {
             return;
         }
 
         // Cutoff for not repeating on same shape
-        if (hoveredProduct == lastSelectedProduct || hoveredProduct == combinedProduct) return;
+        if (hoveredProduct == lastSelectedProduct || hoveredProduct == startProduct) return;
         lastSelectedProduct = hoveredProduct;
 
         // Check adjacent to combine shape
-        List<Vector3Int> combinedOffsetsToGridSpace =
-            combinedProduct.ShapeData.ShapeOffsets.Select(offset => combinedProduct.ShapeData.RootCoord + offset).ToList();
+        List<Vector3Int> combinedOffsetsToGridSpace = 
+            combinedShapeData.ShapeOffsets.Select(offset => combinedShapeData.RootCoord + offset).ToList();
         if (!hoveredProduct.ShapeData.IsAdjacentToCoords(combinedOffsetsToGridSpace)) {
             return;
         }
 
         // Check same color as combine shape
-        if (hoveredProduct.ID.Color != combinedProduct.ID.Color) {
+        if (hoveredProduct.ID.Color != startProduct.ID.Color) {
             TweenManager.Shake(hoveredProduct);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-
+        
         // Create new offsets for combined shape
-        List<Vector3Int> newOffsets = new List<Vector3Int>(combinedProduct.ShapeData.ShapeOffsets);
-        Vector3Int toProductRoot = hoveredProduct.ShapeData.RootCoord - combinedProduct.ShapeData.RootCoord;
+        List<Vector3Int> newOffsets = new List<Vector3Int>(combinedShapeData.ShapeOffsets);
+        Vector3Int toProductRoot = hoveredProduct.ShapeData.RootCoord - combinedShapeData.RootCoord;
         foreach (Vector3Int offset in hoveredProduct.ShapeData.ShapeOffsets) {
             newOffsets.Add(toProductRoot + offset);
         }
-
-        // Remove original shape from grid
-        targetGrid.RemoveShapeCells(hoveredProduct, false);
-
-        // Create new shape keeping original shape root
-        ShapeData newShapeData = new ShapeData {RootCoord = combinedProduct.ShapeData.RootCoord, ShapeOffsets = newOffsets};
-        newShapeData.ID = ShapeData.DetermineID(newShapeData.ShapeOffsets);
-
-        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            combinedProduct.ID.Color, combinedProduct.ID.Pattern, newShapeData
-        );
-        Product newProduct = ProductFactory.Instance.CreateProduct(
-            productData, targetGrid.transform.TransformPoint(combinedProduct.ShapeData.RootCoord)
-        );
-
-        targetGrid.PlaceShapeNoValidate(newShapeData.RootCoord, newProduct);
-        Ledger.AddStockedProduct(newProduct);
-
-        // Destroy original shapes
-        Ledger.RemoveStockedProduct(combinedProduct);
-        ((IGridShape) combinedProduct).DestroyShape(false);
-        Ledger.RemoveStockedProduct(hoveredProduct);
-        ((IGridShape) hoveredProduct).DestroyShape(false);
-
-        combinedProduct = newProduct;
-        lastSelectedProduct = combinedProduct;
-
-        // Draw shape outline for combined shape
-        previewRenderer.Render(combinedProduct.ShapeData);
-        previewObj.SetActive(true);
         
-        cooldownTimer.Start();
+        // Create new ShapeData keeping original shape root
+        combinedShapeData = new ShapeData {RootCoord = combinedShapeData.RootCoord, ShapeOffsets = newOffsets};
+        oldProducts.Add(hoveredProduct);
+        
+        // Draw shape outline for combined shape
+        previewRenderer.Render(combinedShapeData);
+        previewObj.SetActive(true);
     }
 
     void StopCombine(ClickInputArgs clickInputArgs) {
-        combinedProduct = null;
+        // Remove original shapes from grid
+        foreach (Product product in oldProducts) {
+            targetGrid.RemoveShapeCells(product, false);
+        }
+
+        combinedShapeData.ID = ShapeData.DetermineID(combinedShapeData.ShapeOffsets);
+
+        SO_Product productData = ProductFactory.Instance.CreateSOProduct(
+            startProduct.ID.Color, startProduct.ID.Pattern, combinedShapeData
+        );
+        Product newProduct = ProductFactory.Instance.CreateProduct(
+            productData, targetGrid.transform.TransformPoint(startProduct.ShapeData.RootCoord)
+        );
+
+        targetGrid.PlaceShapeNoValidate(combinedShapeData.RootCoord, newProduct);
+        Ledger.AddStockedProduct(newProduct);
+
+        // Destroy original shapes
+        foreach (Product product in oldProducts) {
+            Ledger.RemoveStockedProduct(product);
+            ((IGridShape) product).DestroyShape(false);
+        }
+
+        startProduct = null;
         lastSelectedProduct = null;
         targetGrid = null;
-        
+        oldProducts.Clear();
+
         previewObj.SetActive(false);
-        cooldownTimer.Reset();
     }
 
     public void Equip() {

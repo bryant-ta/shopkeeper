@@ -99,7 +99,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   successFaces:
   - {fileID: 21300000, guid: 0a963139a23e4f24d9176f802d083449, type: 3}
-  - {fileID: 21300000, guid: 498702583437fdc4ca7ce64c527db4a2, type: 3}
   failFaces:
   - {fileID: 21300000, guid: 83c5ada855d971e4eadccf28d04c103d, type: 3}
   - {fileID: 21300000, guid: 706a286e31a0f1b46a5c6c6a9803406f, type: 3}
@@ -742,7 +741,7 @@ MonoBehaviour:
   isFollowing: 0
   _startPosition: 0
   preserveUniformSpeedWithOffset: 0
-  initialFollowSpeed: 0
+  initialFollowSpeed: 50
   _followSpeed: 50
   _followDuration: 1
   _speedModifier:
