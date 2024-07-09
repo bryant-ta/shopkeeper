@@ -3,6 +3,7 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class LevelInitializer : MonoBehaviour {
+    [SerializeField] bool enable;
     [SerializeField] int numStacks;
     [SerializeField] MinMax numCountPerStack;
 
@@ -12,6 +13,7 @@ public class LevelInitializer : MonoBehaviour {
 
     public void InitializeLevel() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoLevelInitialize) return;
+        if (!enable) return;
 
         // Place 1x1s randomly at start of level
         Grid grid = GameManager.WorldGrid;

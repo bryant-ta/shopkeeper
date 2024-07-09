@@ -11,6 +11,12 @@ public class ShapeTags {
 
     public bool Contains(ShapeTagID tagID) { return Tags.Contains(tagID); }
 
+    public void Add(ShapeTagID tagID) {
+        if (!Tags.Contains(tagID)) {
+            Tags.Add(tagID);
+        }
+    }
+
     public static bool CheckTags(List<IGridShape> shapes, ShapeTagID tagID) {
         foreach (IGridShape shape in shapes) {
             if (shape.ShapeTags.Contains(tagID)) {

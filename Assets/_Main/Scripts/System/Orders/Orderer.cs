@@ -73,6 +73,7 @@ public class Orderer : MonoBehaviour, IDocker {
         foreach (Product product in products) {
             if (Order.Fulfill(product.ID)) {
                 SubmittedProducts.Add(product);
+                product.ShapeTags.Add(ShapeTagID.NoMove);
                 SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
             } else {
                 Debug.LogError("Invalid product given to Order when check should have prevented this!");
