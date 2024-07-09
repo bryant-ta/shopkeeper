@@ -110,8 +110,10 @@ public class PlayerInput : MonoBehaviour {
 
     public event Action<float> InputScroll;
     public event Action InputDragTool;
-    public event Action InputSliceTool;
-    public event Action InputCompactTool;
+    public event Action InputSliceToolDown;
+    public event Action InputSliceToolUp;
+    public event Action InputCompactToolDown;
+    public event Action InputCompactToolUp;
     bool modifierIsHeld;
 
     public void OnScroll(InputAction.CallbackContext ctx) {
@@ -131,13 +133,17 @@ public class PlayerInput : MonoBehaviour {
 
     public void OnSliceTool(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            InputSliceTool?.Invoke();
+            InputSliceToolDown?.Invoke();
+        } else if (ctx.canceled) {
+            InputSliceToolUp?.Invoke();
         }
     }
 
     public void OnCompactTool(InputAction.CallbackContext ctx) {
         if (ctx.performed) {
-            InputCompactTool?.Invoke();
+            InputCompactToolDown?.Invoke();
+        } else if (ctx.canceled) {
+            InputCompactToolUp?.Invoke();
         }
     }
     

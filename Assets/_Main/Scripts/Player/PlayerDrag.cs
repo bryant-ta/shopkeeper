@@ -53,8 +53,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         IGridShape clickedShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
         
-        
-
         // Try to pick up stack of shapes
         targetGrid = clickedShape.Grid;
         List<IGridShape> stackedShapes = targetGrid.SelectStackedShapes(

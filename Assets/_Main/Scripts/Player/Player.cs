@@ -18,10 +18,12 @@ public class Player : MonoBehaviour {
     public event Action<int> OnToolSwitch;
 
     void Awake() {
-        PlayerInput.InputScroll += SwitchTool;
+        // PlayerInput.InputScroll += SwitchTool; // TEMP: until making scroll to switch tools an option
         PlayerInput.InputDragTool += SelectDragTool;
-        PlayerInput.InputSliceTool += SelectSliceTool;
-        PlayerInput.InputCompactTool += SelectCombineTool;
+        PlayerInput.InputSliceToolDown += SelectSliceTool;
+        PlayerInput.InputSliceToolUp += SelectDragTool;
+        PlayerInput.InputCompactToolDown += SelectCombineTool;
+        PlayerInput.InputCompactToolUp += SelectDragTool;
         
         tools = new List<IPlayerTool> {PlayerDrag, PlayerSlice, PlayerCombine};
         
