@@ -65,8 +65,9 @@ public class Grid : MonoBehaviour {
             cells[targetCoord + offset] = new Cell(targetCoord + offset, shape);
         }
 
-        DOTween.Kill(shape.ObjTransform.GetInstanceID() + TweenManager.PlaceShapeID);
-
+        // DOTween.Kill(shape.ObjTransform.GetInstanceID() + TweenManager.PlaceShapeID);
+        print(DOTween.Kill(shape.ObjTransform));
+        
         shape.ObjTransform.SetParent(transform, true);
         shape.ShapeData.RootCoord = targetCoord;
 

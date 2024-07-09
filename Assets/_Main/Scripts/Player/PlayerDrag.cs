@@ -13,8 +13,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     [SerializeField] [Tooltip("in units of cells")]
     int multiSelectCapacity;
-    [SerializeField] [Tooltip("in units of cells")]
-    int multiSelectRange;
 
     [SerializeField] Transform dragPivot;
     Vector3 pivotTargetRotation;
@@ -54,6 +52,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         IGridShape clickedShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
+        
+        
 
         // Try to pick up stack of shapes
         targetGrid = clickedShape.Grid;
@@ -87,7 +87,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         previousGrid = targetGrid;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
-        DragGrid.transform.position = clickedShape.ObjTransform.position;
+        DragGrid.transform.position = targetGrid.transform.position + clickedShape.ShapeData.RootCoord;
 
         if (!targetGrid.MoveShapes(DragGrid, Vector3Int.zero, stackedShapes)) {
             TweenManager.Shake(stackedShapes);
@@ -362,6 +362,13 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             return;
         }
 
+        // Trigger falling
+        foreach (IGridShape shape in heldShapes) {
+            if (shape.ShapeData.RootCoord.y == localCoord.y) {
+                targetGrid.TriggerFallOnTarget(shape);
+            }
+        }
+
         ReleaseReset(heldShapes);
 
         // TEMP: play shape placement smoke burst particles
@@ -424,10 +431,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Vector3 localHitAntiNormal =
             targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
         grabbedMultiSelectCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
-
-        Vector3Int cellOutlinePos = grabbedMultiSelectCoord;
-        cellOutlinePos.y = 0;
-        cor.Render(cellOutlinePos, multiSelectRange);
     }
     void DisableMultiSelect(ClickInputArgs clickInputArgs) {
         if (isDragging) return;
@@ -456,44 +459,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
         }
-
-        // Check adjacent to current multiselected
-        // bool isAdjacentToDragGrid = hoveredShape.ShapeData.ShapeOffsets.Any(
-        //     offset => Enumerable.Range(0, 4).Any(
-        //         d => DragGrid.SelectPosition(dragGridCoord + offset + DirectionData.DirectionVectorsInt[d]) != null
-        //     )
-        // );
-        // if (!isAdjacentToDragGrid) {
-        //     TweenManager.Shake(hoveredShape);
-        //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-        //     return;
-        // }
-
-        // Check is in max range of initial grab shape
-        // Vector3Int distance = hoveredShape.ShapeData.RootCoord - grabbedMultiSelectCoord;
-        // distance = new Vector3Int(Math.Abs(distance.x), 0, Math.Abs(distance.z));
-        // if (distance.x > multiSelectRange || distance.z > multiSelectRange) {
-        //     TweenManager.Shake(hoveredShape);
-        //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-        //     return;
-        // }
-        //
-        // // Check shape fits within range
-        // List<Vector3Int> rangeCoords = new();
-        // for (int x = -multiSelectRange; x <= multiSelectRange; x++) {
-        //     for (int z = -multiSelectRange; z <= multiSelectRange; z++) {
-        //         rangeCoords.Add(grabbedMultiSelectCoord + new Vector3Int(x, 0, z));
-        //     }
-        // }
-        // List<Vector3Int> hoveredCoords = hoveredShape.ShapeData.ShapeOffsets;
-        // for (int i = 0; i < hoveredCoords.Count; i++) {
-        //     hoveredCoords[i] += hoveredShape.ShapeData.RootCoord;
-        // }
-        // if (!Util.IsSubsetOf(hoveredCoords, rangeCoords)) {
-        //     TweenManager.Shake(hoveredShape);
-        //     SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
-        //     return;
-        // }
 
         // Check/Try to pick up stack of shapes
         List<IGridShape> stackedShapes = hoveredShape.Grid.SelectStackedShapes(
