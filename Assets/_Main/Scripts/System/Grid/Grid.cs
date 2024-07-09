@@ -228,6 +228,11 @@ public class Grid : MonoBehaviour {
 
         // Determine footprint, enqueue every cell above footprint for checking for stacked shapes
         foreach (Vector3Int offset in shape.ShapeData.ShapeOffsets) {
+            Vector3Int c = shape.ShapeData.RootCoord + offset;
+            if (!IsOpen(c + Vector3Int.up) && cells[c + Vector3Int.up].Shape.Colliders[0].enabled == false) {
+                return null;
+            }
+            
             cellsToCheck.Enqueue(shape.ShapeData.RootCoord + offset);
             stackFootprint.Add(new Vector2Int(shape.ShapeData.RootCoord.x + offset.x, shape.ShapeData.RootCoord.z + offset.z));
         }

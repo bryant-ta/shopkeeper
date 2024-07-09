@@ -61,6 +61,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
             clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape
         );
         if (stackedShapes == null) {
+            if (outOfFootprintShape == null) return; // handle case of clicking thru to bottom shape while top shape is still physically moving
             TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
