@@ -6,10 +6,15 @@ public class CellOutlineRenderer : MonoBehaviour {
 
     List<GameObject> cellOutlineWalls = new();
 
-    public void Render(ShapeData shapeData) {
-        // TODO: pooling instead of many instantiates
-        // reset renderer
-        Clear();
+    Color curColor;
+
+    public void Render(ShapeData shapeData, Color color) {
+        // TEMP: make color more saturated to show up better
+        Color.RGBToHSV(color, out float h, out float s, out float v);
+        s += 0.4f;
+        s = Mathf.Clamp01(s);
+        curColor = Color.HSVToRGB(h, s, v);
+        curColor.a = color.a;
 
         foreach (Vector3Int offset in shapeData.ShapeOffsets) {
             if (offset.y == 0) {
@@ -20,9 +25,6 @@ public class CellOutlineRenderer : MonoBehaviour {
 
     // Renders square outline with edges that are radius number of cells away from origin
     public void Render(Vector3Int origin, int radius) {
-        // reset renderer
-        Clear();
-        
         List<Vector3Int> cells = new();
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
@@ -52,6 +54,7 @@ public class CellOutlineRenderer : MonoBehaviour {
             GameObject wallObj = Instantiate(cellOutlineWallObj, transform);
             wallObj.transform.localPosition = shapeData.RootCoord + cubeCoord + DirectionData.DirectionVectors[d1] * 0.505f;
             wallObj.transform.rotation = Quaternion.Euler(0, 180 + 90f * d1, 0);
+            wallObj.GetComponentInChildren<MeshRenderer>().material.SetColor("_Tint", curColor);
             cellOutlineWalls.Add(wallObj);
         }
     }

@@ -7,6 +7,7 @@ using Dreamteck.Splines;
 using MK.Toon;
 using Orders;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(HoverEvent), typeof(SplineFollower))]
@@ -27,7 +28,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
     [SerializeField] GameObject gridCellObj;
 
-    [SerializeField] CellOutlineRenderer matchShapeVFX;
+    [SerializeField] GameObject matchRegionVFXObj;
+    [SerializeField] float matchRegionVFXDur = 1f;
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
@@ -150,7 +152,7 @@ public class Orderer : MonoBehaviour, IDocker {
                 return false;
             }
         }
-        
+
         return colorRegion.Count == 0;
     }
 
@@ -286,11 +288,11 @@ public class Orderer : MonoBehaviour, IDocker {
         List<Product> products = Util.GetProductsFromShapes(shapes);
         foreach (Product product in products) {
             if (CheckColorRegion(product)) {
-                matchShapeOffsets.AddRange(product.ShapeData.ShapeOffsets.Select(offset => product.ShapeData.RootCoord + offset));
+                CellOutlineRenderer cor = Instantiate(matchRegionVFXObj, transform).GetComponent<CellOutlineRenderer>();
+                cor.Render(product.ShapeData, product.ID.Color);
+                DOVirtual.DelayedCall(matchRegionVFXDur, () => Destroy(cor.gameObject));
             }
         }
-
-        matchShapeVFX.Render(new ShapeData {RootCoord = Vector3Int.zero, ShapeOffsets = matchShapeOffsets});
     }
 
     #endregion
