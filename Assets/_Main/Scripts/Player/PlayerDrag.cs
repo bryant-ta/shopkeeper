@@ -46,19 +46,20 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
     }
 
     Vector2 grabCursorPos;
-    void Grab(ClickInputArgs clickInputArgs) {
+    void Grab(ClickInputArgs clickInputArgs, bool isMultiGrab = false) {
         if (!DragGrid.IsAllEmpty()) return;
 
         IGridShape clickedShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
         if (clickedShape == null) return;
-        
+
         // Try to pick up stack of shapes
         targetGrid = clickedShape.Grid;
         List<IGridShape> stackedShapes = targetGrid.SelectStackedShapes(
             clickedShape.ShapeData.RootCoord, out IGridShape outOfFootprintShape
         );
         if (stackedShapes == null) {
-            if (outOfFootprintShape == null) return; // handle case of clicking thru to bottom shape while top shape is still physically moving
+            if (outOfFootprintShape == null)
+                return; // handle case of clicking thru to bottom shape while top shape is still physically moving
             TweenManager.Shake(outOfFootprintShape);
             SoundManager.Instance.PlaySound(SoundID.ProductInvalidShake);
             return;
@@ -83,6 +84,8 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         previousShapePos = clickedShape.ShapeData.RootCoord;
         previousGrid = targetGrid;
+
+        grabbedMultiSelectCoord = selectedShapeCellCoord;
 
         // Move dragGrid to shape before shape becomes child of grid - prevents movement anim choppyness
         DragGrid.transform.position = targetGrid.transform.position + clickedShape.ShapeData.RootCoord;
@@ -422,13 +425,13 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         Ref.Player.PlayerInput.InputPoint += MultiSelect;
         Ref.Player.PlayerInput.InputPrimaryUp += DisableMultiSelect;
-
-        // TEMP: until custom cursor, render multiselect cell outline
-        // formula for selecting cell adjacent to clicked face anti-normal (when pivot is bottom center) (y ignored) (relative to local grid transform)
-        Vector3 localHitPoint = targetGrid.transform.InverseTransformPoint(clickInputArgs.HitPoint);
-        Vector3 localHitAntiNormal =
-            targetGrid.transform.InverseTransformDirection(Vector3.ClampMagnitude(-clickInputArgs.HitNormal, 0.1f));
-        grabbedMultiSelectCoord = Vector3Int.FloorToInt(localHitPoint + localHitAntiNormal + new Vector3(0.5f, 0, 0.5f));
+        
+        List<IGridShape> heldShapes = DragGrid.AllShapes();
+        for (int i = 0; i < heldShapes.Count; i++) {
+            foreach (Collider col in heldShapes[i].Colliders) {
+                col.enabled = true;
+            }
+        }
     }
     void DisableMultiSelect(ClickInputArgs clickInputArgs) {
         if (isDragging) return;
@@ -440,11 +443,17 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPrimaryUp -= DisableMultiSelect;
 
         isDragging = true; // NOTE: needed to prevent reactivating multi select mode after first time before releasing again
+        List<IGridShape> heldShapes = DragGrid.AllShapes();
+        for (int i = 0; i < heldShapes.Count; i++) {
+            foreach (Collider col in heldShapes[i].Colliders) {
+                col.enabled = false;
+            }
+        }
     }
     IGridShape lastMultiSelectShape;
     void MultiSelect(ClickInputArgs clickInputArgs) {
         IGridShape hoveredShape = clickInputArgs.TargetObj.GetComponent<IGridShape>();
-        if (hoveredShape == null || hoveredShape == lastMultiSelectShape ||
+        if (hoveredShape == null || hoveredShape == lastMultiSelectShape || hoveredShape.Grid == DragGrid ||
             hoveredShape.ShapeData.RootCoord.y != grabbedMultiSelectCoord.y)
             return;
 
@@ -493,9 +502,9 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         // Manage colliders and outlines
         for (int i = 0; i < stackedShapes.Count; i++) {
             foreach (Collider col in stackedShapes[i].Colliders) {
-                col.enabled = false;
+                col.enabled = true;
             }
-
+            
             stackedShapes[i].SetOutline(selectedOutlineColor);
         }
 
