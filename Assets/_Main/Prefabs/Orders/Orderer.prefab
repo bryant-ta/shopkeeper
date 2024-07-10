@@ -624,8 +624,8 @@ MonoBehaviour:
   gridFloor: {fileID: 6364107970900477459}
   gridCellObjContainer: {fileID: 7367282468869148565}
   gridCellObj: {fileID: 2830143327655662967, guid: a4a03ed8883ab4646a0476beca0bef08, type: 3}
-  matchShapeVFXObj: {fileID: 5844625815827768239, guid: 44c3d68c7a55c6643a5eeec8192e8acb, type: 3}
-  matchShapeVFXDur: 3
+  matchRegionVFXObj: {fileID: 5844625815827768239, guid: 44c3d68c7a55c6643a5eeec8192e8acb, type: 3}
+  matchRegionVFXDur: 3
 --- !u!114 &7913404401031091869
 MonoBehaviour:
   m_ObjectHideFlags: 0

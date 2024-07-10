@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5844625815827768238}
   - component: {fileID: 5844625815827768225}
   m_Layer: 0
-  m_Name: CellOutlineRenderer
+  m_Name: MatchRegionCellOutlineRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

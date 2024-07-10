@@ -14,8 +14,6 @@ public class OrderManager : MonoBehaviour {
     public bool MetQuota => numFulfilled >= quotaTotal;
     public event Action<int, int> OnOrderFulfilled; // <current number fulfilled, number orders needed for level>
 
-    [SerializeField] float quotaScoreMult = 1;
-
     [Title("Order Queue")]
     [SerializeField] int numActiveDocks;
     [SerializeField] MinMax NextOrderDelay;
@@ -146,9 +144,14 @@ public class OrderManager : MonoBehaviour {
             }
 
             // TODO: calculate score based on matched color region + global mult
+            float scoreMult = 1f;
+            foreach (Product product in orderer.SubmittedProducts) {
+                if (product.FulfillsColorRegion) {
+                    scoreMult += product.ShapeData.Size * 0.1f;
+                }
+            }
             
-            
-            GameManager.Instance.ModifyScore((int) (orderer.Order.TotalValue() * quotaScoreMult));
+            GameManager.Instance.ModifyScore(Mathf.RoundToInt(orderer.Order.TotalValue() * scoreMult));
             GameManager.Instance.AddRunTime(orderer.Order.TotalValue()); // TEMP: until determining calculation
             
             SoundManager.Instance.PlaySound(SoundID.OrderFulfilled);

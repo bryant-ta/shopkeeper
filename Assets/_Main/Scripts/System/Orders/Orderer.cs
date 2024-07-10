@@ -153,7 +153,12 @@ public class Orderer : MonoBehaviour, IDocker {
             }
         }
 
-        return colorRegion.Count == 0;
+        if (colorRegion.Count == 0) {
+            product.FulfillsColorRegion = true;
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void OrderSucceeded() {

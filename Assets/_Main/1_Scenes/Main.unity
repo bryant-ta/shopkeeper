@@ -2045,7 +2045,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec98b27d81ba2104b89b6090ae7fe097, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetCellCount: 9
+  targetCellCount: 20
   targetCellCountVariation: 0
   deliveriesPool:
   - {fileID: 6494341235392573768, guid: 0901697b12bbc26478c8fc03fa314e99, type: 3}
@@ -3956,10 +3956,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 401ee7a45b02aaa4db6902c4a9cadc72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debugMode: 0
+  debugMode: 1
   DoSetDifficulty: 0
   DoLevelInitialize: 1
-  DoOrderPhaseImmediately: 1
+  DoOrderPhaseImmediately: 0
   PauseTimerAfterSeconds: 0
   UseValues: 1
   Day: 30
@@ -11689,9 +11689,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3aeeb38559829f54ab4a07e094382943, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quotaBase: 4
+  quotaBase: 3
   numFulfilled: 0
-  quotaScoreMult: 1
   numActiveDocks: 3
   NextOrderDelay:
     Min: 1
@@ -11701,7 +11700,7 @@ MonoBehaviour:
   baseOrderValue: 5
   valuePerProduct: 0
   orderLayouts:
-  - {fileID: 11400000, guid: 1ba0ae7b6c24eb242bea2351a38558e6, type: 2}
+  - {fileID: 11400000, guid: 2297f4046a049434bacaa8ac67940f54, type: 2}
   layoutDifficulty: 2
   docksContainer: {fileID: 993655843}
   ordererObj: {fileID: 6174597201231931841, guid: 8bf99ccea1e474145b7173e3a4351e2a, type: 3}
@@ -14012,6 +14011,7 @@ MonoBehaviour:
     ShapeOffsets: []
   <ShapeTags>k__BackingField:
     Tags: 
+  FulfillsColorRegion: 0
 --- !u!23 &1609821615
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15352,6 +15352,7 @@ MonoBehaviour:
     ShapeOffsets: []
   <ShapeTags>k__BackingField:
     Tags: 
+  FulfillsColorRegion: 0
 --- !u!23 &1818927940
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -17603,7 +17604,6 @@ MonoBehaviour:
   selectedOutlineColor: {r: 0.1672837, g: 0.6981132, b: 0.6950798, a: 1}
   selectedInvalidOutlineColor: {r: 0.96981126, g: 0.07868272, b: 0.08385574, a: 1}
   releaseDraggedPs: {fileID: 1926304328}
-  cor: {fileID: 0}
 --- !u!114 &2107359966
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -39,6 +39,8 @@ public class Product : MonoBehaviour, IGridShape {
     [field: SerializeField, HideInEditMode]
     public ShapeTags ShapeTags { get; private set; }
 
+    public bool FulfillsColorRegion;
+
     Material mat;
     Color matOutlineOriginalColor;
 
