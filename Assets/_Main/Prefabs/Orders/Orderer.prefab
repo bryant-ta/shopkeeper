@@ -626,6 +626,13 @@ MonoBehaviour:
   gridCellObj: {fileID: 2830143327655662967, guid: a4a03ed8883ab4646a0476beca0bef08, type: 3}
   matchRegionVFXObj: {fileID: 5844625815827768239, guid: 44c3d68c7a55c6643a5eeec8192e8acb, type: 3}
   matchRegionVFXDur: 3
+  bonusTileChance: 1
+  bonusTileDelay:
+    Min: 10
+    Max: 10
+  bonusTileDuration: 4
+  bonusTileMult: 2
+  bonusTileObj: {fileID: 7632758268349868958, guid: b653bb8cd9830d24c82d4669538dd604, type: 3}
 --- !u!114 &7913404401031091869
 MonoBehaviour:
   m_ObjectHideFlags: 0

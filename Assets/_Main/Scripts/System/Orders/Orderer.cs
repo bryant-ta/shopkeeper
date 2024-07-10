@@ -6,8 +6,8 @@ using DG.Tweening;
 using Dreamteck.Splines;
 using MK.Toon;
 using Orders;
+using TriInspector;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(HoverEvent), typeof(SplineFollower))]
@@ -28,8 +28,17 @@ public class Orderer : MonoBehaviour, IDocker {
 
     [SerializeField] GameObject gridCellObj;
 
+    [Title("Color Region")]
     [SerializeField] GameObject matchRegionVFXObj;
     [SerializeField] float matchRegionVFXDur = 1f;
+
+    [Title("Bonus Tile")]
+    [SerializeField] [Range(0,1f)] float bonusTileChance;
+    [SerializeField] MinMax bonusTileDelay;
+    [SerializeField] float bonusTileDuration;
+    [SerializeField] float bonusTileMult;
+    [SerializeField] GameObject bonusTileObj;
+    List<BonusTile> bonusTiles = new();
 
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
@@ -38,7 +47,6 @@ public class Orderer : MonoBehaviour, IDocker {
         Grid = gameObject.GetComponentInChildren<Grid>();
         Grid.IsLocked = true;
         Grid.OnPlaceShapes += DoFulfillOrder;
-        Grid.OnPlaceShapes += RenderMatchOutline;
         Grid.OnRemoveShapes += RemoveFromOrder;
 
         HoverEvent he = GetComponent<HoverEvent>();
@@ -71,12 +79,24 @@ public class Orderer : MonoBehaviour, IDocker {
         OnOrderStarted?.Invoke(Order);
     }
 
-    void DoFulfillOrder(List<IGridShape> shapes) { FulfillOrder(shapes, true); } // checked already in HoverEnter()
-    public void FulfillOrder(List<IGridShape> shapes, bool skipCheck = false) {
-        List<Product> products = Util.GetProductsFromShapes(shapes);
+    void DoFulfillOrder(List<IGridShape> shapes) { FulfillOrder(shapes); }
+    public void FulfillOrder(List<IGridShape> shapes) {
+        RenderMatchOutline(shapes);
 
+        // Submit to Order
+        List<Product> products = Util.GetProductsFromShapes(shapes);
         foreach (Product product in products) {
             if (Order.Fulfill(product.ID)) {
+                // Trigger bonus tile if present
+                foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
+                    foreach (BonusTile bonusTile in bonusTiles) {
+                        if (bonusTile.Coord == product.ShapeData.RootCoord + offset) {
+                            // TODO: add global score mult or timer
+                            print("BNONUS");
+                        }
+                    }
+                }
+
                 SubmittedProducts.Add(product);
                 product.ShapeTags.Add(ShapeTagID.NoMove);
                 SoundManager.Instance.PlaySound(SoundID.OrderProductFilled);
@@ -221,6 +241,11 @@ public class Orderer : MonoBehaviour, IDocker {
             Grid.RemoveValidCell(coord);
         }
 
+        // Chance to spawn bonus tile on an empty cell after delay
+        if (Random.Range(0, 1f) <= bonusTileChance) {
+            DOVirtual.DelayedCall(Random.Range(bonusTileDelay.Min, bonusTileDelay.Max), SpawnBonusTile);
+        }
+
         // Set trail colors by Order requirements
         int trailIndex = 0;
         HashSet<Color> orderColors = Order.GetColors();
@@ -233,6 +258,22 @@ public class Orderer : MonoBehaviour, IDocker {
             trailIndex++;
             if (trailIndex == trailRenderers.Count) break;
         }
+    }
+
+    void SpawnBonusTile() {
+        List<Vector3Int> openCells = Grid.OpenCells().Where((cell) => cell.y == 0).ToList();
+        if (openCells.Count == 0) return;
+
+        Vector3Int coord = Util.GetRandomFromList(openCells);
+
+        BonusTile bonusTile = Instantiate(bonusTileObj, gridCellObjContainer).GetComponent<BonusTile>();
+        bonusTile.Init(coord, bonusTileDuration, bonusTileMult);
+        bonusTile.OnDurationReached += RemoveBonusTile;
+        bonusTiles.Add(bonusTile);
+    }
+    void RemoveBonusTile(BonusTile bonusTile) {
+        bonusTiles.Remove(bonusTile);
+        Destroy(bonusTile.gameObject);
     }
 
     #endregion

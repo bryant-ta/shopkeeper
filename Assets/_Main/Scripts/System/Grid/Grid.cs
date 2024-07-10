@@ -606,7 +606,7 @@ public class Grid : MonoBehaviour {
     bool IsInBoundsY(Vector3Int coord) { return coord.y >= MinY && coord.y <= MaxY; }
 
     public bool IsAllEmpty() { return cells.Count == 0; }
-    public bool IsAllFull() { return cells.Count == validCells.Count; }
+    public bool IsAllFull() { return cells.Count == validCells.Count * height; }
     public int AllShapesSize() { return cells.Count; }
 
     public List<IGridShape> AllShapes() {
@@ -621,7 +621,18 @@ public class Grid : MonoBehaviour {
 
         return shapes;
     }
-    
+    public List<Vector3Int> OpenCells() {
+        List<Vector3Int> ret = new();
+        foreach (Vector2Int coord in validCells) {
+            for (int y = 0; y <= MaxY; y++) {
+                Vector3Int c = new Vector3Int(coord.x, y, coord.y);
+                if (IsOpen(c)) {
+                    ret.Add(c);
+                }
+            }
+        }
+        return ret;
+    }
 
     #endregion
 }
