@@ -51,7 +51,7 @@ public class Deliverer : MonoBehaviour, IDocker {
         AssignedDock.SetDocker(Docker);
         Docker.OnReachedEnd += AllowInteraction; // assumes single path from Occupy -> Dock
 
-        StartCoroutine(SmoothSpeed(0.8f, 1f, 1f));
+        StartCoroutine(SmoothSpeed(0.8f, 1f, 3f));
         Docker.StartFollowing();
     }
     public void LeaveDock() {

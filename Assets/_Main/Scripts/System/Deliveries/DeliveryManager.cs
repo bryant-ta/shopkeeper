@@ -8,11 +8,10 @@ using Random = UnityEngine.Random;
 [RequireComponent(typeof(VolumeSlicer))]
 public class DeliveryManager : MonoBehaviour {
     [Title("General")]
-    [SerializeField] int numDeliveriesBase = 1;
-    [SerializeField] int numDeliveriesMod = 0;
-    int numDeliveriesTotal => numDeliveriesBase + numDeliveriesMod;
-    int curDeliveryIndex;
+    [SerializeField] int targetCellCount;
+    [SerializeField] int targetCellCountVariation;
     [SerializeField] List<GameObject> deliveriesPool;
+    Queue<GameObject> deliveryQueue = new();
 
     [Tooltip("Determines possible color choices for ALL delivery types.")]
     [field: SerializeField] public int MaxColorIndex { get; private set; }
@@ -41,7 +40,7 @@ public class DeliveryManager : MonoBehaviour {
     List<Dock> docks;
     [SerializeField] GameObject delivererObj;
     List<DeliveryBox> curDeliveryBoxes = new();
-    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && curDeliveryIndex == numDeliveriesTotal;
+    public bool AllDeliveriesOpened => curDeliveryBoxes.Count == 0 && deliveryQueue.Count == 0;
     public event Action OnDeliveryOpened;
 
     void Awake() {
@@ -66,15 +65,27 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     void Deliver() {
+        deliveryQueue.Clear();
         curDeliveryBoxes.Clear();
 
         // TEMP: cannot handle more deliveries than number of docks. Until deciding multiple deliveries behavior.
         // TODO: deliverer queue
-        int count = Math.Min(numDeliveriesTotal, docks.Count);
-        curDeliveryIndex = count;
-        for (int i = 0; i < count; i++) {
-            CreateDeliverer(docks[i], Util.GetRandomFromList(deliveriesPool));
+        int curCellCount = Ledger.GetCellCount();
+        int threshold = targetCellCount + Random.Range(-targetCellCountVariation, targetCellCountVariation + 1);
+        while (curCellCount < threshold) {
+            GameObject deliveryBoxObj = Util.GetRandomFromList(deliveriesPool);
+            deliveryQueue.Enqueue(deliveryBoxObj);
+            
+            DeliveryBox deliveryBox = deliveryBoxObj.GetComponentInChildren<DeliveryBox>();
+            curCellCount += ShapeDataLookUp.LookUp(deliveryBox.ShapeData.ID).Size;
         }
+
+        int count = Math.Min(deliveryQueue.Count, docks.Count);
+        for (int i = 0; i < count; i++) {
+            CreateDeliverer(docks[i], deliveryQueue.Dequeue());
+        }
+        
+        OnDeliveryOpened?.Invoke();
     }
 
     void CreateDeliverer(Dock openDock, GameObject deliveryBoxObj) {
@@ -116,9 +127,8 @@ public class DeliveryManager : MonoBehaviour {
     }
 
     public void HandleFinishedDeliverer(Deliverer deliverer) {
-        if (curDeliveryIndex < numDeliveriesTotal) {
-            CreateDeliverer(deliverer.AssignedDock, Util.GetRandomFromList(deliveriesPool));
-            curDeliveryIndex++;
+        if (deliveryQueue.Count > 0) {
+            CreateDeliverer(deliverer.AssignedDock, deliveryQueue.Dequeue());
         }
 
         deliverer.Docker.OnReachedEnd += () => {
@@ -276,9 +286,10 @@ public class DeliveryManager : MonoBehaviour {
 
     public void SetDifficultyOptions() {
         if (DebugManager.DebugMode && !DebugManager.Instance.DoSetDifficulty) return;
-        
+
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry = DifficultyManager.Instance.ApplyDeliveryDifficulty();
-        
+
+        targetCellCount = deliveryDiffEntry.targetCellCount;
         MaxColorIndex = deliveryDiffEntry.maxColorIndex;
         deliveriesPool = new List<GameObject>(deliveryDiffEntry.deliveriesPool);
         basicFirstDimensionMax = deliveryDiffEntry.basicFirstDimensionMax;
@@ -286,11 +297,5 @@ public class DeliveryManager : MonoBehaviour {
         basicChanceShapeExtension = deliveryDiffEntry.basicChanceShapeExtension;
         irregularChance = deliveryDiffEntry.irregularChance;
         irregularShapePool = new List<ShapeDataID>(deliveryDiffEntry.irregularShapePool);
-
-        if (GameManager.Instance.Difficulty % 10 == 0) {
-            numDeliveriesBase++;
-        }
     }
-
-    public void SetNumDeliveriesModifier(int val) { numDeliveriesMod = val; }
 }

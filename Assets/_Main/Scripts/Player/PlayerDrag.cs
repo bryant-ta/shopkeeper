@@ -31,7 +31,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
     // TEMP: Particles
     [SerializeField] ParticleSystem releaseDraggedPs;
-    [SerializeField] CellOutlineRenderer cor;
 
     public event Action<Vector3> OnGrab;
     public event Action<Vector3> OnDrag;
@@ -440,7 +439,6 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Ref.Player.PlayerInput.InputPoint -= MultiSelect;
         Ref.Player.PlayerInput.InputPrimaryUp -= DisableMultiSelect;
 
-        cor.Clear();
         isDragging = true; // NOTE: needed to prevent reactivating multi select mode after first time before releasing again
     }
     IGridShape lastMultiSelectShape;

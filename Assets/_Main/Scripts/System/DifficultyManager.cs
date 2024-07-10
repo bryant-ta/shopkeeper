@@ -11,6 +11,7 @@ public class DifficultyManager : Singleton<DifficultyManager> {
 
     public SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ApplyDeliveryDifficulty() {
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry ret = new() {
+            targetCellCount = deliveryDiffTable.GetHigh(entry => entry.targetCellCount),
             maxColorIndex = deliveryDiffTable.GetHigh(entry => entry.maxColorIndex),
             deliveriesPool = deliveryDiffTable.Filter(entry => entry.deliveriesPool),
             basicFirstDimensionMax = deliveryDiffTable.GetHigh(entry => entry.basicFirstDimensionMax),

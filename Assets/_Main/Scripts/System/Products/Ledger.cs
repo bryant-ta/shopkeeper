@@ -63,6 +63,10 @@ public class Ledger : Singleton<Ledger> {
         }
     }
 
+    public static int GetCellCount() {
+        return CellCountByColor.Values.Sum();
+    }
+
     #region Debug
 
     public void PrintDictionary() {

@@ -145,6 +145,9 @@ public class OrderManager : MonoBehaviour {
                 StopOrders();
             }
 
+            // TODO: calculate score based on matched color region + global mult
+            
+            
             GameManager.Instance.ModifyScore((int) (orderer.Order.TotalValue() * quotaScoreMult));
             GameManager.Instance.AddRunTime(orderer.Order.TotalValue()); // TEMP: until determining calculation
             

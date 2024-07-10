@@ -9,6 +9,7 @@ public class SO_DeliveriesDifficultyTable : SO_DifficultyTableBase<SO_Deliveries
     public class DeliveryDifficultyEntry : IDifficultyEntry {
         [field: SerializeField] public int day { get; set; }
 
+        public int targetCellCount;
         public int maxColorIndex;
         [ListDrawerSettings(AlwaysExpanded = true)]
         public List<GameObject> deliveriesPool;
