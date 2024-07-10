@@ -13,9 +13,9 @@ public class DeliveryManager : MonoBehaviour {
     int numDeliveriesTotal => numDeliveriesBase + numDeliveriesMod;
     int curDeliveryIndex;
     [SerializeField] List<GameObject> deliveriesPool;
-    
+
     [Tooltip("Determines possible color choices for ALL delivery types.")]
-    [SerializeField] int maxColorIndex = 1;
+    [field: SerializeField] public int MaxColorIndex { get; private set; }
 
     [Title("Basic Delivery")]
     [SerializeField] int basicFirstDimensionMax;
@@ -149,7 +149,7 @@ public class DeliveryManager : MonoBehaviour {
         // Convert generated shape datas to product game objects and place them
         foreach (ShapeData shapeData in volumeData) {
             SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
+                Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, MaxColorIndex)],
                 Pattern.None, // TEMP: until implementing pattern
                 shapeData
             );
@@ -191,7 +191,7 @@ public class DeliveryManager : MonoBehaviour {
         Grid grid = deliveryBox.Grid;
         Vector3Int minBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MinOffset;
         Vector3Int maxBoundCoord = deliveryBox.ShapeData.RootCoord + deliveryBox.ShapeData.MaxOffset;
-        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)];
+        Color color = Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, MaxColorIndex)];
 
         for (int x = minBoundCoord.x; x <= maxBoundCoord.x; x += length) {
             for (int y = minBoundCoord.y; y <= maxBoundCoord.y; y++) {
@@ -220,7 +220,7 @@ public class DeliveryManager : MonoBehaviour {
         // TEMP: allowing combine/slice until have a texture conveying that
         // List<ShapeTagID> shapeTags = new List<ShapeTagID> {ShapeTagID.NoCombine, ShapeTagID.NoSlice, ShapeTagID.NoPlaceInTrash};
         SO_Product productData = ProductFactory.Instance.CreateSOProduct(
-            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, maxColorIndex)],
+            Ledger.Instance.ColorPaletteData.Colors[Random.Range(0, MaxColorIndex)],
             Pattern.None, // TEMP: until implementing pattern
             shapeData
             // shapeTags
@@ -279,7 +279,7 @@ public class DeliveryManager : MonoBehaviour {
         
         SO_DeliveriesDifficultyTable.DeliveryDifficultyEntry deliveryDiffEntry = DifficultyManager.Instance.ApplyDeliveryDifficulty();
         
-        maxColorIndex = deliveryDiffEntry.maxColorIndex;
+        MaxColorIndex = deliveryDiffEntry.maxColorIndex;
         deliveriesPool = new List<GameObject>(deliveryDiffEntry.deliveriesPool);
         basicFirstDimensionMax = deliveryDiffEntry.basicFirstDimensionMax;
         basicSecondDimensionMax = deliveryDiffEntry.basicSecondDimensionMax;

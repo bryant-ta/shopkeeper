@@ -28,13 +28,19 @@ public class Order {
         OrderLayoutData = orderLayoutData;
         ShapeData = orderLayoutData.GetColorShapeData();
 
+        List<Color> shuffledColors = new();
+        for (int i = 0; i < Ref.DeliveryMngr.MaxColorIndex; i++) {
+            shuffledColors.Add(Ledger.Instance.ColorPaletteData.Colors[i]);
+        }
+        shuffledColors = Util.ShuffleList(shuffledColors);
+
         Dictionary<Vector3Int, int> d = orderLayoutData.GetTilesDict();
         GridColors = new();
         foreach (KeyValuePair<Vector3Int, int> kv in d) {
             if (kv.Value == 0) {
                 GridColors.Add(kv.Key, Ledger.Instance.WildColor);
             } else {
-                GridColors.Add(kv.Key, Ledger.Instance.ColorPaletteData.Colors[kv.Value - 1]);
+                GridColors.Add(kv.Key, shuffledColors[kv.Value - 1]);
             }
         }
 
@@ -99,6 +105,34 @@ public class Order {
             colors.Add(color);
         }
         return colors;
+    }
+
+    // Flood-fill algorithm to find coords of a color region (adjacent cells with the same color)
+    public HashSet<Vector3Int> IdentifyColorRegion(Vector3Int startCoord) {
+        if (!GridColors.ContainsKey(startCoord)) {
+            Debug.LogError("Unable to identify color region: start coordinate is outside grid.");
+            return null;
+        }
+
+        Color color = GridColors[startCoord];
+        HashSet<Vector3Int> region = new HashSet<Vector3Int>();
+        Queue<Vector3Int> queue = new Queue<Vector3Int>();
+
+        queue.Enqueue(startCoord);
+
+        while (queue.Count > 0) {
+            Vector3Int curCoord = queue.Dequeue();
+            if (region.Contains(curCoord)) continue;
+
+            if (GridColors.TryGetValue(curCoord, out Color currentColor) && currentColor == color) {
+                region.Add(curCoord);
+                for (int d = 0; d < 4; d++) {
+                    queue.Enqueue(curCoord + DirectionData.DirectionVectorsInt[d]);
+                }
+            }
+        }
+
+        return region;
     }
 
     public new string ToString() { return OrderLayoutData.name; }

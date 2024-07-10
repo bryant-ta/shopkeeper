@@ -63,7 +63,7 @@ public class Util : MonoBehaviour {
 
     public static bool IsSubsetOf(List<Vector3Int> subset, List<Vector3Int> superset) {
         if (subset.Count > superset.Count) return false;
-        
+
         HashSet<Vector3Int> supersetSet = new HashSet<Vector3Int>(superset);
         for (int i = 0; i < subset.Count; i++) {
             if (!supersetSet.Contains(subset[i])) {
@@ -71,6 +71,21 @@ public class Util : MonoBehaviour {
             }
         }
         return true;
+    }
+    
+    // Fisher-Yates Shuffle
+    public static List<T> ShuffleList<T>(List<T> input) {
+        List<T> shuffledList = new List<T>(input);
+        int n = shuffledList.Count;
+
+        for (int i = n - 1; i > 0; i--) {
+            int j = Random.Range(0, i + 1);
+            T temp = shuffledList[i];
+            shuffledList[i] = shuffledList[j];
+            shuffledList[j] = temp;
+        }
+
+        return shuffledList;
     }
 
     public class ValueRef<T> where T : struct {

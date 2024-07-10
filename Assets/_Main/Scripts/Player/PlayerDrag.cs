@@ -209,19 +209,19 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
 
         // For orders, check grid cell color
         // Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
-        if (targetGrid.CompareTag("Order")) {
-            Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
-            if (!orderer.CheckOrderInput(heldShapes, selectedCellCoord - selectedShapeCellOffset, out List<IGridShape> invalidShapes)) {
-                foreach (IGridShape invalidShape in invalidShapes) {
-                    foreach (IGridShape heldShape in heldShapes) {
-                        if (invalidShape == heldShape) {
-                            heldShape.SetOutline(selectedInvalidOutlineColor);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        // if (targetGrid.CompareTag("Order")) {
+        //     Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
+        //     if (!orderer.CheckOrderInput(heldShapes, selectedCellCoord - selectedShapeCellOffset, out List<IGridShape> invalidShapes)) {
+        //         foreach (IGridShape invalidShape in invalidShapes) {
+        //             foreach (IGridShape heldShape in heldShapes) {
+        //                 if (invalidShape == heldShape) {
+        //                     heldShape.SetOutline(selectedInvalidOutlineColor);
+        //                     break;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // Do drag movement
         // aligned cell coord to world position
@@ -326,7 +326,7 @@ public class PlayerDrag : MonoBehaviour, IPlayerTool {
         Vector3Int localCoord = Vector3Int.RoundToInt(targetGrid.transform.InverseTransformPoint(DragGrid.transform.position));
         if (targetGrid.CompareTag("Order")) {
             Orderer orderer = targetGrid.GetComponentInParent<Orderer>();
-            if (!orderer.CheckOrderInput(heldShapes, localCoord, out List<IGridShape> invalidShape)) {
+            if (!orderer.OrderInputPrecheck(heldShapes, localCoord, out List<IGridShape> invalidShape)) {
                 foreach (IGridShape shape in invalidShape) {
                     TweenManager.Shake(shape);
                 }

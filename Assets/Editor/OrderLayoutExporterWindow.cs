@@ -4,6 +4,7 @@ using UnityEngine;
 public class OrderLayoutExporterWindow : EditorWindow {
     OrderLayoutExporter orderLayoutExporter;
     string filePath = "Assets/_Main/Resources/OrderLayouts/";
+    int difficultyRating = 1;
 
     [MenuItem("Tools/Tilemap Exporter")]
     public static void ShowWindow() { GetWindow<OrderLayoutExporterWindow>("Tilemap Exporter"); }
@@ -17,7 +18,7 @@ public class OrderLayoutExporterWindow : EditorWindow {
 
         filePath = EditorGUILayout.TextField("File Path", filePath);
         
-        int difficultyRating = EditorGUILayout.IntField("Difficulty", 1);
+        difficultyRating = EditorGUILayout.IntField("Difficulty", difficultyRating);
 
         if (GUILayout.Button("Export Tilemap to ScriptableObject")) {
             if (orderLayoutExporter != null) {

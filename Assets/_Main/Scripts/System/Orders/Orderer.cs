@@ -27,6 +27,8 @@ public class Orderer : MonoBehaviour, IDocker {
 
     [SerializeField] GameObject gridCellObj;
 
+    [SerializeField] CellOutlineRenderer matchShapeVFX;
+
     public event Action<Order> OnOrderStarted;
     public event Action<Order> OnOrderFinished;
 
@@ -34,6 +36,7 @@ public class Orderer : MonoBehaviour, IDocker {
         Grid = gameObject.GetComponentInChildren<Grid>();
         Grid.IsLocked = true;
         Grid.OnPlaceShapes += DoFulfillOrder;
+        Grid.OnPlaceShapes += RenderMatchOutline;
         Grid.OnRemoveShapes += RemoveFromOrder;
 
         HoverEvent he = GetComponent<HoverEvent>();
@@ -93,7 +96,7 @@ public class Orderer : MonoBehaviour, IDocker {
         }
     }
 
-    public bool CheckOrderInput(List<IGridShape> shapes, Vector3Int coord, out List<IGridShape> invalidShapes) {
+    public bool OrderInputPrecheck(List<IGridShape> shapes, Vector3Int coord, out List<IGridShape> invalidShapes) {
         if (shapes == null || shapes.Count == 0) {
             Debug.LogError("Unable to check order input: shapes input is null or empty.");
             invalidShapes = null;
@@ -111,20 +114,44 @@ public class Orderer : MonoBehaviour, IDocker {
         if (invalidShapes.Count > 0) return false;
 
         // Check input shape offsets/colors at placed coords in orderer grid
-        List<Product> products = Util.GetProductsFromShapes(shapes);
-        foreach (Product product in products) {
-            foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
-                Vector3Int curCoord = coord + product.ShapeData.RootCoord + offset;
-                if (Order.GridColors.TryGetValue(curCoord, out Color color) &&
-                    (product.ID.Color == color || color == Ledger.Instance.WildColor)) {
-                    continue;
-                }
-                invalidShapes.Add(product);
-            }
-        }
-        if (invalidShapes.Count > 0) return false;
+        // List<Product> products = Util.GetProductsFromShapes(shapes);
+        // foreach (Product product in products) {
+        //     foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
+        //         Vector3Int curCoord = coord + product.ShapeData.RootCoord + offset;
+        //         if (Order.GridColors.TryGetValue(curCoord, out Color color) &&
+        //             (product.ID.Color == color || color == Ledger.Instance.WildColor)) {
+        //             continue;
+        //         }
+        //         invalidShapes.Add(product);
+        //     }
+        // }
+        // if (invalidShapes.Count > 0) return false;
 
         return true;
+    }
+
+    // called after product is in orderer grid
+    public bool CheckColorRegion(Product product) {
+        if (!Order.GridColors.TryGetValue(product.ShapeData.RootCoord, out Color color)) {
+            Debug.LogError("Order grid colors did not contain color at product location.");
+            return false;
+        }
+
+        if (product.ID.Color != color) {
+            return false;
+        }
+
+        HashSet<Vector3Int> colorRegion = Order.IdentifyColorRegion(product.ShapeData.RootCoord);
+        foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
+            Vector3Int curCoord = product.ShapeData.RootCoord + offset;
+            if (colorRegion.Contains(curCoord)) {
+                colorRegion.Remove(curCoord);
+            } else {
+                return false;
+            }
+        }
+        
+        return colorRegion.Count == 0;
     }
 
     public void OrderSucceeded() {
@@ -204,7 +231,7 @@ public class Orderer : MonoBehaviour, IDocker {
     #endregion
 
     #region Dock
-    
+
     public void OccupyDock(Dock dock) {
         AssignedDock = dock;
         AssignedDock.SetDocker(Docker);
@@ -247,6 +274,23 @@ public class Orderer : MonoBehaviour, IDocker {
 
             yield return null;
         }
+    }
+
+    #endregion
+
+    #region FX
+
+    void RenderMatchOutline(List<IGridShape> shapes) {
+        // Identify shape groups that match color/one shape
+        List<Vector3Int> matchShapeOffsets = new();
+        List<Product> products = Util.GetProductsFromShapes(shapes);
+        foreach (Product product in products) {
+            if (CheckColorRegion(product)) {
+                matchShapeOffsets.AddRange(product.ShapeData.ShapeOffsets.Select(offset => product.ShapeData.RootCoord + offset));
+            }
+        }
+
+        matchShapeVFX.Render(new ShapeData {RootCoord = Vector3Int.zero, ShapeOffsets = matchShapeOffsets});
     }
 
     #endregion
