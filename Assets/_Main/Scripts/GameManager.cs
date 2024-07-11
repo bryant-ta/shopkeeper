@@ -2,7 +2,6 @@ using System;
 using Timers;
 using TriInspector;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class GameManager : Singleton<GameManager> {
     // [field: Title("General")]
@@ -52,8 +51,14 @@ public class GameManager : Singleton<GameManager> {
     public event Action<DeltaArgs> OnModifyMoney;
 
     [Title("Score")]
-    [field:SerializeField] public int Score { get; private set; }
+    [field: SerializeField] public int Score { get; private set; }
+    [field: SerializeField] public int ScoreMult { get; private set; }
+    [SerializeField] int ScoreMultMax = 4;
+    [SerializeField] int ScoreMultThresholdDuration;
+    public CountdownTimer ScoreMultTimer { get; private set; }
+
     public event Action<DeltaArgs> OnModifyScore;
+    public event Action<DeltaArgs> OnModifyScoreMult;
 
     void Awake() {
         if (DebugManager.DebugMode) AwakeDebugTasks();
@@ -63,6 +68,9 @@ public class GameManager : Singleton<GameManager> {
 
         RunTimer = new CountdownTimer(runTimerMaxDur - 0.1f); // offset for showing time UI correctly
         RunTimer.EndEvent += Lose;
+
+        ScoreMultTimer = new CountdownTimer(ScoreMultThresholdDuration);
+        ScoreMultTimer.EndEvent += HandleScoreMultTimerEnd;
 
         SM_dayPhase = new StateMachine<DayPhase>(new DeliveryDayPhaseState());
         SM_dayPhase.OnStateExit += ExitStateTrigger;
@@ -125,6 +133,44 @@ public class GameManager : Singleton<GameManager> {
 
     #endregion
 
+    #region Score
+
+    /// <summary>
+    /// Applies delta to current score value. 
+    /// </summary>
+    /// <param name="delta">(+/-)</param>
+    public void ModifyScore(int delta) {
+        int newVal = Score + delta * ScoreMult;
+        if (newVal < 0) newVal = 0;
+
+        Score = newVal;
+        OnModifyScore?.Invoke(new DeltaArgs {NewValue = newVal, DeltaValue = delta});
+    }
+
+    public void ModifyGlobalScoreMult(int delta) {
+        int newVal = ScoreMult + delta;
+        if (newVal < 1) newVal = 1;
+        if (newVal > ScoreMultMax) newVal = ScoreMultMax;
+
+        ScoreMult = newVal;
+        if (ScoreMult > 1) {
+            ScoreMultTimer.Reset();
+            ScoreMultTimer.Start();
+        }
+        
+        OnModifyScoreMult?.Invoke(new DeltaArgs {NewValue = newVal, DeltaValue = delta});
+    }
+
+    void HandleScoreMultTimerEnd() {
+        ModifyGlobalScoreMult(-1);
+        if (ScoreMult > 1) {
+            ScoreMultTimer.Reset();
+            ScoreMultTimer.Start();
+        }
+    }
+
+    #endregion
+
     #region Control
 
     public void TogglePause() {
@@ -176,20 +222,6 @@ public class GameManager : Singleton<GameManager> {
 
         gold = newGold;
         OnModifyMoney?.Invoke(new DeltaArgs {NewValue = newGold, DeltaValue = delta});
-
-        return true;
-    }
-    
-    /// <summary>
-    /// Applies delta to current score value. 
-    /// </summary>
-    /// <param name="delta">(+/-)</param>
-    public bool ModifyScore(int delta) {
-        int newVal = Score + delta;
-        if (newVal < 0) return false;
-
-        Score = newVal;
-        OnModifyScore?.Invoke(new DeltaArgs {NewValue = newVal, DeltaValue = delta});
 
         return true;
     }

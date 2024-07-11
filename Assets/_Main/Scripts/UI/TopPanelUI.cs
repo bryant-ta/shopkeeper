@@ -14,6 +14,9 @@ public class TopPanelUI : MonoBehaviour {
     [SerializeField] [Required] TextMeshProUGUI ordersFulfilledText;
     
     [SerializeField] [Required] NumberCounter scoreCounter;
+    [SerializeField] [Required] GameObject scoreMultPanel;
+    [SerializeField] [Required] Image scoreMultFill;
+    [SerializeField] [Required] TextMeshProUGUI scoreMultText;
     
     [SerializeField] [Required] TextMeshProUGUI roundText;
 
@@ -31,6 +34,8 @@ public class TopPanelUI : MonoBehaviour {
         gameMngr.OnDayEnd += UpdateRoundText;
 
         gameMngr.OnModifyScore += UpdateScoreCounter;
+        gameMngr.OnModifyScoreMult += UpdateScoreMultText;
+        gameMngr.ScoreMultTimer.TickEvent += UpdateScoreMultFill;
         
         gameMngr.SM_dayPhase.OnStateEnter += EnterStateTrigger;
     }
@@ -66,6 +71,16 @@ public class TopPanelUI : MonoBehaviour {
     }
     
     void UpdateScoreCounter(DeltaArgs args) { scoreCounter.SetValue(args.NewValue); }
+    void ToggleScoreMultPanel(bool enable) { scoreMultPanel.gameObject.SetActive(enable); }
+    void UpdateScoreMultFill(float percent) { scoreMultFill.fillAmount = percent; }
+    void UpdateScoreMultText(DeltaArgs arg) {
+        if (arg.NewValue > 1) {
+            ToggleScoreMultPanel(true);
+        } else {
+            ToggleScoreMultPanel(false);
+        }
+        scoreMultText.text = arg.NewValue.ToString();
+    }
 
     void UpdateRoundText(int val) { roundText.text = $"Round {val}"; }
 }

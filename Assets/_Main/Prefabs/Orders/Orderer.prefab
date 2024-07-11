@@ -628,11 +628,11 @@ MonoBehaviour:
   matchRegionVFXDur: 3
   bonusTileChance: 1
   bonusTileDelay:
-    Min: 10
-    Max: 10
-  bonusTileDuration: 4
-  bonusTileMult: 2
-  bonusTileObj: {fileID: 7632758268349868958, guid: b653bb8cd9830d24c82d4669538dd604, type: 3}
+    Min: 1
+    Max: 1
+  bonusTileDuration: 20
+  bonusTileScoreObj: {fileID: 7632758268349868958, guid: b653bb8cd9830d24c82d4669538dd604, type: 3}
+  bonusTileTimeObj: {fileID: 7632758268349868958, guid: f93b2d844e66050439e9b7a5dc8c98ed, type: 3}
 --- !u!114 &7913404401031091869
 MonoBehaviour:
   m_ObjectHideFlags: 0

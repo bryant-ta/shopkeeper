@@ -36,8 +36,8 @@ public class Orderer : MonoBehaviour, IDocker {
     [SerializeField] [Range(0,1f)] float bonusTileChance;
     [SerializeField] MinMax bonusTileDelay;
     [SerializeField] float bonusTileDuration;
-    [SerializeField] float bonusTileMult;
-    [SerializeField] GameObject bonusTileObj;
+    [SerializeField] GameObject bonusTileScoreObj;
+    [SerializeField] GameObject bonusTileTimeObj;
     List<BonusTile> bonusTiles = new();
 
     public event Action<Order> OnOrderStarted;
@@ -91,8 +91,7 @@ public class Orderer : MonoBehaviour, IDocker {
                 foreach (Vector3Int offset in product.ShapeData.ShapeOffsets) {
                     foreach (BonusTile bonusTile in bonusTiles) {
                         if (bonusTile.Coord == product.ShapeData.RootCoord + offset) {
-                            // TODO: add global score mult or timer
-                            print("BNONUS");
+                            bonusTile.Execute();
                         }
                     }
                 }
@@ -265,9 +264,20 @@ public class Orderer : MonoBehaviour, IDocker {
         if (openCells.Count == 0) return;
 
         Vector3Int coord = Util.GetRandomFromList(openCells);
+        BonusTile.BonusTileType bonusTileType = (BonusTile.BonusTileType) Random.Range(0, 2);
 
-        BonusTile bonusTile = Instantiate(bonusTileObj, gridCellObjContainer).GetComponent<BonusTile>();
-        bonusTile.Init(coord, bonusTileDuration, bonusTileMult);
+        BonusTile bonusTile = null;
+        BonusTile.BonusTileType type = (BonusTile.BonusTileType) Random.Range(0, 2);
+        switch (type) {
+            case BonusTile.BonusTileType.Score:
+                bonusTile = Instantiate(bonusTileScoreObj, gridCellObjContainer).GetComponent<BonusTile>();
+                break;
+            case BonusTile.BonusTileType.Time:
+                bonusTile = Instantiate(bonusTileTimeObj, gridCellObjContainer).GetComponent<BonusTile>();
+                break;
+        }
+        
+        bonusTile.Init(coord, bonusTileDuration);
         bonusTile.OnDurationReached += RemoveBonusTile;
         bonusTiles.Add(bonusTile);
     }

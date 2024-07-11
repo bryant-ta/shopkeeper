@@ -6,10 +6,11 @@ using UnityEngine;
 
 [RequireComponent(typeof(CellOutlineRenderer))]
 public class BonusTile : MonoBehaviour {
+    [field: SerializeField] public BonusTileType Type { get; private set; }
     [field: SerializeField] public Vector3Int Coord { get; private set; }
+    [SerializeField] int value;
     [SerializeField] Color color;
     [SerializeField, ReadOnly] float duration;
-    [SerializeField, ReadOnly] float mult;
 
     CellOutlineRenderer cor;
 
@@ -21,10 +22,9 @@ public class BonusTile : MonoBehaviour {
         cor = GetComponent<CellOutlineRenderer>();
     }
 
-    public void Init(Vector3Int coord, float duration, float mult) {
+    public void Init(Vector3Int coord, float duration) {
         Coord = coord;
         this.duration = duration;
-        this.mult = mult;
 
         transform.localPosition = coord;
 
@@ -35,7 +35,23 @@ public class BonusTile : MonoBehaviour {
         cor.Render(new ShapeData{RootCoord = Vector3Int.zero, ShapeOffsets = new List<Vector3Int>{Vector3Int.zero}}, color);
     }
 
+    public void Execute() {
+        switch (Type) {
+            case BonusTileType.Score:
+                GameManager.Instance.ModifyGlobalScoreMult(value);
+                break;
+            case BonusTileType.Time:
+                GameManager.Instance.AddRunTime(value);
+                break;
+        }
+    }
+
     void TriggerEndOfLifetime() {
         OnDurationReached?.Invoke(this);
+    }
+
+    public enum BonusTileType {
+        Score = 0,
+        Time = 1,
     }
 }
