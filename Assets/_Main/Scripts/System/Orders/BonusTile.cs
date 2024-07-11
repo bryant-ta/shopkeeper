@@ -29,7 +29,9 @@ public class BonusTile : MonoBehaviour {
         transform.localPosition = coord;
 
         LifetimeTimer = new CountdownTimer(duration);
+        LifetimeTimer.TickEvent += cor.ScaleX;
         LifetimeTimer.EndEvent += TriggerEndOfLifetime;
+        
         LifetimeTimer.Start();
         
         cor.Render(new ShapeData{RootCoord = Vector3Int.zero, ShapeOffsets = new List<Vector3Int>{Vector3Int.zero}}, color);

@@ -59,6 +59,13 @@ public class CellOutlineRenderer : MonoBehaviour {
         }
     }
 
+    // NOTE: only use when rendering on 1x1
+    public void ScaleX(float val) {
+        foreach (GameObject o in cellOutlineWalls) {
+            o.transform.localScale = new Vector3(val, o.transform.localScale.y, o.transform.localScale.z);
+        }
+    }
+
     public void Clear() {
         for (int i = 0; i < cellOutlineWalls.Count; i++) {
             Destroy(cellOutlineWalls[i].gameObject);
